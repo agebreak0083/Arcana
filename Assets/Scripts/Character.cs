@@ -8,6 +8,10 @@ public class Character : MonoBehaviour
     Strategy currentStrategy; // 현재 사용 중인 작전
     List<StrategyAction> availableActions = new List<StrategyAction>();
     
+    [Header("HP Bar")]
+    public GameObject hpBarPrefab; // HP 바 프리팹
+    public Vector3 hpBarOffset = new Vector3(0, 2.5f, 0); // HP 바 위치 오프셋
+    private HPBar hpBar; // HP 바 인스턴스
     
     // 캐릭터 스탯 (예제)
     public float hp = 100f;
@@ -21,8 +25,20 @@ public class Character : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // HP 바 생성
+        CreateHPBar();
+        
         // 1초후 호출 하기        
         Invoke("SetStrategyName", 1f);
+    }
+    
+    void OnDestroy()
+    {
+        // 캐릭터가 파괴될 때 HP 바도 제거
+        if (hpBar != null)
+        {
+            Destroy(hpBar.gameObject);
+        }
     }
 
     // Update is called once per frame
@@ -107,5 +123,67 @@ public class Character : MonoBehaviour
         }
         
         return true; // 기본값
+    }
+    
+    // HP 바 생성
+    private void CreateHPBar()
+    {
+        if (hpBarPrefab != null)
+        {
+            GameObject hpBarObj = Instantiate(hpBarPrefab);
+            hpBarObj.transform.SetParent(transform);
+            
+            hpBar = hpBarObj.GetComponent<HPBar>();
+            
+            if (hpBar != null)
+            {
+                hpBar.Initialize(transform, maxHp, hp);
+                hpBar.SetOffset(hpBarOffset);
+            }
+        }
+    }
+    
+    // HP 변경
+    public void TakeDamage(float damage)
+    {
+        hp = Mathf.Max(0, hp - damage);
+        UpdateHPBar();
+        
+        if (hp <= 0)
+        {
+            OnDeath();
+        }
+    }
+    
+    // HP 회복
+    public void Heal(float amount)
+    {
+        hp = Mathf.Min(maxHp, hp + amount);
+        UpdateHPBar();
+    }
+    
+    // HP 바 업데이트
+    private void UpdateHPBar()
+    {
+        if (hpBar != null)
+        {
+            hpBar.UpdateHP(hp, maxHp);
+        }
+    }
+    
+    // 사망 처리
+    private void OnDeath()
+    {
+        Debug.Log($"{characterName}이(가) 사망했습니다.");
+        // TODO: 사망 애니메이션 및 처리
+    }
+    
+    // HP 바 표시/숨김
+    public void ShowHPBar(bool show)
+    {
+        if (hpBar != null)
+        {
+            hpBar.Show(show);
+        }
     }
 }

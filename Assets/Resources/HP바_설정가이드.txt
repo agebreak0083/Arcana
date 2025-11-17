@@ -1,0 +1,122 @@
+========================================
+HP 바 설정 가이드
+========================================
+
+## 1. HP 바 프리팹 생성 방법
+
+### A. Canvas 생성 (World Space)
+1. Hierarchy에서 우클릭 > UI > Canvas
+2. Canvas 이름을 "HPBarCanvas"로 변경
+3. Inspector에서 Canvas 컴포넌트 설정:
+   - Render Mode: World Space
+   - Width: 200
+   - Height: 50
+   - Scale: 0.01 (모든 축에 적용)
+
+### B. Slider 추가 (HP 바)
+1. HPBarCanvas 하위에 우클릭 > UI > Slider
+2. Slider 이름을 "HPBarSlider"로 변경
+3. Rect Transform 설정:
+   - Anchor: Center
+   - Pos X: 0, Pos Y: 0
+   - Width: 180, Height: 20
+
+### C. Slider 스타일 설정
+1. Background (Slider 하위):
+   - Color: 어두운 회색 (예: RGB 50, 50, 50)
+
+2. Fill Area > Fill (Slider 하위):
+   - Color: 녹색 (HP Bar 스크립트가 자동으로 변경)
+   - Image Type: Filled (옵션)
+
+3. Handle Slide Area 삭제:
+   - Handle Slide Area 오브젝트를 삭제 (필요 없음)
+
+4. Fill Area 패딩 제거 (중요!):
+   ⚠️ 이 단계는 HPBar 스크립트가 자동으로 처리하지만, 
+   수동으로도 설정 가능합니다:
+   - Fill Area 선택
+   - Rect Transform에서:
+     * Left: 0
+     * Right: 0
+     * Top: 0
+     * Bottom: 0
+   ※ 이렇게 하면 슬라이더가 100%일 때 전체 영역을 채웁니다.
+
+### D. HPBar 스크립트 추가
+1. HPBarCanvas에 HPBar.cs 스크립트 추가
+2. Inspector에서 설정:
+   - HP Slider: HPBarSlider 드래그
+   - Fill Image: Fill Area > Fill의 Image 컴포넌트 드래그
+   - Offset: (0, 2.5, 0) - 캐릭터 머리 위 높이
+   - High Health Color: 녹색
+   - Mid Health Color: 노란색
+   - Low Health Color: 빨간색
+   - Smooth Transition: 체크
+   - Smooth Speed: 5
+
+### E. 프리팹으로 저장
+1. HPBarCanvas를 Project 창의 Prefabs 폴더로 드래그
+2. 프리팹 이름: "HPBarPrefab"
+
+
+## 2. 캐릭터에 HP 바 연결
+
+1. 캐릭터 오브젝트 선택
+2. Character 컴포넌트 설정:
+   - HP Bar Prefab: 위에서 만든 HPBarPrefab 드래그
+   - HP Bar Offset: (0, 2.5, 0) - 캐릭터 크기에 맞게 조정
+
+3. 게임 실행 시 자동으로 HP 바가 생성됩니다.
+
+
+## 3. HP 바 사용법
+
+### HP 감소
+```csharp
+character.TakeDamage(20f);
+```
+
+### HP 회복
+```csharp
+character.Heal(30f);
+```
+
+### HP 바 표시/숨김
+```csharp
+character.ShowHPBar(true);  // 표시
+character.ShowHPBar(false); // 숨김
+```
+
+
+## 4. 색상 변화 규칙
+
+- HP > 60%: 녹색 (건강)
+- HP 30% ~ 60%: 노란색으로 서서히 변화 (주의)
+- HP < 30%: 빨간색 (위험)
+
+
+## 5. 커스터마이징
+
+### 색상 변경
+HPBar 스크립트의 Inspector에서 색상 값 변경
+
+### 위치 조정
+Character 컴포넌트의 HP Bar Offset 값 조정
+
+### 크기 조정
+HPBarCanvas의 Scale 값 조정 (기본: 0.01)
+
+### 애니메이션 속도
+HPBar 스크립트의 Smooth Speed 값 조정
+
+
+## 6. 주의사항
+
+- Canvas는 반드시 World Space 모드로 설정
+- Camera가 씬에 존재해야 빌보드 효과 작동
+- HP 바는 캐릭터 Start()에서 자동 생성
+- 캐릭터 파괴 시 HP 바도 자동 제거
+
+========================================
+

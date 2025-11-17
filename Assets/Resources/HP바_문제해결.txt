@@ -1,0 +1,155 @@
+========================================
+HP 바 문제 해결 가이드
+========================================
+
+## 문제 1: 슬라이더가 100%인데 오른쪽이 비어있음
+🔍 증상: HP가 최대인데도 HP 바가 완전히 차지 않고 오른쪽에 빈 공간이 있음
+
+✅ 원인:
+- Unity Slider의 Fill Area에 Handle을 위한 패딩이 남아있음
+- Handle Slide Area를 삭제했지만 Fill Area의 여백은 그대로 남음
+
+✅ 해결 방법 (자동):
+- HPBar.cs 스크립트가 Start()에서 자동으로 패딩을 제거합니다
+- 프리팹을 다시 만들거나 기존 HP 바를 삭제하고 재생성하세요
+
+✅ 해결 방법 (수동):
+1. Hierarchy에서 HP Bar의 "Fill Area" 선택
+2. Inspector > Rect Transform에서:
+   - Left: 0
+   - Right: 0  
+   - Top: 0
+   - Bottom: 0
+3. 또는 Anchor Preset에서 "Stretch" 선택 후 모든 값 0으로
+
+
+## 문제 2: HP 바가 캐릭터를 따라가지 않음
+🔍 증상: HP 바가 고정된 위치에 있고 캐릭터를 따라다니지 않음
+
+✅ 원인:
+- targetCharacter가 설정되지 않음
+- Initialize 메서드가 호출되지 않음
+
+✅ 해결 방법:
+1. Character.cs의 CreateHPBar()가 호출되는지 확인
+2. hpBarPrefab이 Inspector에 제대로 할당되었는지 확인
+3. 콘솔에서 에러 메시지 확인
+
+
+## 문제 3: HP 바가 카메라를 향하지 않음 (빌보드 효과 없음)
+🔍 증상: HP 바가 캐릭터 방향을 따라 회전함
+
+✅ 원인:
+- Main Camera가 씬에 없음
+- Camera.main이 null
+
+✅ 해결 방법:
+1. 씬에 "MainCamera" 태그가 있는 카메라 추가
+2. 기존 카메라에 "MainCamera" 태그 설정
+
+
+## 문제 4: HP 바가 보이지 않음
+🔍 증상: HP 바가 전혀 보이지 않음
+
+✅ 체크리스트:
+1. Canvas의 Render Mode가 "World Space"인지 확인
+2. Canvas의 Scale이 너무 작지 않은지 확인 (권장: 0.01)
+3. hpBarOffset이 적절한지 확인 (캐릭터 높이에 맞게)
+4. Camera가 HP 바를 볼 수 있는 위치에 있는지 확인
+5. HP 바 Layer가 카메라의 Culling Mask에 포함되어 있는지 확인
+
+
+## 문제 5: HP 바 색상이 변하지 않음
+🔍 증상: HP가 줄어도 항상 같은 색상
+
+✅ 원인:
+- fillImage가 제대로 할당되지 않음
+
+✅ 해결 방법:
+1. HPBar 컴포넌트 Inspector 확인
+2. Fill Image에 Slider의 Fill > Image 컴포넌트 드래그
+3. 자동 할당되지 않으면 수동으로 할당
+
+
+## 문제 6: HP 바가 너무 크거나 작음
+🔍 증상: HP 바 크기가 적절하지 않음
+
+✅ 해결 방법:
+1. Canvas의 Scale 조정:
+   - 더 크게: 0.015 ~ 0.02
+   - 더 작게: 0.005 ~ 0.008
+   
+2. Slider의 Width/Height 조정:
+   - Width: 150 ~ 250
+   - Height: 15 ~ 30
+
+
+## 문제 7: HP 변화가 너무 느리거나 빠름
+🔍 증상: HP 바의 애니메이션 속도가 적절하지 않음
+
+✅ 해결 방법:
+HPBar 컴포넌트 Inspector에서:
+- Smooth Speed 조정 (기본값: 5)
+  * 더 빠르게: 8 ~ 15
+  * 더 느리게: 2 ~ 4
+- 애니메이션 없이 즉시 변경: Smooth Transition 체크 해제
+
+
+## 문제 8: HP 바가 여러 개 생성됨
+🔍 증상: 한 캐릭터에 HP 바가 중복 생성됨
+
+✅ 원인:
+- Start()가 여러 번 호출됨
+- Character가 Reload/Respawn될 때 HP 바가 재생성됨
+
+✅ 해결 방법:
+Character.cs의 CreateHPBar()에서:
+```csharp
+private void CreateHPBar()
+{
+    // 이미 HP 바가 있으면 생성하지 않음
+    if (hpBar != null) return;
+    
+    if (hpBarPrefab != null)
+    {
+        // ... 기존 코드
+    }
+}
+```
+
+
+## 문제 9: HP 바가 지형을 통과해서 보임
+🔍 증상: 벽이나 지형 뒤에 있어도 HP 바가 보임
+
+✅ 이것은 정상입니다:
+- World Space UI는 기본적으로 항상 렌더링됩니다
+- 가림 효과를 원하면 별도의 처리 필요
+
+✅ 해결 방법 (고급):
+1. Raycast로 카메라와 캐릭터 사이에 장애물 체크
+2. 장애물이 있으면 HP 바 투명도 조절 또는 숨김
+3. HPBar.cs의 LateUpdate()에서 처리
+
+
+## 문제 10: 빌드 후 HP 바가 안 보임
+🔍 증상: 에디터에서는 보이는데 빌드하면 안 보임
+
+✅ 체크리스트:
+1. HP 바 프리팹이 Resources 폴더나 씬에 포함되어 있는지 확인
+2. Canvas와 Slider가 빌드에서 제외되지 않았는지 확인
+3. 필요한 Shader가 빌드에 포함되어 있는지 확인
+
+
+## 추가 팁
+
+### 최적화
+- HP 바가 많을 경우 Object Pooling 사용 고려
+- LateUpdate() 대신 코루틴 사용으로 업데이트 빈도 조절
+
+### 디자인
+- HP 바 외곽선 추가: Slider에 Outline 컴포넌트 추가
+- 애니메이션 효과: DOTween 같은 트윈 라이브러리 사용
+- 데미지 텍스트: HP 바 위에 데미지 수치 표시
+
+========================================
+

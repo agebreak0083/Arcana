@@ -28,10 +28,10 @@ public class StrategyManager : MonoBehaviour
             Debug.Log($"작전 데이터 로드 완료: {strategyCollection.strategies.Count}개의 작전");
             
             // 로드된 작전 정보 출력
-            foreach (Strategy strategy in strategyCollection.strategies)
-            {
-                Debug.Log($"작전명: {strategy.name}, 액션 수: {strategy.actions.Count}");
-            }
+            // foreach (Strategy strategy in strategyCollection.strategies)
+            // {
+            //     Debug.Log($"작전명: {strategy.name}, 액션 수: {strategy.actions.Count}");
+            // }
         }
         else
         {
