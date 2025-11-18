@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,16 +27,16 @@ public class Character : MonoBehaviour
     public float magicPower = 50f;   // 마법 공격력
     public float defense = 30f;      // 방어력
     public float speed = 100f;    
-    public int actionPoint = 3;      // 행동 포인트 (0이면 행동 불가)
+    public int actionPoint = 2;      // 행동 포인트 (0이면 행동 불가)
+    public int passivePoint = 2;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         // HP 바 생성
-        CreateHPBar();
+        CreateHPBar();        
         
-        // 1초후 호출 하기        
-        Invoke("SetStrategyName", 1f);
+        SetStrategyName();
     }
     
     void OnDestroy()
@@ -77,22 +78,27 @@ public class Character : MonoBehaviour
     public StrategyAction RunAction()
     {
         if (currentStrategy == null) return null;
-        if (actionPoint <= 0) return null;
+        if (actionPoint <= 0) return null;  
         
         // 우선순위가 높은 순서대로 조건을 확인하여 실행할 액션 결정
         for(int i = 0; i < availableActions.Count; i++)
         {
             if (CheckConditions(availableActions[i]))
             {
-                actionPoint--; 
-
-                Debug.Log($"{characterName}이(가) {availableActions[i].action}을(를) 실행했습니다.");
-
-                // 자신의 액션이 끝났음을 BattleManager에 알린다.
-                BattleManager.Instance.OnCharacterActionFinished(this);
-
-                return availableActions[i];
-            }
+                StrategyAction strategyAction = availableActions[i];
+                Action action = ActionManager.Instance.GetActionByName(strategyAction.action);
+                if (action == null)
+                {
+                    Debug.Log($"{characterName}이(가) {strategyAction.action}을(를) 실행할 수 없습니다.");
+                    return null;
+                }
+                else
+                {
+                    Debug.Log($"{characterName}이(가) {action.name}을(를) 실행했습니다.");
+                    UseSkill(action.id, null);
+                    return strategyAction;
+                }
+            }            
         }
 
         Debug.Log($"{characterName}이(가) 행동할 수 없습니다.");
@@ -206,79 +212,67 @@ public class Character : MonoBehaviour
             Debug.LogWarning($"스킬 ID '{skillId}'를 찾을 수 없습니다.");
             return;
         }
-        
-        // 스킬 사용 가능 여부 확인
-        if (!ActionManager.Instance.CanUseAction(skill, this))
+
+        actionPoint -= skill.costAP;     
+        passivePoint -= skill.costPP; 
+
+        if(skill.animation != "")
         {
-            return;
+            Animator animator = GetComponent<Animator>();
+            if (animator != null)
+            {
+                // 코루틴으로 애니메이션 종료 대기
+                StartCoroutine(PlayAnimationAndWait(animator, skill, target));
+                return;
+            }
         }
+        
+        // 애니메이션이 없으면 바로 스킬 효과 적용
+        OnSkillAnimationComplete(skill, target);
+    }
+    
+    // 애니메이션 재생 후 대기하는 코루틴
+    private IEnumerator PlayAnimationAndWait(Animator animator, Action skill, Character target)
+    {
+        // 애니메이션 재생 (normalizedTime = 0으로 설정하여 처음부터 강제 재생)
+        // 동일 애니메이션을 연속 재생할 때도 정상 작동
+        animator.Play(skill.animation, 0, 0f);
+        Debug.Log($"{characterName}: 애니메이션 '{skill.animation}' 재생 시작");
+        
+        // 한 프레임 대기 (애니메이션 시작 대기)
+        yield return null;
+        
+        // 현재 애니메이션 상태 정보 가져오기
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        
+        // 애니메이션 길이만큼 대기
+        float animationLength = stateInfo.length;
+        yield return new WaitForSeconds(animationLength);
+        
+        // 애니메이션 종료 후 실행
+        OnSkillAnimationComplete(skill, target);
+    }
+    
+    // 애니메이션 완료 후 호출되는 함수
+    private void OnSkillAnimationComplete(Action skill, Character target)
+    {
+        Debug.Log($"{characterName}: {skill.name} 애니메이션 완료!");
         
         // 스킬 효과 적용
         ActionManager.Instance.ApplyActionEffects(skill, this, target);
-    }
-    
-    // 스킬 사용 (이름으로)
-    public void UseSkillByName(string skillName, Character target)
-    {
-        if (ActionManager.Instance == null) return;
         
-        Action skill = ActionManager.Instance.GetActionByName(skillName);
-        if (skill != null)
+        // BattleManager에 액션 완료 알림
+        if (BattleManager.Instance != null)
         {
-            UseSkill(skill.id, target);
-        }
-        else
-        {
-            Debug.LogWarning($"스킬을 찾을 수 없습니다: {skillName}");
+            BattleManager.Instance.OnCharacterActionFinished(this);
         }
     }
-    
-    // 모든 스킬 가져오기
-    public List<Action> GetAllSkills()
-    {
-        if (ActionManager.Instance == null) return new List<Action>();
-        return ActionManager.Instance.GetAllActions();
-    }
-    
-    // 액티브 스킬만 가져오기
-    public List<Action> GetActiveSkills()
-    {
-        if (ActionManager.Instance == null) return new List<Action>();
-        return ActionManager.Instance.GetActionsByType("active");
-    }
-    
-    // 패시브 스킬만 가져오기
-    public List<Action> GetPassiveSkills()
-    {
-        if (ActionManager.Instance == null) return new List<Action>();
-        return ActionManager.Instance.GetActionsByType("passive");
-    }
-    
+ 
     // PP 회복
     public void RestorePP(int amount)
     {
         pp = Mathf.Min(maxPP, pp + amount);
         Debug.Log($"{characterName}의 PP +{amount} (현재: {pp}/{maxPP})");
-    }
+    }    
     
-    // 레벨업
-    public void LevelUp()
-    {
-        level++;
-        
-        // 스탯 증가
-        maxHp += 10;
-        hp = maxHp;
-        maxMp += 5;
-        mp = maxMp;
-        maxPP += 1;
-        pp = maxPP;
-        attackPower += 5;
-        magicPower += 5;
-        defense += 3;
-        
-        UpdateHPBar();
-        
-        Debug.Log($"{characterName}이(가) 레벨 {level}이 되었습니다!");
-    }
 }

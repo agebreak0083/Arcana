@@ -11,7 +11,7 @@
       "description": "적 하나를 공격한다. 자신의 물리 방어력 +20%",
       "target": "single_enemy",
       "buttonType": "attack",
-      "animation": "",
+      "animation": "Salute",
       "costAP": 1,
       "costPP": 0,
       "effects": [

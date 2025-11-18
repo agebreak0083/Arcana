@@ -34,13 +34,7 @@ public class ActionManager : MonoBehaviour
         if (jsonFile != null)
         {
             actionCollection = JsonUtility.FromJson<ActionCollection>(jsonFile.text);
-            Debug.Log($"스킬 데이터 로드 완료: {actionCollection.actions.Count}개의 스킬");
-            
-            // 로드된 스킬 정보 출력
-            foreach (Action action in actionCollection.actions)
-            {
-                Debug.Log($"{action.name} ({action.type}) - AP:{action.costAP} PP:{action.costPP}");
-            }
+            Debug.Log($"스킬 데이터 로드 완료: {actionCollection.actions.Count}개의 스킬");            
         }
         else
         {
@@ -108,44 +102,14 @@ public class ActionManager : MonoBehaviour
     // 스킬 효과 적용 (예제)
     public void ApplyActionEffects(Action action, Character user, Character target)
     {
-        if (action == null || user == null) return;
-        
-        Debug.Log($"{user.characterName}이(가) [{action.name}]을(를) 사용했습니다!");
-        
-        // 애니메이션 재생
-        PlaySkillAnimation(user, action);
-        
-        // 리소스 소모 (액티브 스킬)
-        if (action.type == "active")
-        {
-            // AP 소모는 Character 클래스에서 처리하므로 여기서는 PP만 소모
-            user.pp -= action.costPP;
-        }
+        if (action == null || user == null) return;                
         
         // 각 효과 적용
         foreach (ActionEffect effect in action.effects)
         {
             ApplyEffect(effect, user, target, action);
         }
-    }
-    
-    // 스킬 애니메이션 재생
-    private void PlaySkillAnimation(Character character, Action action)
-    {
-        if (string.IsNullOrEmpty(action.animation)) return;
-        
-        // 캐릭터의 Animator 컴포넌트 가져오기
-        Animator animator = character.GetComponent<Animator>();
-        if (animator != null)
-        {
-            animator.Play(action.animation);
-            Debug.Log($"{character.characterName}: 애니메이션 '{action.animation}' 재생");
-        }
-        else
-        {
-            Debug.LogWarning($"{character.characterName}에 Animator 컴포넌트가 없습니다.");
-        }
-    }
+    }    
     
     // 개별 효과 적용
     private void ApplyEffect(ActionEffect effect, Character user, Character target, Action action)

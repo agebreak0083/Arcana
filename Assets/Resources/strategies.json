@@ -48,7 +48,7 @@
       "actions": [
         {
           "priority": 1,
-          "action": "방어",
+          "action": "가드 슬래시",
           "condition1": "아군 HP < 50%",
           "condition2": "적 공격력 > 100"
         },
@@ -112,7 +112,7 @@
       "actions": [
         {
           "priority": 1,
-          "action": "아군 회복",
+          "action": "가드 슬래시",
           "condition1": "아군 HP < 50%",
           "condition2": "MP > 25"
         },
