@@ -170,7 +170,7 @@ public class ActionManager : MonoBehaviour
         // 방어력 반영 (간단한 계산)
         // TODO: 실제 게임에 맞는 데미지 공식 적용
         
-        return damage;
+        return 50f;
     }
     
     // 스킬 정보 문자열로 반환

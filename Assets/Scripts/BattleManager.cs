@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,10 +9,15 @@ public class BattleManager : MonoBehaviour
     public Character[] playerCharacters;
     public Character[] enemyCharacters;
     List<Character> charactersTurnList = new List<Character>();
+    List<Character> waitingCharacters = new List<Character>();
     int currentIndex = 0;
     private StrategyManager strategyManager;
     private ActionManager actionManager;
     private bool isWaitingForActionComplete = false;
+    
+    [Header("Battle Progress")]
+    public int currentRound = 1;   // 현재 라운드
+    public int currentTurn = 0;    // 현재 턴 (한 캐릭터가 행동할 때마다 증가)
 
     public static BattleManager Instance { get; private set; }
 
@@ -85,8 +91,13 @@ public class BattleManager : MonoBehaviour
     public void OnCharacterActionFinished(Character character)
     {
         Debug.Log($"{character.characterName}의 행동이 완료되었습니다.");
-        // 대기 플래그 해제하여 다음 턴으로 진행
-        isWaitingForActionComplete = false;
+
+        waitingCharacters.Remove(character);
+        if(waitingCharacters.Count == 0)
+        {
+            // 대기중인 캐릭터가 없으면 다음턴 진행
+            isWaitingForActionComplete = false;
+        }
     }
     
     // 캐릭터들의 턴을 진행한다. (코루틴)
@@ -94,7 +105,8 @@ public class BattleManager : MonoBehaviour
     // 각 캐릭터는 OnCharacterActionFinished()가 호출될 때까지 대기
     private IEnumerator ProcessCharactersTurn()
     {
-        Debug.Log("=== 라운드 시작 ===");
+        Debug.Log($"=== 라운드 {currentRound} 시작 ===");
+        UpdateBattleUI();
         
         while (true)
         {
@@ -111,7 +123,11 @@ public class BattleManager : MonoBehaviour
                     continue;
                 }
 
-                Debug.Log($"--- {character.characterName}의 턴 ---");
+                // 턴 증가
+                currentTurn++;
+                UpdateBattleUI();
+                
+                Debug.Log($"--- {character.characterName}의 턴 (Round {currentRound} - Turn {currentTurn}) ---");
 
                 // 캐릭터 행동 실행
                 StrategyAction action = character.RunAction();
@@ -125,11 +141,7 @@ public class BattleManager : MonoBehaviour
                     yield return new WaitUntil(() => !isWaitingForActionComplete);
                     
                     break; // 한 캐릭터가 행동하면 다음 루프로
-                }
-                else
-                {
-                    Debug.Log($"{character.characterName}은(는) 행동할 수 없습니다.");
-                }
+                }                
             }
 
             // 모든 캐릭터가 행동할 수 없으면 라운드 종료
@@ -150,6 +162,60 @@ public class BattleManager : MonoBehaviour
         // 예: 다음 라운드 시작, 게임 종료 체크 등
         
         // 다음 라운드 시작 (테스트용)
+        // currentRound++;
+        // currentTurn = 0;
         // StartCoroutine(ProcessCharactersTurn());
+    }
+    
+    // UI 업데이트
+    private void UpdateBattleUI()
+    {
+        if (BattleUI.Instance != null)
+        {
+            BattleUI.Instance.UpdateRoundTurnText(currentRound, currentTurn);
+        }
+    }
+    
+    // 스킬 이름 표시
+    public void ShowSkillName(string skillName)
+    {
+        if (BattleUI.Instance != null)
+        {
+            BattleUI.Instance.ShowSkillName(skillName);
+        }
+    }
+
+    public Character GetDefaultTarget(Character attacker)
+    {
+        Character[] targetCharacters = null;
+        if(Array.Find(playerCharacters, c => c == attacker) != null)
+        {
+            targetCharacters = enemyCharacters;
+        }
+        else
+        {
+            targetCharacters = playerCharacters;
+        }
+
+        int targetPosition = ((attacker.position - 1) % 3) + 1; 
+
+        // 1. 자신의 앞에 있는 적을 찾는다.
+        Character target = Array.Find(targetCharacters, c => c.position == targetPosition);
+
+        // 2. 자신의 앞에 적이 없으면 가장 position이 낮은 적을 찾는다.
+        if(target == null)
+        {
+            target = Array.Find(targetCharacters, c => c != null);
+        }
+
+        Debug.Log($"{attacker.characterName}의 기본 타겟: {target.characterName}");
+
+        return target;
+    }
+
+
+    public void AddWaitFinished(Character character)
+    {
+        waitingCharacters.Add(character);
     }
 }

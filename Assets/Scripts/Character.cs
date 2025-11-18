@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,7 @@ public class Character : MonoBehaviour
     public string strategyName = "공격형 작전";
     Strategy currentStrategy; // 현재 사용 중인 작전
     List<StrategyAction> availableActions = new List<StrategyAction>();
+    public int position = 1;
     
     [Header("HP Bar")]
     public GameObject hpBarPrefab; // HP 바 프리팹
@@ -83,7 +85,8 @@ public class Character : MonoBehaviour
         // 우선순위가 높은 순서대로 조건을 확인하여 실행할 액션 결정
         for(int i = 0; i < availableActions.Count; i++)
         {
-            if (CheckConditions(availableActions[i]))
+            Character target = CheckConditions(availableActions[i]);  
+            if (target != null)
             {
                 StrategyAction strategyAction = availableActions[i];
                 Action action = ActionManager.Instance.GetActionByName(strategyAction.action);
@@ -95,7 +98,7 @@ public class Character : MonoBehaviour
                 else
                 {
                     Debug.Log($"{characterName}이(가) {action.name}을(를) 실행했습니다.");
-                    UseSkill(action.id, null);
+                    UseSkill(action.id, target);
                     return strategyAction;
                 }
             }            
@@ -105,8 +108,8 @@ public class Character : MonoBehaviour
         return null;
     }
     
-    // 조건 확인 (예제)
-    private bool CheckConditions(StrategyAction action)
+    // 조건 확인. 조건에 맞는 타겟을 반환한다. 없으면 null을 반환한다.
+    private Character CheckConditions(StrategyAction action)
     {
         // TODO: 실제 게임 로직에 맞게 조건을 확인하는 코드 구현
         // 예: HP 비율, MP, 적의 상태 등을 확인
@@ -116,7 +119,14 @@ public class Character : MonoBehaviour
 
         //Debug.Log($"{characterName}의 조건 확인: {action.action}, condition1Met: {condition1Met}, condition2Met: {condition2Met}");
         
-        return condition1Met && condition2Met;
+        if(condition1Met && condition2Met)
+        {
+            return BattleManager.Instance.GetDefaultTarget(this);   
+        }
+        else
+        {
+            return null;
+        }
     }
     
     // 개별 조건 평가 (예제)
@@ -158,6 +168,9 @@ public class Character : MonoBehaviour
     // HP 변경
     public void TakeDamage(float damage)
     {
+        Animator animator = GetComponent<Animator>();        
+        StartCoroutine(PlayAnimationAndWait(animator, "Damaged@loop"));
+
         hp = Mathf.Max(0, hp - damage);
         UpdateHPBar();
         
@@ -215,6 +228,11 @@ public class Character : MonoBehaviour
 
         actionPoint -= skill.costAP;     
         passivePoint -= skill.costPP; 
+        BattleManager.Instance.AddWaitFinished(this); 
+        BattleManager.Instance.AddWaitFinished(target);
+        
+        // UI에 스킬 이름 표시
+        BattleManager.Instance.ShowSkillName(skill.name);
 
         if(skill.animation != "")
         {
@@ -222,7 +240,7 @@ public class Character : MonoBehaviour
             if (animator != null)
             {
                 // 코루틴으로 애니메이션 종료 대기
-                StartCoroutine(PlayAnimationAndWait(animator, skill, target));
+                StartCoroutine(PlaySkillAnimationAndWait(animator, skill, target));
                 return;
             }
         }
@@ -232,7 +250,7 @@ public class Character : MonoBehaviour
     }
     
     // 애니메이션 재생 후 대기하는 코루틴
-    private IEnumerator PlayAnimationAndWait(Animator animator, Action skill, Character target)
+    private IEnumerator PlaySkillAnimationAndWait(Animator animator, Action skill, Character target)
     {
         // 애니메이션 재생 (normalizedTime = 0으로 설정하여 처음부터 강제 재생)
         // 동일 애니메이션을 연속 재생할 때도 정상 작동
@@ -261,6 +279,29 @@ public class Character : MonoBehaviour
         // 스킬 효과 적용
         ActionManager.Instance.ApplyActionEffects(skill, this, target);
         
+        // BattleManager에 액션 완료 알림
+        if (BattleManager.Instance != null)
+        {
+            BattleManager.Instance.OnCharacterActionFinished(this);
+        }
+    }
+
+    private IEnumerator PlayAnimationAndWait(Animator animator, String animationName)
+    {
+        // 애니메이션 재생 (normalizedTime = 0으로 설정하여 처음부터 강제 재생)
+        // 동일 애니메이션을 연속 재생할 때도 정상 작동
+        animator.Play(animationName, 0, 0f);
+        
+        // 한 프레임 대기 (애니메이션 시작 대기)
+        yield return null;
+        
+        // 현재 애니메이션 상태 정보 가져오기
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        
+        // 애니메이션 길이만큼 대기
+        float animationLength = stateInfo.length;
+        yield return new WaitForSeconds(animationLength);       
+
         // BattleManager에 액션 완료 알림
         if (BattleManager.Instance != null)
         {
