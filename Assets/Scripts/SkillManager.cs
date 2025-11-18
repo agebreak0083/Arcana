@@ -2,14 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 스킬(액션) 데이터를 로드하고 관리하는 매니저
+/// 스킬 데이터를 로드하고 관리하는 매니저
 /// </summary>
 [DefaultExecutionOrder(-100)]
-public class ActionManager : MonoBehaviour
+public class SkillManager : MonoBehaviour
 {
-    private ActionCollection actionCollection;
+    private SkillCollection skillCollection;
     
-    public static ActionManager Instance { get; private set; }
+    public static SkillManager Instance { get; private set; }
     
     void Awake()
     {
@@ -24,102 +24,102 @@ public class ActionManager : MonoBehaviour
             return;
         }
         
-        LoadActions();
+        LoadSkills();
     }
     
     // Json 파일에서 스킬 데이터 로드
-    public void LoadActions()
+    public void LoadSkills()
     {
-        TextAsset jsonFile = Resources.Load<TextAsset>("Actions");
+        TextAsset jsonFile = Resources.Load<TextAsset>("Skills");
         if (jsonFile != null)
         {
-            actionCollection = JsonUtility.FromJson<ActionCollection>(jsonFile.text);
-            Debug.Log($"스킬 데이터 로드 완료: {actionCollection.actions.Count}개의 스킬");            
+            skillCollection = JsonUtility.FromJson<SkillCollection>(jsonFile.text);
+            Debug.Log($"스킬 데이터 로드 완료: {skillCollection.skills.Count}개의 스킬");            
         }
         else
         {
-            Debug.LogError("Actions.json 파일을 찾을 수 없습니다!");
+            Debug.LogError("Skills.json 파일을 찾을 수 없습니다!");
         }
     }
     
     // ID로 스킬 가져오기
-    public Action GetActionById(string id)
+    public Skill GetSkillById(string id)
     {
-        if (actionCollection == null) return null;
-        return actionCollection.actions.Find(a => a.id == id);
+        if (skillCollection == null) return null;
+        return skillCollection.skills.Find(s => s.id == id);
     }
     
     // 이름으로 스킬 가져오기
-    public Action GetActionByName(string name)
+    public Skill GetSkillByName(string name)
     {
-        if (actionCollection == null) return null;
-        return actionCollection.actions.Find(a => a.name == name);
+        if (skillCollection == null) return null;
+        return skillCollection.skills.Find(s => s.name == name);
     }
     
     // 모든 스킬 가져오기
-    public List<Action> GetAllActions()
+    public List<Skill> GetAllSkills()
     {
-        if (actionCollection == null) return new List<Action>();
-        return actionCollection.actions;
+        if (skillCollection == null) return new List<Skill>();
+        return skillCollection.skills;
     }
     
     // 타입별 스킬 가져오기 (active/passive)
-    public List<Action> GetActionsByType(string type)
+    public List<Skill> GetSkillsByType(string type)
     {
-        if (actionCollection == null) return new List<Action>();
-        return actionCollection.actions.FindAll(a => a.type == type);
+        if (skillCollection == null) return new List<Skill>();
+        return skillCollection.skills.FindAll(s => s.type == type);
     }
     
     // 버튼 타입별 스킬 가져오기
-    public List<Action> GetActionsByButtonType(string buttonType)
+    public List<Skill> GetSkillsByButtonType(string buttonType)
     {
-        if (actionCollection == null) return new List<Action>();
-        return actionCollection.actions.FindAll(a => a.buttonType == buttonType);
+        if (skillCollection == null) return new List<Skill>();
+        return skillCollection.skills.FindAll(s => s.buttonType == buttonType);
     }
     
     // 스킬 사용 가능 여부 확인
-    public bool CanUseAction(Action action, Character character)
+    public bool CanUseSkill(Skill skill, Character character)
     {
-        if (action == null || character == null) return false;
+        if (skill == null || character == null) return false;
         
         // AP 확인 (액티브 스킬만)
-        if (action.type == "active" && character.actionPoint < action.costAP)
+        if (skill.type == "active" && character.actionPoint < skill.costAP)
         {
-            Debug.Log($"{character.characterName}의 AP가 부족합니다. (필요: {action.costAP})");
+            Debug.Log($"{character.characterName}의 AP가 부족합니다. (필요: {skill.costAP})");
             return false;
         }
         
         // PP 확인 (액티브 스킬만)
-        if (action.type == "active" && character.pp < action.costPP)
+        if (skill.type == "active" && character.pp < skill.costPP)
         {
-            Debug.Log($"{character.characterName}의 PP가 부족합니다. (필요: {action.costPP})");
+            Debug.Log($"{character.characterName}의 PP가 부족합니다. (필요: {skill.costPP})");
             return false;
         }
         
         return true;
     }
     
-    // 스킬 효과 적용 (예제)
-    public void ApplyActionEffects(Action action, Character user, Character target)
+    // 스킬 효과 적용
+    public void ApplySkillEffects(Skill skill, Character user, Character target)
     {
-        if (action == null || user == null) return;                
+        if (skill == null || user == null) return;                
         
         // 각 효과 적용
-        foreach (ActionEffect effect in action.effects)
+        foreach (SkillEffect effect in skill.effects)
         {
-            ApplyEffect(effect, user, target, action);
+            ApplyEffect(effect, user, target, skill);
         }
     }    
     
     // 개별 효과 적용
-    private void ApplyEffect(ActionEffect effect, Character user, Character target, Action action)
+    private void ApplyEffect(SkillEffect effect, Character user, Character target, Skill skill)
     {
         switch (effect.type)
         {
             case "damage":
                 if (target != null)
                 {
-                    float damage = CalculateDamage(action.power, user, target, effect.damageType);
+                    float damage = CalculateDamage(skill.power, user, target, effect.damageType);
                     target.TakeDamage(damage);
                     Debug.Log($"{target.characterName}에게 {damage} 데미지!");
                 }
@@ -174,25 +174,25 @@ public class ActionManager : MonoBehaviour
     }
     
     // 스킬 정보 문자열로 반환
-    public string GetActionInfoString(Action action)
+    public string GetSkillInfoString(Skill skill)
     {
-        if (action == null) return "";
+        if (skill == null) return "";
         
-        string info = $"{action.name}\n";
-        info += $"타입: {(action.type == "active" ? "액티브" : "패시브")}\n";
+        string info = $"{skill.name}\n";
+        info += $"타입: {(skill.type == "active" ? "액티브" : "패시브")}\n";
         
-        if (action.power > 0)
+        if (skill.power > 0)
         {
-            info += $"위력: {action.power} / 히트: {action.hitCount} / 명중: {action.accuracyRate}%\n";
+            info += $"위력: {skill.power} / 히트: {skill.hitCount} / 명중: {skill.accuracyRate}%\n";
         }
         
-        info += $"{action.description}\n";
+        info += $"{skill.description}\n";
         
-        if (action.costAP > 0 || action.costPP > 0)
+        if (skill.costAP > 0 || skill.costPP > 0)
         {
             info += "소모:";
-            if (action.costAP > 0) info += $" AP {action.costAP}";
-            if (action.costPP > 0) info += $" PP {action.costPP}";
+            if (skill.costAP > 0) info += $" AP {skill.costAP}";
+            if (skill.costPP > 0) info += $" PP {skill.costPP}";
         }
         
         return info;

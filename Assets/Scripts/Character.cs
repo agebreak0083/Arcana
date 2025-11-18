@@ -89,16 +89,16 @@ public class Character : MonoBehaviour
             if (target != null)
             {
                 StrategyAction strategyAction = availableActions[i];
-                Action action = ActionManager.Instance.GetActionByName(strategyAction.action);
-                if (action == null)
+                Skill skill = SkillManager.Instance.GetSkillByName(strategyAction.action);
+                if (skill == null)
                 {
                     Debug.Log($"{characterName}이(가) {strategyAction.action}을(를) 실행할 수 없습니다.");
                     return null;
                 }
                 else
                 {
-                    Debug.Log($"{characterName}이(가) {action.name}을(를) 실행했습니다.");
-                    UseSkill(action.id, target);
+                    Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다.");
+                    UseSkill(skill.id, target);
                     return strategyAction;
                 }
             }            
@@ -217,9 +217,9 @@ public class Character : MonoBehaviour
     // 스킬 사용 (ID로)
     public void UseSkill(string skillId, Character target)
     {
-        if (ActionManager.Instance == null) return;
+        if (SkillManager.Instance == null) return;
         
-        Action skill = ActionManager.Instance.GetActionById(skillId);
+        Skill skill = SkillManager.Instance.GetSkillById(skillId);
         if (skill == null)
         {
             Debug.LogWarning($"스킬 ID '{skillId}'를 찾을 수 없습니다.");
@@ -250,7 +250,7 @@ public class Character : MonoBehaviour
     }
     
     // 애니메이션 재생 후 대기하는 코루틴
-    private IEnumerator PlaySkillAnimationAndWait(Animator animator, Action skill, Character target)
+    private IEnumerator PlaySkillAnimationAndWait(Animator animator, Skill skill, Character target)
     {
         // 애니메이션 재생 (normalizedTime = 0으로 설정하여 처음부터 강제 재생)
         // 동일 애니메이션을 연속 재생할 때도 정상 작동
@@ -272,12 +272,12 @@ public class Character : MonoBehaviour
     }
     
     // 애니메이션 완료 후 호출되는 함수
-    private void OnSkillAnimationComplete(Action skill, Character target)
+    private void OnSkillAnimationComplete(Skill skill, Character target)
     {
         Debug.Log($"{characterName}: {skill.name} 애니메이션 완료!");
         
         // 스킬 효과 적용
-        ActionManager.Instance.ApplyActionEffects(skill, this, target);
+        SkillManager.Instance.ApplySkillEffects(skill, this, target);
         
         // BattleManager에 액션 완료 알림
         if (BattleManager.Instance != null)

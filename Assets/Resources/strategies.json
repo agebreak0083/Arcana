@@ -48,7 +48,7 @@
       "actions": [
         {
           "priority": 1,
-          "action": "가드 슬래시",
+          "action": "실드 배시",
           "condition1": "아군 HP < 50%",
           "condition2": "적 공격력 > 100"
         },
@@ -112,7 +112,7 @@
       "actions": [
         {
           "priority": 1,
-          "action": "가드 슬래시",
+          "action": "파이어볼",
           "condition1": "아군 HP < 50%",
           "condition2": "MP > 25"
         },

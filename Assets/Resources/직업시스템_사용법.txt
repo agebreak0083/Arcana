@@ -1,0 +1,295 @@
+=================================================================
+직업 시스템 사용법
+=================================================================
+
+직업 시스템은 캐릭터의 기본 스탯과 특성을 정의하는 시스템입니다.
+각 직업은 고유한 능력치 등급과 AP/PP를 가집니다.
+
+=================================================================
+1. 파일 구조
+=================================================================
+
+■ Class.json (Assets/Resources/)
+  - 직업 정보가 담긴 JSON 데이터베이스
+  - 직업 이름, 설명, 스탯 등급, AP/PP 등을 정의
+
+■ Class.cs (Assets/Scripts/)
+  - 직업 데이터 구조 정의
+  - ClassStats: 스탯 등급 데이터 (S~E)
+  - CharacterClass: 직업 정보
+  - ClassCollection: 직업 목록
+
+■ ClassManager.cs (Assets/Scripts/)
+  - 직업 데이터 로드 및 관리
+  - 싱글톤 패턴으로 전역 접근 가능
+  - 직업 검색, 스탯 적용 등의 기능
+
+=================================================================
+2. 직업 데이터 구조 (Class.json)
+=================================================================
+
+{
+  "classes": [
+    {
+      "id": "class_fighter",              // 고유 ID
+      "name": "파이터",                   // 직업 이름
+      "description": "직업 설명...",      // 직업 설명 (줄바꿈: \n)
+      "baseAP": 2,                        // 기본 AP (Action Point)
+      "basePP": 2,                        // 기본 PP (Passive Point)
+      "skillIds": [                       // 직업 스킬 ID 목록 (6개)
+        "skill_001",
+        "skill_002",
+        "skill_003",
+        "skill_004",
+        "skill_005",
+        "skill_006"
+      ],
+      "stats": {
+        "hp": "C",                        // HP 등급 (S~E)
+        "physicalAttack": "C",            // 물리공격
+        "physicalDefense": "B",           // 물리방어
+        "magicalAttack": "D",             // 마법공격
+        "magicalDefense": "E",            // 마법방어
+        "accuracy": "C",                  // 명중
+        "evasion": "E",                   // 회피
+        "criticalRate": "D",              // 치명타율
+        "guardRate": "S",                 // 가드율
+        "actionSpeed": "C"                // 행동속도
+      }
+    }
+  ]
+}
+
+=================================================================
+3. 스탯 등급 시스템
+=================================================================
+
+■ 등급 범위: S > A > B > C > D > E
+
+■ 등급별 수치 변환 (레벨 1 기준):
+  - S = 6, A = 5, B = 4, C = 3, D = 2, E = 1
+
+■ 실제 스탯 계산:
+  - HP: 등급 × 100 (100 ~ 600)
+  - 물리공격: 등급 × 10 (10 ~ 60)
+  - 물리방어: 등급 × 5 (5 ~ 30)
+  - 마법공격: 등급 × 10 (10 ~ 60)
+  - 마법방어: 등급 × 5 (5 ~ 30)
+  - 명중: 80 + 등급 × 3 (83% ~ 98%)
+  - 회피: 등급 × 3 (3% ~ 18%)
+  - 치명타율: 등급 × 2 (2% ~ 12%)
+  - 가드율: 등급 × 5 (5% ~ 30%)
+  - 행동속도: 50 + 등급 × 10 (60 ~ 110)
+
+=================================================================
+4. 기본 직업 종류
+=================================================================
+
+■ 파이터 (Fighter)
+  - 특징: 높은 가드율(S), 물리방어(B)
+  - AP: 2, PP: 2
+  - 역할: 탱커, 원거리 물리 공격 방어
+  - 스킬: 가드 슬래시, 실드 배시, 디펜더, 애로 커버, 퀵 가드, 어트랙트
+
+■ 워리어 (Warrior)
+  - 특징: 높은 물리공격(A), 치명타(B)
+  - AP: 2, PP: 2
+  - 역할: 물리 딜러, 중갑갑 특효
+
+■ 헌터 (Hunter)
+  - 특징: 높은 명중(A), 치명타(A)
+  - AP: 2, PP: 2
+  - 역할: 원거리 딜러, 방어 무시 공격
+
+■ 위저드 (Wizard)
+  - 특징: 높은 마법공격(A), 마법방어(B)
+  - AP: 2, PP: 3
+  - 역할: 마법 딜러, 광역 공격
+
+■ 프리스트 (Priest)
+  - 특징: 높은 마법방어(A), 마법공격(B)
+  - AP: 2, PP: 3
+  - 역할: 힐러, 버프/디버프 지원
+
+■ 시프 (Thief)
+  - 특징: 높은 회피(A), 행동속도(A), 치명타(S)
+  - AP: 3, PP: 2
+  - 역할: 암살자, 빠른 연속 공격
+
+■ 팔라딘 (Paladin)
+  - 특징: 균형잡힌 스탯 (대부분 C~B)
+  - AP: 2, PP: 2
+  - 역할: 올라운더, 물리/마법 하이브리드
+
+■ 버서커 (Berserker)
+  - 특징: 극단적 물리공격(S), 낮은 방어(E)
+  - AP: 3, PP: 1
+  - 역할: 고위험 고보상 딜러
+
+=================================================================
+5. 코드 사용 예시
+=================================================================
+
+■ ClassManager 초기화 (자동)
+  - BattleManager의 Awake()에서 자동으로 초기화됨
+  - DefaultExecutionOrder(-100)로 가장 먼저 실행
+
+■ 직업 정보 가져오기
+
+// ID로 직업 가져오기
+CharacterClass fighter = ClassManager.Instance.GetClassById("class_fighter");
+
+// 이름으로 직업 가져오기
+CharacterClass wizard = ClassManager.Instance.GetClassByName("위저드");
+
+// 모든 직업 가져오기
+List<CharacterClass> allClasses = ClassManager.Instance.GetAllClasses();
+
+■ 캐릭터에 직업 스탯 적용
+
+Character player = GetComponent<Character>();
+ClassManager.Instance.ApplyClassStatsToCharacter(player, "class_warrior");
+
+// 이후 캐릭터의 스탯이 워리어 직업 기준으로 설정됨
+
+■ 직업 정보 출력
+
+CharacterClass paladin = ClassManager.Instance.GetClassById("class_paladin");
+string info = ClassManager.Instance.GetClassInfoString(paladin);
+Debug.Log(info);
+
+// 출력:
+// === 팔라딘 ===
+// 균형잡힌 능력치로 어떤 상황에도 대응하는 성기사
+// ...
+// AP: 2  PP: 2
+// [ 스테이터스 ]
+// HP: B
+// 물리공격: C
+// ...
+
+■ 직업의 스킬 목록 가져오기
+
+// 스킬 ID 목록 가져오기
+List<string> skillIds = ClassManager.Instance.GetClassSkillIds("class_fighter");
+// ["skill_001", "skill_002", "skill_003", "skill_004", "skill_005", "skill_006"]
+
+// 스킬 객체 목록 가져오기
+List<Skill> skills = ClassManager.Instance.GetClassSkills("class_fighter");
+foreach (Skill skill in skills)
+{
+    Debug.Log($"{skill.name}: {skill.description}");
+}
+
+■ 스탯 등급을 실제 수치로 변환
+
+CharacterClass myClass = ClassManager.Instance.GetClassById("class_fighter");
+float hp = myClass.stats.GetHPValue();                    // 300 (C등급)
+float physicalAttack = myClass.stats.GetPhysicalAttackValue(); // 30
+float guardRate = myClass.stats.GetGuardRateValue();      // 30% (S등급)
+
+=================================================================
+6. Character 클래스 통합
+=================================================================
+
+■ Character.cs에 직업 필드 추가 (선택사항)
+
+public class Character : MonoBehaviour
+{
+    public string classId;  // "class_fighter" 등
+    
+    void Start()
+    {
+        // 직업 스탯 적용
+        if (!string.IsNullOrEmpty(classId))
+        {
+            ClassManager.Instance.ApplyClassStatsToCharacter(this, classId);
+        }
+    }
+}
+
+■ Inspector에서 설정
+  - Character 컴포넌트의 Class Id에 "class_fighter" 입력
+  - 게임 시작 시 자동으로 해당 직업 스탯 적용
+
+=================================================================
+7. 직업 추가하기
+=================================================================
+
+1) Class.json 열기
+2) "classes" 배열에 새 직업 추가:
+
+{
+  "id": "class_새직업",
+  "name": "새 직업",
+  "description": "설명 입력",
+  "baseAP": 2,
+  "basePP": 2,
+  "stats": {
+    "hp": "C",
+    "physicalAttack": "C",
+    "physicalDefense": "C",
+    "magicalAttack": "C",
+    "magicalDefense": "C",
+    "accuracy": "C",
+    "evasion": "C",
+    "criticalRate": "C",
+    "guardRate": "C",
+    "actionSpeed": "C"
+  }
+}
+
+3) 저장 후 Unity로 돌아가기 (자동 리로드)
+
+=================================================================
+8. 밸런싱 가이드
+=================================================================
+
+■ AP/PP 설정 지침:
+  - 기본: AP 2, PP 2
+  - 물리 특화: AP 3, PP 1 또는 2
+  - 마법 특화: AP 1 또는 2, PP 3
+  - 고속 연타: AP 3, PP 1
+
+■ 스탯 등급 배분 지침:
+  - 특화 직업: 1~2개 S/A, 나머지 C~E
+  - 균형 직업: 대부분 C, 일부 B
+  - 극단 직업: S와 E를 동시에 배치
+
+■ 상성 관계 설계:
+  - 물리 딜러 > 마법 딜러 > 탱커 > 물리 딜러
+  - 원거리 > 탱커 > 근거리 > 회피형 > 원거리
+  - 특효 스킬로 상성 표현
+
+=================================================================
+9. 디버깅
+=================================================================
+
+■ 직업 로드 확인:
+  - Play 모드 진입 시 Console에 로그 출력
+  - "직업 데이터 로드 완료: X개의 직업"
+
+■ 스탯 적용 확인:
+  - Character의 Inspector에서 HP, 공격력 등 확인
+  - Console에 "XXX에게 파이터 직업 스탯 적용 완료" 출력
+
+■ JSON 파싱 에러:
+  - JSON 문법 오류 확인 (쉼표, 따옴표 등)
+  - 온라인 JSON Validator로 검증
+  - Console의 에러 메시지 확인
+
+=================================================================
+10. 확장 아이디어
+=================================================================
+
+- 레벨별 스탯 증가율 (레벨업 시스템)
+- 전직 시스템 (상위 직업)
+- 직업별 고유 스킬 연결
+- 직업 조합 시너지 효과
+- 직업 마스터리 시스템
+- 멀티 클래스 (복수 직업 보유)
+- 직업별 장비 제한
+- 직업 퀘스트 및 보상
+
+=================================================================
+

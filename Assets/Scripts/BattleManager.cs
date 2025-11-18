@@ -12,7 +12,8 @@ public class BattleManager : MonoBehaviour
     List<Character> waitingCharacters = new List<Character>();
     int currentIndex = 0;
     private StrategyManager strategyManager;
-    private ActionManager actionManager;
+    private SkillManager skillManager;
+    private ClassManager classManager;
     private bool isWaitingForActionComplete = false;
     
     [Header("Battle Progress")]
@@ -37,11 +38,18 @@ public class BattleManager : MonoBehaviour
             strategyManager = gameObject.AddComponent<StrategyManager>();
         }
         
-        // ActionManager 컴포넌트 가져오기 또는 생성
-        actionManager = GetComponent<ActionManager>();
-        if (actionManager == null)
+        // SkillManager 컴포넌트 가져오기 또는 생성
+        skillManager = GetComponent<SkillManager>();
+        if (skillManager == null)
         {
-            actionManager = gameObject.AddComponent<ActionManager>();
+            skillManager = gameObject.AddComponent<SkillManager>();
+        }
+        
+        // ClassManager 컴포넌트 가져오기 또는 생성
+        classManager = GetComponent<ClassManager>();
+        if (classManager == null)
+        {
+            classManager = gameObject.AddComponent<ClassManager>();
         }
     }
     

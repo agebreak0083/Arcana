@@ -1,5 +1,5 @@
 {
-  "actions": [
+  "skills": [
     {
       "id": "skill_001",
       "name": "가드 슬래시",
@@ -41,7 +41,7 @@
       "description": "적 하나를 공격한다. 대상에게 기절 부여",
       "target": "single_enemy",
       "buttonType": "attack",
-      "animation": "",
+      "animation": "Salute",
       "costAP": 1,
       "costPP": 0,
       "effects": [
@@ -192,7 +192,7 @@
       "description": "적 하나에게 화염 마법 공격",
       "target": "single_enemy",
       "buttonType": "attack",
-      "animation": "",
+      "animation": "Salute",
       "costAP": 1,
       "costPP": 2,
       "effects": [
