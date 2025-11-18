@@ -1,36 +1,50 @@
 {
+  "positions": [
+    {
+      "position":"1",
+      "class":"Attacker"      
+    },
+    {
+      "position":"2",
+      "class":"Defender"
+    },
+    {
+      "position":"3",
+      "class":"Supporter"
+    }
+  ],
   "strategies": [
     {
-      "name": "공격형 작전",
+      "name": "Attacker",
       "actions": [
         {
           "priority": 1,
-          "action": "강공격",
+          "action": "가드 슬래시",
           "condition1": "적 HP < 30%",
           "condition2": "아군 HP > 50%"
         },
         {
           "priority": 2,
-          "action": "일반공격",
+          "action": "실대 배시",
           "condition1": "적이 존재함",
           "condition2": "MP < 20"
         },
         {
           "priority": 3,
-          "action": "스킬공격",
+          "action": "디펜더",
           "condition1": "적 HP > 50%",
           "condition2": "MP > 50"
         },
         {
           "priority": 4,
-          "action": "방어",
+          "action": "가드 슬래시",
           "condition1": "아군 HP < 30%",
           "condition2": ""
         }
       ]
     },
     {
-      "name": "방어형 작전",
+      "name": "Defender",
       "actions": [
         {
           "priority": 1,
@@ -94,7 +108,7 @@
       ]
     },
     {
-      "name": "지원형 작전",
+      "name": "Supporter",
       "actions": [
         {
           "priority": 1,

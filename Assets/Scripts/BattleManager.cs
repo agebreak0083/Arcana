@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[DefaultExecutionOrder(-50)]
 public class BattleManager : MonoBehaviour
 {
     public Character[] playerCharacters;
@@ -8,11 +9,12 @@ public class BattleManager : MonoBehaviour
     List<Character> charactersTurnList = new List<Character>();
     int currentIndex = 0;
     private StrategyManager strategyManager;
+    private ActionManager actionManager;
 
     public static BattleManager Instance { get; private set; }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    // Awake는 Manager 초기화용
+    void Awake()
     {
         if (Instance == null)
         {
@@ -26,7 +28,18 @@ public class BattleManager : MonoBehaviour
         {
             strategyManager = gameObject.AddComponent<StrategyManager>();
         }
-
+        
+        // ActionManager 컴포넌트 가져오기 또는 생성
+        actionManager = GetComponent<ActionManager>();
+        if (actionManager == null)
+        {
+            actionManager = gameObject.AddComponent<ActionManager>();
+        }
+    }
+    
+    // Start는 다른 Manager들이 초기화된 후 실행
+    void Start()
+    {
         // 테스트용 
         InitializeCharactersTurnList(playerCharacters, enemyCharacters);
 

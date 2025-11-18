@@ -1,0 +1,333 @@
+========================================
+스킬 시스템 사용 가이드
+========================================
+
+## 1. 개요
+
+스킬 시스템은 캐릭터가 전투에서 사용할 수 있는 다양한 기술들을 관리합니다.
+- **액티브 스킬**: 직접 사용하는 스킬 (PP 소모)
+- **패시브 스킬**: 특정 조건에서 자동 발동되는 스킬
+
+## 2. 파일 구성
+
+### 데이터 파일
+- **Actions.json**: 모든 스킬 정보가 담긴 JSON 파일 (Resources 폴더)
+
+### 스크립트 파일
+- **Action.cs**: 스킬 데이터 구조 (ActionEffect, Action, ActionCollection)
+- **ActionManager.cs**: 스킬 데이터 로드 및 관리
+- **Character.cs**: 캐릭터의 스킬 습득/사용 기능
+
+
+## 3. 스킬 데이터 구조
+
+### 스킬 프로퍼티
+```json
+{
+  "id": "skill_001",                    // 고유 ID
+  "name": "가드 슬래시",                 // 스킬 이름
+  "type": "active",                     // "active" 또는 "passive"
+  "damageType": "physical",             // "physical", "magical", ""
+  "power": 100,                         // 위력
+  "hitCount": 1,                        // 히트 수
+  "accuracyRate": 100,                  // 명중 배율 (%)
+  "description": "적 하나를 공격한다...", // 설명
+  "target": "single_enemy",             // 대상
+  "buttonType": "attack",               // "attack", "support", "debuff"
+  "animation": "",                      // 애니메이션 클립 이름
+  "costAP": 1,                          // 소모 AP (Action Point)
+  "costPP": 0,                          // 소모 PP
+  "effects": [...],                     // 효과 리스트
+  "traits": [...]                       // 특성 리스트
+}
+```
+
+### 효과 (ActionEffect) 프로퍼티
+```json
+{
+  "type": "damage",              // 효과 타입
+  "value": 100,                  // 수치
+  "damageType": "physical",      // 데미지 타입
+  "element": "fire",             // 속성
+  "stat": "physical_defense",    // 능력치
+  "target": "self",              // 대상
+  "duration": 3,                 // 지속 턴
+  "statusName": "stun",          // 상태이상
+  "chance": 100,                 // 확률 (%)
+  "condition": "on_hit"          // 조건
+}
+```
+
+### 효과 타입 (type)
+- **damage**: 데미지
+- **heal**: 회복
+- **buff**: 버프 (능력치 증가)
+- **debuff**: 디버프 (능력치 감소)
+- **status**: 상태이상 부여
+- **guard**: 가드
+- **protect**: 보호
+- **taunt**: 도발 (어그로)
+- **restore_pp**: PP 회복
+
+### 대상 (target)
+- **single_enemy**: 적 하나
+- **all_enemies**: 적 전체
+- **single_ally**: 아군 하나
+- **all_allies**: 아군 전체
+- **self**: 자신
+- **attacker**: 공격자
+- **enemy_front_row**: 적 전방
+
+### 버튼 타입 (buttonType)
+- **attack**: 공격 스킬
+- **support**: 지원 스킬
+- **debuff**: 방해 스킬
+
+### 애니메이션 (animation)
+- 스킬 사용 시 재생할 애니메이션 클립의 이름
+- 빈 문자열("")이면 기본 애니메이션 사용
+- 예: "Attack_Slash", "Cast_Fire", "Heal_01"
+
+### 특성 (traits)
+- **ranged**: 원거리 공격
+- **simultaneous_activation_limit**: 동시 발동 제한
+- **sure_hit**: 필중
+
+
+## 4. 스킬 추가 방법
+
+Actions.json 파일에 새로운 스킬 추가:
+
+```json
+{
+  "id": "skill_011",
+  "name": "새로운 스킬",
+  "type": "active",
+  "damageType": "physical",
+  "power": 100,
+  "hitCount": 1,
+  "accuracyRate": 100,
+  "description": "스킬 설명",
+  "target": "single_enemy",
+  "buttonType": "attack",
+  "animation": "Attack_Slash",
+  "costAP": 1,
+  "costPP": 2,
+  "effects": [
+    {
+      "type": "damage",
+      "value": 100,
+      "damageType": "physical"
+    }
+  ],
+  "traits": []
+}
+```
+
+
+## 5. 사용 방법
+
+### 스킬 사용
+모든 캐릭터는 ActionManager에 등록된 모든 스킬을 자유롭게 사용할 수 있습니다.
+별도의 습득 과정이 필요 없습니다.
+```csharp
+// ID로 사용
+character.UseSkill("skill_001", targetCharacter);
+
+// 이름으로 사용
+character.UseSkillByName("가드 슬래시", targetCharacter);
+```
+
+### 스킬 목록 가져오기
+```csharp
+// 모든 스킬
+List<Action> allSkills = character.GetAllSkills();
+
+// 액티브 스킬만
+List<Action> activeSkills = character.GetActiveSkills();
+
+// 패시브 스킬만
+List<Action> passiveSkills = character.GetPassiveSkills();
+```
+
+### 스킬 정보 조회
+```csharp
+// ID로 조회
+Action skill = ActionManager.Instance.GetActionById("skill_001");
+
+// 이름으로 조회
+Action skill = ActionManager.Instance.GetActionByName("가드 슬래시");
+
+// 타입별 조회
+List<Action> activeSkills = ActionManager.Instance.GetActionsByType("active");
+
+// 버튼 타입별 조회
+List<Action> attackSkills = ActionManager.Instance.GetActionsByButtonType("attack");
+```
+
+
+## 6. 레벨 및 PP 관리
+
+### 레벨업
+```csharp
+character.LevelUp();
+// 자동으로 스탯 증가: HP, MP, PP, 공격력, 마법력, 방어력
+```
+
+### PP 회복
+```csharp
+character.RestorePP(5); // 5 PP 회복
+```
+
+
+## 7. 기본 제공 스킬
+
+### 액티브 스킬
+1. **가드 슬래시** [AP:1]
+   - 물리 공격 + 자신의 방어력 증가
+
+2. **실드 배시** [AP:1]
+   - 물리 공격 + 기절 부여
+
+3. **디펜더** [AP:1]
+   - 2연타 물리 공격 + 방어력 증가 + 명중 시 PP 회복
+
+4. **파이어볼** [AP:1 PP:2]
+   - 화염 마법 공격
+
+5. **힐** [AP:1 PP:3]
+   - 아군 HP 회복
+
+6. **버서크** [AP:2 PP:4]
+   - 강력한 연속 공격 + 자신의 방어력 감소
+
+### 패시브 스킬
+1. **애로 커버**
+   - 아군이 원거리 물리 공격 받을 때 대신 받고 무효화
+
+2. **퀵 가드**
+   - 물리 공격 받기 전 자동 가드
+
+3. **어트랙트**
+   - 전투 시작 시 적의 공격을 자신에게 유도 + 가드율 증가
+
+4. **카운터 어택**
+   - 물리 공격 받은 후 자동 반격
+
+
+## 8. 애니메이션 시스템
+
+### 애니메이션 클립 설정
+1. 캐릭터에 Animator 컴포넌트 추가
+2. Animator Controller 생성 및 할당
+3. Animation Clip 이름을 Actions.json의 animation 필드에 입력
+
+### 애니메이션 자동 재생
+ActionManager가 스킬 사용 시 자동으로 애니메이션을 재생합니다:
+- animation 필드가 비어있으면 애니메이션을 재생하지 않음
+- Animator.Play() 메서드로 애니메이션 클립 재생
+
+### 예제
+```json
+{
+  "id": "skill_001",
+  "name": "가드 슬래시",
+  "animation": "Attack_Sword_01",
+  ...
+}
+```
+
+### 커스터마이징
+ActionManager.cs의 PlaySkillAnimation() 메서드를 수정하여:
+- 애니메이션 레이어 지정
+- 크로스페이드 사용
+- 애니메이션 속도 조절
+
+
+## 9. 커스터마이징
+
+### 새로운 효과 타입 추가
+ActionManager.cs의 ApplyEffect() 메서드에서 case문 추가:
+
+```csharp
+case "new_effect":
+    Debug.Log("새로운 효과 적용!");
+    // 효과 구현
+    break;
+```
+
+### 데미지 계산 공식 수정
+ActionManager.cs의 CalculateDamage() 메서드 수정
+
+
+## 10. 주의사항
+
+- 스킬 ID는 중복되지 않도록 관리
+- Actions.json은 유효한 JSON 형식이어야 함
+- ActionManager는 싱글톤으로 씬에 하나만 존재
+- 캐릭터의 actionPoint, pp 속성이 제대로 설정되어 있어야 함
+- 스킬 사용 전 ActionManager.Instance가 null이 아닌지 확인
+- costAP는 액션 포인트(행동 포인트), costPP는 스킬 포인트를 소모함
+- 패시브 스킬은 보통 costAP와 costPP가 0입니다
+- **모든 캐릭터는 별도의 습득 없이 모든 스킬을 사용할 수 있습니다**
+- 스킬 사용 제한은 AP, PP, 애니메이션 등으로만 제어됩니다
+
+
+## 11. 예제 코드
+
+### 전투에서 스킬 사용
+```csharp
+public class BattleExample : MonoBehaviour
+{
+    public Character player;
+    public Character enemy;
+    
+    void Start()
+    {
+        // 전투 시작 (스킬 습득 불필요)
+        StartBattle();
+    }
+    
+    void StartBattle()
+    {
+        // 플레이어가 스킬 사용 (모든 스킬 사용 가능)
+        player.UseSkillByName("파이어볼", enemy);
+        player.UseSkill("skill_001", enemy);
+        
+        // PP 회복
+        player.RestorePP(2);
+        
+        // 레벨업
+        player.LevelUp();
+    }
+}
+```
+
+### 스킬 UI 표시
+```csharp
+void DisplaySkillInfo(Character character)
+{
+    // 모든 액티브 스킬 표시
+    List<Action> skills = character.GetActiveSkills();
+    
+    foreach (Action skill in skills)
+    {
+        string info = ActionManager.Instance.GetActionInfoString(skill);
+        
+        // AP/PP가 충분한지 확인하여 UI 활성화 여부 결정
+        bool canUse = ActionManager.Instance.CanUseAction(skill, character);
+        Debug.Log($"{info} - 사용 가능: {canUse}");
+    }
+}
+```
+
+
+## 12. 디버깅 팁
+
+- 콘솔에서 스킬 로드 메시지 확인
+- ActionManager.Instance가 null이면 씬에 추가
+- 스킬 ID가 정확한지 확인
+- JSON 파일 경로가 올바른지 확인 (Resources/Actions.json)
+
+========================================
+

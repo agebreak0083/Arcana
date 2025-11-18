@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +7,7 @@ public class HPBar : MonoBehaviour
     [Header("HP Bar Components")]
     public Slider hpSlider;
     public Image fillImage;
+    public TextMeshProUGUI textHP;
     
     [Header("Colors")]
     public Color highHealthColor = Color.green;
@@ -96,6 +98,7 @@ public class HPBar : MonoBehaviour
         }
         
         UpdateColor(hpPercent);
+        textHP.text = $"{currentHp} / {maxHp}";
     }
     
     // HP 비율에 따른 색상 변경

@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[DefaultExecutionOrder(-100)]
 public class StrategyManager : MonoBehaviour
 {
     private StrategyCollection strategyCollection;
 
     public static StrategyManager Instance { get; private set; }
 
-    void Start()
+    void Awake()
     {
         if (Instance == null)
         {
