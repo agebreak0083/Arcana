@@ -15,7 +15,7 @@
   ],
   "strategies": [
     {
-      "name": "Attacker",
+      "name": "fighter",
       "actions": [
         {
           "priority": 1,

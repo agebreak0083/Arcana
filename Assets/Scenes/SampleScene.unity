@@ -481,21 +481,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Character
   characterName: "\uD0F1\uCEE4"
+  className: 
   strategyName: Defender
   position: 2
   hpBarPrefab: {fileID: 8822170745769691185, guid: 3c929d473c2cae64b9c6f75ba2af8176, type: 3}
   hpBarOffset: {x: 0, y: 1.2, z: 0}
-  level: 1
   hp: 100
   maxHp: 100
-  mp: 100
-  maxMp: 100
-  pp: 10
-  maxPP: 10
-  attackPower: 50
-  magicPower: 50
-  defense: 30
-  speed: 80
   actionPoint: 2
   passivePoint: 2
 --- !u!1 &705507993
@@ -613,21 +605,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Character
   characterName: "\uC5B4\uD0DD\uCEE4"
-  strategyName: Attacker
+  className: fighter
+  strategyName: fighter
   position: 1
   hpBarPrefab: {fileID: 8822170745769691185, guid: 3c929d473c2cae64b9c6f75ba2af8176, type: 3}
   hpBarOffset: {x: 0, y: 1.2, z: 0}
-  level: 1
   hp: 100
   maxHp: 100
-  mp: 100
-  maxMp: 100
-  pp: 10
-  maxPP: 10
-  attackPower: 50
-  magicPower: 50
-  defense: 30
-  speed: 100
   actionPoint: 2
   passivePoint: 2
 --- !u!1 &911818437
@@ -1191,21 +1175,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Character
   characterName: "\uD0F1\uCEE4"
+  className: 
   strategyName: Defender
   position: 2
   hpBarPrefab: {fileID: 8822170745769691185, guid: 3c929d473c2cae64b9c6f75ba2af8176, type: 3}
   hpBarOffset: {x: 0, y: 1.2, z: 0}
-  level: 1
   hp: 100
   maxHp: 100
-  mp: 100
-  maxMp: 100
-  pp: 10
-  maxPP: 10
-  attackPower: 50
-  magicPower: 50
-  defense: 30
-  speed: 80
   actionPoint: 2
   passivePoint: 2
 --- !u!1001 &1404041463
@@ -1310,21 +1286,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Character
   characterName: "\uC11C\uD3EC\uD130"
+  className: 
   strategyName: Supporter
   position: 3
   hpBarPrefab: {fileID: 8822170745769691185, guid: 3c929d473c2cae64b9c6f75ba2af8176, type: 3}
   hpBarOffset: {x: 0, y: 1.2, z: 0}
-  level: 1
   hp: 100
   maxHp: 100
-  mp: 100
-  maxMp: 100
-  pp: 10
-  maxPP: 10
-  attackPower: 50
-  magicPower: 50
-  defense: 30
-  speed: 90
   actionPoint: 2
   passivePoint: 2
 --- !u!1 &1536785385
@@ -1549,6 +1517,7 @@ GameObject:
   - component: {fileID: 1565121450}
   - component: {fileID: 1565121449}
   - component: {fileID: 1565121448}
+  - component: {fileID: 1565121452}
   - component: {fileID: 1565121451}
   m_Layer: 0
   m_Name: BattleManager
@@ -1623,6 +1592,18 @@ MonoBehaviour:
   healAmount: 15
   autoTest: 0
   testInterval: 2
+--- !u!114 &1565121452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1565121447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 556d3976e712a034ea1996cee30499b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ClassManager
 --- !u!1001 &1797508014
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1729,21 +1710,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Character
   characterName: "\uC5B4\uD0DD\uCEE4"
-  strategyName: Attacker
+  className: fighter
+  strategyName: fighter
   position: 1
   hpBarPrefab: {fileID: 8822170745769691185, guid: 3c929d473c2cae64b9c6f75ba2af8176, type: 3}
   hpBarOffset: {x: 0, y: 1.2, z: 0}
-  level: 1
   hp: 100
   maxHp: 100
-  mp: 100
-  maxMp: 100
-  pp: 10
-  maxPP: 10
-  attackPower: 50
-  magicPower: 50
-  defense: 30
-  speed: 100
   actionPoint: 2
   passivePoint: 2
 --- !u!1 &1904942524 stripped
@@ -1764,21 +1737,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Character
   characterName: "\uC11C\uD3EC\uD130"
+  className: 
   strategyName: Supporter
   position: 3
   hpBarPrefab: {fileID: 8822170745769691185, guid: 3c929d473c2cae64b9c6f75ba2af8176, type: 3}
   hpBarOffset: {x: 0, y: 1.2, z: 0}
-  level: 1
   hp: 100
   maxHp: 100
-  mp: 100
-  maxMp: 100
-  pp: 10
-  maxPP: 10
-  attackPower: 50
-  magicPower: 50
-  defense: 30
-  speed: 90
   actionPoint: 2
   passivePoint: 2
 --- !u!1660057539 &9223372036854775807

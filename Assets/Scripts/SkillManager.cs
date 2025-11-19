@@ -77,28 +77,6 @@ public class SkillManager : MonoBehaviour
         return skillCollection.skills.FindAll(s => s.buttonType == buttonType);
     }
     
-    // 스킬 사용 가능 여부 확인
-    public bool CanUseSkill(Skill skill, Character character)
-    {
-        if (skill == null || character == null) return false;
-        
-        // AP 확인 (액티브 스킬만)
-        if (skill.type == "active" && character.actionPoint < skill.costAP)
-        {
-            Debug.Log($"{character.characterName}의 AP가 부족합니다. (필요: {skill.costAP})");
-            return false;
-        }
-        
-        // PP 확인 (액티브 스킬만)
-        if (skill.type == "active" && character.pp < skill.costPP)
-        {
-            Debug.Log($"{character.characterName}의 PP가 부족합니다. (필요: {skill.costPP})");
-            return false;
-        }
-        
-        return true;
-    }
-    
     // 스킬 효과 적용
     public void ApplySkillEffects(Skill skill, Character user, Character target)
     {
@@ -148,9 +126,7 @@ public class SkillManager : MonoBehaviour
                 // TODO: 상태이상 시스템 구현
                 break;
                 
-            case "restore_pp":
-                user.pp += (int)effect.value;
-                Debug.Log($"{user.characterName}의 PP +{effect.value}");
+            case "restore_pp":                
                 break;
                 
             default:

@@ -6,7 +6,8 @@ using UnityEngine;
 public class Character : MonoBehaviour
 {
     public string characterName;
-    public string strategyName = "공격형 작전";
+    public string className;    // 직업
+    public string strategyName;
     Strategy currentStrategy; // 현재 사용 중인 작전
     List<StrategyAction> availableActions = new List<StrategyAction>();
     public int position = 1;
@@ -18,23 +19,25 @@ public class Character : MonoBehaviour
     
     // 캐릭터 스탯
     [Header("Stats")]
-    public int level = 1;            // 레벨
+   
     public float hp = 100f;
-    public float maxHp = 100f;
-    public float mp = 100f;
-    public float maxMp = 100f;
-    public int pp = 10;              // PP (스킬 포인트)
-    public int maxPP = 10;           // 최대 PP
-    public float attackPower = 50f;
-    public float magicPower = 50f;   // 마법 공격력
-    public float defense = 30f;      // 방어력
-    public float speed = 100f;    
+    public float maxHp = 100f;    
     public int actionPoint = 2;      // 행동 포인트 (0이면 행동 불가)
     public int passivePoint = 2;
-    
+    internal float attackPower;
+    internal float defense;
+    internal float magicPower;
+    internal float speed;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // 직업 스탯 적용
+        if (!string.IsNullOrEmpty(className))
+        {
+            ClassManager.Instance.ApplyClassStatsToCharacter(this, className);
+        }
+
         // HP 바 생성
         CreateHPBar();        
         
@@ -312,8 +315,7 @@ public class Character : MonoBehaviour
     // PP 회복
     public void RestorePP(int amount)
     {
-        pp = Mathf.Min(maxPP, pp + amount);
-        Debug.Log($"{characterName}의 PP +{amount} (현재: {pp}/{maxPP})");
+        
     }    
     
 }
