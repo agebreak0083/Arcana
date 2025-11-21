@@ -2,7 +2,7 @@
   "positions": [
     {
       "position":"1",
-      "class":"Attacker"      
+      "class":"fighter"      
     },
     {
       "position":"2",
@@ -71,42 +71,7 @@
           "condition2": "적 수 > 3"
         }
       ]
-    },
-    {
-      "name": "균형형 작전",
-      "actions": [
-        {
-          "priority": 1,
-          "action": "회복",
-          "condition1": "아군 HP < 30%",
-          "condition2": "MP > 20"
-        },
-        {
-          "priority": 2,
-          "action": "스킬공격",
-          "condition1": "적 HP < 50%",
-          "condition2": "MP > 40"
-        },
-        {
-          "priority": 3,
-          "action": "일반공격",
-          "condition1": "적이 존재함",
-          "condition2": "MP < 30"
-        },
-        {
-          "priority": 4,
-          "action": "방어",
-          "condition1": "아군 HP < 40%",
-          "condition2": "적의 턴"
-        },
-        {
-          "priority": 5,
-          "action": "버프",
-          "condition1": "전투 시작",
-          "condition2": "MP > 50"
-        }
-      ]
-    },
+    },   
     {
       "name": "Supporter",
       "actions": [
@@ -147,42 +112,7 @@
           "condition2": ""
         }
       ]
-    },
-    {
-      "name": "속공형 작전",
-      "actions": [
-        {
-          "priority": 1,
-          "action": "연속공격",
-          "condition1": "적 HP > 60%",
-          "condition2": "아군 속도 > 적 속도"
-        },
-        {
-          "priority": 2,
-          "action": "크리티컬 노리기",
-          "condition1": "적 방어 태세 아님",
-          "condition2": "아군 치명타율 > 30%"
-        },
-        {
-          "priority": 3,
-          "action": "빠른 공격",
-          "condition1": "적이 존재함",
-          "condition2": ""
-        },
-        {
-          "priority": 4,
-          "action": "회피",
-          "condition1": "적 공격 감지",
-          "condition2": "아군 회피율 > 40%"
-        },
-        {
-          "priority": 5,
-          "action": "선제공격",
-          "condition1": "전투 시작",
-          "condition2": "아군이 먼저 행동"
-        }
-      ]
-    }
+    }  
   ]
 }
 

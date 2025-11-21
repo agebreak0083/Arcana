@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아르카나 코드: 작전 코딩 시뮬레이션</title>
+    <!-- Tailwind CSS 로드 --><script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        /* 16:9 최적화를 위해 body를 flex column으로 설정 */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #111827; /* gray-900 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem; /* p-6 */
+        }
+        
+        /* 스크롤바 디자인 */
+        .custom-scroll::-webkit-scrollbar { width: 8px; }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #4a5568;
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background-color: #1a202c;
+        }
+        
+        /* 공통 캐릭터 카드 스타일 */
+        .character-card, .slot-card {
+            aspect-ratio: 1 / 1; /* 정사각형 카드 */
+            border-radius: 0.75rem; /* rounded-xl */
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .character-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .character-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.85);
+            padding: 0.25rem 0.5rem;
+            text-align: center;
+            font-size: 0.65rem; /* text-[10px] */
+            font-weight: 700;
+        }
+        .selected-pool-card {
+            border: 4px solid #fcd34d; /* yellow-300 */
+            box-shadow: 0 0 15px rgba(252, 211, 77, 0.7);
+        }
+        .deployed-card {
+            border: 3px solid #38bdf8; /* sky-400 */
+        }
+
+        /* 빈 슬롯 스타일 */
+        .empty-slot {
+            background-color: #374151; /* gray-700 */
+            border: 2px dashed #4b5563; /* gray-600 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #9ca3af; /* gray-400 */
+            font-size: 0.875rem;
+            font-weight: 600;
+            user-select: none;
+        }
+        .empty-slot.active-slot {
+            border: 2px dashed #a7f3d0; /* teal-200 */
+            background-color: #134e4a; /* Dark teal for active */
+            color: #a7f3d0;
+            box-shadow: 0 0 10px rgba(167, 243, 208, 0.5);
+        }
+
+        /* 코스트 색상 */
+        .cost-1 { background-color: #10b981; } /* emerald-500 */
+        .cost-2 { background-color: #3b82f6; } /* blue-500 */
+        .cost-3 { background-color: #ef4444; } /* red-500 */
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+
+    <div class="max-w-7xl mx-auto w-full">
+        <header class="mb-6">
+            <h1 class="text-3xl font-bold text-teal-400">ARCANA CODE: 작전 코딩 설정</h1>
+            <p class="text-gray-400 mt-1">프로토타입 랭킹전을 위한 전략 알고리즘을 설계합니다. (Unicorn Overlord 기반)</p>
+        </header>
+    </div>
+
+    <!-- Main Content Area: 수직 공간을 채우도록 flex-grow 적용 --><main class="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto w-full flex-grow">
+
+        <!-- 1. 좌측: 부대 편성 및 캐릭터 정보 패널 (1/3 너비, 스크롤 가능) --><div class="lg:w-1/3 space-y-4 flex flex-col">
+
+            <!-- 부대 정보 카드 --><div id="unit-info" class="bg-gray-800 p-5 rounded-xl shadow-lg border border-gray-700">
+                <h2 class="text-xl font-semibold mb-3 text-yellow-300">부대 정보</h2>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400">부대명:</span>
+                        <span class="font-medium text-white">코드 브레이커 A</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400">부대 코스트 (현재/최대):</span>
+                        <span class="font-bold text-lg text-teal-400" id="current-cost">0 / 15</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400">랭킹 모드:</span>
+                        <span class="font-medium text-red-400">코스트 제한 (Lv.10)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 부대 편성 그리드 (전열/후열) --><div class="bg-gray-800 p-5 rounded-xl shadow-lg border border-gray-700">
+                <h2 class="text-xl font-semibold mb-4 text-yellow-300">부대 편성 (Front 3 / Back 3)</h2>
+                <div class="grid grid-cols-3 gap-3">
+                    <!-- 전열 --><div class="col-span-3 text-sm font-semibold text-gray-400 mb-1">전열 (Front)</div>
+                    
+                    <div id="slot-0" class="slot-card empty-slot cursor-pointer hover:bg-gray-600 transition">Front 1</div>
+                    <div id="slot-1" class="slot-card empty-slot cursor-pointer hover:bg-gray-600 transition">Front 2</div>
+                    <div id="slot-2" class="slot-card empty-slot cursor-pointer hover:bg-gray-600 transition">Front 3</div>
+
+                    <!-- 후열 --><div class="col-span-3 text-sm font-semibold text-gray-400 mt-3 mb-1">후열 (Back)</div>
+                    
+                    <div id="slot-3" class="slot-card empty-slot cursor-pointer hover:bg-gray-600 transition">Back 1</div>
+                    <div id="slot-4" class="slot-card empty-slot cursor-pointer hover:bg-gray-600 transition">Back 2</div>
+                    <div id="slot-5" class="slot-card empty-slot cursor-pointer hover:bg-gray-600 transition">Back 3</div>
+                </div>
+                <button id="clear-unit-btn" class="mt-4 w-full text-xs py-2 bg-red-800/50 text-red-300 rounded-lg hover:bg-red-700/50 transition">부대 초기화</button>
+            </div>
+
+            <!-- 나의 캐릭터 풀 --><div class="bg-gray-800 p-5 rounded-xl shadow-lg border border-gray-700">
+                <h2 class="text-xl font-semibold mb-4 text-yellow-300">나의 캐릭터 풀 (7명)</h2>
+                <div id="character-pool-container" class="grid grid-cols-4 gap-3 custom-scroll max-h-48 overflow-y-auto pr-2">
+                    <!-- 캐릭터 카드 목록은 JS에서 생성됩니다. -->
+                </div>
+                <p class="text-xs text-gray-500 mt-3">캐릭터를 클릭 후, 위의 빈 슬롯을 클릭하여 배치하세요.</p>
+            </div>
+            
+            <!-- (이전에 여기에 있던 상세 정보 패널은 우측으로 이동) -->
+
+        </div>
+
+        <!-- 2. 우측: 작전 코딩 목록 패널 (2/3 너비, 상세 정보 패널을 포함하여 수직 공간을 채움) --><div class="lg:w-2/3 space-y-4 flex flex-col">
+            
+            <!-- 선택된 캐릭터 상세 - 대형 카드 스타일 (새로운 위치: 코딩 패널 위에 배치) -->
+            <div id="detail-panel" class="bg-gray-800 p-5 rounded-xl shadow-lg border border-gray-700 flex gap-4 hidden">
+                <!-- 상세 정보는 JS에 의해 채워집니다 -->
+            </div>
+
+            <!-- 작전 코딩 패널 (이 부분이 남은 공간을 채워야 함) -->
+            <div class="bg-gray-800 p-5 rounded-xl shadow-lg border border-gray-700 flex flex-col flex-grow min-h-0">
+                <h2 class="text-2xl font-semibold mb-4 text-teal-400">선택된 캐릭터 - 작전 코딩</h2>
+                <!-- 코딩 내용 영역: flex-grow로 남은 공간을 모두 차지하며 스크롤 가능하도록 설정 --><div id="coding-area-content" class="flex-grow overflow-y-auto custom-scroll">
+                    <p class="text-gray-400 text-center py-12">캐릭터를 선택하면, 해당 캐릭터의 작전 코딩 목록이 표시됩니다.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <div class="max-w-7xl mx-auto w-full">
+        <footer class="mt-8 text-center text-gray-500 text-sm">
+            <p>저장 시 파일명 규정: [ID]_[날짜][시간].html (예: agebreak_2511201504.html)</p>
+        </footer>
+    </div>
+
+<script>
+    // 1. 캐릭터 데이터 정의 (코스트 1~3 제한 반영)
+    const MAX_COST = 15;
+    const characters = [
+        { id: 'raina', name: 'Raina', class: 'Knight', cost: 3, arcana: '돌격 전술', speed: 65, desc: '기마병 타입. 보병에게 강력하며, 기동성이 뛰어남. 전열에서 아군을 보호하는 가드 스킬을 주로 사용합니다.', imgSeed: 10 },
+        { id: 'elara', name: 'Elara', class: 'Lord', cost: 3, arcana: '지휘 계통', speed: 70, desc: '부대의 리더. 능력치가 균형 잡혀 있으며, 광범위한 버프 및 디버프 스킬을 보유합니다.', imgSeed: 11 },
+        { id: 'sera', name: 'Sera', class: 'Witch', cost: 3, arcana: '광역 마법', speed: 50, desc: '후열 마법 딜러. 적의 방어력을 무시하는 광역 마법 공격이 특기입니다. 생존력이 낮습니다.', imgSeed: 12 },
+        { id: 'miel', name: 'Miel', class: 'Cleric', cost: 2, arcana: '긴급 치유', speed: 80, desc: '후열 힐러. 행동 속도가 빨라 아군에게 상태이상 해제와 회복 스킬을 신속하게 적용합니다.', imgSeed: 13 },
+        { id: 'zion', name: 'Zion', class: 'Sniper', cost: 2, arcana: '장거리 저격', speed: 60, desc: '후열 물리 딜러. 단일 대상에게 높은 피해를 입히며, 특히 방어력이 낮은 적에게 효과적입니다.', imgSeed: 14 },
+        { id: 'aria', name: 'Aria', class: 'Archer', cost: 2, arcana: '대공 사격', speed: 75, desc: '후열 대공 전문가. 비병(Flying) 타입에게 치명적인 추가 피해를 입히는 스킬을 주로 사용합니다.', imgSeed: 15 },
+        { id: 'kai', name: 'Kai', class: 'Shieldmaiden', cost: 1, arcana: '경량 방어', speed: 55, desc: '저코스트 전열 방패병. 스킬 슬롯이 적지만, 간단한 가드와 어그로 스킬을 가진 핵심 탱커입니다.', imgSeed: 16 }
+    ];
+
+    // 2. 상태 관리
+    let selectedCharacterId = null;
+    let unitSlots = Array(6).fill(null); // 6개의 슬롯 (Front 3, Back 3)
+    let isEditingSlotIndex = null; // 현재 코딩 정보를 표시할 슬롯 인덱스
+
+    // 3. DOM 요소 참조
+    const poolContainer = document.getElementById('character-pool-container');
+    const slotElements = Array.from({ length: 6 }, (_, i) => document.getElementById(`slot-${i}`));
+    const detailPanel = document.getElementById('detail-panel');
+    const currentCostDisplay = document.getElementById('current-cost');
+    const clearUnitBtn = document.getElementById('clear-unit-btn');
+    const codingAreaContent = document.getElementById('coding-area-content');
+
+    // 4. 유틸리티 함수
+    const getCharacterById = (id) => characters.find(c => c.id === id);
+    const getCostClass = (cost) => `cost-${cost}`;
+    const calculateTotalCost = () => unitSlots.reduce((sum, charId) => sum + (charId ? getCharacterById(charId).cost : 0), 0);
+
+    // 5. 렌더링 함수
+    
+    // 캐릭터 카드 HTML 생성
+    function createCharacterCardHTML(char, isDeployed = false) {
+        const costClass = getCostClass(char.cost);
+        const deployedClass = isDeployed ? 'deployed-card opacity-50' : '';
+        
+        return `
+            <div id="char-${char.id}" data-char-id="${char.id}" class="character-card ${deployedClass} border-2 border-gray-600 hover:border-teal-400 transition" 
+                 onclick="handleCharacterSelect('${char.id}')">
+                <img src="https://placehold.co/120x120/000/fff?text=${char.name.toUpperCase()}" 
+                     alt="${char.name} Portrait" 
+                     onerror="this.onerror=null; this.src='https://image.pollinations.ai/prompt/anime%20girl%20${char.class},%20fantasy%20background?width=120&height=120&seed=${char.imgSeed}'">
+                <div class="character-overlay">
+                    ${char.name} <span class="text-teal-300 font-normal">(${char.class.charAt(0)}, ${char.cost}C)</span>
+                    <div class="absolute top-0 left-0 text-xs font-bold px-1 rounded-br-lg text-white ${costClass}">
+                        ${char.cost}C
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // 캐릭터 풀 렌더링
+    function renderCharacterPool() {
+        poolContainer.innerHTML = characters.map(char => {
+            const isDeployed = unitSlots.includes(char.id);
+            return createCharacterCardHTML(char, isDeployed);
+        }).join('');
+        
+        // 선택된 캐릭터가 있으면 풀에서도 하이라이트
+        if (selectedCharacterId) {
+            document.getElementById(`char-${selectedCharacterId}`)?.classList.add('selected-pool-card');
+        }
+    }
+
+    // 부대 슬롯 렌더링
+    function renderUnitSlots() {
+        let totalCost = 0;
+        unitSlots.forEach((charId, index) => {
+            const slotEl = slotElements[index];
+            slotEl.innerHTML = '';
+            slotEl.classList.remove('empty-slot', 'deployed-card', 'active-slot');
+            slotEl.classList.add('slot-card');
+            
+            if (charId) {
+                const char = getCharacterById(charId);
+                totalCost += char.cost;
+                const costClass = getCostClass(char.cost);
+                
+                // 배치된 캐릭터 카드 (간소화 버전)
+                slotEl.innerHTML = `
+                    <div data-char-id="${char.id}" class="w-full h-full relative" onclick="handleSlotSelect(${index})">
+                        <img src="https://placehold.co/120x120/000/fff?text=${char.name.toUpperCase()}" 
+                             alt="${char.name} Portrait" 
+                             onerror="this.onerror=null; this.src='https://image.pollinations.ai/prompt/anime%20girl%20${char.class},%20fantasy%20background?width=120&height=120&seed=${char.imgSeed}'" 
+                             class="w-full h-full object-cover rounded-xl deployed-card">
+                        <div class="character-overlay rounded-b-xl">
+                            ${char.name} <span class="text-teal-300 font-normal">(${char.class.charAt(0)}, ${char.cost}C)</span>
+                            <div class="absolute top-0 left-0 text-xs font-bold px-1 rounded-br-lg text-white ${costClass}">
+                                ${char.cost}C
+                            </div>
+                        </div>
+                    </div>
+                `;
+                slotEl.classList.add('deployed-card', 'p-0'); // p-0으로 이미지/카드 경계 제거
+            } else {
+                // 빈 슬롯
+                const position = index < 3 ? 'Front' : 'Back';
+                slotEl.innerHTML = `+ ${position} ${index % 3 + 1}`;
+                slotEl.classList.add('empty-slot');
+                slotEl.onclick = () => handleSlotClick(index);
+                slotEl.classList.add('cursor-pointer', 'hover:bg-gray-600', 'transition');
+            }
+        });
+        
+        currentCostDisplay.textContent = `${totalCost} / ${MAX_COST}`;
+        
+        // 코스트 초과 경고 (alert() 대신 커스텀 모달 UI를 사용해야 하지만, 여기서는 단순화하여 텍스트 색상만 변경)
+        if (totalCost > MAX_COST) {
+            currentCostDisplay.classList.add('text-red-400');
+            currentCostDisplay.classList.remove('text-teal-400');
+        } else {
+            currentCostDisplay.classList.add('text-teal-400');
+            currentCostDisplay.classList.remove('text-red-400');
+        }
+    }
+
+    // 캐릭터 상세 정보 렌더링
+    function renderCharacterDetail(char) {
+        if (!char) {
+            detailPanel.classList.add('hidden');
+            return;
+        }
+
+        const costClass = getCostClass(char.cost);
+
+        detailPanel.classList.remove('hidden');
+        detailPanel.innerHTML = `
+            <!-- 대형 캐릭터 포트레이트 -->
+            <div class="w-2/5 aspect-square relative rounded-xl overflow-hidden border-4 border-yellow-300 shadow-xl">
+                <img src="https://image.pollinations.ai/prompt/anime%20girl%20${char.class},%20silver%20armor,%20blonde%20hair,%20blue%20eyes,%20fantasy%20background,%20full-body%20portrait?width=200&height=200&seed=${char.imgSeed}" 
+                     alt="${char.name} Focus Portrait" class="w-full h-full object-cover">
+                <div class="absolute top-0 right-0 text-white text-xs font-bold px-2 py-1 rounded-bl-lg ${costClass}">COST: ${char.cost}</div>
+            </div>
+            
+            <!-- 캐릭터 상세 정보 -->
+            <div class="w-3/5">
+                <h2 class="text-2xl font-bold mb-3 text-teal-400">${char.name} (${char.class})</h2>
+                <div class="grid grid-cols-2 gap-y-2 text-sm">
+                    <div class="text-gray-400">클래스:</div> <div class="font-medium">${char.class}</div>
+                    <div class="text-gray-400">고유 아르카나 코드:</div> <div class="font-medium text-yellow-400">${char.arcana}</div>
+                    <div class="text-gray-400">행동 속도:</div> <div class="font-medium">${char.speed} (중간)</div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-gray-700">
+                    <p class="text-sm text-gray-300">${char.desc}</p>
+                    <button class="mt-2 w-full text-xs py-1 bg-teal-800/50 text-teal-300 rounded-lg hover:bg-teal-700/50 transition" onclick="handleRemoveFromUnit('${char.id}')">부대에서 제거</button>
+                </div>
+            </div>
+        `;
+    }
+    
+    // 코딩 영역 렌더링
+    function renderCodingArea(char) {
+        if (!char) {
+            codingAreaContent.innerHTML = `<p class="text-gray-400 text-center py-12">캐릭터를 선택하면, 해당 캐릭터의 작전 코딩 목록이 표시됩니다.</p>`;
+            return;
+        }
+
+        const codingSlotsHtml = `
+            <div class="space-y-2 mt-2 custom-scroll">
+                <!-- Slot 1 (공격 연계) -->
+                <div class="grid grid-cols-12 items-center bg-gray-700/50 p-1 rounded-lg hover:bg-gray-700 transition duration-150">
+                    <div class="col-span-1 text-center font-bold text-yellow-300">1</div>
+                    <div class="col-span-3 text-sm text-teal-300 truncate pl-1">어썰트 랜스 (AP)</div>
+                    <div class="col-span-4 px-1">
+                        <select class="w-full text-xs bg-gray-900 border border-gray-600 rounded p-1 text-white focus:ring-teal-400 focus:border-teal-400">
+                            <option selected>적 클래스: 비병 (Flying)</option>
+                            <option>자신 HP가 100%</option>
+                            <option>적군에게 상태 이상 존재</option>
+                        </select>
+                    </div>
+                    <div class="col-span-4 px-1">
+                        <select class="w-full text-xs bg-gray-900 border border-gray-600 rounded p-1 text-white focus:ring-teal-400 focus:border-teal-400">
+                            <option selected>적군 HP가 가장 낮은 대상</option>
+                            <option>적군 전체</option>
+                            <option>조건 없음</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Slot 2 (범용 공격) -->
+                <div class="grid grid-cols-12 items-center bg-gray-700/50 p-1 rounded-lg hover:bg-gray-700 transition duration-150">
+                    <div class="col-span-1 text-center font-bold text-yellow-300">2</div>
+                    <div class="col-span-3 text-sm text-teal-300 truncate pl-1">롱 스러스트 (AP)</div>
+                    <div class="col-span-4 px-1">
+                        <select class="w-full text-xs bg-gray-900 border border-gray-600 rounded p-1 text-white focus:ring-teal-400 focus:border-teal-400">
+                            <option>적 클래스: 비병 (Flying)</option>
+                            <option selected>적 클래스: 기마병 (Cavalry)</option>
+                            <option>적군에게 버프 존재</option>
+                        </select>
+                    </div>
+                    <div class="col-span-4 px-1">
+                        <select class="w-full text-xs bg-gray-900 border border-gray-600 rounded p-1 text-white focus:ring-teal-400 focus:border-teal-400">
+                            <option>적군 HP가 가장 높은 대상</option>
+                            <option selected>조건 없음</option>
+                            <option>가장 가까운 적</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Slot 3 (가드 패시브) -->
+                <div class="grid grid-cols-12 items-center bg-gray-700/50 p-1 rounded-lg hover:bg-gray-700 transition duration-150">
+                    <div class="col-span-1 text-center font-bold text-yellow-300">3</div>
+                    <div class="col-span-3 text-sm text-purple-300 truncate pl-1">가드 (PP)</div>
+                    <div class="col-span-4 px-1">
+                        <select class="w-full text-xs bg-gray-900 border border-gray-600 rounded p-1 text-white focus:ring-teal-400 focus:border-teal-400">
+                            <option selected>적의 공격 대상이 자신</option>
+                            <option>자신이 전열에 위치</option>
+                            <option>아군이 공격받음</option>
+                        </select>
+                    </div>
+                    <div class="col-span-4 px-1">
+                        <select class="w-full text-xs bg-gray-900 border border-gray-600 rounded p-1 text-white focus:ring-teal-400 focus:border-teal-400">
+                            <option>아군에게 상태 이상 존재</option>
+                            <option selected>자신에게 방어 버프 없음</option>
+                            <option>조건 없음</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 빈 슬롯들 -->
+                ${Array(5).fill(0).map((_, i) => `
+                    <div class="grid grid-cols-12 items-center bg-gray-800/50 p-1 rounded-lg border border-dashed border-gray-600">
+                        <div class="col-span-1 text-center font-bold text-gray-600">${4 + i}</div>
+                        <div class="col-span-3 text-sm text-gray-600 italic truncate pl-1">... 스킬 선택</div>
+                        
+                        <div class="col-span-4 px-1">
+                            <select class="w-full text-xs bg-gray-900 border border-dashed border-gray-600 rounded p-1 text-gray-500 focus:ring-teal-400 focus:border-teal-400">
+                                <option disabled selected>-- 조건 1 선택 --</option>
+                                <option>자신 HP가 50% 미만</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-span-4 px-1">
+                            <select class="w-full text-xs bg-gray-900 border border-dashed border-gray-600 rounded p-1 text-gray-500 focus:ring-teal-400 focus:border-teal-400">
+                                <option disabled selected>-- 조건 2 선택 --</option>
+                                <option>가장 가까운 적</option>
+                            </select>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        
+        codingAreaContent.innerHTML = `
+            <!-- 코딩 테이블 헤더 (그리드 조정: 1 + 3 + 4 + 4 = 12) -->
+            <div class="grid grid-cols-12 text-xs font-bold text-gray-400 pb-2 border-b border-gray-700">
+                <div class="col-span-1 text-center">No.</div>
+                <div class="col-span-3">스킬 (AP/PP)</div>
+                <div class="col-span-4">조건 1</div>
+                <div class="col-span-4">조건 2</div>
+            </div>
+            ${codingSlotsHtml}
+        `;
+    }
+
+    // 6. 이벤트 핸들러
+
+    // 캐릭터 풀에서 캐릭터 선택
+    function handleCharacterSelect(charId) {
+        // 기존 선택 해제
+        if (selectedCharacterId) {
+            document.getElementById(`char-${selectedCharacterId}`)?.classList.remove('selected-pool-card');
+            
+            // 이전에 선택한 캐릭터가 배치된 슬롯의 활성화 상태 해제
+            const deployedIndex = unitSlots.findIndex(id => id === selectedCharacterId);
+            if (deployedIndex !== -1) {
+                slotElements[deployedIndex].classList.remove('active-slot');
+            }
+        }
+        
+        // 새 캐릭터 선택 및 하이라이트
+        selectedCharacterId = charId;
+        const selectedChar = getCharacterById(charId);
+        document.getElementById(`char-${charId}`)?.classList.add('selected-pool-card');
+        
+        // 캐릭터 상세 정보 표시
+        renderCharacterDetail(selectedChar);
+        
+        // ************************************************
+        // 수정: 부대 배치 여부와 관계없이 코딩 영역을 표시합니다.
+        // ************************************************
+        renderCodingArea(selectedChar);
+
+        // 부대 슬롯 활성화 상태 업데이트 (배치된 캐릭터 슬롯 하이라이트 유지)
+        if (unitSlots.includes(charId)) {
+            // 부대에 배치된 캐릭터를 선택한 경우
+            isEditingSlotIndex = unitSlots.indexOf(charId);
+            slotElements[isEditingSlotIndex].classList.add('active-slot');
+        } else {
+            // 풀에만 있는 캐릭터를 선택한 경우
+            isEditingSlotIndex = null;
+        }
+
+        // 빈 슬롯 클릭을 위한 활성화 (배치 준비 상태)
+        slotElements.forEach(slot => {
+            if (!slot.dataset.charId) { // 빈 슬롯만
+                slot.classList.add('active-slot');
+            }
+        });
+    }
+
+    // 부대 슬롯 클릭 (배치 또는 제거)
+    function handleSlotClick(index) {
+        const currentCharId = unitSlots[index];
+        
+        // 1. 이미 캐릭터가 배치된 슬롯을 클릭하면 (제거)
+        if (currentCharId) {
+            // 부대에서 제거
+            handleRemoveFromUnit(currentCharId);
+            
+        // 2. 캐릭터 풀에서 선택된 상태로 빈 슬롯을 클릭하면 (배치)
+        } else if (selectedCharacterId) {
+            const charToDeploy = getCharacterById(selectedCharacterId);
+            const totalCost = calculateTotalCost();
+
+            // 코스트 초과 체크 (alert() 대신 커스텀 모달 UI를 사용해야 하지만, 여기서는 간단하게 처리)
+            if (totalCost + charToDeploy.cost > MAX_COST) {
+                console.error('코스트 제한(15)을 초과하여 배치할 수 없습니다.');
+                // 사용자에게 메시지를 보여주는 커스텀 UI 로직이 필요함
+                return;
+            }
+
+            // 부대에 배치
+            unitSlots[index] = selectedCharacterId;
+            
+            // 이전 선택 상태 초기화
+            selectedCharacterId = null;
+            
+            // UI 전체 업데이트
+            updateUI();
+            
+        // 3. 아무것도 선택되지 않은 상태로 빈 슬롯을 클릭하면
+        } else {
+            // 이 경우, 아무 동작 없음 (또는 슬롯에 대한 정보 표시)
+            console.log(`Slot ${index} clicked - Empty`);
+        }
+    }
+    
+    // 배치된 캐릭터를 클릭했을 때 (코딩 화면으로 전환)
+    function handleSlotSelect(index) {
+        const charId = unitSlots[index];
+        if (charId) {
+            // 코딩을 편집할 캐릭터로 지정
+            handleCharacterSelect(charId);
+        }
+    }
+
+    // 부대에서 캐릭터 제거
+    function handleRemoveFromUnit(charId) {
+        const indexToRemove = unitSlots.findIndex(id => id === charId);
+        if (indexToRemove !== -1) {
+            unitSlots[indexToRemove] = null;
+            
+            // 제거 후 상세 정보 패널 초기화 및 코딩 영역 초기화
+            selectedCharacterId = null;
+            isEditingSlotIndex = null;
+            
+            updateUI();
+        }
+    }
+    
+    // 부대 전체 초기화
+    clearUnitBtn.addEventListener('click', () => {
+        unitSlots = Array(6).fill(null);
+        selectedCharacterId = null;
+        isEditingSlotIndex = null;
+        updateUI();
+        // 코딩 영역 비활성화 및 상세 패널 숨김
+        codingAreaContent.innerHTML = `<p class="text-gray-400 text-center py-12">캐릭터를 선택하면, 해당 캐릭터의 작전 코딩 목록이 표시됩니다.</p>`;
+        detailPanel.classList.add('hidden');
+    });
+
+    // 전체 UI 업데이트 (상태 변경 시 호출)
+    function updateUI() {
+        renderCharacterPool();
+        renderUnitSlots();
+        
+        // 빈 슬롯 하이라이트 해제
+        slotElements.forEach(slot => slot.classList.remove('active-slot'));
+        
+        // 상세 패널과 코딩 영역 처리
+        const selectedChar = selectedCharacterId ? getCharacterById(selectedCharacterId) : null;
+        
+        if (!selectedChar) {
+            detailPanel.classList.add('hidden');
+            renderCodingArea(null);
+        } else {
+            // 캐릭터가 선택되어 있다면, detail과 coding area를 모두 renderCharacterSelect에서 처리했으므로 별도 처리 불필요.
+            // 다만, 캐릭터가 제거되었는데 selectedCharacterId가 null이 아닌 경우를 대비하여 아래 로직만 유지.
+            if (unitSlots.includes(selectedChar.id)) {
+                // 부대 슬롯 하이라이트만 다시 처리 (제거 후 재렌더링 시 필요)
+                const deployedIndex = unitSlots.indexOf(selectedChar.id);
+                slotElements[deployedIndex].classList.add('active-slot');
+            }
+        }
+    }
+
+    // 7. 초기화
+    window.onload = function() {
+        // 초기 렌더링
+        updateUI();
+    };
+
+</script>
+
+</body>
+</html>

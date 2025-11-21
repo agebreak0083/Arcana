@@ -481,7 +481,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Character
   characterName: "\uD0F1\uCEE4"
-  className: 
+  className: warrior
   strategyName: Defender
   position: 2
   hpBarPrefab: {fileID: 8822170745769691185, guid: 3c929d473c2cae64b9c6f75ba2af8176, type: 3}
@@ -1175,7 +1175,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Character
   characterName: "\uD0F1\uCEE4"
-  className: 
+  className: warrior
   strategyName: Defender
   position: 2
   hpBarPrefab: {fileID: 8822170745769691185, guid: 3c929d473c2cae64b9c6f75ba2af8176, type: 3}
@@ -1286,7 +1286,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Character
   characterName: "\uC11C\uD3EC\uD130"
-  className: 
+  className: wizard
   strategyName: Supporter
   position: 3
   hpBarPrefab: {fileID: 8822170745769691185, guid: 3c929d473c2cae64b9c6f75ba2af8176, type: 3}
@@ -1709,7 +1709,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd46ea5d9ab766e4dab7ef3673371765, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Character
-  characterName: "\uC5B4\uD0DD\uCEE4"
+  characterName: "\uD30C\uC774\uD130"
   className: fighter
   strategyName: fighter
   position: 1
@@ -1737,7 +1737,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Character
   characterName: "\uC11C\uD3EC\uD130"
-  className: 
+  className: hunter
   strategyName: Supporter
   position: 3
   hpBarPrefab: {fileID: 8822170745769691185, guid: 3c929d473c2cae64b9c6f75ba2af8176, type: 3}

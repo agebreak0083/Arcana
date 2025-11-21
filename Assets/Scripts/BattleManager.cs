@@ -193,10 +193,11 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    public Character GetDefaultTarget(Character attacker)
+    // player가 포함되지 않은, 상대방 타겟들 배열을 반환한다.
+    public Character[] GetEnemyTargets(Character player)
     {
         Character[] targetCharacters = null;
-        if(Array.Find(playerCharacters, c => c == attacker) != null)
+        if(Array.Find(playerCharacters, c => c == player) != null)
         {
             targetCharacters = enemyCharacters;
         }
@@ -205,20 +206,7 @@ public class BattleManager : MonoBehaviour
             targetCharacters = playerCharacters;
         }
 
-        int targetPosition = ((attacker.position - 1) % 3) + 1; 
-
-        // 1. 자신의 앞에 있는 적을 찾는다.
-        Character target = Array.Find(targetCharacters, c => c.position == targetPosition);
-
-        // 2. 자신의 앞에 적이 없으면 가장 position이 낮은 적을 찾는다.
-        if(target == null)
-        {
-            target = Array.Find(targetCharacters, c => c != null);
-        }
-
-        Debug.Log($"{attacker.characterName}의 기본 타겟: {target.characterName}");
-
-        return target;
+        return targetCharacters;
     }
 
 
