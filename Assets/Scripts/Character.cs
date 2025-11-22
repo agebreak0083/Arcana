@@ -60,6 +60,14 @@ public class Character : MonoBehaviour
 
     }
 
+    public void MoveCharacter(int position)
+    {
+        this.position = position;   
+        transform.position = BattleManager.Instance.GetPosition(position);
+        Debug.Log($"{characterName}이(가) {position}로 이동했습니다.");
+        
+    }
+
     public void SetStrategyName()
     {
         currentStrategy = StrategyManager.Instance.GetStrategyByName(strategyName);
