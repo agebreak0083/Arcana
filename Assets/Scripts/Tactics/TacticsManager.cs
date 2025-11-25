@@ -17,7 +17,7 @@ namespace Arcana.Tactics
         public Transform characterPoolContainer;
         public Transform formationGridContainer; // Should have 6 slots as children
         public Transform codingListContainer;
-        
+
         [Header("UI Prefabs")]
         public GameObject characterCardPrefab;
         public GameObject tacticRowPrefab;
@@ -28,6 +28,7 @@ namespace Arcana.Tactics
         public TextMeshProUGUI codingPanelTitle;
         public GameObject characterDetailPanel;
         public Image detailPortrait;
+        public TextMeshProUGUI detailCost;
         public TextMeshProUGUI detailName;
         public TextMeshProUGUI detailClass;
         public TextMeshProUGUI detailArcana;
@@ -39,43 +40,305 @@ namespace Arcana.Tactics
         private CharacterData _selectedCharacter; // Currently selected (could be from pool or slot)
         private CharacterData[] _unitSlots = new CharacterData[6]; // 0-5
         private Dictionary<string, TacticsPlan> _codingData = new Dictionary<string, TacticsPlan>();
-        
+
         // Modal State
         private string _modalTargetCharId;
         private int _modalTargetRowIndex;
         private int _modalTargetConditionNum; // 1 or 2
 
+        private List<FormationSlotUI> _formationSlots = new List<FormationSlotUI>();
+        private Dictionary<string, ClassInfo> _classData = new Dictionary<string, ClassInfo>();
+
         private void Start()
         {
+            AutoAssignReferences();
             InitializeUI();
             UpdateAllUI();
         }
 
-        private void InitializeUI()
+        private void AutoAssignReferences()
         {
-            // Clear placeholders
-            foreach (Transform child in characterPoolContainer) Destroy(child.gameObject);
-            
-            // Instantiate Pool Cards
-            foreach (var charData in availableCharacters)
+            if (characterPoolContainer == null)
             {
-                var go = Instantiate(characterCardPrefab, characterPoolContainer);
-                var card = go.GetComponent<CharacterCardUI>();
-                card.Setup(charData, this, false);
-            }
-
-            // Initialize Slots (Assuming they are already children of formationGridContainer in order)
-            for (int i = 0; i < 6; i++)
-            {
-                if (i < formationGridContainer.childCount)
+                GameObject go = GameObject.Find("PoolScrollView");
+                if (go != null)
                 {
-                    var slot = formationGridContainer.GetChild(i).GetComponent<FormationSlotUI>();
-                    if (slot != null) slot.Setup(this, i);
+                    Transform viewport = go.transform.Find("Viewport");
+                    if (viewport != null) characterPoolContainer = viewport.Find("Content");
                 }
             }
 
-            conditionModal.Setup(this);
-            removeFromUnitBtn.onClick.AddListener(OnRemoveFromUnitClicked);
+            if (formationGridContainer == null)
+            {
+                GameObject go = GameObject.Find("FormationGridPanel");
+                if (go != null) formationGridContainer = go.transform;
+            }
+
+            if (codingListContainer == null)
+            {
+                GameObject go = GameObject.Find("CodingScrollView");
+                if (go != null)
+                {
+                    Transform viewport = go.transform.Find("Viewport");
+                    if (viewport != null) codingListContainer = viewport.Find("Content");
+                }
+            }
+
+            if (conditionModal == null) conditionModal = FindObjectOfType<ConditionModalUI>(true);
+
+            if (currentCostText == null)
+            {
+                GameObject go = GameObject.Find("CostText");
+                if (go != null) currentCostText = go.GetComponent<TextMeshProUGUI>();
+            }
+
+            if (codingPanelTitle == null)
+            {
+                GameObject header = GameObject.Find("CodingHeader");
+                if (header != null)
+                {
+                    Transform title = header.transform.Find("Title");
+                    if (title != null) codingPanelTitle = title.GetComponent<TextMeshProUGUI>();
+                }
+            }
+
+            if (characterDetailPanel == null)
+            {
+                GameObject go = GameObject.Find("DetailPanel");
+                if (go != null) characterDetailPanel = go;
+            }
+
+            if (characterDetailPanel != null)
+            {
+                if (detailPortrait == null)
+                {
+                    Transform t = RecursiveFind(characterDetailPanel.transform, "PortraitImage");
+                    if (t != null) detailPortrait = t.GetComponent<Image>();
+                }
+                if (detailCost == null)
+                {
+                    Transform t = RecursiveFind(characterDetailPanel.transform, "CostText_Detail");
+                    if (t != null) detailCost = t.GetComponent<TextMeshProUGUI>();
+                }
+                if (detailName == null)
+                {
+                    Transform t = RecursiveFind(characterDetailPanel.transform, "Name");
+                    if (t != null) detailName = t.GetComponent<TextMeshProUGUI>();
+                }
+                if (detailDesc == null)
+                {
+                    Transform t = RecursiveFind(characterDetailPanel.transform, "Description");
+                    if (t != null) detailDesc = t.GetComponent<TextMeshProUGUI>();
+                }
+                if (removeFromUnitBtn == null)
+                {
+                    Transform t = RecursiveFind(characterDetailPanel.transform, "RemoveButton");
+                    if (t != null) removeFromUnitBtn = t.GetComponent<Button>();
+                }
+
+                if (detailClass == null) detailClass = FindInfoValue("클래스:");
+                if (detailArcana == null) detailArcana = FindInfoValue("고유 아르카나:");
+                if (detailSpeed == null) detailSpeed = FindInfoValue("행동 속도:");
+            }
+
+            if (characterCardPrefab == null) characterCardPrefab = Resources.Load<GameObject>("Prefabs/UI/CharacterCardPrefab");
+            if (tacticRowPrefab == null) tacticRowPrefab = Resources.Load<GameObject>("Prefabs/UI/TacticRowPrefab");
+        }
+
+        private TextMeshProUGUI FindInfoValue(string labelStart)
+        {
+            if (characterDetailPanel == null) return null;
+            Transform infoArea = RecursiveFind(characterDetailPanel.transform, "InfoArea");
+            if (infoArea == null) return null;
+
+            foreach (Transform child in infoArea)
+            {
+                Transform labelObj = child.Find("Label");
+                if (labelObj != null)
+                {
+                    var labelTmp = labelObj.GetComponent<TextMeshProUGUI>();
+                    if (labelTmp != null && labelTmp.text.StartsWith(labelStart))
+                    {
+                        Transform valueObj = child.Find("Value");
+                        if (valueObj != null) return valueObj.GetComponent<TextMeshProUGUI>();
+                    }
+                }
+            }
+            return null;
+        }
+
+        private Transform RecursiveFind(Transform parent, string name)
+        {
+            foreach (Transform child in parent)
+            {
+                if (child.name == name) return child;
+                Transform result = RecursiveFind(child, name);
+                if (result != null) return result;
+            }
+            return null;
+        }
+
+        private void InitializeUI()
+        {
+            LoadCharactersFromJSON();
+
+            if (characterPoolContainer != null && characterCardPrefab != null)
+            {
+                foreach (var charData in availableCharacters)
+                {
+                    var go = Instantiate(characterCardPrefab, characterPoolContainer);
+                    var card = go.GetComponent<CharacterCardUI>();
+                    card.Setup(charData, this, false);
+                }
+            }
+
+            _formationSlots.Clear();
+            for (int i = 0; i < 6; i++)
+            {
+                GameObject slotObj = GameObject.Find($"Slot_{i}");
+                if (slotObj != null)
+                {
+                    var slot = slotObj.GetComponent<FormationSlotUI>();
+                    if (slot != null)
+                    {
+                        slot.Setup(this, i);
+                        _formationSlots.Add(slot);
+                    }
+                    else _formationSlots.Add(null);
+                }
+                else _formationSlots.Add(null);
+            }
+
+            if (conditionModal != null) conditionModal.Setup(this);
+            if (removeFromUnitBtn != null) removeFromUnitBtn.onClick.AddListener(OnRemoveFromUnitClicked);
+        }
+
+        private void LoadCharactersFromJSON()
+        {
+            availableCharacters = new List<CharacterData>();
+
+            // 1. Load JSON files
+            TextAsset listAsset = Resources.Load<TextAsset>("CharacterList");
+            TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
+
+            if (listAsset == null || poolAsset == null)
+            {
+                Debug.LogError("Failed to load CharacterList.json or CharacterPool.json");
+                return;
+            }
+
+            // 2. Parse JSON
+            CharacterDefinition[] allCharacters = JsonHelper.FromJson<CharacterDefinition>(listAsset.text);
+            CharacterPoolItem[] myPool = JsonHelper.FromJson<CharacterPoolItem>(poolAsset.text);
+
+            // 3. Match and Create Data
+            foreach (var poolItem in myPool)
+            {
+                // Find matching definition
+                CharacterDefinition def = System.Array.Find(allCharacters, c => c.Name == poolItem.Name);
+
+                if (def != null)
+                {
+                    // 4. Create CharacterData
+                    CharacterData newData = ScriptableObject.CreateInstance<CharacterData>();
+                    newData.id = System.Guid.NewGuid().ToString();
+                    newData.characterName = def.Name;
+                    newData.characterClass = def.Class;
+
+                    // Defaults for missing data
+                    newData.cost = def.Cost;
+                    newData.speed = 10;
+                    newData.arcana = "None";
+                    newData.description = "No description available.";
+
+                    // Load Portrait (Assuming they are in Resources/Portraits or just Resources)
+                    // Removing extension if present
+                    string spriteName = System.IO.Path.GetFileNameWithoutExtension(def.Portrait);
+                    newData.portrait = Resources.Load<Sprite>($"Portraits/{spriteName}");
+                    if (newData.portrait == null) newData.portrait = Resources.Load<Sprite>(spriteName);
+
+                    // Add default skills
+                    newData.skills = new List<SkillData>
+                    {
+                        new SkillData { name = "Attack", type = SkillType.AP },
+                        new SkillData { name = "Guard", type = SkillType.PP }
+                    };
+
+                    // 5. Add to availableCharacters
+                    availableCharacters.Add(newData);
+                }
+            }
+
+            // Load class data
+            LoadClassList();
+        }
+
+        private void LoadClassList()
+        {
+            _classData.Clear();
+
+            TextAsset classListAsset = Resources.Load<TextAsset>("ClassList");
+            if (classListAsset == null)
+            {
+                Debug.LogError("Failed to load ClassList.json");
+                return;
+            }
+
+            ClassListWrapper wrapper = JsonUtility.FromJson<ClassListWrapper>(classListAsset.text);
+            if (wrapper != null && wrapper.classes != null)
+            {
+                foreach (var classInfo in wrapper.classes)
+                {
+                    _classData[classInfo.id] = classInfo;
+                }
+                Debug.Log($"Loaded {_classData.Count} classes from ClassList.json");
+            }
+        }
+
+        [System.Serializable]
+        private class CharacterDefinition
+        {
+            public string Name;
+            public string Portrait; // Matches JSON key
+            public string Class;
+            public int Cost;
+        }
+
+        [System.Serializable]
+        private class CharacterPoolItem
+        {
+            public string Name;
+        }
+
+        // Helper for array JSONs
+        public static class JsonHelper
+        {
+            public static T[] FromJson<T>(string json)
+            {
+                string newJson = "{ \"array\": " + json + "}";
+                Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(newJson);
+                return wrapper.array;
+            }
+
+            [System.Serializable]
+            private class Wrapper<T>
+            {
+                public T[] array;
+            }
+        }
+
+        [System.Serializable]
+        private class ClassListWrapper
+        {
+            public ClassInfo[] classes;
+        }
+
+        [System.Serializable]
+        private class ClassInfo
+        {
+            public string id;
+            public string name;
+            public string description;
         }
 
         public void OnCharacterPoolCardClicked(CharacterData data)
@@ -95,7 +358,7 @@ namespace Arcana.Tactics
                 if (_unitSlots[slotIndex] == charToPlace)
                 {
                     // Just select it (already selected)
-                    return; 
+                    return;
                 }
 
                 // Check cost
@@ -121,7 +384,7 @@ namespace Arcana.Tactics
                 }
 
                 _unitSlots[slotIndex] = charToPlace;
-                
+
                 // Initialize coding data if needed
                 if (!_codingData.ContainsKey(charToPlace.id))
                 {
@@ -171,7 +434,7 @@ namespace Arcana.Tactics
                 var row = plan.rows[_modalTargetRowIndex];
                 if (_modalTargetConditionNum == 1) row.condition1 = condition;
                 else row.condition2 = condition;
-                
+
                 UpdateCodingPanel(); // Just refresh coding panel
             }
             conditionModal.Close();
@@ -188,18 +451,22 @@ namespace Arcana.Tactics
 
         private void UpdatePoolUI()
         {
+            if (characterPoolContainer == null) return;
             int i = 0;
             foreach (Transform child in characterPoolContainer)
             {
                 if (i >= availableCharacters.Count) break;
                 var card = child.GetComponent<CharacterCardUI>();
-                var data = availableCharacters[i];
-                
-                bool isDeployed = GetSlotIndex(data) != -1;
-                bool isSelected = _selectedCharacter == data;
+                if (card != null)
+                {
+                    var data = availableCharacters[i];
 
-                card.SetDeployed(isDeployed);
-                card.SetSelected(isSelected);
+                    bool isDeployed = GetSlotIndex(data) != -1;
+                    bool isSelected = _selectedCharacter == data;
+
+                    card.SetDeployed(isDeployed);
+                    card.SetSelected(isSelected);
+                }
                 i++;
             }
         }
@@ -208,11 +475,11 @@ namespace Arcana.Tactics
         {
             for (int i = 0; i < 6; i++)
             {
-                if (i < formationGridContainer.childCount)
+                if (i < _formationSlots.Count && _formationSlots[i] != null)
                 {
-                    var slot = formationGridContainer.GetChild(i).GetComponent<FormationSlotUI>();
+                    var slot = _formationSlots[i];
                     slot.UpdateState(_unitSlots[i]);
-                    
+
                     bool isActive = false;
                     if (_selectedCharacter != null)
                     {
@@ -228,6 +495,8 @@ namespace Arcana.Tactics
 
         private void UpdateDetailPanel()
         {
+            if (characterDetailPanel == null) return;
+
             if (_selectedCharacter == null)
             {
                 characterDetailPanel.SetActive(false);
@@ -236,41 +505,57 @@ namespace Arcana.Tactics
 
             characterDetailPanel.SetActive(true);
             var c = _selectedCharacter;
-            if (c.portrait != null) detailPortrait.sprite = c.portrait;
-            detailName.text = c.characterName;
-            detailClass.text = c.characterClass;
-            detailArcana.text = c.arcana;
-            detailSpeed.text = c.speed.ToString();
-            detailDesc.text = c.description;
+            if (c.portrait != null && detailPortrait != null) detailPortrait.sprite = c.portrait;
+            if (detailCost != null) detailCost.text = c.cost.ToString();
+            if (detailName != null) detailName.text = c.characterName;
+            if (detailClass != null) detailClass.text = c.characterClass;
+            if (detailArcana != null) detailArcana.text = c.arcana;
+            if (detailSpeed != null) detailSpeed.text = c.speed.ToString();
+
+            // Get description from ClassList.json based on character's class
+            if (detailDesc != null)
+            {
+                string description = c.description; // Default fallback
+                if (_classData.TryGetValue(c.characterClass, out ClassInfo classInfo))
+                {
+                    description = classInfo.description;
+                }
+                detailDesc.text = description;
+            }
 
             bool isDeployed = GetSlotIndex(c) != -1;
-            removeFromUnitBtn.gameObject.SetActive(isDeployed);
+            if (removeFromUnitBtn != null) removeFromUnitBtn.gameObject.SetActive(isDeployed);
         }
 
         private void UpdateCodingPanel()
         {
+            if (codingListContainer == null) return;
+
             // Clear list
             foreach (Transform child in codingListContainer) Destroy(child.gameObject);
 
             if (_selectedCharacter == null)
             {
-                codingPanelTitle.text = "캐릭터 선택 대기";
+                if (codingPanelTitle != null) codingPanelTitle.text = "캐릭터 선택 대기";
                 return;
             }
 
-            codingPanelTitle.text = $"{_selectedCharacter.characterName.Split(' ')[0]} - 작전 코딩";
+            if (codingPanelTitle != null) codingPanelTitle.text = $"{_selectedCharacter.characterName.Split(' ')[0]} - 작전 코딩";
 
             // If not deployed, maybe we don't show coding? Or show preview? 
             // The HTML implies coding is available when selected, but data is initialized on placement.
             // Let's show it if data exists, or empty if not.
-            
+
             if (_codingData.TryGetValue(_selectedCharacter.id, out var plan))
             {
-                for (int i = 0; i < plan.rows.Count; i++)
+                if (tacticRowPrefab != null)
                 {
-                    var go = Instantiate(tacticRowPrefab, codingListContainer);
-                    var rowUI = go.GetComponent<TacticRowUI>();
-                    rowUI.Setup(this, _selectedCharacter.id, i, plan.rows[i]);
+                    for (int i = 0; i < plan.rows.Count; i++)
+                    {
+                        var go = Instantiate(tacticRowPrefab, codingListContainer);
+                        var rowUI = go.GetComponent<TacticRowUI>();
+                        rowUI.Setup(this, _selectedCharacter.id, i, plan.rows[i]);
+                    }
                 }
             }
             else
@@ -282,6 +567,7 @@ namespace Arcana.Tactics
 
         private void UpdateCostDisplay()
         {
+            if (currentCostText == null) return;
             int current = CalculateTotalCost();
             currentCostText.text = $"{current} / {maxCost}";
             currentCostText.color = current > maxCost ? Color.red : Color.cyan;

@@ -1,111 +1,199 @@
 # 유니티 작전 코딩(Tactics Coding) 씬 제작 가이드
 
-이 문서는 `TacticsCodingUI.html`의 기능을 유니티 UGUI로 구현하기 위한 제작 가이드입니다. 작성된 스크립트를 사용하여 씬을 구성하는 방법을 설명합니다.
-
-## 1. 사전 준비 (스크립트 및 데이터)
-
-이미 작성된 다음 스크립트들이 프로젝트에 있어야 합니다:
-- `Assets/Scripts/Tactics/Data/`
-  - `TacticsDatabase.cs`
-  - `CharacterData.cs`
-  - `TacticsPlan.cs`
-- `Assets/Scripts/Tactics/UI/`
-  - `CharacterCardUI.cs`
-  - `FormationSlotUI.cs`
-  - `TacticRowUI.cs`
-  - `ConditionModalUI.cs`
-- `Assets/Scripts/Tactics/TacticsManager.cs`
-
-### 1.1 캐릭터 데이터 생성
-1. Project 창에서 우클릭 -> `Create` -> `Arcana` -> `Character Data`를 선택합니다.
-2. `Raina`, `Elara`, `Sera`, `Miel`, `Kai` 등의 데이터를 생성합니다.
-3. 각 데이터의 Inspector에서 이름, 클래스, 코스트, 스킬 등을 입력합니다.
-   - 예: Raina -> Cost: 3, Skills: [Assault Lance (AP), Guard (PP), ...]
+이 문서는 `TacticsCodingUI.html`의 디자인과 기능을 유니티 UGUI로 완벽하게 구현하기 위한 상세 가이드입니다.
+제공된 스크립트(`TacticsManager.cs`, `CharacterCardUI.cs` 등)와 연결하여 작동하는 씬을 구성합니다.
 
 ---
 
-## 2. UI 프리팹(Prefab) 제작
+## 0. 공통 디자인 리소스 준비 (Colors & Fonts)
 
-### 2.1 Character Card Prefab (캐릭터 풀 목록용)
-1. **Image** (배경/초상화)를 생성합니다.
-2. 자식으로 **Text (TMP)** 3개를 생성하여 이름, 클래스, 코스트를 표시할 위치를 잡습니다.
-3. 선택 효과를 위한 **Image** (SelectedHighlight)와 배치됨 표시를 위한 **Image** (DeployedOverlay, 반투명 검정)를 추가하고 비활성화해둡니다.
-4. 최상위 오브젝트에 `CharacterCardUI` 컴포넌트를 추가하고 각 UI 요소를 연결합니다.
-5. 이를 프리팹으로 저장합니다 (`CharacterCardPrefab`).
+유니티에서 UI를 구성하기 전에 미리 팔레트를 알아두면 편리합니다.
 
-### 2.2 Formation Slot Prefab (부대 편성 슬롯용)
-1. **Image** (배경)를 생성합니다.
-2. **Empty State** 그룹(GameObject)을 만들고, "+" 텍스트와 "Front/Back" 텍스트를 넣습니다.
-3. **Filled State** 그룹(GameObject)을 만들고, 캐릭터 초상화(Image), 이름(Text), 코스트(Text)를 넣습니다.
-4. 활성 상태 표시를 위한 **Image** (ActiveHighlight, 테두리 등)를 추가합니다.
-5. 최상위 오브젝트에 `FormationSlotUI` 컴포넌트를 추가하고 각 요소를 연결합니다.
-6. 이를 프리팹으로 저장합니다 (`FormationSlotPrefab`).
+| 용도 | Hex Code | 비고 |
+| :--- | :--- | :--- |
+| **배경 (Background)** | `#111827` | Very Dark Blue |
+| **패널 (Panel)** | `#1F2937` | Dark Gray Blue |
+| **강조 (Teal)** | `#2DD4BF` | Teal-400 (타이틀, 코스트) |
+| **강조 (Yellow)** | `#FCD34D` | Yellow-300 (중요 정보, 선택) |
+| **텍스트 (Basic)** | `#FFFFFF` | White |
+| **텍스트 (Sub)** | `#9CA3AF` | Gray-400 |
+| **슬롯 (Empty)** | `#374151` | Gray-700 |
 
-### 2.3 Tactic Row Prefab (작전 코딩 한 줄)
-1. 가로로 배치된 패널(Image)을 만듭니다.
-2. **Text** (순번), **Text** (스킬명)을 배치합니다.
-3. **Button** 2개를 배치하여 각각 조건 1, 조건 2를 표시하게 합니다. 버튼 내부 텍스트를 연결합니다.
-4. 최상위 오브젝트에 `TacticRowUI` 컴포넌트를 추가하고 연결합니다.
-5. 이를 프리팹으로 저장합니다 (`TacticRowPrefab`).
+*   **Font**: `Inter` 또는 `Noto Sans KR` (TMP 폰트 에셋 생성 권장)
 
 ---
 
-## 3. 씬(Scene) 구성
+## 1. UI 프리팹(Prefab) 제작
 
-### 3.1 Canvas 및 레이아웃
-1. **Canvas**를 생성하고 `Canvas Scaler`를 설정합니다 (예: 1920x1080).
-2. 전체를 좌/우로 나눌 **Horizontal Layout Group** (또는 빈 오브젝트로 앵커링)을 만듭니다.
+`Assets/Prefabs/UI` 폴더를 만들고 다음 프리팹들을 생성하세요.
 
-#### 좌측 패널 (Left Panel)
-- **Unit Info**: 부대 정보 텍스트 배치.
-- **Formation Grid**: 
-  - `Grid Layout Group` 컴포넌트 추가 (Cell Size: 150x150 등, Constraint: Fixed Column Count 3).
-  - 이 안에 `FormationSlotPrefab`을 6개 미리 생성해 둡니다 (인스펙터에서 순서대로 0~5번 슬롯이 됨).
-- **Character Pool**:
-  - `Scroll Rect` 생성.
-  - Content 자식에 `Grid Layout Group` 추가.
-  - `TacticsManager`가 여기에 `CharacterCardPrefab`을 생성하게 됩니다.
+### 1.1 CharacterCardPrefab (캐릭터 카드)
+*   **Root Object**: `Image` (이름: `CharacterCard`)
+    *   **Size**: 140 x 140
+    *   **Color**: `#1F2937`
+    *   **Component**: `CharacterCardUI.cs` 추가
+*   **자식 구조**:
+    1.  **Portrait** (`Image`):
+        *   Anchor: Stretch/Stretch (Left/Top/Right/Bottom: 2)
+        *   Color: White (스프라이트 할당용)
+    2.  **Overlay** (`Image`):
+        *   Anchor: Stretch/Bottom (Height: 40)
+        *   Color: `#000000` (Alpha 200)
+    3.  **NameText** (`TextMeshPro - Text (UI)`):
+        *   Parent: Overlay
+        *   Anchor: Stretch/Top (Top: 5, Height: 20)
+        *   Font Size: 14 (Bold), Color: White, Align: Center
+    4.  **ClassText** (`TextMeshPro - Text (UI)`):
+        *   Parent: Overlay
+        *   Anchor: Stretch/Bottom (Bottom: 5, Height: 15)
+        *   Font Size: 11, Color: `#2DD4BF`, Align: Center
+    5.  **CostBadge** (`Image`):
+        *   Anchor: Top/Left (Pos: 0, 0), Size: 30x30
+        *   Color: `#10B981` (Cost 1), `#3B82F6` (Cost 2) 등 (스크립트 제어 가능)
+        *   **CostText** (TMP): Center, Font Size 16 (Bold), Color: White
+    6.  **SelectedHighlight** (`Image`):
+        *   Anchor: Stretch/Stretch
+        *   Color: Transparent, **Outline** 컴포넌트 추가 (Color: `#FCD34D`, Width: 4)
+        *   기본 상태: `SetActive(false)`
+    7.  **DeployedOverlay** (`Image`):
+        *   Anchor: Stretch/Stretch
+        *   Color: `#000000` (Alpha 150)
+        *   기본 상태: `SetActive(false)`
 
-#### 우측 패널 (Right Panel)
-- **Character Detail**: 선택된 캐릭터 정보를 보여줄 패널. (초상화, 이름, 스탯 등 UI 배치).
-- **Coding Panel**:
-  - 상단 타이틀.
-  - **Coding List**: `Scroll Rect` -> Content에 `Vertical Layout Group` 추가.
-  - `TacticsManager`가 여기에 `TacticRowPrefab`을 생성합니다.
+**[Inspector 연결]**: `CharacterCardUI` 컴포넌트에 위에서 만든 Portrait, NameText, ClassText, CostText(Badge안의 텍스트), SelectedHighlight, DeployedOverlay를 연결합니다.
 
-### 3.2 모달 (Modal)
-- Canvas의 가장 하단(가장 위에 그려짐)에 **Condition Modal** 패널을 만듭니다.
-- 반투명 배경(전체 화면)과 중앙 팝업창을 만듭니다.
-- 팝업창 내부를 좌우로 나누어 **Category List** (Scroll View)와 **Detail List** (Scroll View)를 배치합니다.
-- 카테고리 아이템과 세부 조건 아이템을 위한 간단한 버튼 프리팹을 만들거나, `ConditionModalUI` 스크립트 내에서 동적으로 생성할 버튼 프리팹을 연결합니다.
-- 최상위 모달 오브젝트에 `ConditionModalUI`를 추가하고 연결합니다.
+### 1.2 FormationSlotPrefab (부대 배치 슬롯)
+*   **Root Object**: `Image` (이름: `FormationSlot`)
+    *   **Size**: 160 x 160
+    *   **Color**: `#374151` (Empty Color)
+    *   **Component**: `FormationSlotUI.cs` 추가
+*   **자식 구조**:
+    1.  **EmptyState** (`GameObject` - Empty):
+        *   **PlusText** (TMP): Center, Text "+", Size 40, Color `#9CA3AF`
+        *   **PosText** (TMP): Bottom Center, Text "Front 1", Size 14 -> **`FormationSlotUI`의 `slotLabel` 연결**
+    2.  **FilledState** (`GameObject` - Empty, 기본 `SetActive(false)`):
+        *   **Portrait** (`Image`): Stretch/Stretch -> **`FormationSlotUI`의 `characterPortrait` 연결**
+        *   **CostText** (TMP): Top/Left, Size 14, Bold, Color White (배경 이미지 필요 시 추가) -> **`FormationSlotUI`의 `charCostText` 연결**
+        *   **InfoOverlay** (`Image`): Bottom Stretch, Height 30, Color Black(Alpha 200)
+        *   **NameText** (TMP): Parent InfoOverlay, Center, Size 14 -> **`FormationSlotUI`의 `charNameText` 연결**
+    3.  **ActiveHighlight** (`Image`):
+        *   Anchor: Stretch/Stretch
+        *   Color: Transparent, **Outline** (Color: `#2DD4BF`, Width: 4)
+        *   기본 `SetActive(false)` -> **`FormationSlotUI`의 `activeHighlight` 연결**
+
+**[Inspector 연결]**: `FormationSlotUI` 컴포넌트에 다음을 연결합니다.
+*   **Empty State Object**: 1번 EmptyState
+*   **Filled State Object**: 2번 FilledState
+*   **Slot Label**: 1번의 PosText
+*   **Character Portrait**: 2번의 Portrait
+*   **Char Name Text**: 2번의 NameText
+*   **Char Cost Text**: 2번의 CostText
+*   **Active Highlight**: 3번 ActiveHighlight
+
+### 1.3 TacticRowPrefab (작전 코딩 한 줄)
+*   **Root Object**: `Image` (이름: `TacticRow`)
+    *   **Size**: Width 1000 (Stretch), Height 60
+    *   **Color**: `#1F2937`
+    *   **Component**: `TacticRowUI.cs` 추가
+*   **자식 구조** (Horizontal Layout Group 권장):
+    1.  **IndexText** (TMP): Width 50, Center, Color `#FCD34D`
+    2.  **SkillNameText** (TMP): Width 200, Left Align, Color `#2DD4BF`
+    3.  **Condition1Btn** (`Button`):
+        *   Image Color: `#111827` (Border `#4B5563`)
+        *   **Text** (TMP): "조건 없음", Size 14, Color White
+    4.  **AndText** (TMP): Width 50, Center, Text "AND", Color `#FCD34D`, Size 10
+    5.  **Condition2Btn** (`Button`):
+        *   (Condition1Btn과 동일 스타일)
+
+**[Inspector 연결]**: `TacticRowUI`에 IndexText, SkillNameText, Condition1Btn(및 텍스트), Condition2Btn(및 텍스트) 연결.
 
 ---
 
-## 4. 매니저 연결 (TacticsManager)
+## 2. 씬(Scene) 구성 단계
 
-1. 빈 GameObject (`GameManager`)를 생성하고 `TacticsManager` 컴포넌트를 추가합니다.
-2. **Data**:
-   - `Available Characters`: 1.1에서 만든 캐릭터 데이터들을 리스트에 할당합니다.
-   - `Max Cost`: 15로 설정.
-3. **UI Containers**:
-   - `Character Pool Container`: 좌측 패널의 Pool Content 연결.
-   - `Formation Grid Container`: 좌측 패널의 Grid 오브젝트(슬롯 6개가 자식으로 있는) 연결.
-   - `Coding List Container`: 우측 패널의 Coding List Content 연결.
-4. **UI Prefabs**:
-   - 2번에서 만든 프리팹들을 연결합니다.
-5. **UI Components**:
-   - `Condition Modal`: 3.2에서 만든 모달 연결.
-   - 나머지 텍스트, 버튼, 패널 등 씬에 배치된 UI 요소들을 알맞게 연결합니다.
+### 2.1 Canvas 설정
+1.  **Canvas** 생성 -> `Canvas Scaler` 설정
+    *   UI Scale Mode: `Scale With Screen Size`
+    *   Reference Resolution: `1920 x 1080`
+2.  **Background** (`Image`): Canvas 자식, Stretch/Stretch, Color `#111827`.
 
-## 5. 실행 및 테스트
+### 2.2 레이아웃 잡기 (Horizontal Split)
+1.  **MainLayout** (Empty): Canvas 자식, Stretch/Stretch (Padding: Left/Right 40, Top/Bottom 40).
+    *   `Horizontal Layout Group` (Spacing: 40, Child Force Expand: Width 체크).
+2.  **LeftPanel** (Empty): `Layout Element` (Preferred Width: 600).
+3.  **RightPanel** (Empty): `Layout Element` (Preferred Width: 1200).
 
-1. Play 버튼을 누릅니다.
-2. 캐릭터 풀에 캐릭터들이 로드되는지 확인합니다.
-3. 캐릭터를 클릭하면 상세 정보가 뜨는지 확인합니다.
-4. 빈 슬롯을 클릭하여 캐릭터가 배치되는지 확인합니다.
-5. 배치된 캐릭터의 작전 목록(스킬들)이 우측에 뜨는지 확인합니다.
-6. 조건을 클릭하여 모달이 뜨고, 조건을 변경하면 반영되는지 확인합니다.
+### 2.3 Left Panel 구성 (부대 정보 & 풀)
+`LeftPanel` 아래에 다음을 순서대로 배치 (`Vertical Layout Group` 사용, Spacing 20):
+
+1.  **UnitInfoPanel** (`Image`):
+    *   Color: `#1F2937`, `Rounded Corners` (선택 사항)
+    *   **Title**: "부대 정보" (Color `#FCD34D`)
+    *   **CostText**: "0 / 15" (Color `#2DD4BF`, Size 24) -> **`TacticsManager`의 `currentCostText`에 연결**
+2.  **FormationGridPanel** (`Image`):
+    *   Color: `#1F2937`
+    *   **GridContainer** (Empty):
+        *   `Grid Layout Group`: Cell Size 160x160, Spacing 10, Constraint: Fixed Column Count 3.
+        *   **중요**: 이 아래에 `FormationSlotPrefab` 6개를 미리 생성해 둡니다. (이름: Slot_0 ~ Slot_5)
+        *   **`TacticsManager`의 `formationGridContainer`에 이 GridContainer 연결**
+3.  **CharacterPoolPanel** (`Image`):
+    *   Color: `#1F2937`
+    *   **Scroll View** 생성 (이름: `PoolScrollView`):
+        *   **Content** 오브젝트에 `Grid Layout Group` (Cell Size 140x140, Spacing 10).
+        *   **`TacticsManager`의 `characterPoolContainer`에 이 Content 연결**
+
+### 2.4 Right Panel 구성 (상세 & 코딩)
+`RightPanel` 아래에 다음을 순서대로 배치 (`Vertical Layout Group` 사용, Spacing 20):
+
+1.  **DetailPanel** (`GameObject` - `TacticsManager`의 `characterDetailPanel` 연결):
+    *   활성화/비활성화 제어됨.
+    *   **Portrait** (`Image`), **Name**, **Class**, **Arcana**, **Speed**, **Desc** (`TMP`) 배치.
+    *   **RemoveButton** (`Button`): "부대에서 제거" -> **`TacticsManager`의 `removeFromUnitBtn` 연결**.
+2.  **CodingPanel** (`Image`):
+    *   Color: `#1F2937`, Flexible Height 1 (남은 공간 채움).
+    *   **Title** (TMP): "캐릭터 선택 대기" -> **`TacticsManager`의 `codingPanelTitle` 연결**.
+    *   **CodingScrollView** (Scroll View):
+        *   **Content** 오브젝트에 `Vertical Layout Group` (Spacing 5, Control Child Size Width 체크).
+        *   **`TacticsManager`의 `codingListContainer`에 이 Content 연결**
+
+### 2.5 Condition Modal (팝업)
+Canvas의 최하단(가장 앞)에 배치.
+1.  **ModalRoot** (`Image`): Stretch/Stretch, Color Black (Alpha 200).
+    *   **`TacticsManager`의 `conditionModal` (ConditionModalUI) 컴포넌트 추가**.
+2.  **PopupBody** (`Image`): Center, Size 1000x800, Color `#111827`, Border `#2DD4BF` (Outline).
+3.  내부 구성:
+    *   **CategoryScroll** (Left, Width 300): `Vertical Layout Group`.
+    *   **DetailScroll** (Right, Width 700): `Vertical Layout Group`.
+    *   **CloseButton**: 우상단 "X" 버튼.
+4.  **Inspector 연결**: `ConditionModalUI`에 CategoryContainer, DetailContainer, CloseBtn 등 연결.
 
 ---
-*이 가이드는 `TacticsCodingUI.html`의 기능을 유니티로 이식하기 위한 구조적 설계를 바탕으로 작성되었습니다.*
+
+## 3. 매니저 설정 (TacticsManager)
+
+1.  빈 GameObject 생성 (`GameManager`).
+2.  `TacticsManager.cs` 컴포넌트 추가.
+3.  **Inspector 세팅**:
+    *   **Available Characters**: `Assets/Resources/Data/Characters` 등에 생성한 `CharacterData` 에셋들을 드래그앤드롭.
+    *   **Max Cost**: 15
+    *   **UI Containers**: 위에서 만든 `Pool Content`, `Formation Grid`, `Coding List Content` 연결.
+    *   **UI Prefabs**: 1번에서 만든 프리팹 2개 연결 (`CharacterCardPrefab`, `TacticRowPrefab`).
+    *   **UI Components**:
+        *   `Condition Modal`: 2.5의 ModalRoot 오브젝트.
+        *   `Current Cost Text`: 2.3의 CostText.
+        *   `Coding Panel Title`: 2.4의 Title.
+        *   `Character Detail Panel`: 2.4의 DetailPanel.
+        *   나머지 Detail 관련 텍스트 및 버튼 연결.
+
+---
+
+## 4. 실행 체크리스트
+
+1.  [ ] **캐릭터 풀 로드**: 실행 시 좌측 하단에 캐릭터 카드가 생성되는가?
+2.  [ ] **배치**: 카드를 클릭(선택) 후 빈 슬롯을 클릭하면 배치가 되는가?
+3.  [ ] **코스트 갱신**: 배치 시 상단 코스트(0/15)가 증가하는가?
+4.  [ ] **상세 정보**: 캐릭터 선택 시 우측 상단에 정보가 뜨는가?
+5.  [ ] **작전 목록**: 배치된 캐릭터 선택 시 우측 하단에 스킬 목록(코딩)이 뜨는가?
+6.  [ ] **모달 작동**: 조건 버튼 클릭 시 팝업이 뜨고, 조건 선택 시 버튼 텍스트가 바뀌는가?
+
+이 가이드를 따라 UI를 구성하면 HTML 프로토타입과 동일한 룩앤필의 유니티 씬이 완성됩니다.
