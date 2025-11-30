@@ -36,6 +36,18 @@ namespace Arcana.Tactics
         public TextMeshProUGUI detailDesc;
         public Button removeFromUnitBtn;
 
+        [Header("Detail Stats")]
+        public TextMeshProUGUI detailStatHP;
+        public TextMeshProUGUI detailStatPhysAtk;
+        public TextMeshProUGUI detailStatPhysDef;
+        public TextMeshProUGUI detailStatMagAtk;
+        public TextMeshProUGUI detailStatMagDef;
+        public TextMeshProUGUI detailStatAccuracy;
+        public TextMeshProUGUI detailStatEvasion;
+        public TextMeshProUGUI detailStatCritRate;
+        public TextMeshProUGUI detailStatGuardRate;
+        public TextMeshProUGUI detailStatSpeed;
+
         // State
         private CharacterData _selectedCharacter; // Currently selected (could be from pool or slot)
         private CharacterData[] _unitSlots = new CharacterData[6]; // 0-5
@@ -139,6 +151,17 @@ namespace Arcana.Tactics
                 if (detailClass == null) detailClass = FindInfoValue("클래스:");
                 if (detailArcana == null) detailArcana = FindInfoValue("고유 아르카나:");
                 if (detailSpeed == null) detailSpeed = FindInfoValue("행동 속도:");
+
+                if (detailStatHP == null) detailStatHP = FindDetailStat("Value_HP");
+                if (detailStatPhysAtk == null) detailStatPhysAtk = FindDetailStat("Value_PhysAtk");
+                if (detailStatPhysDef == null) detailStatPhysDef = FindDetailStat("Value_PhysDef");
+                if (detailStatMagAtk == null) detailStatMagAtk = FindDetailStat("Value_MagAtk");
+                if (detailStatMagDef == null) detailStatMagDef = FindDetailStat("Value_MagDef");
+                if (detailStatAccuracy == null) detailStatAccuracy = FindDetailStat("Value_Accuracy");
+                if (detailStatEvasion == null) detailStatEvasion = FindDetailStat("Value_Evasion");
+                if (detailStatCritRate == null) detailStatCritRate = FindDetailStat("Value_CritRate");
+                if (detailStatGuardRate == null) detailStatGuardRate = FindDetailStat("Value_GuardRate");
+                if (detailStatSpeed == null) detailStatSpeed = FindDetailStat("Value_Speed");
             }
 
             if (characterCardPrefab == null) characterCardPrefab = Resources.Load<GameObject>("Prefabs/UI/CharacterCardPrefab");
@@ -164,6 +187,14 @@ namespace Arcana.Tactics
                     }
                 }
             }
+            return null;
+        }
+
+        private TextMeshProUGUI FindDetailStat(string objName)
+        {
+            if (characterDetailPanel == null) return null;
+            Transform t = RecursiveFind(characterDetailPanel.transform, objName);
+            if (t != null) return t.GetComponent<TextMeshProUGUI>();
             return null;
         }
 
@@ -218,7 +249,7 @@ namespace Arcana.Tactics
             availableCharacters = new List<CharacterData>();
 
             // 1. Load JSON files
-            TextAsset listAsset = Resources.Load<TextAsset>("CharacterList");
+            TextAsset listAsset = Resources.Load<TextAsset>("Table/CharacterList");
             TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
 
             if (listAsset == null || poolAsset == null)
@@ -277,7 +308,7 @@ namespace Arcana.Tactics
         {
             _classData.Clear();
 
-            TextAsset classListAsset = Resources.Load<TextAsset>("ClassList");
+            TextAsset classListAsset = Resources.Load<TextAsset>("Table/ClassList");
             if (classListAsset == null)
             {
                 Debug.LogError("Failed to load ClassList.json");
@@ -339,6 +370,22 @@ namespace Arcana.Tactics
             public string id;
             public string name;
             public string description;
+            public ClassStats stats;
+        }
+
+        [System.Serializable]
+        private class ClassStats
+        {
+            public string hp;
+            public string physicalAttack;
+            public string physicalDefense;
+            public string magicalAttack;
+            public string magicalDefense;
+            public string accuracy;
+            public string evasion;
+            public string criticalRate;
+            public string guardRate;
+            public string actionSpeed;
         }
 
         public void OnCharacterPoolCardClicked(CharacterData data)
@@ -521,6 +568,21 @@ namespace Arcana.Tactics
                     description = classInfo.description;
                 }
                 detailDesc.text = description;
+            }
+
+            // Update Stats
+            if (_classData.TryGetValue(c.characterClass, out ClassInfo cInfo) && cInfo.stats != null)
+            {
+                if (detailStatHP != null) detailStatHP.text = cInfo.stats.hp;
+                if (detailStatPhysAtk != null) detailStatPhysAtk.text = cInfo.stats.physicalAttack;
+                if (detailStatPhysDef != null) detailStatPhysDef.text = cInfo.stats.physicalDefense;
+                if (detailStatMagAtk != null) detailStatMagAtk.text = cInfo.stats.magicalAttack;
+                if (detailStatMagDef != null) detailStatMagDef.text = cInfo.stats.magicalDefense;
+                if (detailStatAccuracy != null) detailStatAccuracy.text = cInfo.stats.accuracy;
+                if (detailStatEvasion != null) detailStatEvasion.text = cInfo.stats.evasion;
+                if (detailStatCritRate != null) detailStatCritRate.text = cInfo.stats.criticalRate;
+                if (detailStatGuardRate != null) detailStatGuardRate.text = cInfo.stats.guardRate;
+                if (detailStatSpeed != null) detailStatSpeed.text = cInfo.stats.actionSpeed;
             }
 
             bool isDeployed = GetSlotIndex(c) != -1;

@@ -1,0 +1,20 @@
+[
+    {
+        "Name": "Hina1",
+        "Portrait": "carti.png",
+        "Class": "fighter",
+        "Cost": 2
+    },
+    {
+        "Name": "Hina2",
+        "Portrait": "yuno.png",
+        "Class": "hunter",
+        "Cost": 2
+    },
+    {
+        "Name": "Hina3",
+        "Portrait": "chisa.png",
+        "Class": "witch",
+        "Cost": 2
+    }
+]

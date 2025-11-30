@@ -55,16 +55,6 @@ namespace Arcana.Tactics.UI
             costText.GetComponent<RectTransform>().sizeDelta = new Vector2(80, 30);
             costText.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
 
-            // Position Label
-            GameObject posLabel = CreateImageObject("PosLabel", portraitContainer.transform, new Color32(0, 0, 0, 200));
-            RectTransform posRect = posLabel.GetComponent<RectTransform>();
-            posRect.anchorMin = new Vector2(0, 0); posRect.anchorMax = new Vector2(1, 0);
-            posRect.pivot = new Vector2(0.5f, 0); posRect.anchoredPosition = Vector2.zero;
-            posRect.sizeDelta = new Vector2(0, 40);
-            GameObject posText = CreateText("PosText", posLabel.transform, "전열 1", 18, Color.white, FontStyles.Bold, fontAsset);
-            Stretch(posText.GetComponent<RectTransform>());
-            posText.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
-
             // Info Area
             GameObject infoArea = CreateObject("InfoArea", detailPanel.transform);
             LayoutElement infoLe = infoArea.AddComponent<LayoutElement>();
@@ -79,6 +69,7 @@ namespace Arcana.Tactics.UI
 
             // Name and Class in one line
             GameObject nameClassRow = CreateObject("NameClassRow", infoArea.transform);
+            nameClassRow.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
             HorizontalLayoutGroup nameClassHlg = nameClassRow.AddComponent<HorizontalLayoutGroup>();
             nameClassHlg.spacing = 10;
             nameClassHlg.childControlWidth = false;
@@ -91,36 +82,37 @@ namespace Arcana.Tactics.UI
             GameObject classText = CreateText("Class", nameClassRow.transform, "파이터", 32, Color.white, FontStyles.Bold, fontAsset);
 
             GameObject description = CreateText("Description", infoArea.transform, "물리 방어가 뛰어난 성능", 18, new Color32(209, 213, 219, 255), FontStyles.Normal, fontAsset);
-            description.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 60);
+            description.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 20);
 
-            // Stats UI - Title
-            GameObject statsTitle = CreateImageObject("StatsTitle", infoArea.transform, new Color32(139, 92, 46, 255)); // Brown
-            statsTitle.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 35);
-            GameObject statsTitleText = CreateText("Text", statsTitle.transform, "스테이터스", 20, Color.white, FontStyles.Bold, fontAsset);
-            Stretch(statsTitleText.GetComponent<RectTransform>());
-            statsTitleText.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
+            // // Stats UI - Title
+            // GameObject statsTitle = CreateImageObject("StatsTitle", infoArea.transform, new Color32(139, 92, 46, 255)); // Brown
+            // statsTitle.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 35);
+            // GameObject statsTitleText = CreateText("Text", statsTitle.transform, "스테이터스", 20, Color.white, FontStyles.Bold, fontAsset);
+            // Stretch(statsTitleText.GetComponent<RectTransform>());
+            // statsTitleText.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
 
-            // AP / PP Row
-            GameObject apppRow = CreateImageObject("APPPRow", infoArea.transform, new Color32(55, 48, 45, 255)); // Dark brown
-            apppRow.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 35);
-            HorizontalLayoutGroup apppHlg = apppRow.AddComponent<HorizontalLayoutGroup>();
-            apppHlg.childControlWidth = true;
-            apppHlg.childForceExpandWidth = true;
-            apppHlg.childControlHeight = true;
-            apppHlg.childForceExpandHeight = true;
-            apppHlg.spacing = 0;
+            // // AP / PP Row
+            // GameObject apppRow = CreateImageObject("APPPRow", infoArea.transform, new Color32(55, 48, 45, 255)); // Dark brown
+            // apppRow.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 35);
+            // HorizontalLayoutGroup apppHlg = apppRow.AddComponent<HorizontalLayoutGroup>();
+            // apppHlg.childControlWidth = true;
+            // apppHlg.childForceExpandWidth = true;
+            // apppHlg.childControlHeight = true;
+            // apppHlg.childForceExpandHeight = true;
+            // apppHlg.spacing = 0;
 
-            GameObject apLabel = CreateText("APLabel", apppRow.transform, "AP", 20, new Color32(239, 68, 68, 255), FontStyles.Bold, fontAsset); // Red
-            apLabel.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
-            GameObject apDiamond = CreateText("APDiamond", apppRow.transform, "◆", 20, new Color32(239, 68, 68, 255), FontStyles.Normal, fontAsset);
-            apDiamond.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
-            GameObject ppLabel = CreateText("PPLabel", apppRow.transform, "PP", 20, new Color32(96, 165, 250, 255), FontStyles.Bold, fontAsset); // Blue
-            ppLabel.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
-            GameObject ppDiamond = CreateText("PPDiamond", apppRow.transform, "◆", 20, new Color32(96, 165, 250, 255), FontStyles.Normal, fontAsset);
-            ppDiamond.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
+            // GameObject apLabel = CreateText("APLabel", apppRow.transform, "AP", 20, new Color32(239, 68, 68, 255), FontStyles.Bold, fontAsset); // Red
+            // apLabel.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
+            // GameObject apDiamond = CreateText("APDiamond", apppRow.transform, "◆", 20, new Color32(239, 68, 68, 255), FontStyles.Normal, fontAsset);
+            // apDiamond.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
+            // GameObject ppLabel = CreateText("PPLabel", apppRow.transform, "PP", 20, new Color32(96, 165, 250, 255), FontStyles.Bold, fontAsset); // Blue
+            // ppLabel.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
+            // GameObject ppDiamond = CreateText("PPDiamond", apppRow.transform, "◆", 20, new Color32(96, 165, 250, 255), FontStyles.Normal, fontAsset);
+            // ppDiamond.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
 
             // Stats Grid Container
             GameObject statsGrid = CreateObject("StatsGrid", infoArea.transform);
+            statsGrid.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 130);
             VerticalLayoutGroup statsVlg = statsGrid.AddComponent<VerticalLayoutGroup>();
             statsVlg.spacing = 0;
             statsVlg.childControlWidth = true;
@@ -131,17 +123,17 @@ namespace Arcana.Tactics.UI
             // Row 1 Header (HP, 물리공격, 물리방어, 마법공격, 마법방어)
             CreateStatsHeaderRow(statsGrid.transform, new string[] { "HP", "물리공격", "물리방어", "마법공격", "마법방어" }, fontAsset);
 
-            // Row 1 Values (Fighter stats: C, C, B, D, E)
-            CreateStatsValueRow(statsGrid.transform, new string[] { "C", "C", "B", "D", "E" }, fontAsset);
+            // Row 1 Values (Fighter stats: C, C, B, D, E) - Names: HP, PhysAtk, PhysDef, MagAtk, MagDef
+            CreateStatsValueRow(statsGrid.transform, new string[] { "C", "C", "B", "D", "E" }, new string[] { "HP", "PhysAtk", "PhysDef", "MagAtk", "MagDef" }, fontAsset);
 
             // Row 2 Header (명중, 회피, 치명타율, 가드율, 행동속도)
             CreateStatsHeaderRow(statsGrid.transform, new string[] { "명중", "회피", "치명타율", "가드율", "행동속도" }, fontAsset);
 
-            // Row 2 Values (Fighter stats: C, E, D, S, C)
-            CreateStatsValueRow(statsGrid.transform, new string[] { "C", "E", "D", "S", "C" }, fontAsset);
+            // Row 2 Values (Fighter stats: C, E, D, S, C) - Names: Accuracy, Evasion, CritRate, GuardRate, Speed
+            CreateStatsValueRow(statsGrid.transform, new string[] { "C", "E", "D", "S", "C" }, new string[] { "Accuracy", "Evasion", "CritRate", "GuardRate", "Speed" }, fontAsset);
 
             GameObject removeButton = CreateButton("RemoveButton", infoArea.transform, "부대에서 제거", new Color32(127, 29, 29, 255), fontAsset);
-            removeButton.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 40);
+            removeButton.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
 
             // Save as Prefab
             string folderPath = "Assets/Prefabs/UI";
@@ -252,7 +244,7 @@ namespace Arcana.Tactics.UI
             }
         }
 
-        private void CreateStatsValueRow(Transform parent, string[] values, TMP_FontAsset font = null)
+        private void CreateStatsValueRow(Transform parent, string[] values, string[] names, TMP_FontAsset font = null)
         {
             GameObject valueRow = CreateImageObject("StatsValueRow", parent, new Color32(55, 48, 45, 255)); // Dark brown
             valueRow.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 35);
@@ -263,9 +255,11 @@ namespace Arcana.Tactics.UI
             hlg.childControlHeight = true;
             hlg.childForceExpandHeight = true;
 
-            foreach (string value in values)
+            for (int i = 0; i < values.Length; i++)
             {
-                GameObject cell = CreateText($"Value_{value}", valueRow.transform, value, 20, Color.white, FontStyles.Bold, font);
+                string val = values[i];
+                string name = (names != null && i < names.Length) ? names[i] : val;
+                GameObject cell = CreateText($"Value_{name}", valueRow.transform, val, 20, Color.white, FontStyles.Bold, font);
                 cell.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
             }
         }
