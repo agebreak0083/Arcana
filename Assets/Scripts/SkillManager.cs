@@ -7,7 +7,8 @@ using UnityEngine;
 [DefaultExecutionOrder(-100)]
 public class SkillManager : MonoBehaviour
 {
-    private SkillCollection skillCollection;
+    private Dictionary<string, List<Skill>> skillsByClass = new Dictionary<string, List<Skill>>();
+    private List<Skill> allSkills = new List<Skill>();
 
     public static SkillManager Instance { get; private set; }
 
@@ -30,51 +31,136 @@ public class SkillManager : MonoBehaviour
     // Json 파일에서 스킬 데이터 로드
     public void LoadSkills()
     {
-        TextAsset jsonFile = Resources.Load<TextAsset>("Table/Skills");
+        TextAsset jsonFile = Resources.Load<TextAsset>("Table/SkillList");
         if (jsonFile != null)
         {
-            skillCollection = JsonUtility.FromJson<SkillCollection>(jsonFile.text);
-            Debug.Log($"스킬 데이터 로드 완료: {skillCollection.skills.Count}개의 스킬");
+            // SkillList.json은 클래스별로 그룹화된 구조
+            try
+            {
+                // 간단한 JSON 파싱 (클래스별 스킬 목록)
+                string jsonText = jsonFile.text.Trim();
+
+                // Remove outer braces
+                if (jsonText.StartsWith("{") && jsonText.EndsWith("}"))
+                {
+                    jsonText = jsonText.Substring(1, jsonText.Length - 2).Trim();
+                }
+
+                // Split by class sections (looking for ": [" pattern)
+                int startIndex = 0;
+                while (startIndex < jsonText.Length)
+                {
+                    // Find class name
+                    int classNameStart = jsonText.IndexOf("\"", startIndex);
+                    if (classNameStart == -1) break;
+
+                    int classNameEnd = jsonText.IndexOf("\"", classNameStart + 1);
+                    if (classNameEnd == -1) break;
+
+                    string className = jsonText.Substring(classNameStart + 1, classNameEnd - classNameStart - 1);
+
+                    // Find array start
+                    int arrayStart = jsonText.IndexOf("[", classNameEnd);
+                    if (arrayStart == -1) break;
+
+                    // Find matching array end
+                    int arrayEnd = FindMatchingBracket(jsonText, arrayStart);
+                    if (arrayEnd == -1) break;
+
+                    // Extract skills array JSON
+                    string skillsArrayJson = jsonText.Substring(arrayStart, arrayEnd - arrayStart + 1);
+
+                    // Parse skills array
+                    List<Skill> classSkills = ParseSkillsArray(skillsArrayJson);
+
+                    skillsByClass[className] = classSkills;
+                    allSkills.AddRange(classSkills);
+
+                    startIndex = arrayEnd + 1;
+                }
+
+                Debug.Log($"스킬 데이터 로드 완료: {allSkills.Count}개의 스킬, {skillsByClass.Count}개의 클래스");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"SkillList.json 파싱 오류: {e.Message}");
+            }
         }
         else
         {
-            Debug.LogError("Skills.json 파일을 찾을 수 없습니다!");
+            Debug.LogError("SkillList.json 파일을 찾을 수 없습니다!");
         }
+    }
+
+    private int FindMatchingBracket(string text, int openIndex)
+    {
+        int depth = 0;
+        for (int i = openIndex; i < text.Length; i++)
+        {
+            if (text[i] == '[') depth++;
+            else if (text[i] == ']')
+            {
+                depth--;
+                if (depth == 0) return i;
+            }
+        }
+        return -1;
+    }
+
+    private List<Skill> ParseSkillsArray(string arrayJson)
+    {
+        List<Skill> skills = new List<Skill>();
+
+        // Wrap in a wrapper for JsonUtility
+        string wrappedJson = "{\"skills\":" + arrayJson + "}";
+        SkillCollection collection = JsonUtility.FromJson<SkillCollection>(wrappedJson);
+
+        if (collection != null && collection.skills != null)
+        {
+            skills.AddRange(collection.skills);
+        }
+
+        return skills;
     }
 
     // ID로 스킬 가져오기
     public Skill GetSkillById(string id)
     {
-        if (skillCollection == null) return null;
-        return skillCollection.skills.Find(s => s.id == id);
+        return allSkills.Find(s => s.id == id);
     }
 
     // 이름으로 스킬 가져오기
     public Skill GetSkillByName(string name)
     {
-        if (skillCollection == null) return null;
-        return skillCollection.skills.Find(s => s.name == name);
+        return allSkills.Find(s => s.name == name);
+    }
+
+    // 클래스 이름으로 스킬 목록 가져오기
+    public List<Skill> GetSkillsByClassName(string className)
+    {
+        if (skillsByClass.TryGetValue(className, out List<Skill> skills))
+        {
+            return new List<Skill>(skills);
+        }
+        return new List<Skill>();
     }
 
     // 모든 스킬 가져오기
     public List<Skill> GetAllSkills()
     {
-        if (skillCollection == null) return new List<Skill>();
-        return skillCollection.skills;
+        return new List<Skill>(allSkills);
     }
 
     // 타입별 스킬 가져오기 (active/passive)
     public List<Skill> GetSkillsByType(string type)
     {
-        if (skillCollection == null) return new List<Skill>();
-        return skillCollection.skills.FindAll(s => s.type == type);
+        return allSkills.FindAll(s => s.type == type);
     }
 
     // 버튼 타입별 스킬 가져오기
     public List<Skill> GetSkillsByButtonType(string buttonType)
     {
-        if (skillCollection == null) return new List<Skill>();
-        return skillCollection.skills.FindAll(s => s.buttonType == buttonType);
+        return allSkills.FindAll(s => s.buttonType == buttonType);
     }
 
     // 스킬 효과 적용

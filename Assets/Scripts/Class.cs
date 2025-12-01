@@ -15,7 +15,7 @@ public class ClassStats
     public string criticalRate;         // 치명타율 등급
     public string guardRate;            // 가드율 등급
     public string actionSpeed;          // 행동속도 등급
-    
+
     // 등급을 수치로 변환 (S=6, A=5, B=4, C=3, D=2, E=1)
     public int GetStatValue(string grade)
     {
@@ -30,7 +30,7 @@ public class ClassStats
             default: return 3; // 기본값 C
         }
     }
-    
+
     // 등급별 실제 스탯 수치 계산 (레벨 1 기준)
     public float GetHPValue() => GetStatValue(hp) * 100f;                      // HP: 100~600
     public float GetPhysicalAttackValue() => GetStatValue(physicalAttack) * 10f; // 물리공격: 10~60
@@ -47,12 +47,11 @@ public class ClassStats
 [Serializable]
 public class CharacterClass
 {
-    public string id;               // 고유 ID (class_fighter 등)
     public string name;             // 직업 이름
     public string description;      // 직업 설명
     public int baseAP;              // 기본 AP
     public int basePP;              // 기본 PP
-    public List<string> skillIds;   // 직업 스킬 ID 목록 (6개)
+    public int cost;                // 코스트
     public ClassStats stats;        // 스테이터스
 }
 
@@ -60,7 +59,7 @@ public class CharacterClass
 public class ClassCollection
 {
     public List<CharacterClass> classes;
-    
+
     public ClassCollection()
     {
         classes = new List<CharacterClass>();

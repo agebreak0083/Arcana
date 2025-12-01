@@ -2,19 +2,19 @@
     {
         "Name": "Hina1",
         "Portrait": "carti.png",
-        "Class": "fighter",
+        "Class": "파이터",
         "Cost": 2
     },
     {
         "Name": "Hina2",
         "Portrait": "yuno.png",
-        "Class": "hunter",
+        "Class": "헌터",
         "Cost": 2
     },
     {
         "Name": "Hina3",
         "Portrait": "chisa.png",
-        "Class": "witch",
+        "Class": "위치",
         "Cost": 2
     }
 ]

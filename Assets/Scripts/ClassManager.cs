@@ -45,7 +45,7 @@ public class ClassManager : MonoBehaviour
             // 로드된 직업 정보 출력
             foreach (var characterClass in classCollection.classes)
             {
-                Debug.Log($"[{characterClass.id}] {characterClass.name} - AP:{characterClass.baseAP} PP:{characterClass.basePP}");
+                Debug.Log($"{characterClass.name} - AP:{characterClass.baseAP} PP:{characterClass.basePP}");
             }
         }
         else
@@ -53,15 +53,6 @@ public class ClassManager : MonoBehaviour
             Debug.LogError("직업 데이터를 파싱하는데 실패했습니다!");
             classCollection = new ClassCollection();
         }
-    }
-
-    // ID로 직업 가져오기
-    public CharacterClass GetClassById(string classId)
-    {
-        if (classCollection == null || classCollection.classes == null)
-            return null;
-
-        return classCollection.classes.Find(c => c.id == classId);
     }
 
     // 이름으로 직업 가져오기
@@ -107,13 +98,13 @@ public class ClassManager : MonoBehaviour
     }
 
     // 직업의 실제 스탯 수치 반환 (레벨 1 기준)
-    public void ApplyClassStatsToCharacter(Character character, string classId)
+    public void ApplyClassStatsToCharacter(Character character, string className)
     {
-        CharacterClass characterClass = GetClassById(classId);
+        CharacterClass characterClass = GetClassByName(className);
 
         if (characterClass == null)
         {
-            Debug.LogWarning($"직업 ID '{classId}'를 찾을 수 없습니다.");
+            Debug.LogWarning($"직업 '{className}'을 찾을 수 없습니다.");
             return;
         }
 
@@ -132,24 +123,9 @@ public class ClassManager : MonoBehaviour
         Debug.Log($"{character.characterName}에게 {characterClass.name} 직업 스탯 적용 완료");
     }
 
-    // 직업의 스킬 ID 목록 가져오기
-    public List<string> GetClassSkillIds(string classId)
-    {
-        CharacterClass characterClass = GetClassById(classId);
-
-        if (characterClass == null || characterClass.skillIds == null)
-        {
-            Debug.LogWarning($"직업 ID '{classId}'의 스킬 목록을 찾을 수 없습니다.");
-            return new List<string>();
-        }
-
-        return new List<string>(characterClass.skillIds);
-    }
-
     // 직업의 스킬 목록을 Skill 객체로 가져오기
-    public List<Skill> GetClassSkills(string classId)
+    public List<Skill> GetClassSkills(string className)
     {
-        List<string> skillIds = GetClassSkillIds(classId);
         List<Skill> skills = new List<Skill>();
 
         if (SkillManager.Instance == null)
@@ -158,14 +134,8 @@ public class ClassManager : MonoBehaviour
             return skills;
         }
 
-        foreach (string skillId in skillIds)
-        {
-            Skill skill = SkillManager.Instance.GetSkillById(skillId);
-            if (skill != null)
-            {
-                skills.Add(skill);
-            }
-        }
+        // SkillManager에서 클래스 이름으로 스킬 가져오기
+        skills = SkillManager.Instance.GetSkillsByClassName(className);
 
         return skills;
     }

@@ -320,7 +320,7 @@ namespace Arcana.Tactics
             {
                 foreach (var classInfo in wrapper.classes)
                 {
-                    _classData[classInfo.id] = classInfo;
+                    _classData[classInfo.name] = classInfo;
                 }
                 Debug.Log($"Loaded {_classData.Count} classes from ClassList.json");
             }
@@ -367,7 +367,6 @@ namespace Arcana.Tactics
         [System.Serializable]
         private class ClassInfo
         {
-            public string id;
             public string name;
             public string description;
             public ClassStats stats;

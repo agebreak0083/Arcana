@@ -1,0 +1,1977 @@
+{
+  "로드 / 하이 로드": [
+    {
+      "id": "린 에지",
+      "name": "린 에지",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상에게 명중한경우는,HP를 25%회복한다.적을 쓰러뜨린경우,HP를 25%회복한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "heal",
+          "value": 50,
+          "target": "self"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "캐벌리 슬레이",
+      "name": "캐벌리 슬레이",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상이 기마 계열의 경우,.대상의 AP-1,PP-1,가드봉인을 부여",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "스피닝 에지",
+      "name": "스피닝 에지",
+      "type": "active",
+      "description": "적 한 열에게 공격한다.대상의 방어력을 50%무시한다.대상을 쓰러뜨린경우,PP+1",
+      "target": "row_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "buff",
+          "stat": "defense",
+          "value": 20,
+          "duration": 3
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "파이터 / 뱅가드": [
+    {
+      "id": "가드 슬래시",
+      "name": "가드 슬래시",
+      "type": "active",
+      "description": "적 하나에게 공격한다.자신의 물리 방어력+20%",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "buff",
+          "stat": "defense",
+          "value": 20,
+          "duration": 3
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "실드 배시",
+      "name": "실드 배시",
+      "type": "active",
+      "description": "적 하나에게 공격한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "디펜더",
+      "name": "디펜더",
+      "type": "active",
+      "description": "적 하나에게 공격한다.자신의 물리 방어력+50%.대상에게 명중한경우,자신의 PP+1",
+      "target": "single_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "buff",
+          "stat": "defense",
+          "value": 20,
+          "duration": 3
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "솔저 / 서전트": [
+    {
+      "id": "롱 스러스트",
+      "name": "롱 스러스트",
+      "type": "active",
+      "description": "적 전후열에게 관통하는攻撃를 行う.대상이 기마 계열의 경우,こ의 攻撃는 가드 불가.대상이 기마 계열의 경우,위력+50",
+      "target": "column_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "재블린",
+      "name": "재블린",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상이 비행 계열의 경우,위력+50",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "인핸스드 스피어",
+      "name": "인핸스드 스피어",
+      "type": "active",
+      "description": "적 전후열에게 관통하는攻撃를 行う.자신이 버프상태의 경우,위력+50.대상이 기마 계열의 경우,こ의 攻撃는 가드 불가",
+      "target": "column_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "허스칼 / 바이킹": [
+    {
+      "id": "스매시",
+      "name": "스매시",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상의 물리 방어력-20%",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "debuff",
+          "stat": "defense",
+          "value": -20,
+          "duration": 3
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "롤 액스",
+      "name": "롤 액스",
+      "type": "active",
+      "description": "적 한 열에게 多段히트攻撃를 行う.대상의 물리 방어력-15%",
+      "target": "row_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "debuff",
+          "stat": "defense",
+          "value": -20,
+          "duration": 3
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "와이드 브레이커",
+      "name": "와이드 브레이커",
+      "type": "active",
+      "description": "적 한 열에게 공격한다.대상의 물리 방어력-30%.대상이 デ버프상태의 경우,위력+50",
+      "target": "row_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "buff",
+          "stat": "defense",
+          "value": 20,
+          "duration": 3
+        },
+        {
+          "type": "debuff",
+          "stat": "defense",
+          "value": -20,
+          "duration": 3
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "소드맨 / 소드 마스터": [
+    {
+      "id": "샤프 에지",
+      "name": "샤프 에지",
+      "type": "active",
+      "description": "적 하나에게 치명타율의 높은攻撃를 行う.(치명타율+50%)",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "임페일",
+      "name": "임페일",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상을 쓰러뜨린경우,자신의 PP+1",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "메테오 슬래시",
+      "name": "메테오 슬래시",
+      "type": "active",
+      "description": "적 하나에게 치명타율의 높은연속攻撃를 行う.(치명타율+30%)",
+      "target": "single_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "머시너리 / 란츠크네히트": [
+    {
+      "id": "메가 슬래시",
+      "name": "메가 슬래시",
+      "type": "active",
+      "description": "적 하나에게 공격한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "킬링 체인",
+      "name": "킬링 체인",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상을 쓰러뜨린경우,자신의 AP+1",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "바스타드 크로스",
+      "name": "바스타드 크로스",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상의 HP가 많을수록위력상승(최대+60)",
+      "target": "single_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "호플리타이 / 카타프랙트": [
+    {
+      "id": "스팅",
+      "name": "스팅",
+      "type": "active",
+      "description": "적 하나에게 공격한다.자신의 HP50%이하의 경우,위력+50",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "라인 프로텍트",
+      "name": "라인 프로텍트",
+      "type": "active",
+      "description": "동일 열에게 있는아군의 물리 방어력+50%",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "buff",
+          "stat": "defense",
+          "value": 20,
+          "duration": 3
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "그레이트 실드",
+      "name": "그레이트 실드",
+      "type": "active",
+      "description": "자신의 물리 방어력+50%,PP+2",
+      "target": "self",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "buff",
+          "stat": "defense",
+          "value": 20,
+          "duration": 3
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "글래디에이터 / 버서커": [
+    {
+      "id": "와이드 스매시",
+      "name": "와이드 스매시",
+      "type": "active",
+      "description": "적 한 열에게 공격한다.자신의 HP100%의 경우,위력+50",
+      "target": "row_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "매시브 차지",
+      "name": "매시브 차지",
+      "type": "active",
+      "description": "자신의 HP를 30%회복하고,물리 공격력+30%",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "heal",
+          "value": 50,
+          "target": "self"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "그랜드 슬램",
+      "name": "그랜드 슬램",
+      "type": "active",
+      "description": "적 전체에게 공격한다.자신이 HP100%의 경우,위력+50",
+      "target": "all_enemies",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    }
+  ],
+  "워리어 / 브레이커": [
+    {
+      "id": "헤비 버스터",
+      "name": "헤비 버스터",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상이 중장 계열의 경우,방어력을 100%무시한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "어설트 블로우",
+      "name": "어설트 블로우",
+      "type": "active",
+      "description": "적 하나에게 공격한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "라인 버스터",
+      "name": "라인 버스터",
+      "type": "active",
+      "description": "적 한 열에게 공격한다.대상이 중장 계열의 경우,방어력을 100%무시한다",
+      "target": "row_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "헌터 / 스나이퍼": [
+    {
+      "id": "싱글 샷",
+      "name": "싱글 샷",
+      "type": "active",
+      "description": "적 하나에게 공격한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "더블 샷",
+      "name": "더블 샷",
+      "type": "active",
+      "description": "적 2체에게 공격한다",
+      "target": "two_enemies",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "라인 샷",
+      "name": "라인 샷",
+      "type": "active",
+      "description": "적 한 열에게 공격한다",
+      "target": "row_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    }
+  ],
+  "슈터 / 실드 슈터": [
+    {
+      "id": "파워 볼트",
+      "name": "파워 볼트",
+      "type": "active",
+      "description": "적 하나에게 공격한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "톡식 볼트",
+      "name": "톡식 볼트",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상에게 독을 부여한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "status",
+          "statusName": "poison"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "헤비 볼트",
+      "name": "헤비 볼트",
+      "type": "active",
+      "description": "적 하나에게 공격한다.전열で발동했을경우,위력+100",
+      "target": "single_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    }
+  ],
+  "시프 / 로그": [
+    {
+      "id": "패시브 스틸",
+      "name": "패시브 스틸",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상의 PP를 모두빼앗는다.(１히트目를 가드되었을경우는 빼앗을 수 없다)",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "톡식 스로",
+      "name": "톡식 스로",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상에게 독을 부여한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "status",
+          "statusName": "poison"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "섀도우 바이트",
+      "name": "섀도우 바이트",
+      "type": "active",
+      "description": "적 한 열에게 공격한다.대상에게 암흑을 부여한다.대상의 행동 속도-20,회피-20",
+      "target": "row_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "status",
+          "statusName": "blind"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "액티브 스틸",
+      "name": "액티브 스틸",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상의 AP를 1빼앗는다.(１히트目를 가드되었을경우는 빼앗을 수 없다)",
+      "target": "single_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "나이트 / 그레이트 나이트": [
+    {
+      "id": "어설트 랜스",
+      "name": "어설트 랜스",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상을 쓰러뜨린경우,자신의 AP+1",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "와일드 러시",
+      "name": "와일드 러시",
+      "type": "active",
+      "description": "적 전후열에게 관통하는攻撃를 行う.대상에게 기절을 부여한다",
+      "target": "column_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "status",
+          "statusName": "stun"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "파일 스러스트",
+      "name": "파일 스러스트",
+      "type": "active",
+      "description": "적 하나에게 多段히트攻撃를 行う.대상을 쓰러뜨린경우,자신의 AP+1",
+      "target": "single_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "화이트 나이트 / 세인트 나이트": [
+    {
+      "id": "허시",
+      "name": "허시",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상에게 명중한경우,자신의 PP+1",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "라인 힐",
+      "name": "라인 힐",
+      "type": "active",
+      "description": "아군 한 열의 HP를 中회복한다",
+      "target": "row_ally",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "heal",
+          "value": 50,
+          "target": "ally"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "세인트 블레이드",
+      "name": "세인트 블레이드",
+      "type": "active",
+      "description": "적 하나에게 공격한다.자신이 HP100%의 경우,위력+25.대상에게 명중한경우,자신의 PP+1",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "블랙 나이트 / 둠 나이트": [
+    {
+      "id": "리벤지 액스",
+      "name": "리벤지 액스",
+      "type": "active",
+      "description": "적 하나에게 공격한다.자신의 HP가 적을수록위력상승(최대+100)",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "베놈 액스",
+      "name": "베놈 액스",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상에게 독을 부여한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "status",
+          "statusName": "poison"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "다크 플레임",
+      "name": "다크 플레임",
+      "type": "active",
+      "description": "자신의 HP를 30%消費し,적 한 열에게 공격한다.대상이 デ버프상태의 경우,物理・魔法위력+50.대상에게 화상을 부여한다",
+      "target": "row_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "status",
+          "statusName": "burn"
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "클레릭 / 비숍": [
+    {
+      "id": "힐",
+      "name": "힐",
+      "type": "active",
+      "description": "아군 하나의 HP를 中회복한다",
+      "target": "single_ally",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "heal",
+          "value": 50,
+          "target": "ally"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "세이크리드 힐",
+      "name": "세이크리드 힐",
+      "type": "active",
+      "description": "아군 한 열의 HP를 中회복하고,.대상의 デ버프를 모두해제한다",
+      "target": "row_ally",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "heal",
+          "value": 50,
+          "target": "ally"
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "위저드 / 워록": [
+    {
+      "id": "파이어볼",
+      "name": "파이어볼",
+      "type": "active",
+      "description": "적 하나에게 魔法공격한다.대상에게 화상을 부여한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "magical"
+        },
+        {
+          "type": "status",
+          "statusName": "burn"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "선더스트럭",
+      "name": "선더스트럭",
+      "type": "active",
+      "description": "적 한 열에게 魔法공격한다.대상에게 기절을 부여한다",
+      "target": "row_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "magical"
+        },
+        {
+          "type": "status",
+          "statusName": "stun"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "볼케이노",
+      "name": "볼케이노",
+      "type": "active",
+      "description": "적 전후열에게 관통하는魔法攻撃를 行う.대상에게 화상을 부여한다",
+      "target": "column_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "magical"
+        },
+        {
+          "type": "status",
+          "statusName": "burn"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    }
+  ],
+  "위치 / 소서리스": [
+    {
+      "id": "아이스 샷",
+      "name": "아이스 샷",
+      "type": "active",
+      "description": "적 하나에게 魔法공격한다.대상에게 동결을 부여한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "magical"
+        },
+        {
+          "type": "status",
+          "statusName": "freeze"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "매직 미사일",
+      "name": "매직 미사일",
+      "type": "active",
+      "description": "적 2체에게 魔法공격한다",
+      "target": "two_enemies",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "magical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "아이스 코핀",
+      "name": "아이스 코핀",
+      "type": "active",
+      "description": "적 한 열에게 魔法공격한다.대상에게 동결을 부여한다.대상이 동결의 경우い,위력+50",
+      "target": "row_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "magical"
+        },
+        {
+          "type": "status",
+          "statusName": "freeze"
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "샤먼 / 드루이드": [
+    {
+      "id": "패시브 커스",
+      "name": "패시브 커스",
+      "type": "active",
+      "description": "적 한 열의 PP-1,행동 속도-10",
+      "target": "row_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "오펜스 커스",
+      "name": "오펜스 커스",
+      "type": "active",
+      "description": "적 한 열의 물리 공격력-50%,마법 공격력-50%",
+      "target": "row_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "magical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "디펜스 커스",
+      "name": "디펜스 커스",
+      "type": "active",
+      "description": "적 한 열의 물리 방어력-50%,마법 방어력-50%.대상에게 가드봉인을 부여한다",
+      "target": "row_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "debuff",
+          "stat": "defense",
+          "value": -20,
+          "duration": 3
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "커스 해저드",
+      "name": "커스 해저드",
+      "type": "active",
+      "description": "적 한 열에게 .부여されて있는デ버프効果量를 1.5배에게 する",
+      "target": "row_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [],
+      "traits": [
+        "ranged"
+      ]
+    }
+  ],
+  "와이번 나이트 / 와이번 룰러": [
+    {
+      "id": "폴 스러스트",
+      "name": "폴 스러스트",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상이 기마 계열의 경우,こ의 攻撃는 가드 불가.대상이 기마 계열의 경우,위력+50",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "파이어 브레스",
+      "name": "파이어 브레스",
+      "type": "active",
+      "description": "적 한 열에게 공격한다.대상에게 화상을 부여한다",
+      "target": "row_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "status",
+          "statusName": "burn"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "템페스트 드라이브",
+      "name": "템페스트 드라이브",
+      "type": "active",
+      "description": "적 전후열에게 관통하는攻撃를 行う.대상이 기마 계열의 경우,こ의 攻撃는 가드 불가.자신이 HP50%이하의 경우,필중・치명타攻撃에게 なる",
+      "target": "column_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    }
+  ],
+  "그리폰 나이트 / 그리폰 룰러": [
+    {
+      "id": "하이 스윙",
+      "name": "하이 스윙",
+      "type": "active",
+      "description": "적 한 열에게 공격한다.대상이 기마 계열의 경우,こ의 攻撃는 가드 불가.대상이 기마 계열의 경우,위력+50",
+      "target": "row_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "페이タル 폴",
+      "name": "페이タル 폴",
+      "type": "active",
+      "description": "적 전후열에게 관통하는攻撃를 行う.대상에게 자신의 HP50%分의 대미지를 준다.(こ의 攻撃는 치명타불가)",
+      "target": "column_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "에리얼 스마이트",
+      "name": "에리얼 스마이트",
+      "type": "active",
+      "description": "적 한 열에게 공격한다.대상이 기마 계열의 경우,こ의 攻撃는 가드 불가.대상이 HP100%의 경우,AP-1",
+      "target": "row_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    }
+  ],
+  "엘프 펜서": [
+    {
+      "id": "라이트닝 소드",
+      "name": "라이트닝 소드",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상에게 기절을 부여한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "status",
+          "statusName": "stun"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "그렘린 글레이브",
+      "name": "그렘린 글레이브",
+      "type": "active",
+      "description": "적 전후열에게 관통하는魔法攻撃를 行う.대상이 기마 계열의 경우,PP-1",
+      "target": "column_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "magical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "미라지 스탭",
+      "name": "미라지 스탭",
+      "type": "active",
+      "description": "적 한 열에게 공격한다.자신에게 한 번만攻撃를 회피する버프를 부여",
+      "target": "row_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "엘프 아처": [
+    {
+      "id": "윈드 애로",
+      "name": "윈드 애로",
+      "type": "active",
+      "description": "적 하나에게 공격한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "미스틱 세이버",
+      "name": "미스틱 세이버",
+      "type": "active",
+      "description": "아군 하나의 攻撃에게 .魔法대미지(위력50)를 추가한다",
+      "target": "single_ally",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "아이시클 애로",
+      "name": "아이시클 애로",
+      "type": "active",
+      "description": "적 2체에게 공격한다.대상에게 동결을 부여한다",
+      "target": "two_enemies",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "status",
+          "statusName": "freeze"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    }
+  ],
+  "워울프": [
+    {
+      "id": "피니시 스탭",
+      "name": "피니시 스탭",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상을 쓰러뜨린경우,물리 공격력+50%",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "데시멀 킬러",
+      "name": "데시멀 킬러",
+      "type": "active",
+      "description": "적 하나에게 공격한다.적의 수가 적을수록위력상승(최대+100)",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "와일드 팡",
+      "name": "와일드 팡",
+      "type": "active",
+      "description": "적 한 열에게 공격한다.대상의 HP가 적을수록위력상승(최대+50)",
+      "target": "row_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "워폭스": [
+    {
+      "id": "피어싱 랜스",
+      "name": "피어싱 랜스",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상에게 가드봉인을 부여한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "패시브 홀드",
+      "name": "패시브 홀드",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상에게 パッシブ봉인을 부여한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "베놈 스러스트",
+      "name": "베놈 스러스트",
+      "type": "active",
+      "description": "적 전후열에게 관통하는攻撃를 行う.대상에게 독とHP回復量-50%의 デ버프를 부여한다.대상이 독의 경우,위력+50",
+      "target": "column_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "heal",
+          "value": 50,
+          "target": "self"
+        },
+        {
+          "type": "status",
+          "statusName": "poison"
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "워베어": [
+    {
+      "id": "베어 크래시",
+      "name": "베어 크래시",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상에게 기절을 부여한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "status",
+          "statusName": "stun"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "어라운드 스윙",
+      "name": "어라운드 스윙",
+      "type": "active",
+      "description": "적 한 열에게 공격한다.자신의 HP가 많을수록위력상승(최대+50)",
+      "target": "row_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "어스 스탬프",
+      "name": "어스 스탬프",
+      "type": "active",
+      "description": "적 전체에게 공격한다.자신의 HP가 적을수록위력상승(최대+75)",
+      "target": "all_enemies",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    }
+  ],
+  "워아울": [
+    {
+      "id": "오로라 베일",
+      "name": "오로라 베일",
+      "type": "active",
+      "description": "아군 한 열에게 HP지속回復를 부여し,.대상의 마법 방어력+50%",
+      "target": "row_ally",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "heal",
+          "value": 50,
+          "target": "ally"
+        },
+        {
+          "type": "buff",
+          "stat": "defense",
+          "value": 20,
+          "duration": 3
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "나이트 비전",
+      "name": "나이트 비전",
+      "type": "active",
+      "description": "아군 한 열의 명중+50.야간의 경우,한 번만다음의 攻撃를 필중에게 する",
+      "target": "row_ally",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "엑스트라 힐",
+      "name": "엑스트라 힐",
+      "type": "active",
+      "description": "아군 하나의 HP를 中회복한다.대상에게 HP지속回復를 부여し,행동 속도+30",
+      "target": "single_ally",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "heal",
+          "value": 50,
+          "target": "ally"
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "페더 소드": [
+    {
+      "id": "스파이럴 소드",
+      "name": "스파이럴 소드",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상의 회피-20,자신의 회피+20",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "실드 스마이트",
+      "name": "실드 스마이트",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상의 방어력-20%,자신의 방어력+20%",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "buff",
+          "stat": "defense",
+          "value": 20,
+          "duration": 3
+        },
+        {
+          "type": "debuff",
+          "stat": "defense",
+          "value": -20,
+          "duration": 3
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "인핸스 러시",
+      "name": "인핸스 러시",
+      "type": "active",
+      "description": "적 하나에게 공격한다.자신이 버프상태의 경우,필중攻撃となる",
+      "target": "single_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    }
+  ],
+  "페더 보우": [
+    {
+      "id": "딜레이 샷",
+      "name": "딜레이 샷",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상의 행동 속도-20",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "세인트 샷",
+      "name": "세인트 샷",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상의 PP-1,지상의 경우さら에게 -1",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "포톤 애로",
+      "name": "포톤 애로",
+      "type": "active",
+      "description": "적 2체에게 공격한다.대상의 물리 방어력-50%.주간의 경우,대상에게 가드봉인을 부여한다",
+      "target": "two_enemies",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "debuff",
+          "stat": "defense",
+          "value": -20,
+          "duration": 3
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    }
+  ],
+  "페더 로드": [
+    {
+      "id": "오버 힐",
+      "name": "오버 힐",
+      "type": "active",
+      "description": "아군 한 열의 HP를 상한을 초과하여小회복한다.(최대HP의 150%まで回復できる)",
+      "target": "row_ally",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "heal",
+          "value": 50,
+          "target": "ally"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "힐 인핸스",
+      "name": "힐 인핸스",
+      "type": "active",
+      "description": "아군 한 열의 HP回復量를 ２배에게 する버프를 부여",
+      "target": "row_ally",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "heal",
+          "value": 50,
+          "target": "ally"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "홀리 크레이들",
+      "name": "홀리 크레이들",
+      "type": "active",
+      "description": "아군 한 열에게 .한 번만치사대미지에게 견디는버프를 부여",
+      "target": "row_ally",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [],
+      "traits": []
+    }
+  ],
+  "페더 실드": [
+    {
+      "id": "임펄스",
+      "name": "임펄스",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상이 지상의 경우,대상의 마법 방어력-50%",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "debuff",
+          "stat": "defense",
+          "value": -20,
+          "duration": 3
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "라인 레지스트",
+      "name": "라인 레지스트",
+      "type": "active",
+      "description": "동일 열에게 있는아군의 마법 방어력+50%.주간의 경우,대상이 아군全体となる",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "buff",
+          "stat": "defense",
+          "value": 20,
+          "duration": 3
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "미스틱 실드",
+      "name": "미스틱 실드",
+      "type": "active",
+      "description": "자신의 마법 방어력+50%,PP+2",
+      "target": "self",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "buff",
+          "stat": "defense",
+          "value": 20,
+          "duration": 3
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "프리스티스 / 하이 프리스티스": [
+    {
+      "id": "홀리 라이트",
+      "name": "홀리 라이트",
+      "type": "active",
+      "description": "적 하나에게 魔法공격한다.대상의 버프를 모두해제한다",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "magical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "큐어 옐",
+      "name": "큐어 옐",
+      "type": "active",
+      "description": "아군 한 열의 HP를 小회복하고,.대상의 デ버프를 모두해제한다",
+      "target": "row_ally",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "heal",
+          "value": 50,
+          "target": "ally"
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "이노센트 레이",
+      "name": "이노센트 레이",
+      "type": "active",
+      "description": "적 한 열에게 魔法공격한다.대상의 버프를 모두해제한다",
+      "target": "row_enemy",
+      "costAP": 2,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "magical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ]
+    }
+  ],
+  "크루세이더 / 발키리아": [
+    {
+      "id": "버티컬 에지",
+      "name": "버티컬 에지",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상이 비행 계열의 경우,필중에게 なり,.대상의 방어력을 50%無視し,위력+50",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "buff",
+          "stat": "defense",
+          "value": 20,
+          "duration": 3
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": "아이언 리퍼",
+      "name": "아이언 리퍼",
+      "type": "active",
+      "description": "적 하나에게 공격한다.대상이 중장 계열의 경우,.대상의 방어력을 50%無視し,위력+50",
+      "target": "single_enemy",
+      "costAP": 1,
+      "costPP": 0,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 100,
+          "damageType": "physical"
+        },
+        {
+          "type": "buff",
+          "stat": "defense",
+          "value": 20,
+          "duration": 3
+        }
+      ],
+      "traits": []
+    }
+  ]
+}
