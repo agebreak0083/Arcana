@@ -1,57 +1,9 @@
-[
+{
+  "positions": [
     {
-        "Name": "Hina1",
-        "tactics": [
-            {
-            "class": "파이터",
-            "plan": [
-                {
-                "skill": "가드 슬래시",
-                "condition1": "전열의 [적/아군] 우선",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "실드 배시",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "디펜더",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                }
-            ]
-            }
-        ]
-    },
-    {
-        "Name": "Hina2",
-        "tactics": [
-            {
-            "class": "헌터",
-            "plan": [
-                {
-                "skill": "싱글 샷",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "더블 샷",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "라인 샷",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                }
-            ]
-            }
-        ]
-    },
-    {
-        "Name": "Hina3",
-        "tactics": [
+      "position":"1",
+      "name":"hina3", 
+      "tactics": [
             {
             "class": "위치",
             "plan": [
@@ -72,6 +24,71 @@
                 }
             ]
             }
-        ]
+        ]      
+    },
+    {
+      "position":"2",
+      "name":""
+    },
+    {
+      "position":"3",
+      "name":"hina2", 
+      "tactics": [
+            {
+            "class": "헌터",
+            "plan": [
+                {
+                "skill": "싱글 샷",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "더블 샷",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "라인 샷",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                }
+            ]
+            }
+        ]      
+    },
+    {
+      "position":"4",
+      "name":""
+    },
+    {
+      "position":"5",
+      "name":"hina1", 
+      "tactics": [
+            {
+            "class": "파이터",
+            "plan": [
+                {
+                "skill": "가드 슬래시",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "실드 배시",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "디펜더",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                }
+            ]
+            }
+        ]      
+    },
+    {
+      "position":"6",
+      "name":""
     }
-]
+  ]
+}

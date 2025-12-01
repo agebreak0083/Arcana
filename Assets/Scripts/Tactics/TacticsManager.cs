@@ -48,6 +48,9 @@ namespace Arcana.Tactics
         public TextMeshProUGUI detailStatGuardRate;
         public TextMeshProUGUI detailStatSpeed;
 
+        [Header("Buttons")]
+        public Button runBattleButton;
+
         // State
         private CharacterData _selectedCharacter; // Currently selected (could be from pool or slot)
         private CharacterData[] _unitSlots = new CharacterData[6]; // 0-5
@@ -66,6 +69,7 @@ namespace Arcana.Tactics
         {
             AutoAssignReferences();
             InitializeUI();
+            LoadFormationFromTacticsFile();
             UpdateAllUI();
         }
 
@@ -165,6 +169,8 @@ namespace Arcana.Tactics
                 if (detailStatSpeed == null) detailStatSpeed = FindDetailStat("Value_Speed");
             }
 
+            if (runBattleButton == null) runBattleButton = GameObject.Find("RunBattleButton").GetComponent<Button>();
+
             if (characterCardPrefab == null) characterCardPrefab = Resources.Load<GameObject>("Prefabs/UI/CharacterCardPrefab");
             if (tacticRowPrefab == null) tacticRowPrefab = Resources.Load<GameObject>("Prefabs/UI/TacticRowPrefab");
         }
@@ -243,6 +249,7 @@ namespace Arcana.Tactics
 
             if (conditionModal != null) conditionModal.Setup(this);
             if (removeFromUnitBtn != null) removeFromUnitBtn.onClick.AddListener(OnRemoveFromUnitClicked);
+            if (runBattleButton != null) runBattleButton.onClick.AddListener(OnRunBattleClicked);
         }
 
         private void LoadCharactersFromJSON()
@@ -590,8 +597,14 @@ namespace Arcana.Tactics
                 else row.condition2 = condition;
 
                 UpdateCodingPanel(); // Just refresh coding panel
+                SaveTacticsToFile(); // Save to CharacterPool.json
             }
             conditionModal.Close();
+        }
+
+        public void OnRunBattleClicked()
+        {
+            SaveFormationToTacticsFile();
         }
 
         private void UpdateAllUI()
@@ -770,6 +783,363 @@ namespace Arcana.Tactics
                 if (_unitSlots[i] == data) return i;
             }
             return -1;
+        }
+
+        private void SaveTacticsToFile()
+        {
+            try
+            {
+                // Build the save data structure
+                var poolData = new List<CharacterPoolSaveData>();
+
+                foreach (var character in availableCharacters)
+                {
+                    var saveData = new CharacterPoolSaveData
+                    {
+                        Name = character.characterName
+                    };
+
+                    // If this character has tactics data, save it
+                    if (_codingData.TryGetValue(character.id, out var plan))
+                    {
+                        var tacticData = new TacticsSaveData
+                        {
+                            characterClass = character.characterClass,
+                            plan = new List<TacticRowSaveData>()
+                        };
+
+                        foreach (var row in plan.rows)
+                        {
+                            tacticData.plan.Add(new TacticRowSaveData
+                            {
+                                skill = row.skillName,
+                                condition1 = row.condition1,
+                                condition2 = row.condition2
+                            });
+                        }
+
+                        saveData.tactics = new List<TacticsSaveData> { tacticData };
+                    }
+
+                    poolData.Add(saveData);
+                }
+
+                // Serialize to JSON
+                string json = "[\n";
+                for (int i = 0; i < poolData.Count; i++)
+                {
+                    json += "    {\n";
+                    json += $"        \"Name\": \"{poolData[i].Name}\"";
+
+                    if (poolData[i].tactics != null && poolData[i].tactics.Count > 0)
+                    {
+                        json += ",\n        \"tactics\": [\n";
+                        var tactics = poolData[i].tactics[0];
+                        json += "            {\n";
+                        json += $"            \"class\": \"{tactics.characterClass}\",\n";
+                        json += "            \"plan\": [\n";
+
+                        for (int j = 0; j < tactics.plan.Count; j++)
+                        {
+                            var row = tactics.plan[j];
+                            json += "                {\n";
+                            json += $"                \"skill\": \"{row.skill}\",\n";
+                            json += $"                \"condition1\": \"{row.condition1}\",\n";
+                            json += $"                \"condition2\": \"{row.condition2}\"\n";
+                            json += "                }";
+                            if (j < tactics.plan.Count - 1) json += ",";
+                            json += "\n";
+                        }
+
+                        json += "            ]\n";
+                        json += "            }\n";
+                        json += "        ]";
+                    }
+
+                    json += "\n    }";
+                    if (i < poolData.Count - 1) json += ",";
+                    json += "\n";
+                }
+                json += "]\n";
+
+                // Write to file
+                string path = System.IO.Path.Combine(UnityEngine.Application.dataPath, "Resources/CharacterPool.json");
+                System.IO.File.WriteAllText(path, json);
+
+                Debug.Log("Tactics saved to CharacterPool.json");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to save tactics: {e.Message}");
+            }
+        }
+
+        [System.Serializable]
+        private class CharacterPoolSaveData
+        {
+            public string Name;
+            public List<TacticsSaveData> tactics;
+        }
+
+        [System.Serializable]
+        private class TacticsSaveData
+        {
+            public string characterClass;
+            public List<TacticRowSaveData> plan;
+        }
+
+        [System.Serializable]
+        private class TacticRowSaveData
+        {
+            public string skill;
+            public string condition1;
+            public string condition2;
+        }
+
+        private void SaveFormationToTacticsFile()
+        {
+            try
+            {
+                // Build positions data
+                var tacticsData = new TacticsFileSaveData
+                {
+                    positions = new List<PositionSaveData>()
+                };
+
+                for (int i = 0; i < 6; i++)
+                {
+                    var posData = new PositionSaveData
+                    {
+                        position = (i + 1).ToString(),
+                        name = ""
+                    };
+
+                    // If there's a character in this slot
+                    if (_unitSlots[i] != null)
+                    {
+                        var character = _unitSlots[i];
+                        posData.name = character.characterName;
+
+                        // If this character has tactics data, add it
+                        if (_codingData.TryGetValue(character.id, out var plan))
+                        {
+                            var tacticData = new TacticsSaveData
+                            {
+                                characterClass = character.characterClass,
+                                plan = new List<TacticRowSaveData>()
+                            };
+
+                            foreach (var row in plan.rows)
+                            {
+                                tacticData.plan.Add(new TacticRowSaveData
+                                {
+                                    skill = row.skillName,
+                                    condition1 = row.condition1,
+                                    condition2 = row.condition2
+                                });
+                            }
+
+                            posData.tactics = new List<TacticsSaveData> { tacticData };
+                        }
+                    }
+
+                    tacticsData.positions.Add(posData);
+                }
+
+                // Serialize to JSON with proper formatting
+                string json = "{\n  \"positions\": [\n";
+
+                for (int i = 0; i < tacticsData.positions.Count; i++)
+                {
+                    var pos = tacticsData.positions[i];
+                    json += "    {\n";
+                    json += $"      \"position\":\"{pos.position}\",\n";
+                    json += $"      \"name\":\"";
+
+                    if (!string.IsNullOrEmpty(pos.name))
+                    {
+                        json += pos.name.ToLower();
+                    }
+                    json += "\"";
+
+                    // Add tactics if present
+                    if (pos.tactics != null && pos.tactics.Count > 0)
+                    {
+                        json += ", \n      \"tactics\": [\n";
+                        var tactics = pos.tactics[0];
+                        json += "            {\n";
+                        json += $"            \"class\": \"{tactics.characterClass}\",\n";
+                        json += "            \"plan\": [\n";
+
+                        for (int j = 0; j < tactics.plan.Count; j++)
+                        {
+                            var row = tactics.plan[j];
+                            json += "                {\n";
+                            json += $"                \"skill\": \"{row.skill}\",\n";
+                            json += $"                \"condition1\": \"{row.condition1}\",\n";
+                            json += $"                \"condition2\": \"{row.condition2}\"\n";
+                            json += "                }";
+                            if (j < tactics.plan.Count - 1) json += ",";
+                            json += "\n";
+                        }
+
+                        json += "            ]\n";
+                        json += "            }\n";
+                        json += "        ]      ";
+                    }
+
+                    json += "\n    }";
+                    if (i < tacticsData.positions.Count - 1) json += ",";
+                    json += "\n";
+                }
+
+                json += "  ]\n}\n";
+
+                // Write to file
+                string path = System.IO.Path.Combine(UnityEngine.Application.dataPath, "Resources/tactics.json");
+                System.IO.File.WriteAllText(path, json);
+
+                Debug.Log("Formation and tactics saved to tactics.json");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to save formation: {e.Message}");
+            }
+        }
+
+        [System.Serializable]
+        private class TacticsFileSaveData
+        {
+            public List<PositionSaveData> positions;
+        }
+
+        [System.Serializable]
+        private class PositionSaveData
+        {
+            public string position;
+            public string name;
+            public List<TacticsSaveData> tactics;
+        }
+
+        private void LoadFormationFromTacticsFile()
+        {
+            try
+            {
+                TextAsset tacticsAsset = Resources.Load<TextAsset>("tactics");
+                if (tacticsAsset == null)
+                {
+                    Debug.LogWarning("tactics.json not found, starting with empty formation");
+                    return;
+                }
+
+                TacticsFileLoadData tacticsData = JsonUtility.FromJson<TacticsFileLoadData>(tacticsAsset.text);
+                if (tacticsData == null || tacticsData.positions == null)
+                {
+                    Debug.LogWarning("Failed to parse tactics.json");
+                    return;
+                }
+
+                // Clear current formation
+                for (int i = 0; i < 6; i++)
+                {
+                    _unitSlots[i] = null;
+                }
+                _codingData.Clear();
+
+                // Load each position
+                foreach (var posData in tacticsData.positions)
+                {
+                    if (string.IsNullOrEmpty(posData.name)) continue;
+
+                    int slotIndex = int.Parse(posData.position) - 1;
+                    if (slotIndex < 0 || slotIndex >= 6) continue;
+
+                    // Find the character by name
+                    CharacterData character = availableCharacters.Find(c => c.characterName.ToLower() == posData.name.ToLower());
+                    if (character == null)
+                    {
+                        Debug.LogWarning($"Character {posData.name} not found in available characters");
+                        continue;
+                    }
+
+                    // Place character in slot
+                    _unitSlots[slotIndex] = character;
+
+                    // Load tactics if present
+                    if (posData.tactics != null && posData.tactics.Length > 0)
+                    {
+                        var tacticData = posData.tactics[0];
+                        if (tacticData.plan != null && tacticData.plan.Length > 0)
+                        {
+                            var plan = new TacticsPlan(character.id);
+                            plan.rows.Clear();
+
+                            foreach (var rowData in tacticData.plan)
+                            {
+                                // Determine skill type from character's skills
+                                string skillType = "AP";
+                                var skill = character.skills.Find(s => s.name == rowData.skill);
+                                if (skill != null)
+                                {
+                                    skillType = skill.skillType.ToString();
+                                }
+
+                                plan.rows.Add(new TacticRow(
+                                    rowData.skill,
+                                    skillType,
+                                    rowData.condition1,
+                                    rowData.condition2
+                                ));
+                            }
+
+                            _codingData[character.id] = plan;
+                        }
+                    }
+                    else
+                    {
+                        // No saved tactics, create default plan
+                        if (!_codingData.ContainsKey(character.id))
+                        {
+                            _codingData[character.id] = CreateDefaultPlan(character);
+                        }
+                    }
+                }
+
+                Debug.Log("Formation loaded from tactics.json");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to load formation: {e.Message}");
+            }
+        }
+
+        [System.Serializable]
+        private class TacticsFileLoadData
+        {
+            public PositionLoadData[] positions;
+        }
+
+        [System.Serializable]
+        private class PositionLoadData
+        {
+            public string position;
+            public string name;
+            public TacticsLoadData[] tactics;
+        }
+
+        [System.Serializable]
+        private class TacticsLoadData
+        {
+            public string @class;
+            public TacticRowLoadData[] plan;
+        }
+
+        [System.Serializable]
+        private class TacticRowLoadData
+        {
+            public string skill;
+            public string condition1;
+            public string condition2;
         }
 
         private TacticsPlan CreateDefaultPlan(CharacterData data)
