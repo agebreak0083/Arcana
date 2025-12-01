@@ -60,6 +60,7 @@ namespace Arcana.Tactics
 
         private List<FormationSlotUI> _formationSlots = new List<FormationSlotUI>();
         private Dictionary<string, ClassInfo> _classData = new Dictionary<string, ClassInfo>();
+        private Dictionary<string, List<SkillData>> _skillMap = new Dictionary<string, List<SkillData>>();
 
         private void Start()
         {
@@ -262,6 +263,9 @@ namespace Arcana.Tactics
             CharacterDefinition[] allCharacters = JsonHelper.FromJson<CharacterDefinition>(listAsset.text);
             CharacterPoolItem[] myPool = JsonHelper.FromJson<CharacterPoolItem>(poolAsset.text);
 
+            // Load skill data first
+            LoadSkillList();
+
             // 3. Match and Create Data
             foreach (var poolItem in myPool)
             {
@@ -282,18 +286,48 @@ namespace Arcana.Tactics
                     newData.arcana = "None";
                     newData.description = "No description available.";
 
-                    // Load Portrait (Assuming they are in Resources/Portraits or just Resources)
-                    // Removing extension if present
+                    // Load Portrait
                     string spriteName = System.IO.Path.GetFileNameWithoutExtension(def.Portrait);
                     newData.portrait = Resources.Load<Sprite>($"Portraits/{spriteName}");
                     if (newData.portrait == null) newData.portrait = Resources.Load<Sprite>(spriteName);
 
-                    // Add default skills
-                    newData.skills = new List<SkillData>
+                    // Assign skills based on class
+                    newData.skills = new List<SkillData>();
+
+                    // Find matching key in skill map (e.g. "파이터" in "파이터 / 뱅가드")
+                    string matchedKey = null;
+                    foreach (var key in _skillMap.Keys)
                     {
-                        new SkillData { name = "Attack", type = SkillType.AP },
-                        new SkillData { name = "Guard", type = SkillType.PP }
-                    };
+                        if (key.Contains(def.Class))
+                        {
+                            matchedKey = key;
+                            break;
+                        }
+                    }
+
+                    if (matchedKey != null && _skillMap.TryGetValue(matchedKey, out var classSkills))
+                    {
+                        // Clone skills to avoid shared references if we modify them later
+                        foreach (var s in classSkills)
+                        {
+                            newData.skills.Add(new SkillData
+                            {
+                                id = s.id,
+                                name = s.name,
+                                type = s.type,
+                                description = s.description,
+                                target = s.target,
+                                costAP = s.costAP,
+                                costPP = s.costPP
+                            });
+                        }
+                    }
+                    else
+                    {
+                        // Fallback if no skills found
+                        newData.skills.Add(new SkillData { name = "Attack", type = "active", costAP = 1 });
+                        newData.skills.Add(new SkillData { name = "Guard", type = "passive", costPP = 1 });
+                    }
 
                     // 5. Add to availableCharacters
                     availableCharacters.Add(newData);
@@ -324,6 +358,80 @@ namespace Arcana.Tactics
                 }
                 Debug.Log($"Loaded {_classData.Count} classes from ClassList.json");
             }
+        }
+
+
+        private void LoadSkillList()
+        {
+            _skillMap.Clear();
+            TextAsset skillAsset = Resources.Load<TextAsset>("Table/SkillList");
+            if (skillAsset == null)
+            {
+                Debug.LogError("Failed to load SkillList.json");
+                return;
+            }
+
+            string json = skillAsset.text;
+            int index = 0;
+
+            // Skip the first opening brace
+            int firstBrace = json.IndexOf('{');
+            if (firstBrace != -1) index = firstBrace + 1;
+
+            while (index < json.Length)
+            {
+                // Find key
+                int keyStart = json.IndexOf("\"", index);
+                if (keyStart == -1) break;
+                int keyEnd = json.IndexOf("\"", keyStart + 1);
+                if (keyEnd == -1) break;
+
+                string key = json.Substring(keyStart + 1, keyEnd - keyStart - 1);
+
+                // Find array start
+                int arrayStart = json.IndexOf("[", keyEnd);
+                if (arrayStart == -1) break;
+
+                // Find array end (balancing brackets)
+                int arrayEnd = -1;
+                int depth = 0;
+                for (int i = arrayStart; i < json.Length; i++)
+                {
+                    if (json[i] == '[') depth++;
+                    else if (json[i] == ']')
+                    {
+                        depth--;
+                        if (depth == 0)
+                        {
+                            arrayEnd = i;
+                            break;
+                        }
+                    }
+                }
+
+                if (arrayEnd != -1)
+                {
+                    string arrayJson = json.Substring(arrayStart, arrayEnd - arrayStart + 1);
+                    try
+                    {
+                        SkillData[] skills = JsonHelper.FromJson<SkillData>(arrayJson);
+                        if (skills != null)
+                        {
+                            _skillMap[key] = new List<SkillData>(skills);
+                        }
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogError($"Failed to parse skills for {key}: {e.Message}");
+                    }
+                    index = arrayEnd + 1;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            Debug.Log($"Loaded skills for {_skillMap.Count} classes.");
         }
 
         [System.Serializable]
@@ -621,8 +729,19 @@ namespace Arcana.Tactics
             }
             else
             {
-                // Show "Not Deployed" or similar message if we strictly follow "Init on placement"
-                // For now, let's just say "Place character to edit tactics"
+                // Show default skills (preview)
+                if (tacticRowPrefab != null && _selectedCharacter.skills != null)
+                {
+                    for (int i = 0; i < _selectedCharacter.skills.Count; i++)
+                    {
+                        var skill = _selectedCharacter.skills[i];
+                        var go = Instantiate(tacticRowPrefab, codingListContainer);
+                        var rowUI = go.GetComponent<TacticRowUI>();
+                        // Create a temporary row for display
+                        var tempRow = new TacticRow(skill.name, skill.skillType.ToString(), TacticsDatabase.DEFAULT_CONDITION, TacticsDatabase.DEFAULT_CONDITION);
+                        rowUI.Setup(this, _selectedCharacter.id, i, tempRow);
+                    }
+                }
             }
         }
 
@@ -658,7 +777,7 @@ namespace Arcana.Tactics
             var plan = new TacticsPlan(data.id);
             foreach (var skill in data.skills)
             {
-                plan.rows.Add(new TacticRow(skill.name, skill.type.ToString(), TacticsDatabase.DEFAULT_CONDITION, TacticsDatabase.DEFAULT_CONDITION));
+                plan.rows.Add(new TacticRow(skill.name, skill.skillType.ToString(), TacticsDatabase.DEFAULT_CONDITION, TacticsDatabase.DEFAULT_CONDITION));
             }
             return plan;
         }

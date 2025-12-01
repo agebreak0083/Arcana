@@ -22,8 +22,16 @@ namespace Arcana.Tactics.Data
     [Serializable]
     public class SkillData
     {
+        public string id;
         public string name;
-        public SkillType type;
+        public string type; // "active" or "passive" from JSON
+        public string description;
+        public string target;
+        public int costAP;
+        public int costPP;
+
+        // Helper property to maintain compatibility with existing code
+        public SkillType skillType => (type == "active" || costAP > 0) ? SkillType.AP : SkillType.PP;
     }
 
     public enum SkillType

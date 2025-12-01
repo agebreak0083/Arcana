@@ -26,11 +26,11 @@ namespace Arcana.Tactics.UI
             _rowIndex = rowIndex;
 
             indexText.text = (rowIndex + 1).ToString();
-            skillNameText.text = $"{rowData.skillName} ({rowData.skillType})";
-            
-            // Color coding for AP/PP could be added here
-            if (rowData.skillType == "AP") skillNameText.color = new Color(0.4f, 1f, 0.8f); // Teal-ish
-            else skillNameText.color = new Color(0.8f, 0.6f, 1f); // Purple-ish
+            skillNameText.text = rowData.skillName;
+
+            // Color coding: AP (Red), PP (Blue)
+            if (rowData.skillType == "AP") skillNameText.color = new Color(1f, 0.4f, 0.4f); // Reddish
+            else skillNameText.color = new Color(0.4f, 0.6f, 1f); // Blueish
 
             condition1Text.text = rowData.condition1;
             condition2Text.text = rowData.condition2;
