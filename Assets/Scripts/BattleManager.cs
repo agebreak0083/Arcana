@@ -12,6 +12,12 @@ public class BattleManager : MonoBehaviour
     public List<GameObject> playerPositions;
     public List<GameObject> enemyPositions;
 
+    [Header("HP Bar")]
+    public GameObject hpBarPrefab; // HP 바 프리팹
+    public Vector3 hpBarOffset = new Vector3(0, 1.2f, 0); // HP 바 위치 오프셋
+    private HPBar hpBar; // HP 바 인스턴스
+
+    [Header("Dummy Object")]
     public GameObject dummyObject;
 
     private List<Character> playerCharacters = new List<Character>();
@@ -143,6 +149,8 @@ public class BattleManager : MonoBehaviour
                             character.characterName = characterData.characterName;
                             character.className = characterData.characterClass;
                             character.position = i + 1;
+                            character.hpBarPrefab = hpBarPrefab;
+                            character.hpBarOffset = hpBarOffset;
 
                             // 클래스 스탯 적용
                             character.ApplyClassStatsToCharacter();

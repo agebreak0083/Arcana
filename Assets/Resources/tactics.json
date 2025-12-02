@@ -25,13 +25,9 @@
             ]
             }
         ]      
-    },
+    },    
     {
       "position":"2",
-      "name":""
-    },
-    {
-      "position":"3",
       "name":"hina2", 
       "tactics": [
             {
@@ -57,38 +53,44 @@
         ]      
     },
     {
+      "position":"3",
+      "name":"hina1", 
+      "tactics": [
+        {
+          "class": "파이터",
+          "plan": [
+            {
+              "skill": "가드 슬래시",
+              "condition1": "조건 없음",
+              "condition2": "조건 없음"
+            },
+            {
+              "skill": "실드 배시",
+              "condition1": "조건 없음",
+              "condition2": "조건 없음"
+                },
+                {
+                  "skill": "디펜더",
+                  "condition1": "조건 없음",
+                  "condition2": "조건 없음"
+                }
+              ]
+            }
+          ]      
+    },                 
+    {
       "position":"4",
       "name":""
     },
     {
       "position":"5",
-      "name":"hina1", 
-      "tactics": [
-            {
-            "class": "파이터",
-            "plan": [
-                {
-                "skill": "가드 슬래시",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "실드 배시",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "디펜더",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                }
-            ]
-            }
-        ]      
+      "name":""
     },
     {
       "position":"6",
       "name":""
     }
   ]
-}
+} 
+
+    
