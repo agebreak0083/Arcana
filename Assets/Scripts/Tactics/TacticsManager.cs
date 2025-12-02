@@ -101,7 +101,7 @@ namespace Arcana.Tactics
                 }
             }
 
-            if (conditionModal == null) conditionModal = FindObjectOfType<ConditionModalUI>(true);
+            if (conditionModal == null) conditionModal = FindFirstObjectByType<ConditionModalUI>(FindObjectsInactive.Include);
 
             if (currentCostText == null)
             {
