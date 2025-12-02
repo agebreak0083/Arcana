@@ -45,7 +45,7 @@ public class ClassManager : MonoBehaviour
             // 로드된 직업 정보 출력
             foreach (var characterClass in classCollection.classes)
             {
-                Debug.Log($"{characterClass.name} - AP:{characterClass.baseAP} PP:{characterClass.basePP}");
+                Debug.Log($"{characterClass.name} - AP:{characterClass.stats.actionPoint} PP:{characterClass.stats.passivePoint}");
             }
         }
         else
@@ -81,7 +81,7 @@ public class ClassManager : MonoBehaviour
 
         string info = $"=== {characterClass.name} ===\n";
         info += $"{characterClass.description}\n\n";
-        info += $"AP: {characterClass.baseAP}  PP: {characterClass.basePP}\n\n";
+        info += $"AP: {characterClass.stats.actionPoint}  PP: {characterClass.stats.passivePoint}\n\n";
         info += "[ 스테이터스 ]\n";
         info += $"HP: {characterClass.stats.hp}\n";
         info += $"물리공격: {characterClass.stats.physicalAttack}\n";
@@ -95,32 +95,6 @@ public class ClassManager : MonoBehaviour
         info += $"행동속도: {characterClass.stats.actionSpeed}\n";
 
         return info;
-    }
-
-    // 직업의 실제 스탯 수치 반환 (레벨 1 기준)
-    public void ApplyClassStatsToCharacter(Character character, string className)
-    {
-        CharacterClass characterClass = GetClassByName(className);
-
-        if (characterClass == null)
-        {
-            Debug.LogWarning($"직업 '{className}'을 찾을 수 없습니다.");
-            return;
-        }
-
-        // 기본 스탯 적용
-        character.maxHp = characterClass.stats.GetHPValue();
-        character.hp = character.maxHp;
-        character.attackPower = characterClass.stats.GetPhysicalAttackValue();
-        character.defense = characterClass.stats.GetPhysicalDefenseValue();
-        character.magicPower = characterClass.stats.GetMagicalAttackValue();
-        character.speed = characterClass.stats.GetActionSpeedValue();
-
-        // AP, PP 적용
-        character.actionPoint = characterClass.baseAP;
-        character.passivePoint = characterClass.basePP;
-
-        Debug.Log($"{character.characterName}에게 {characterClass.name} 직업 스탯 적용 완료");
     }
 
     // 직업의 스킬 목록을 Skill 객체로 가져오기

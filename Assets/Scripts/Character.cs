@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Arcana.Tactics;
 using UnityEngine;
 
 public class Character : MonoBehaviour
@@ -20,29 +21,17 @@ public class Character : MonoBehaviour
 
     // 캐릭터 스탯
     [Header("Stats")]
-
-    public float hp = 100f;
-    public float maxHp = 100f;
-    public int actionPoint = 2;      // 행동 포인트 (0이면 행동 불가)
-    public int passivePoint = 2;
-    internal float attackPower;
-    internal float defense;
-    internal float magicPower;
-    internal float speed;
+    public ClassStats stats;
+    public float hp = 100;
+    public float maxHp = 100;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        // 직업 스탯 적용
-        if (!string.IsNullOrEmpty(className))
-        {
-            ClassManager.Instance.ApplyClassStatsToCharacter(this, className);
-        }
-
         // HP 바 생성
         CreateHPBar();
 
-        SetStrategyName();
+        // SetStrategyName();
     }
 
     void OnDestroy()
@@ -65,7 +54,28 @@ public class Character : MonoBehaviour
         // this.position = position;   
         // transform.position = BattleManager.Instance.GetPosition(position);
         // Debug.Log($"{characterName}이(가) {position}로 이동했습니다.");
-        
+
+    }
+
+    // 직업의 실제 스탯 수치 반환 (레벨 1 기준)
+    public void ApplyClassStatsToCharacter()
+    {
+        var classInfo = TacticsDataManager.Instance.GetClassInfo(className);
+
+        if (classInfo == null)
+        {
+            Debug.LogWarning($"직업 '{className}'을 찾을 수 없습니다.");
+            return;
+        }
+
+        // ClassStats 객체 할당
+        stats = classInfo.stats;
+
+        // HP 적용 (등급을 실제 수치로 변환)
+        maxHp = stats.GetHPValue();
+        hp = maxHp;
+
+        Debug.Log($"{characterName}에게 {className} 직업 스탯 적용 완료");
     }
 
     public void SetStrategyName()
@@ -92,7 +102,7 @@ public class Character : MonoBehaviour
     public StrategyAction RunAction()
     {
         if (currentStrategy == null) return null;
-        if (actionPoint <= 0) return null;
+        if (stats.actionPoint <= 0) return null;
 
         // 우선순위가 높은 순서대로 조건을 확인하여 실행할 액션 결정
         for (int i = 0; i < availableActions.Count; i++)
@@ -107,12 +117,11 @@ public class Character : MonoBehaviour
                     Debug.Log($"{characterName}이(가) {strategyAction.action}을(를) 실행할 수 없습니다.");
                     return null;
                 }
-                else
-                {
-                    Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다.");
-                    UseSkill(skill.id, target);
-                    return strategyAction;
-                }
+                
+                Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다.");
+                UseSkill(skill.id, target);
+                return strategyAction;
+                
             }
         }
 
@@ -126,39 +135,32 @@ public class Character : MonoBehaviour
         // TODO: 실제 게임 로직에 맞게 조건을 확인하는 코드 구현
         // 예: HP 비율, MP, 적의 상태 등을 확인
 
-        Character[] targetCharacters = BattleManager.Instance.GetEnemyTargets(this);
-        Character target = null;        
+        List<Character> targetCharacters = BattleManager.Instance.GetEnemyTargets(this);
+        Character target = null;
 
-        // 컨디션1, 컨디션2가 다 비어있으면, 기본 타겟을 반환 
-        if (string.IsNullOrEmpty(action.condition1) && string.IsNullOrEmpty(action.condition2))
+        // Condition2부터 필터링
+        if (string.IsNullOrEmpty(action.condition2) || action.condition2 == "조건 없음")
+        {
+            
+        }
+
+        // Condition1 필터링
+        if (string.IsNullOrEmpty(action.condition1) || action.condition1 == "조건 없음")
         {
             // 1. 우선 전열(1,2,3)에서 자신의 앞의 적을 찾고, 
             int targetPosition = ((this.position - 1) % 3) + 1;
-            target = Array.Find(targetCharacters, c => c.position == targetPosition);
+            target = targetCharacters.Find(c => c.position == targetPosition);
 
             // 2. 자신의 앞에 적이 없으면 가장 빠른 포지션의 적을 타겟팅한다. 
             if (target == null)
             {
-                target = Array.Find(targetCharacters, c => c != null);
+                target = targetCharacters.Find(c => c != null);
             }
 
             Debug.Log($"{characterName}의 기본 타겟: {target.characterName}");
             return target;
         }
-
-        // 2번 조건 체크 
-        Character[] targets = EvaluateCondition(targetCharacters, action.condition2);
-        if (targets == null)
-            return null;
-
-        // 컨디션2에서 필터링된 타겟들 내에서만 필터링한다.
-        targets = EvaluateCondition(targets, action.condition1);
-        if (targets == null || targets.Count() == 0)
-            return null;
-
-        target = Array.Find(targetCharacters, c => c != null);
-        Debug.Log($"{characterName}의 기본 타겟: {target.characterName}");
-
+        
         return target;
     }
 
@@ -196,7 +198,7 @@ public class Character : MonoBehaviour
         // 방어력이 가장 높은
         else if (condition.Contains("방어력이 가장 높은"))
         {
-            Character maxDefenseCharacter = targets.OrderByDescending(c => c.defense).FirstOrDefault();
+            Character maxDefenseCharacter = targets.OrderByDescending(c => c.stats.GetPhysicalDefenseValue()).FirstOrDefault();
             if (maxDefenseCharacter == null)
                 return null;
 
@@ -206,16 +208,16 @@ public class Character : MonoBehaviour
         // 방어력이 가장 낮은
         else if (condition.Contains("방어력이 가장 낮은"))
         {
-            Character minDefenseCharacter = targets.OrderBy(c => c.defense).FirstOrDefault();
+            Character minDefenseCharacter = targets.OrderBy(c => c.stats.GetPhysicalDefenseValue()).FirstOrDefault();
             if (minDefenseCharacter == null)
                 return null;
 
             Debug.Log($"방어력이 가장 낮은 타겟: {minDefenseCharacter.characterName}");
             return new Character[] { minDefenseCharacter };
         }
-        
-        
-        
+
+
+
 
         return targets; // 기본값
     }
@@ -299,8 +301,8 @@ public class Character : MonoBehaviour
             return;
         }
 
-        actionPoint -= skill.costAP;
-        passivePoint -= skill.costPP;
+        stats.actionPoint -= skill.costAP;
+        stats.passivePoint -= skill.costPP;
         BattleManager.Instance.AddWaitFinished(this);
         BattleManager.Instance.AddWaitFinished(target);
 

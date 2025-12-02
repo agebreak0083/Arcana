@@ -15,11 +15,11 @@ namespace Arcana.Tactics.UI
         public Button condition2Btn;
         public TextMeshProUGUI condition2Text;
 
-        private TacticsManager _manager;
+        private TacticsUIManager _manager;
         private int _rowIndex;
         private string _charId;
 
-        public void Setup(TacticsManager manager, string charId, int rowIndex, TacticRow rowData)
+        public void Setup(TacticsUIManager manager, string charId, int rowIndex, TacticRow rowData)
         {
             _manager = manager;
             _charId = charId;

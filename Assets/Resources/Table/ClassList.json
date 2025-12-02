@@ -4,8 +4,7 @@
       "name": "파이터",
       "description": "물리 방어가 뛰어난 성능.원거리 물리 공격을 막아 주는 스킬로 헌터에게 강하고.중갑갑 특효인 워리어,마법 공격인 위저드에게 약하다",
       "cost": 1,
-      "baseAP": 2,
-      "basePP": 2,
+      "model": "Assets/Resources/Models/Misaki_sum_humanoid.prefab",
       "stats": {
         "hp": "C",
         "physicalAttack": "C",
@@ -16,15 +15,16 @@
         "evasion": "E",
         "criticalRate": "D",
         "guardRate": "S",
-        "actionSpeed": "C"
+        "actionSpeed": "C",
+        "actionPoint": 2,
+        "passivePoint": 2
       }
     },
     {
       "name": "헌터",
       "description": "명중에 특화된 성능.비행 특효로 그리폰 나이트에게 강하고 필중 공격 스킬이 있어 회피가 높은 시프에게 강하다.",
       "cost": 1,
-      "baseAP": 2,
-      "basePP": 2,
+      "model": "Assets/Resources/Models/Utc_sum_humanoid.prefab",
       "stats": {
         "hp": "D",
         "physicalAttack": "C",
@@ -35,15 +35,16 @@
         "evasion": "C",
         "criticalRate": "B",
         "guardRate": "E",
-        "actionSpeed": "C"
+        "actionSpeed": "C",
+        "actionPoint": 2,
+        "passivePoint": 2
       }
     },
     {
       "name": "위치",
       "description": "마법 공격이 뛰어난 성능, 마법 공격 부여 스킬을 지녔다.마법 방어가 낮은 호플리타이에게 강하고 마법 방어가 높은 화이트 나이트에게 약하다",
       "cost": 1,
-      "baseAP": 2,
-      "basePP": 3,
+      "model": "Assets/Resources/Models/Yuko_sum_humanoid.prefab",
       "stats": {
         "hp": "E",
         "physicalAttack": "F",
@@ -54,7 +55,9 @@
         "evasion": "C",
         "criticalRate": "F",
         "guardRate": "F",
-        "actionSpeed": "E"
+        "actionSpeed": "E",
+        "actionPoint": 2,
+        "passivePoint": 3
       }
     }
   ]

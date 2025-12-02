@@ -22,10 +22,10 @@ namespace Arcana.Tactics.UI
         public TextMeshProUGUI charCostText;
         public GameObject activeHighlight; // Shows when this slot is currently being edited/selected
 
-        private TacticsManager _manager;
+        private TacticsUIManager _manager;
         private CharacterData _currentCharacter;
 
-        public void Setup(TacticsManager manager, int index)
+        public void Setup(TacticsUIManager manager, int index)
         {
             _manager = manager;
             slotIndex = index;

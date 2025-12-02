@@ -16,7 +16,7 @@ namespace Arcana.Tactics.UI
         public GameObject modalRoot;
         public Button closeBtn;
 
-        private TacticsManager _manager;
+        private TacticsUIManager _manager;
         private string _selectedCategory;
 
         // Loaded data
@@ -27,7 +27,7 @@ namespace Arcana.Tactics.UI
             if (modalRoot == null) modalRoot = gameObject;
         }
 
-        public void Setup(TacticsManager manager)
+        public void Setup(TacticsUIManager manager)
         {
             _manager = manager;
             if (modalRoot == null) modalRoot = gameObject;

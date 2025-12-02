@@ -15,6 +15,8 @@ public class ClassStats
     public string criticalRate;         // 치명타율 등급
     public string guardRate;            // 가드율 등급
     public string actionSpeed;          // 행동속도 등급
+    public int actionPoint;             // 행동 포인트
+    public int passivePoint;            // 패시브 포인트
 
     // 등급을 수치로 변환 (S=6, A=5, B=4, C=3, D=2, E=1)
     public int GetStatValue(string grade)
@@ -49,8 +51,6 @@ public class CharacterClass
 {
     public string name;             // 직업 이름
     public string description;      // 직업 설명
-    public int baseAP;              // 기본 AP
-    public int basePP;              // 기본 PP
     public int cost;                // 코스트
     public ClassStats stats;        // 스테이터스
 }

@@ -227,12 +227,12 @@ public class SkillManager : MonoBehaviour
         float damage = basePower;
 
         // 공격력 반영
-        damage += user.attackPower * 0.5f;
+        damage += user.stats.GetPhysicalAttackValue() * 0.5f;
 
         // 방어력 반영 (간단한 계산)
         // TODO: 실제 게임에 맞는 데미지 공식 적용
 
-        return 50f;
+        return damage;
     }
 
     // 스킬 정보 문자열로 반환

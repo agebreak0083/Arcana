@@ -17,10 +17,10 @@ namespace Arcana.Tactics.UI
         public GameObject deployedOverlay; // Makes it look dim if deployed
 
         private CharacterData _data;
-        private TacticsManager _manager;
+        private TacticsUIManager _manager;
         private bool _isDeployed;
 
-        public void Setup(CharacterData data, TacticsManager manager, bool isDeployed)
+        public void Setup(CharacterData data, TacticsUIManager manager, bool isDeployed)
         {
             _data = data;
             _manager = manager;
