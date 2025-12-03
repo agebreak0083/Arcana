@@ -105,7 +105,7 @@ public class BattleManager : MonoBehaviour
             formationResult = TacticsDataManager.Instance.GetEnemyFormationLoadResult();
             positions = enemyPositions;
         }
-        
+
         // Formation 로드 및 캐릭터 생성        
         if (formationResult != null && formationResult.unitSlots != null)
         {
@@ -227,6 +227,13 @@ public class BattleManager : MonoBehaviour
     private IEnumerator ProcessCharactersTurn()
     {
         Debug.Log($"=== 라운드 {currentRound} 시작 ===");
+
+        // 전투 로그에 라운드 시작 기록
+        if (BattleLogManager.Instance != null)
+        {
+            BattleLogManager.Instance.LogRoundStart(currentRound);
+        }
+
         UpdateBattleUI();
 
         while (true)
@@ -249,6 +256,12 @@ public class BattleManager : MonoBehaviour
                 UpdateBattleUI();
 
                 Debug.Log($"--- {character.characterName}의 턴 (Round {currentRound} - Turn {currentTurn}) ---");
+
+                // 전투 로그에 턴 시작 기록
+                if (BattleLogManager.Instance != null)
+                {
+                    BattleLogManager.Instance.LogTurnStart(character.characterName, currentRound, currentTurn);
+                }
 
                 // 캐릭터 행동 실행
                 StrategyAction action = character.RunAction();

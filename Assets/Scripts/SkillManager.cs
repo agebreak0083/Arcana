@@ -186,6 +186,12 @@ public class SkillManager : MonoBehaviour
                     float damage = CalculateDamage(skill.power, user, target, effect.damageType);
                     target.TakeDamage(damage);
                     Debug.Log($"{target.characterName}에게 {damage} 데미지!");
+
+                    // 전투 로그에 데미지 기록
+                    if (BattleLogManager.Instance != null)
+                    {
+                        BattleLogManager.Instance.LogDamage(target.characterName, damage);
+                    }
                 }
                 break;
 
@@ -194,6 +200,12 @@ public class SkillManager : MonoBehaviour
                 {
                     target.Heal(effect.value);
                     Debug.Log($"{target.characterName}의 HP {effect.value} 회복!");
+
+                    // 전투 로그에 회복 기록
+                    if (BattleLogManager.Instance != null)
+                    {
+                        BattleLogManager.Instance.LogHeal(target.characterName, effect.value);
+                    }
                 }
                 break;
 

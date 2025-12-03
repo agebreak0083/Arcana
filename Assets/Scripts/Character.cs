@@ -120,6 +120,13 @@ public class Character : MonoBehaviour
                 }
 
                 Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다.");
+
+                // 전투 로그에 공격 기록
+                if (BattleLogManager.Instance != null)
+                {
+                    BattleLogManager.Instance.LogAttack(characterName, target.characterName, skill.name);
+                }
+
                 UseSkill(skill.id, target);
                 return strategyAction;
 
@@ -346,7 +353,7 @@ public class Character : MonoBehaviour
 
         // 스킬 효과 적용
         float effectTime = 0.5f;
-        yield return new WaitForSeconds(effectTime);        
+        yield return new WaitForSeconds(effectTime);
         SkillManager.Instance.ApplySkillEffects(skill, this, target);
 
         // 한 프레임 대기 (애니메이션 시작 대기)
@@ -374,7 +381,7 @@ public class Character : MonoBehaviour
     {
         Debug.Log($"{characterName}: {skill.name} 애니메이션 완료!");
 
-        
+
 
         // BattleManager에 액션 완료 알림
         if (BattleManager.Instance != null)
