@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Arcana.Tactics;
 using UnityEngine;
+using DG.Tweening;
 
 public class Character : MonoBehaviour
 {
@@ -117,11 +118,11 @@ public class Character : MonoBehaviour
                     Debug.Log($"{characterName}이(가) {strategyAction.action}을(를) 실행할 수 없습니다.");
                     return null;
                 }
-                
+
                 Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다.");
                 UseSkill(skill.id, target);
                 return strategyAction;
-                
+
             }
         }
 
@@ -141,7 +142,7 @@ public class Character : MonoBehaviour
         // Condition2부터 필터링
         if (string.IsNullOrEmpty(action.condition2) || action.condition2 == "조건 없음")
         {
-            
+
         }
 
         // Condition1 필터링
@@ -160,7 +161,7 @@ public class Character : MonoBehaviour
             Debug.Log($"{characterName}의 기본 타겟: {target.characterName}");
             return target;
         }
-        
+
         return target;
     }
 
@@ -235,7 +236,7 @@ public class Character : MonoBehaviour
             if (hpBar != null)
             {
                 hpBar.Initialize(transform, maxHp, hp, characterName);
-                hpBar.SetOffset(hpBarOffset);                
+                hpBar.SetOffset(hpBarOffset);
             }
         }
     }
@@ -324,13 +325,29 @@ public class Character : MonoBehaviour
         OnSkillAnimationComplete(skill, target);
     }
 
-    // 애니메이션 재생 후 대기하는 코루틴
+    // 애니메이션 재생 후 대기하는 코루틴 (DoTween 이동 포함)
     private IEnumerator PlaySkillAnimationAndWait(Animator animator, Skill skill, Character target)
     {
-        // 애니메이션 재생 (normalizedTime = 0으로 설정하여 처음부터 강제 재생)
-        // 동일 애니메이션을 연속 재생할 때도 정상 작동
+        // 원래 위치 저장
+        Vector3 originalPosition = transform.position;
+
+        // Step 1: 타겟 앞으로 이동 (타겟의 X좌표 + 1m)
+        Vector3 targetPosition = target.transform.position + target.transform.forward * 1.0f;
+
+        // DoTween으로 이동 (1초)
+        transform.DOMove(targetPosition, 1f).SetEase(Ease.OutQuad);
+
+        // 이동 완료 대기
+        yield return new WaitForSeconds(1f);
+
+        // Step 2: 스킬 애니메이션 재생
         animator.Play(skill.animation, 0, 0f);
         Debug.Log($"{characterName}: 애니메이션 '{skill.animation}' 재생 시작");
+
+        // 스킬 효과 적용
+        float effectTime = 0.5f;
+        yield return new WaitForSeconds(effectTime);        
+        SkillManager.Instance.ApplySkillEffects(skill, this, target);
 
         // 한 프레임 대기 (애니메이션 시작 대기)
         yield return null;
@@ -340,7 +357,13 @@ public class Character : MonoBehaviour
 
         // 애니메이션 길이만큼 대기
         float animationLength = stateInfo.length;
-        yield return new WaitForSeconds(animationLength);
+        yield return new WaitForSeconds(animationLength - effectTime);
+
+        // Step 3: 원래 자리로 복귀 (1초)
+        transform.DOMove(originalPosition, 1f).SetEase(Ease.InQuad);
+
+        // 복귀 완료 대기
+        yield return new WaitForSeconds(1f);
 
         // 애니메이션 종료 후 실행
         OnSkillAnimationComplete(skill, target);
@@ -351,8 +374,7 @@ public class Character : MonoBehaviour
     {
         Debug.Log($"{characterName}: {skill.name} 애니메이션 완료!");
 
-        // 스킬 효과 적용
-        SkillManager.Instance.ApplySkillEffects(skill, this, target);
+        
 
         // BattleManager에 액션 완료 알림
         if (BattleManager.Instance != null)
