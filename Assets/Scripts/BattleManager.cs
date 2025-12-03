@@ -30,8 +30,8 @@ public class BattleManager : MonoBehaviour
     private ClassManager classManager;
     private bool isWaitingForActionComplete = false;
 
-    private int currentRound = 1;   // 현재 라운드
-    private int currentTurn = 0;    // 현재 턴 (한 캐릭터가 행동할 때마다 증가)
+    private int currentRound = 0;   // 현재 라운드
+    private int currentTurn = 0;    // 현재 턴
 
     public static BattleManager Instance { get; private set; }
 
@@ -80,13 +80,13 @@ public class BattleManager : MonoBehaviour
         // 적 캐릭터 생성
         enemyCharacters = CreateCharacters(false);
 
-        // 테스트용 
+        // 턴 리스트 초기화
         InitializeCharactersTurnList();
 
-        // 1초 후 턴 시작
+        // 1초 후 전투 시작
         yield return new WaitForSeconds(1f);
 
-        StartCoroutine(ProcessCharactersTurn());
+        StartCoroutine(BattleRoutine());
     }
 
     private List<Character> CreateCharacters(bool isPlayer = true)
@@ -176,12 +176,6 @@ public class BattleManager : MonoBehaviour
         return createdCharacters;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     // 캐릭터들의 턴 리스트 초기화 (speed가 높은 순으로 정렬)
     public void InitializeCharactersTurnList()
     {
@@ -216,89 +210,147 @@ public class BattleManager : MonoBehaviour
         waitingCharacters.Remove(character);
         if (waitingCharacters.Count == 0)
         {
-            // 대기중인 캐릭터가 없으면 다음턴 진행
+            // 대기중인 캐릭터가 없으면 다음턴 진행 (TurnRoutine에서 WaitUntil로 처리됨)
             isWaitingForActionComplete = false;
         }
     }
 
-    // 캐릭터들의 턴을 진행한다. (코루틴)
-    // 턴 진행 순서는 speed가 높은 순으로 정렬된 리스트를 사용한다.
-    // 각 캐릭터는 OnCharacterActionFinished()가 호출될 때까지 대기
-    private IEnumerator ProcessCharactersTurn()
+    // ==================================================================================
+    // Battle Flow Logic
+    // ==================================================================================
+
+    // 메인 전투 루틴
+    private IEnumerator BattleRoutine()
     {
+        Debug.Log("=== 전투 시작 ===");
+        currentRound = 0; // 라운드 초기화
+
+        while (!CheckBattleOver())
+        {
+            yield return StartCoroutine(RoundRoutine());
+        }
+
+        Debug.Log("=== 전투 종료 ===");
+    }
+
+    // 라운드 루틴
+    private IEnumerator RoundRoutine()
+    {
+        // 1. Round Start Phase
+        currentRound++;
+        currentTurn = 0;
         Debug.Log($"=== 라운드 {currentRound} 시작 ===");
 
-        // 전투 로그에 라운드 시작 기록
         if (BattleLogManager.Instance != null)
-        {
             BattleLogManager.Instance.LogRoundStart(currentRound);
+
+        // 라운드 시작 시 모든 캐릭터 AP/PP 회복
+        foreach (var character in charactersTurnList)
+        {
+            if (IsValidCharacter(character))
+            {
+                character.RestoreAPPP();
+            }
         }
 
         UpdateBattleUI();
+        yield return new WaitForSeconds(0.5f); // 라운드 시작 연출 대기
 
-        while (true)
+        // 2. Action Phase
+        bool roundActive = true;
+        while (roundActive)
         {
-            bool anyActionExecuted = false;
+            bool anyActionInCycle = false;
 
-            // 모든 캐릭터가 행동할 수 없으면 라운드 종료
+            // 속도 순으로 정렬된 리스트 순회 (한 사이클)
             for (int i = 0; i < charactersTurnList.Count; i++)
             {
-                Character character = charactersTurnList[currentIndex];
-                currentIndex = (currentIndex + 1) % charactersTurnList.Count;
+                Character character = charactersTurnList[i];
+                if (!IsValidCharacter(character)) continue;
 
-                if (character == null)
+                // 턴 실행 시도
+                bool actionExecuted = false;
+                yield return StartCoroutine(TurnRoutine(character, (result) => actionExecuted = result));
+
+                if (actionExecuted)
                 {
-                    continue;
+                    anyActionInCycle = true;
                 }
 
-                // 턴 증가
-                currentTurn++;
-                UpdateBattleUI();
-
-                Debug.Log($"--- {character.characterName}의 턴 (Round {currentRound} - Turn {currentTurn}) ---");
-
-                // 전투 로그에 턴 시작 기록
-                if (BattleLogManager.Instance != null)
+                // 행동 후 전투 종료 조건 체크
+                if (CheckBattleOver())
                 {
-                    BattleLogManager.Instance.LogTurnStart(character.characterName, currentRound, currentTurn);
-                }
-
-                // 캐릭터 행동 실행
-                StrategyAction action = character.RunAction();
-                if (action != null)
-                {
-                    anyActionExecuted = true;
-                    // 행동 완료 대기 플래그 설정
-                    isWaitingForActionComplete = true;
-
-                    // OnCharacterActionFinished()가 호출될 때까지 대기
-                    yield return new WaitUntil(() => !isWaitingForActionComplete);
-
-                    break; // 한 캐릭터가 행동하면 다음 루프로
+                    roundActive = false;
+                    break;
                 }
             }
 
-            // 모든 캐릭터가 행동할 수 없으면 라운드 종료
-            if (!anyActionExecuted)
+            // 한 사이클 동안 아무도 행동하지 않았다면 라운드 종료 (모두 AP 소진 등)
+            if (!anyActionInCycle)
             {
-                Debug.Log("=== 모든 캐릭터가 행동할 수 없습니다. 라운드 종료 ===");
-                OnRoundFinished();
-                yield break; // 코루틴 종료
+                roundActive = false;
+                Debug.Log($"라운드 {currentRound} 종료: 더 이상 행동 가능한 캐릭터가 없습니다.");
             }
+        }
+
+        // 3. Round End Phase
+        yield return new WaitForSeconds(1.0f);
+    }
+
+    // 턴 루틴 (개별 캐릭터 행동)
+    private IEnumerator TurnRoutine(Character character, System.Action<bool> onResult)
+    {
+        // 행동 실행 (RunAction 내부에서 조건 체크)
+        StrategyAction action = character.RunAction();
+
+        if (action != null)
+        {
+            currentTurn++;
+            UpdateBattleUI();
+
+            Debug.Log($"--- {character.characterName}의 턴 (Round {currentRound} - Turn {currentTurn}) ---");
+            if (BattleLogManager.Instance != null)
+                BattleLogManager.Instance.LogTurnStart(character.characterName, currentRound, currentTurn);
+
+            // 행동 완료 대기
+            isWaitingForActionComplete = true;
+            yield return new WaitUntil(() => !isWaitingForActionComplete);
+
+            onResult?.Invoke(true);
+        }
+        else
+        {
+            // 행동하지 않음 (조건 불만족, AP 부족 등)
+            onResult?.Invoke(false);
         }
     }
 
-    void OnRoundFinished()
+    // 전투 종료 조건 체크
+    private bool CheckBattleOver()
     {
-        Debug.Log("라운드 종료");
+        bool playerAlive = false;
+        bool enemyAlive = false;
 
-        // 라운드 종료 후 처리
-        // 예: 다음 라운드 시작, 게임 종료 체크 등
+        if (playerCharacters != null) playerAlive = playerCharacters.Exists(c => c.hp > 0);
+        if (enemyCharacters != null) enemyAlive = enemyCharacters.Exists(c => c.hp > 0);
 
-        // 다음 라운드 시작 (테스트용)
-        // currentRound++;
-        // currentTurn = 0;
-        // StartCoroutine(ProcessCharactersTurn());
+        if (!playerAlive)
+        {
+            Debug.Log("패배... (플레이어 전멸)");
+            return true;
+        }
+        if (!enemyAlive)
+        {
+            Debug.Log("승리! (적 전멸)");
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool IsValidCharacter(Character character)
+    {
+        return character != null && character.hp > 0;
     }
 
     // UI 업데이트
@@ -334,7 +386,6 @@ public class BattleManager : MonoBehaviour
 
         return targetCharacters;
     }
-
 
     public void AddWaitFinished(Character character)
     {

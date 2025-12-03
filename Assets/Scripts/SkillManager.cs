@@ -184,7 +184,8 @@ public class SkillManager : MonoBehaviour
             case "damage":
                 if (target != null)
                 {
-                    float damage = CalculateDamage(skill.power, user, target, effect.damageType);
+                    // Skill.power 대신 effect.value를 사용 (JSON 구조상 power 필드가 없음)
+                    float damage = CalculateDamage(effect.value, user, target, effect.damageType);
                     target.TakeDamage(damage);
                     Debug.Log($"{target.characterName}에게 {damage} 데미지!");
 

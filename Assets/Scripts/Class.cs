@@ -35,9 +35,9 @@ public class ClassStats
 
     // 등급별 실제 스탯 수치 계산 (레벨 1 기준)
     public float GetHPValue() => GetStatValue(hp) * 100f;                      // HP: 100~600
-    public float GetPhysicalAttackValue() => GetStatValue(physicalAttack) * 10f; // 물리공격: 10~60
+    public float GetPhysicalAttackValue() => 40f + GetStatValue(physicalAttack) * 10f; // 물리공격: 50~100
     public float GetPhysicalDefenseValue() => GetStatValue(physicalDefense) * 5f; // 물리방어: 5~30
-    public float GetMagicalAttackValue() => GetStatValue(magicalAttack) * 10f;    // 마법공격: 10~60
+    public float GetMagicalAttackValue() => 40f + GetStatValue(magicalAttack) * 10f;    // 마법공격: 50~100
     public float GetMagicalDefenseValue() => GetStatValue(magicalDefense) * 5f;   // 마법방어: 5~30
     public float GetAccuracyValue() => 80f + GetStatValue(accuracy) * 3f;         // 명중: 83~98%
     public float GetEvasionValue() => GetStatValue(evasion) * 3f;                 // 회피: 3~18%

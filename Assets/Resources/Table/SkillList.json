@@ -16,7 +16,7 @@
         },
         {
           "type": "heal",
-          "value": 50,
+          "value": 25,
           "target": "self"
         }
       ],
@@ -54,12 +54,6 @@
           "type": "damage",
           "value": 100,
           "damageType": "physical"
-        },
-        {
-          "type": "buff",
-          "stat": "defense",
-          "value": 20,
-          "duration": 3
         }
       ],
       "traits": [],
@@ -83,7 +77,7 @@
         },
         {
           "type": "buff",
-          "stat": "defense",
+          "stat": "physical_defense",
           "value": 20,
           "duration": 3
         }
@@ -125,8 +119,8 @@
         },
         {
           "type": "buff",
-          "stat": "defense",
-          "value": 20,
+          "stat": "physical_defense",
+          "value": 50,
           "duration": 3
         }
       ],
@@ -209,8 +203,14 @@
         },
         {
           "type": "debuff",
-          "stat": "defense",
-          "value": -20,
+          "stat": "physical_defense",
+          "value": 20,
+          "duration": 3
+        },
+        {
+          "type": "debuff",
+          "stat": "physical_defense",
+          "value": 20,
           "duration": 3
         }
       ],
@@ -227,14 +227,15 @@
       "costPP": 0,
       "effects": [
         {
-          "type": "damage",
-          "value": 100,
-          "damageType": "physical"
+          "type": "debuff",
+          "stat": "physical_defense",
+          "value": 15,
+          "duration": 3
         },
         {
           "type": "debuff",
-          "stat": "defense",
-          "value": -20,
+          "stat": "physical_defense",
+          "value": 15,
           "duration": 3
         }
       ],
@@ -256,15 +257,15 @@
           "damageType": "physical"
         },
         {
-          "type": "buff",
-          "stat": "defense",
-          "value": 20,
+          "type": "debuff",
+          "stat": "physical_defense",
+          "value": 30,
           "duration": 3
         },
         {
           "type": "debuff",
-          "stat": "defense",
-          "value": -20,
+          "stat": "physical_defense",
+          "value": 30,
           "duration": 3
         }
       ],
@@ -414,8 +415,8 @@
       "effects": [
         {
           "type": "buff",
-          "stat": "defense",
-          "value": 20,
+          "stat": "physical_defense",
+          "value": 50,
           "duration": 3
         }
       ],
@@ -433,8 +434,8 @@
       "effects": [
         {
           "type": "buff",
-          "stat": "defense",
-          "value": 20,
+          "stat": "physical_defense",
+          "value": 50,
           "duration": 3
         }
       ],
@@ -477,8 +478,14 @@
         },
         {
           "type": "heal",
-          "value": 50,
+          "value": 30,
           "target": "self"
+        },
+        {
+          "type": "buff",
+          "stat": "physical_attack",
+          "value": 30,
+          "duration": 3
         }
       ],
       "traits": [],
@@ -660,7 +667,8 @@
         },
         {
           "type": "status",
-          "statusName": "poison"
+          "statusName": "poison",
+          "chance": 100
         }
       ],
       "traits": [
@@ -724,7 +732,8 @@
         },
         {
           "type": "status",
-          "statusName": "poison"
+          "statusName": "poison",
+          "chance": 100
         }
       ],
       "traits": [
@@ -747,8 +756,21 @@
           "damageType": "physical"
         },
         {
+          "type": "debuff",
+          "stat": "evasion",
+          "value": 20,
+          "duration": 3
+        },
+        {
+          "type": "debuff",
+          "stat": "action_speed",
+          "value": 20,
+          "duration": 3
+        },
+        {
           "type": "status",
-          "statusName": "blind"
+          "statusName": "blind",
+          "chance": 100
         }
       ],
       "traits": [
@@ -804,13 +826,9 @@
       "costPP": 0,
       "effects": [
         {
-          "type": "damage",
-          "value": 100,
-          "damageType": "physical"
-        },
-        {
           "type": "status",
-          "statusName": "stun"
+          "statusName": "stun",
+          "chance": 100
         }
       ],
       "traits": [],
@@ -926,7 +944,8 @@
         },
         {
           "type": "status",
-          "statusName": "poison"
+          "statusName": "poison",
+          "chance": 100
         }
       ],
       "traits": [],
@@ -948,7 +967,8 @@
         },
         {
           "type": "status",
-          "statusName": "burn"
+          "statusName": "burn",
+          "chance": 100
         }
       ],
       "traits": [],
@@ -1006,11 +1026,12 @@
         {
           "type": "damage",
           "value": 100,
-          "damageType": "magical"
+          "damageType": "physical"
         },
         {
           "type": "status",
-          "statusName": "burn"
+          "statusName": "burn",
+          "chance": 100
         }
       ],
       "traits": [
@@ -1030,11 +1051,12 @@
         {
           "type": "damage",
           "value": 100,
-          "damageType": "magical"
+          "damageType": "physical"
         },
         {
           "type": "status",
-          "statusName": "stun"
+          "statusName": "stun",
+          "chance": 100
         }
       ],
       "traits": [
@@ -1052,13 +1074,9 @@
       "costPP": 0,
       "effects": [
         {
-          "type": "damage",
-          "value": 100,
-          "damageType": "magical"
-        },
-        {
           "type": "status",
-          "statusName": "burn"
+          "statusName": "burn",
+          "chance": 100
         }
       ],
       "traits": [
@@ -1080,11 +1098,12 @@
         {
           "type": "damage",
           "value": 100,
-          "damageType": "magical"
+          "damageType": "physical"
         },
         {
           "type": "status",
-          "statusName": "freeze"
+          "statusName": "freeze",
+          "chance": 100
         }
       ],
       "traits": [
@@ -1104,7 +1123,7 @@
         {
           "type": "damage",
           "value": 100,
-          "damageType": "magical"
+          "damageType": "physical"
         }
       ],
       "traits": [
@@ -1124,11 +1143,12 @@
         {
           "type": "damage",
           "value": 100,
-          "damageType": "magical"
+          "damageType": "physical"
         },
         {
           "type": "status",
-          "statusName": "freeze"
+          "statusName": "freeze",
+          "chance": 100
         }
       ],
       "traits": [],
@@ -1144,7 +1164,14 @@
       "target": "row_enemy",
       "costAP": 1,
       "costPP": 0,
-      "effects": [],
+      "effects": [
+        {
+          "type": "debuff",
+          "stat": "action_speed",
+          "value": 10,
+          "duration": 3
+        }
+      ],
       "traits": [
         "ranged"
       ],
@@ -1163,6 +1190,24 @@
           "type": "damage",
           "value": 100,
           "damageType": "magical"
+        },
+        {
+          "type": "debuff",
+          "stat": "physical_attack",
+          "value": 50,
+          "duration": 3
+        },
+        {
+          "type": "debuff",
+          "stat": "magical_attack",
+          "value": 50,
+          "duration": 3
+        },
+        {
+          "type": "debuff",
+          "stat": "physical_attack",
+          "value": 50,
+          "duration": 3
         }
       ],
       "traits": [
@@ -1181,8 +1226,20 @@
       "effects": [
         {
           "type": "debuff",
-          "stat": "defense",
-          "value": -20,
+          "stat": "physical_defense",
+          "value": 50,
+          "duration": 3
+        },
+        {
+          "type": "debuff",
+          "stat": "magical_defense",
+          "value": 50,
+          "duration": 3
+        },
+        {
+          "type": "debuff",
+          "stat": "physical_defense",
+          "value": 50,
           "duration": 3
         }
       ],
@@ -1243,7 +1300,8 @@
         },
         {
           "type": "status",
-          "statusName": "burn"
+          "statusName": "burn",
+          "chance": 100
         }
       ],
       "traits": [
@@ -1351,7 +1409,8 @@
         },
         {
           "type": "status",
-          "statusName": "stun"
+          "statusName": "stun",
+          "chance": 100
         }
       ],
       "traits": [],
@@ -1451,7 +1510,8 @@
         },
         {
           "type": "status",
-          "statusName": "freeze"
+          "statusName": "freeze",
+          "chance": 100
         }
       ],
       "traits": [
@@ -1474,6 +1534,12 @@
           "type": "damage",
           "value": 100,
           "damageType": "physical"
+        },
+        {
+          "type": "buff",
+          "stat": "physical_attack",
+          "value": 50,
+          "duration": 3
         }
       ],
       "traits": [],
@@ -1563,18 +1629,9 @@
       "costPP": 0,
       "effects": [
         {
-          "type": "damage",
-          "value": 100,
-          "damageType": "physical"
-        },
-        {
-          "type": "heal",
-          "value": 50,
-          "target": "self"
-        },
-        {
           "type": "status",
-          "statusName": "poison"
+          "statusName": "poison",
+          "chance": 100
         }
       ],
       "traits": [],
@@ -1598,7 +1655,8 @@
         },
         {
           "type": "status",
-          "statusName": "stun"
+          "statusName": "stun",
+          "chance": 100
         }
       ],
       "traits": [],
@@ -1654,14 +1712,15 @@
       "costPP": 0,
       "effects": [
         {
-          "type": "heal",
+          "type": "buff",
+          "stat": "magical_defense",
           "value": 50,
-          "target": "ally"
+          "duration": 3
         },
         {
           "type": "buff",
-          "stat": "defense",
-          "value": 20,
+          "stat": "physical_defense",
+          "value": 50,
           "duration": 3
         }
       ],
@@ -1678,9 +1737,10 @@
       "costPP": 0,
       "effects": [
         {
-          "type": "damage",
-          "value": 100,
-          "damageType": "physical"
+          "type": "buff",
+          "stat": "accuracy",
+          "value": 50,
+          "duration": 3
         }
       ],
       "traits": [],
@@ -1699,6 +1759,12 @@
           "type": "heal",
           "value": 50,
           "target": "ally"
+        },
+        {
+          "type": "buff",
+          "stat": "action_speed",
+          "value": 30,
+          "duration": 3
         }
       ],
       "traits": [],
@@ -1719,6 +1785,18 @@
           "type": "damage",
           "value": 100,
           "damageType": "physical"
+        },
+        {
+          "type": "buff",
+          "stat": "evasion",
+          "value": 20,
+          "duration": 3
+        },
+        {
+          "type": "debuff",
+          "stat": "evasion",
+          "value": 20,
+          "duration": 3
         }
       ],
       "traits": [
@@ -1742,14 +1820,14 @@
         },
         {
           "type": "buff",
-          "stat": "defense",
+          "stat": "physical_defense",
           "value": 20,
           "duration": 3
         },
         {
           "type": "debuff",
-          "stat": "defense",
-          "value": -20,
+          "stat": "physical_defense",
+          "value": 20,
           "duration": 3
         }
       ],
@@ -1793,6 +1871,12 @@
           "type": "damage",
           "value": 100,
           "damageType": "physical"
+        },
+        {
+          "type": "debuff",
+          "stat": "action_speed",
+          "value": 20,
+          "duration": 3
         }
       ],
       "traits": [
@@ -1836,8 +1920,14 @@
         },
         {
           "type": "debuff",
-          "stat": "defense",
-          "value": -20,
+          "stat": "physical_defense",
+          "value": 50,
+          "duration": 3
+        },
+        {
+          "type": "debuff",
+          "stat": "physical_defense",
+          "value": 50,
           "duration": 3
         }
       ],
@@ -1910,12 +2000,18 @@
         {
           "type": "damage",
           "value": 100,
-          "damageType": "physical"
+          "damageType": "magical"
         },
         {
           "type": "debuff",
-          "stat": "defense",
-          "value": -20,
+          "stat": "magical_defense",
+          "value": 50,
+          "duration": 3
+        },
+        {
+          "type": "debuff",
+          "stat": "physical_defense",
+          "value": 50,
           "duration": 3
         }
       ],
@@ -1935,8 +2031,14 @@
       "effects": [
         {
           "type": "buff",
-          "stat": "defense",
-          "value": 20,
+          "stat": "magical_defense",
+          "value": 50,
+          "duration": 3
+        },
+        {
+          "type": "buff",
+          "stat": "physical_defense",
+          "value": 50,
           "duration": 3
         }
       ],
@@ -1954,8 +2056,14 @@
       "effects": [
         {
           "type": "buff",
-          "stat": "defense",
-          "value": 20,
+          "stat": "magical_defense",
+          "value": 50,
+          "duration": 3
+        },
+        {
+          "type": "buff",
+          "stat": "physical_defense",
+          "value": 50,
           "duration": 3
         }
       ],
@@ -1976,7 +2084,7 @@
         {
           "type": "damage",
           "value": 100,
-          "damageType": "magical"
+          "damageType": "physical"
         }
       ],
       "traits": [
@@ -2014,7 +2122,7 @@
         {
           "type": "damage",
           "value": 100,
-          "damageType": "magical"
+          "damageType": "physical"
         }
       ],
       "traits": [
@@ -2037,12 +2145,6 @@
           "type": "damage",
           "value": 100,
           "damageType": "physical"
-        },
-        {
-          "type": "buff",
-          "stat": "defense",
-          "value": 20,
-          "duration": 3
         }
       ],
       "traits": [],
@@ -2061,12 +2163,6 @@
           "type": "damage",
           "value": 100,
           "damageType": "physical"
-        },
-        {
-          "type": "buff",
-          "stat": "defense",
-          "value": 20,
-          "duration": 3
         }
       ],
       "traits": [],

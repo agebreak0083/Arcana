@@ -143,7 +143,15 @@ public class Character : MonoBehaviour
         // TODO: 실제 게임 로직에 맞게 조건을 확인하는 코드 구현
         // 예: HP 비율, MP, 적의 상태 등을 확인
 
-        List<Character> targetCharacters = BattleManager.Instance.GetEnemyTargets(this);
+        // 원본 리스트의 참조를 가져옴
+        List<Character> originalTargets = BattleManager.Instance.GetEnemyTargets(this);
+
+        // 원본을 보호하기 위해 새로운 리스트로 복사 (Shallow Copy)
+        List<Character> targetCharacters = new List<Character>(originalTargets);
+
+        // 이제 targetsToProcess에서 항목을 제거해도 BattleManager의 리스트는 안전함
+        targetCharacters.RemoveAll(c => c.hp <= 0);
+
         Character target = null;
 
         // Condition2부터 필터링
@@ -355,11 +363,12 @@ public class Character : MonoBehaviour
         // Step 1: 타겟 앞으로 이동 (타겟의 X좌표 + 1m)
         Vector3 targetPosition = target.transform.position + target.transform.forward * 1.0f;
 
-        // DoTween으로 이동 (1초)
-        transform.DOMove(targetPosition, 1f).SetEase(Ease.OutQuad);
+        // DoTween으로 이동 
+        float moveTime = 0.5f; 
+        transform.DOMove(targetPosition, moveTime).SetEase(Ease.OutQuad);
 
         // 이동 완료 대기
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(moveTime);
 
         // Step 2: 스킬 애니메이션 재생
         animator.Play(skill.animation, 0, 0f);
@@ -380,11 +389,12 @@ public class Character : MonoBehaviour
         float animationLength = stateInfo.length;
         yield return new WaitForSeconds(animationLength - effectTime);
 
-        // Step 3: 원래 자리로 복귀 (1초)
-        transform.DOMove(originalPosition, 1f).SetEase(Ease.InQuad);
+        // Step 3: 원래 자리로 복귀 
+        float returnTime = 0.5f;
+        transform.DOMove(originalPosition, returnTime).SetEase(Ease.InQuad);
 
         // 복귀 완료 대기
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(returnTime);
 
         // 애니메이션 종료 후 실행
         OnSkillAnimationComplete(skill, target);
@@ -430,7 +440,26 @@ public class Character : MonoBehaviour
     // PP 회복
     public void RestorePP(int amount)
     {
-
+        if (stats != null)
+        {
+            stats.passivePoint += amount;
+            // 최대치 제한 로직이 필요하다면 추가
+        }
     }
 
+    // AP/PP 회복 (라운드 시작 시 호출)
+    public void RestoreAPPP()
+    {
+        if (stats != null)
+        {
+            // 가장 확실한 방법: 원본 ClassInfo에서 다시 가져오기
+            var classInfo = TacticsDataManager.Instance.GetClassInfo(className);
+            if (classInfo != null)
+            {
+                stats.actionPoint = classInfo.stats.actionPoint;
+                stats.passivePoint = classInfo.stats.passivePoint;
+                Debug.Log($"{characterName}의 AP/PP가 회복되었습니다. (AP: {stats.actionPoint}, PP: {stats.passivePoint})");
+            }
+        }
+    }
 }
