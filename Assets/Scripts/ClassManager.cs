@@ -10,17 +10,8 @@ public class ClassManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
-
+        // 씬마다 독립적인 인스턴스 사용
+        Instance = this;
         LoadClasses();
     }
 

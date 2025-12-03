@@ -137,105 +137,61 @@ public class Character : MonoBehaviour
         return null;
     }
 
-    // 조건 확인. 조건에 맞는 타겟을 반환한다. 없으면 null을 반환한다.
+    /// <summary>
+    /// 조건에 맞는 타겟을 선택
+    /// Condition2: 필터링 (조건에 맞는 캐릭터만 남김)
+    /// Condition1: 선택 (필터링된 리스트에서 최종 타겟 1명 선택)
+    /// </summary>
     private Character GetTarget(StrategyAction action)
     {
-        // TODO: 실제 게임 로직에 맞게 조건을 확인하는 코드 구현
-        // 예: HP 비율, MP, 적의 상태 등을 확인
-
-        // 원본 리스트의 참조를 가져옴
+        // 1. 적 리스트 가져오기 (복사본)
         List<Character> originalTargets = BattleManager.Instance.GetEnemyTargets(this);
+        List<Character> candidates = new List<Character>(originalTargets);
 
-        // 원본을 보호하기 위해 새로운 리스트로 복사 (Shallow Copy)
-        List<Character> targetCharacters = new List<Character>(originalTargets);
+        // 2. 사망한 캐릭터 제거
+        candidates.RemoveAll(c => c == null || c.hp <= 0);
 
-        // 이제 targetsToProcess에서 항목을 제거해도 BattleManager의 리스트는 안전함
-        targetCharacters.RemoveAll(c => c.hp <= 0);
-
-        Character target = null;
-
-        // Condition2부터 필터링
-        if (string.IsNullOrEmpty(action.condition2) || action.condition2 == "조건 없음")
+        if (candidates.Count == 0)
         {
-
+            Debug.LogWarning($"{characterName}: 타겟 후보가 없습니다.");
+            return null;
         }
 
-        // Condition1 필터링
-        if (string.IsNullOrEmpty(action.condition1) || action.condition1 == "조건 없음")
+        // 3. Condition2 적용 (필터링)
+        if (!string.IsNullOrEmpty(action.condition2) && action.condition2 != "조건 없음")
         {
-            // 1. 우선 전열(1,2,3)에서 자신의 앞의 적을 찾고, 
-            int targetPosition = ((this.position - 1) % 3) + 1;
-            target = targetCharacters.Find(c => c.position == targetPosition);
-
-            // 2. 자신의 앞에 적이 없으면 가장 빠른 포지션의 적을 타겟팅한다. 
-            if (target == null)
+            var filter = TargetConditionFactory.CreateFilter(action.condition2);
+            if (filter != null)
             {
-                target = targetCharacters.Find(c => c != null);
+                var filtered = filter.Filter(candidates, this);
+                if (filtered.Count > 0)
+                {
+                    candidates = filtered;
+                    Debug.Log($"{characterName}: Condition2 '{action.condition2}' 적용 → {candidates.Count}명 남음");
+                }
+                else
+                {
+                    // 필터링 조건을 만족하는 타겟이 없으면 null 반환
+                    Debug.LogWarning($"{characterName}: Condition2 '{action.condition2}' 조건을 만족하는 타겟이 없습니다.");
+                    return null;
+                }
             }
+        }
 
-            Debug.Log($"{characterName}의 기본 타겟: {target.characterName}");
-            return target;
+        // 4. Condition1 적용 (선택)
+        var selector = TargetConditionFactory.CreateSelector(action.condition1);
+        Character target = selector.Select(candidates, this);
+
+        if (target != null)
+        {
+            Debug.Log($"{characterName}의 최종 타겟: {target.characterName} (Condition1: {action.condition1})");
+        }
+        else
+        {
+            Debug.LogWarning($"{characterName}: 타겟 선택 실패");
         }
 
         return target;
-    }
-
-    // 개별 조건 평가 
-    private Character[] EvaluateCondition(Character[] targets, string condition)
-    {
-        if (targets == null || targets.Count() == 0)
-            return null;
-
-        if (string.IsNullOrEmpty(condition))
-            return targets;
-
-        // HP가 가장 적은 
-        if (condition.Contains("HP가 가장 적은"))
-        {
-            // targets 안에서 HP가 가장 적은 타겟을 반환 
-            Character minHPCharacter = targets.OrderBy(c => c.hp).FirstOrDefault();
-            if (minHPCharacter == null)
-                return null;
-
-            Debug.Log($"HP가 가장 적은 타겟: {minHPCharacter.characterName}");
-            return new Character[] { minHPCharacter };
-
-        }
-        // HP 가장 많은 
-        else if (condition.Contains("HP가 가장 많은"))
-        {
-            Character maxHPCharacter = targets.OrderByDescending(c => c.hp).FirstOrDefault();
-            if (maxHPCharacter == null)
-                return null;
-
-            Debug.Log($"HP가 가장 많은 타겟: {maxHPCharacter.characterName}");
-            return new Character[] { maxHPCharacter };
-        }
-        // 방어력이 가장 높은
-        else if (condition.Contains("방어력이 가장 높은"))
-        {
-            Character maxDefenseCharacter = targets.OrderByDescending(c => c.stats.GetPhysicalDefenseValue()).FirstOrDefault();
-            if (maxDefenseCharacter == null)
-                return null;
-
-            Debug.Log($"방어력이 가장 높은 타겟: {maxDefenseCharacter.characterName}");
-            return new Character[] { maxDefenseCharacter };
-        }
-        // 방어력이 가장 낮은
-        else if (condition.Contains("방어력이 가장 낮은"))
-        {
-            Character minDefenseCharacter = targets.OrderBy(c => c.stats.GetPhysicalDefenseValue()).FirstOrDefault();
-            if (minDefenseCharacter == null)
-                return null;
-
-            Debug.Log($"방어력이 가장 낮은 타겟: {minDefenseCharacter.characterName}");
-            return new Character[] { minDefenseCharacter };
-        }
-
-
-
-
-        return targets; // 기본값
     }
 
     // HP 바 생성
@@ -367,7 +323,7 @@ public class Character : MonoBehaviour
         Vector3 targetPosition = target.transform.position + target.transform.forward * 1.0f;
 
         // DoTween으로 이동 
-        float moveTime = 0.5f; 
+        float moveTime = 0.5f;
         transform.DOMove(targetPosition, moveTime).SetEase(Ease.OutQuad);
 
         // 이동 완료 대기

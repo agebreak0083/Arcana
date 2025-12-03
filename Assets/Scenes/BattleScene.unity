@@ -742,6 +742,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleUI
   roundTurnText: {fileID: 1545405858}
   skillNameText: {fileID: 510056378}
+  victoryPanelPrefab: {fileID: 151767564086076965, guid: cc943b71bfdfd084bbeffc8167b90a28, type: 3}
+  defeatPanelPrefab: {fileID: 151767564086076965, guid: 83807333c53c5204a8b65d57a354c981, type: 3}
   skillNameDisplayTime: 2
 --- !u!114 &454355981
 MonoBehaviour:

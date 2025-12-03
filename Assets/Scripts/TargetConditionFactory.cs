@@ -1,0 +1,173 @@
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using UnityEngine;
+
+/// <summary>
+/// 조건 문자열을 파싱하여 적절한 필터/선택기를 생성하는 Factory
+/// </summary>
+public static class TargetConditionFactory
+{
+    /// <summary>
+    /// Condition2 문자열을 파싱하여 필터 생성
+    /// </summary>
+    public static ITargetFilter CreateFilter(string condition)
+    {
+        if (string.IsNullOrEmpty(condition) || condition == "조건 없음")
+            return null;
+
+        // HP 비율 필터
+        if (condition.Contains("HP") && condition.Contains("%"))
+        {
+            var match = Regex.Match(condition, @"HP.*?(\d+)%\s*(이하|이상)");
+            if (match.Success)
+            {
+                float threshold = float.Parse(match.Groups[1].Value) / 100f;
+                bool isAbove = match.Groups[2].Value == "이상";
+                return new HPRatioFilter(threshold, isAbove);
+            }
+        }
+
+        // AP 필터
+        if (condition.Contains("AP가"))
+        {
+            var match = Regex.Match(condition, @"AP가\s*(\d+)\s*(이하|이상)");
+            if (match.Success)
+            {
+                int threshold = int.Parse(match.Groups[1].Value);
+                bool isAbove = match.Groups[2].Value == "이상";
+                return new APFilter(threshold, isAbove);
+            }
+
+            // "AP가 0인"
+            if (condition.Contains("AP가 0"))
+            {
+                return new APFilter(0, false); // 0 이하 = 0
+            }
+        }
+
+        // PP 필터
+        if (condition.Contains("PP가"))
+        {
+            var match = Regex.Match(condition, @"PP가\s*(\d+)\s*(이하|이상)");
+            if (match.Success)
+            {
+                int threshold = int.Parse(match.Groups[1].Value);
+                bool isAbove = match.Groups[2].Value == "이상";
+                return new PPFilter(threshold, isAbove);
+            }
+
+            if (condition.Contains("PP가 0"))
+            {
+                return new PPFilter(0, false);
+            }
+        }
+
+        // 대열 필터
+        if (condition.Contains("전열"))
+        {
+            return new FormationFilter(true);
+        }
+        if (condition.Contains("후열"))
+        {
+            return new FormationFilter(false);
+        }
+
+        // TODO: 병종, 상태이상 등 추가 필터 구현
+        // 현재는 기본 필터만 구현
+
+        Debug.LogWarning($"[TargetConditionFactory] 미구현 Condition2: {condition}");
+        return null;
+    }
+
+    /// <summary>
+    /// Condition1 문자열을 파싱하여 선택기 생성
+    /// </summary>
+    public static ITargetSelector CreateSelector(string condition)
+    {
+        if (string.IsNullOrEmpty(condition) || condition == "조건 없음")
+            return new PositionBasedSelector(); // 기본: 위치 기반
+
+        // HP 관련 선택
+        if (condition.Contains("HP가 가장 낮은"))
+        {
+            return new HPBasedSelector(true);
+        }
+        if (condition.Contains("HP가 가장 높은"))
+        {
+            return new HPBasedSelector(false);
+        }
+        if (condition.Contains("HP 비율이 가장 낮은"))
+        {
+            return new HPRatioSelector(true);
+        }
+        if (condition.Contains("HP 비율이 가장 높은"))
+        {
+            return new HPRatioSelector(false);
+        }
+
+        // AP 관련 선택
+        if (condition.Contains("AP가 가장 낮은"))
+        {
+            return new APBasedSelector(true);
+        }
+        if (condition.Contains("AP가 가장 높은"))
+        {
+            return new APBasedSelector(false);
+        }
+
+        // 스탯 기반 선택
+        if (condition.Contains("물리 공격력이 가장 높은"))
+        {
+            return new StatBasedSelector(StatBasedSelector.StatType.PhysicalAttack, false);
+        }
+        if (condition.Contains("물리 공격력이 가장 낮은"))
+        {
+            return new StatBasedSelector(StatBasedSelector.StatType.PhysicalAttack, true);
+        }
+        if (condition.Contains("마법 공격력이 가장 높은"))
+        {
+            return new StatBasedSelector(StatBasedSelector.StatType.MagicalAttack, false);
+        }
+        if (condition.Contains("마법 공격력이 가장 낮은"))
+        {
+            return new StatBasedSelector(StatBasedSelector.StatType.MagicalAttack, true);
+        }
+        if (condition.Contains("물리 방어력이 가장 높은"))
+        {
+            return new StatBasedSelector(StatBasedSelector.StatType.PhysicalDefense, false);
+        }
+        if (condition.Contains("물리 방어력이 가장 낮은"))
+        {
+            return new StatBasedSelector(StatBasedSelector.StatType.PhysicalDefense, true);
+        }
+        if (condition.Contains("마법 방어력이 가장 높은"))
+        {
+            return new StatBasedSelector(StatBasedSelector.StatType.MagicalDefense, false);
+        }
+        if (condition.Contains("마법 방어력이 가장 낮은"))
+        {
+            return new StatBasedSelector(StatBasedSelector.StatType.MagicalDefense, true);
+        }
+        if (condition.Contains("행동 속도가 가장 높은"))
+        {
+            return new StatBasedSelector(StatBasedSelector.StatType.ActionSpeed, false);
+        }
+        if (condition.Contains("행동 속도가 가장 낮은"))
+        {
+            return new StatBasedSelector(StatBasedSelector.StatType.ActionSpeed, true);
+        }
+        if (condition.Contains("치명타율이 가장 높은"))
+        {
+            return new StatBasedSelector(StatBasedSelector.StatType.CriticalRate, false);
+        }
+        if (condition.Contains("치명타율이 가장 낮은"))
+        {
+            return new StatBasedSelector(StatBasedSelector.StatType.CriticalRate, true);
+        }
+
+        // TODO: 병종, 대열 등 추가 선택기 구현
+
+        Debug.LogWarning($"[TargetConditionFactory] 미구현 Condition1: {condition}");
+        return new PositionBasedSelector(); // 기본값
+    }
+}

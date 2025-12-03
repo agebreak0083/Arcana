@@ -10,15 +10,8 @@ public class StrategyManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        // 씬마다 독립적인 인스턴스 사용
+        Instance = this;
     }
 
     // TacticsPlan을 Strategy로 변환

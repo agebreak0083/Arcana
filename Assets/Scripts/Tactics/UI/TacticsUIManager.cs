@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using Arcana.Tactics.Data;
 using static Arcana.Tactics.TacticsDataManager;
+using UnityEngine.SceneManagement;
 
 namespace Arcana.Tactics.UI
 {
@@ -69,7 +70,7 @@ namespace Arcana.Tactics.UI
             AutoAssignReferences();
             InitializeUI();
 
-            // Load formation from TacticsDataManager
+            // Load formation from TacticsDataManager (씬마다 독립적인 인스턴스)
             var loadResult = _dataManager.GetPlayerFormationLoadResult();
             _unitSlots = loadResult.unitSlots;
             _codingData = loadResult.codingData;
@@ -370,6 +371,9 @@ namespace Arcana.Tactics.UI
         public void OnRunBattleClicked()
         {
             _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);
+
+            // BattleScene으로 이동한다. 
+            SceneManager.LoadScene("BattleScene");
         }
 
         private void UpdateAllUI()

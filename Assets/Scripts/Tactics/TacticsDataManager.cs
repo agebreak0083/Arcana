@@ -26,17 +26,8 @@ namespace Arcana.Tactics
 
         void Awake()
         {
-            if (Instance == null)
-            {
-                Instance = this;
-                DontDestroyOnLoad(gameObject);
-            }
-            else
-            {
-                Destroy(gameObject);
-                return;
-            }
-
+            // 씬마다 독립적인 인스턴스 사용
+            Instance = this;
             LoadAllData();
         }
 
@@ -81,21 +72,43 @@ namespace Arcana.Tactics
         {
             availableCharacters = new List<CharacterData>();
 
-            // 1. Load JSON files
+            // 1. Load CharacterList (Static Data)
             TextAsset listAsset = Resources.Load<TextAsset>("Table/CharacterList");
-            TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
-
-            if (listAsset == null || poolAsset == null)
+            if (listAsset == null)
             {
-                Debug.LogError("Failed to load CharacterList.json or CharacterPool.json");
+                Debug.LogError("Failed to load CharacterList.json");
                 return;
             }
 
-            // 2. Parse JSON
-            CharacterDefinition[] allCharacters = JsonHelper.FromJson<CharacterDefinition>(listAsset.text);
-            CharacterPoolItem[] myPool = JsonHelper.FromJson<CharacterPoolItem>(poolAsset.text);
+            // 2. Load CharacterPool (Dynamic Data)
+            string poolJson = "";
+            string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "CharacterPool.json");
 
-            // 3. Match and Create Data
+            if (System.IO.File.Exists(persistentPath))
+            {
+                poolJson = System.IO.File.ReadAllText(persistentPath);
+                Debug.Log("Loaded CharacterPool.json from PersistentDataPath");
+            }
+            else
+            {
+                TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
+                if (poolAsset != null)
+                {
+                    poolJson = poolAsset.text;
+                    Debug.Log("Loaded CharacterPool.json from Resources");
+                }
+                else
+                {
+                    Debug.LogError("Failed to load CharacterPool.json");
+                    return;
+                }
+            }
+
+            // 3. Parse JSON
+            CharacterDefinition[] allCharacters = JsonHelper.FromJson<CharacterDefinition>(listAsset.text);
+            CharacterPoolItem[] myPool = JsonHelper.FromJson<CharacterPoolItem>(poolJson);
+
+            // 4. Match and Create Data
             foreach (var poolItem in myPool)
             {
                 // Find matching definition
@@ -103,7 +116,7 @@ namespace Arcana.Tactics
 
                 if (def != null)
                 {
-                    // 4. Create CharacterData
+                    // 5. Create CharacterData
                     CharacterData newData = ScriptableObject.CreateInstance<CharacterData>();
                     newData.id = System.Guid.NewGuid().ToString();
                     newData.characterName = def.Name;
@@ -461,11 +474,17 @@ namespace Arcana.Tactics
 
                 json += "  ]\n}\n";
 
-                // Write to file
-                string path = System.IO.Path.Combine(UnityEngine.Application.dataPath, "Resources/tactics.json");
-                System.IO.File.WriteAllText(path, json);
+                // 1. Save to PersistentDataPath (Runtime usage)
+                string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "tactics.json");
+                System.IO.File.WriteAllText(persistentPath, json);
+                Debug.Log($"Formation saved to {persistentPath}");
 
-                Debug.Log("Formation and tactics saved to tactics.json");
+#if UNITY_EDITOR
+                // 2. Save to Resources (Editor usage - for user visibility)
+                string resourcesPath = System.IO.Path.Combine(Application.dataPath, "Resources/tactics.json");
+                System.IO.File.WriteAllText(resourcesPath, json);
+                Debug.Log($"Formation saved to {resourcesPath}");
+#endif
             }
             catch (System.Exception e)
             {
@@ -553,11 +572,17 @@ namespace Arcana.Tactics
                 }
                 json += "]\n";
 
-                // Write to file
-                string path = System.IO.Path.Combine(UnityEngine.Application.dataPath, "Resources/CharacterPool.json");
-                System.IO.File.WriteAllText(path, json);
+                // 1. Save to PersistentDataPath
+                string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "CharacterPool.json");
+                System.IO.File.WriteAllText(persistentPath, json);
+                Debug.Log($"Tactics saved to {persistentPath}");
 
-                Debug.Log("Tactics saved to CharacterPool.json");
+#if UNITY_EDITOR
+                // 2. Save to Resources (Editor only)
+                string resourcesPath = System.IO.Path.Combine(Application.dataPath, "Resources/CharacterPool.json");
+                System.IO.File.WriteAllText(resourcesPath, json);
+                Debug.Log($"Tactics saved to {resourcesPath}");
+#endif
             }
             catch (System.Exception e)
             {
@@ -573,14 +598,32 @@ namespace Arcana.Tactics
             FormationLoadResult result = isPlayer ? _playerFormationLoadResult : _enemyFormationLoadResult;
             try
             {
-                TextAsset tacticsAsset = Resources.Load<TextAsset>("tactics");
-                if (tacticsAsset == null)
+                string json = "";
+                string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "tactics.json");
+
+                // 1. Try loading from PersistentDataPath first
+                if (System.IO.File.Exists(persistentPath))
                 {
-                    Debug.LogWarning("tactics.json not found, starting with empty formation");
-                    return result;
+                    json = System.IO.File.ReadAllText(persistentPath);
+                    Debug.Log("Loaded tactics.json from PersistentDataPath");
+                }
+                else
+                {
+                    // 2. Fallback to Resources
+                    TextAsset tacticsAsset = Resources.Load<TextAsset>("tactics");
+                    if (tacticsAsset != null)
+                    {
+                        json = tacticsAsset.text;
+                        Debug.Log("Loaded tactics.json from Resources");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("tactics.json not found in Resources or PersistentDataPath");
+                        return result;
+                    }
                 }
 
-                TacticsFileLoadData tacticsData = JsonUtility.FromJson<TacticsFileLoadData>(tacticsAsset.text);
+                TacticsFileLoadData tacticsData = JsonUtility.FromJson<TacticsFileLoadData>(json);
                 if (tacticsData == null || tacticsData.positions == null)
                 {
                     Debug.LogWarning("Failed to parse tactics.json");
@@ -646,7 +689,7 @@ namespace Arcana.Tactics
                     }
                 }
 
-                Debug.Log("Formation loaded from tactics.json");
+                Debug.Log("Formation loaded successfully");
             }
             catch (System.Exception e)
             {

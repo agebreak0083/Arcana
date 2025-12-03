@@ -9,7 +9,7 @@
             "plan": [
                 {
                 "skill": "아이스 샷",
-                "condition1": "조건 없음",
+                "condition1": "HP가 가장 낮은 [적/아군] 우선",
                 "condition2": "조건 없음"
                 },
                 {
@@ -25,9 +25,43 @@
             ]
             }
         ]      
-    },    
+    },
     {
       "position":"2",
+      "name":""
+    },
+    {
+      "position":"3",
+      "name":"hina1", 
+      "tactics": [
+            {
+            "class": "파이터",
+            "plan": [
+                {
+                "skill": "가드 슬래시",
+                "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "실드 배시",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "디펜더",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                }
+            ]
+            }
+        ]      
+    },
+    {
+      "position":"4",
+      "name":""
+    },
+    {
+      "position":"5",
       "name":"hina2", 
       "tactics": [
             {
@@ -35,7 +69,7 @@
             "plan": [
                 {
                 "skill": "싱글 샷",
-                "condition1": "조건 없음",
+                "condition1": "후열의 [적/아군] 우선",
                 "condition2": "조건 없음"
                 },
                 {
@@ -53,44 +87,8 @@
         ]      
     },
     {
-      "position":"3",
-      "name":"hina1", 
-      "tactics": [
-        {
-          "class": "파이터",
-          "plan": [
-            {
-              "skill": "가드 슬래시",
-              "condition1": "조건 없음",
-              "condition2": "조건 없음"
-            },
-            {
-              "skill": "실드 배시",
-              "condition1": "조건 없음",
-              "condition2": "조건 없음"
-                },
-                {
-                  "skill": "디펜더",
-                  "condition1": "조건 없음",
-                  "condition2": "조건 없음"
-                }
-              ]
-            }
-          ]      
-    },                 
-    {
-      "position":"4",
-      "name":""
-    },
-    {
-      "position":"5",
-      "name":""
-    },
-    {
       "position":"6",
       "name":""
     }
   ]
-} 
-
-    
+}

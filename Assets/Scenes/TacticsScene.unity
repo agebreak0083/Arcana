@@ -119,17 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!114 &19470024 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8250671086635944474, guid: 4e67a33f3646a594e8a704b06019f80e, type: 3}
-  m_PrefabInstance: {fileID: 396032993}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!114 &63916637 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1732109336527014158, guid: 4e67a33f3646a594e8a704b06019f80e, type: 3}
@@ -141,17 +130,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58f17895a567e0048b46397b7888b0c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Arcana.Tactics.UI.ConditionModalUI
---- !u!114 &128256926 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8134116849074374309, guid: 4e67a33f3646a594e8a704b06019f80e, type: 3}
-  m_PrefabInstance: {fileID: 396032993}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1 &234004679
 GameObject:
   m_ObjectHideFlags: 0
@@ -2646,39 +2624,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4e67a33f3646a594e8a704b06019f80e, type: 3}
---- !u!1 &685346496
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 685346497}
-  m_Layer: 0
-  m_Name: MangersGroup
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &685346497
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 685346496}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 981827842}
-  - {fileID: 1320184408}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &733833607
 GameObject:
   m_ObjectHideFlags: 0
@@ -2860,6 +2805,7 @@ GameObject:
   m_Component:
   - component: {fileID: 981827842}
   - component: {fileID: 981827841}
+  - component: {fileID: 981827843}
   m_Layer: 0
   m_Name: TactisManager
   m_TagString: Untagged
@@ -2876,7 +2822,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 981827840}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5c801dbd5446274b93e2f3c6dc69001, type: 3}
+  m_Script: {fileID: 11500000, guid: 3e92e0a5246779e408a24120ef47b24e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Arcana.Tactics.TacticsManager
   availableCharacters: []
@@ -2890,14 +2836,14 @@ MonoBehaviour:
   currentCostText: {fileID: 0}
   codingPanelTitle: {fileID: 0}
   characterDetailPanel: {fileID: 991384770}
-  detailPortrait: {fileID: 19470024}
-  detailCost: {fileID: 1179696468}
-  detailName: {fileID: 128256926}
-  detailClass: {fileID: 1102842410}
+  detailPortrait: {fileID: 0}
+  detailCost: {fileID: 0}
+  detailName: {fileID: 0}
+  detailClass: {fileID: 0}
   detailArcana: {fileID: 0}
   detailSpeed: {fileID: 0}
-  detailDesc: {fileID: 1185035475}
-  removeFromUnitBtn: {fileID: 1895260958}
+  detailDesc: {fileID: 0}
+  removeFromUnitBtn: {fileID: 0}
   detailStatHP: {fileID: 0}
   detailStatPhysAtk: {fileID: 0}
   detailStatPhysDef: {fileID: 0}
@@ -2917,51 +2863,31 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 981827840}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 685346497}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &981827843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 981827840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71a6e2bf7c8ddcb4e9d633a4650e464d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Arcana.Tactics.TacticsDataManager
+  availableCharacters: []
 --- !u!1 &991384770 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5609010684368795863, guid: 4e67a33f3646a594e8a704b06019f80e, type: 3}
   m_PrefabInstance: {fileID: 396032993}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1102842410 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5956446620579107880, guid: 4e67a33f3646a594e8a704b06019f80e, type: 3}
-  m_PrefabInstance: {fileID: 396032993}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
---- !u!114 &1179696468 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2508216705180987567, guid: 4e67a33f3646a594e8a704b06019f80e, type: 3}
-  m_PrefabInstance: {fileID: 396032993}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
---- !u!114 &1185035475 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4317394920890701717, guid: 4e67a33f3646a594e8a704b06019f80e, type: 3}
-  m_PrefabInstance: {fileID: 396032993}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1 &1320184407
 GameObject:
   m_ObjectHideFlags: 0
@@ -2992,7 +2918,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 685346497}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1320184409
 MonoBehaviour:
@@ -3016,17 +2942,6 @@ MonoBehaviour:
       sfxVolume: 0
       language: 
     lastSaveTime: 
---- !u!114 &1895260958 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4541869445002242869, guid: 4e67a33f3646a594e8a704b06019f80e, type: 3}
-  m_PrefabInstance: {fileID: 396032993}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -3035,4 +2950,5 @@ SceneRoots:
   - {fileID: 234004681}
   - {fileID: 733833610}
   - {fileID: 396032993}
-  - {fileID: 685346497}
+  - {fileID: 981827842}
+  - {fileID: 1320184408}

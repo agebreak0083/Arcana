@@ -1,11 +1,15 @@
 using UnityEngine;
 using TMPro;
+using System;
 
 public class BattleUI : MonoBehaviour
 {
     [Header("UI References")]
     public TextMeshProUGUI roundTurnText;   // 상단 라운드/턴 텍스트
     public TextMeshProUGUI skillNameText;   // 하단 스킬 이름 텍스트
+
+    public GameObject victoryPanelPrefab;
+    public GameObject defeatPanelPrefab;
     
     [Header("Animation Settings")]
     public float skillNameDisplayTime = 2f; // 스킬 이름 표시 시간
@@ -84,6 +88,24 @@ public class BattleUI : MonoBehaviour
     {
         skillNameTimer = 0f;
         HideSkillName();
+    }
+
+    public void ShowDefeatPanel()
+    {
+        if (defeatPanelPrefab != null)
+        {
+            GameObject defeatPanel = Instantiate(defeatPanelPrefab);
+            defeatPanel.transform.SetParent(transform, false);
+        }
+    }
+
+    public void ShowVictoryPanel()
+    {
+        if (victoryPanelPrefab != null)
+        {
+            GameObject victoryPanel = Instantiate(victoryPanelPrefab);
+            victoryPanel.transform.SetParent(transform, false);
+        }
     }
 }
 

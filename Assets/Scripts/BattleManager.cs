@@ -12,7 +12,7 @@ public class BattleManager : MonoBehaviour
     public List<GameObject> playerPositions;
     public List<GameObject> enemyPositions;
 
-    [Header("HP Bar")]
+    [Header("UI Prefabs")]
     public GameObject hpBarPrefab; // HP 바 프리팹
     public Vector3 hpBarOffset = new Vector3(0, 1.2f, 0); // HP 바 위치 오프셋
     private HPBar hpBar; // HP 바 인스턴스
@@ -24,7 +24,6 @@ public class BattleManager : MonoBehaviour
     private List<Character> enemyCharacters = new List<Character>();
     private List<Character> charactersTurnList = new List<Character>();
     private List<Character> waitingCharacters = new List<Character>();
-    private int currentIndex = 0;
     private StrategyManager strategyManager;
     private SkillManager skillManager;
     private ClassManager classManager;
@@ -38,11 +37,8 @@ public class BattleManager : MonoBehaviour
     // Awake는 Manager 초기화용
     void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
+        // 씬마다 독립적인 인스턴스 사용
+        Instance = this;
 
         // StrategyManager 컴포넌트 가져오기 또는 생성
         strategyManager = GetComponent<StrategyManager>();
@@ -180,7 +176,6 @@ public class BattleManager : MonoBehaviour
     public void InitializeCharactersTurnList()
     {
         charactersTurnList.Clear();
-        currentIndex = 0;
 
         if (playerCharacters != null)
         {
@@ -336,11 +331,13 @@ public class BattleManager : MonoBehaviour
 
         if (!playerAlive)
         {
+            BattleUI.Instance.ShowDefeatPanel();
             Debug.Log("패배... (플레이어 전멸)");
             return true;
         }
         if (!enemyAlive)
         {
+            BattleUI.Instance.ShowVictoryPanel();
             Debug.Log("승리! (적 전멸)");
             return true;
         }
