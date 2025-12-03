@@ -291,7 +291,10 @@ public class Character : MonoBehaviour
     private void OnDeath()
     {
         Debug.Log($"{characterName}이(가) 사망했습니다.");
-        // TODO: 사망 애니메이션 및 처리
+
+        // 사망 애니메이션 재생
+        Animator animator = GetComponent<Animator>();
+        animator.Play("KneelDown", 0, 0f);
     }
 
     // HP 바 표시/숨김
