@@ -6,7 +6,7 @@ using Arcana.Tactics.Data;
 
 namespace Arcana.Tactics.UI
 {
-    public class CharacterCardUI : MonoBehaviour, IPointerClickHandler
+    public class CharacterCardUI : MonoBehaviour, IPointerClickHandler, IPointerDownHandler
     {
         [Header("UI References")]
         public Image portraitImage;
@@ -19,6 +19,7 @@ namespace Arcana.Tactics.UI
         private CharacterData _data;
         private TacticsUIManager _manager;
         private bool _isDeployed;
+        private DraggableItem _draggable;
 
         public void Setup(CharacterData data, TacticsUIManager manager, bool isDeployed)
         {
@@ -28,10 +29,15 @@ namespace Arcana.Tactics.UI
 
             // In a real app, we would load the sprite. For now, we might just set color or text if sprite is null.
             if (data.portrait != null) portraitImage.sprite = data.portrait;
-            
+
             nameText.text = data.characterName.Split(' ')[0]; // Just first name for brevity
             classText.text = $"({data.characterClass.Split(' ')[0]})";
             costText.text = $"{data.cost}C";
+
+            _draggable = GetComponent<DraggableItem>();
+            if (_draggable == null) _draggable = gameObject.AddComponent<DraggableItem>();
+            _draggable.data = data;
+            _draggable.dragImageSource = portraitImage;
 
             UpdateVisuals();
         }
@@ -50,15 +56,29 @@ namespace Arcana.Tactics.UI
         private void UpdateVisuals()
         {
             if (deployedOverlay != null) deployedOverlay.SetActive(_isDeployed);
-            // Optional: Change border color based on cost or state
+
+            // Hide if deployed (as per requirement: disappear from pool)
+            // But we need to keep the object to maintain the list structure or just disable it.
+            // If we disable it, the layout group will adjust.
+            gameObject.SetActive(!_isDeployed);
+
+            if (_draggable != null)
+            {
+                _draggable.isDraggable = !_isDeployed;
+            }
         }
 
-        public void OnPointerClick(PointerEventData eventData)
+        public void OnPointerDown(PointerEventData eventData)
         {
             if (_manager != null)
             {
                 _manager.OnCharacterPoolCardClicked(_data);
             }
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            // Selection is handled in OnPointerDown
         }
     }
 }

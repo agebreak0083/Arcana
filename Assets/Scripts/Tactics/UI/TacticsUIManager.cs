@@ -242,6 +242,15 @@ namespace Arcana.Tactics.UI
                     var card = go.GetComponent<CharacterCardUI>();
                     card.Setup(charData, this, false);
                 }
+
+                // Add DropHandler to the ScrollView for dragging back to pool
+                var scrollView = characterPoolContainer.GetComponentInParent<ScrollRect>();
+                if (scrollView != null)
+                {
+                    var dropHandler = scrollView.gameObject.GetComponent<CharacterPoolDropHandler>();
+                    if (dropHandler == null) dropHandler = scrollView.gameObject.AddComponent<CharacterPoolDropHandler>();
+                    dropHandler.Setup(this);
+                }
             }
 
             _formationSlots.Clear();
@@ -276,59 +285,18 @@ namespace Arcana.Tactics.UI
 
         public void OnFormationSlotClicked(int slotIndex)
         {
-            if (_selectedCharacter != null)
+            // Only select the character in the slot if any
+            if (_unitSlots[slotIndex] != null)
             {
-                // Try to place selected character
-                CharacterData charToPlace = _selectedCharacter;
-
-                // Check if already in this slot
-                if (_unitSlots[slotIndex] == charToPlace)
-                {
-                    // Just select it (already selected)
-                    return;
-                }
-
-                // Check cost
-                int currentTotalCost = CalculateTotalCost();
-                int costDiff = charToPlace.cost;
-                if (_unitSlots[slotIndex] != null) costDiff -= _unitSlots[slotIndex].cost;
-
-                // If placing a new char (not swapping from another slot, which is complex, let's assume pool -> slot only for now or simple overwrite)
-                // If the character is already deployed elsewhere, remove it from there first?
-                int existingIndex = GetSlotIndex(charToPlace);
-                if (existingIndex != -1)
-                {
-                    // Moving within slots
-                    _unitSlots[existingIndex] = null;
-                    costDiff = 0; // Cost doesn't change if just moving
-                }
-
-                if (currentTotalCost + costDiff > maxCost)
-                {
-                    Debug.LogWarning("Cost Limit Exceeded!");
-                    // Show warning UI
-                    return;
-                }
-
-                _unitSlots[slotIndex] = charToPlace;
-
-                // Initialize coding data if needed
-                if (!_codingData.ContainsKey(charToPlace.id))
-                {
-                    _codingData[charToPlace.id] = _dataManager.CreateDefaultPlan(charToPlace);
-                }
-
-                _selectedCharacter = charToPlace; // Keep selected
+                _selectedCharacter = _unitSlots[slotIndex];
                 UpdateAllUI();
             }
             else
             {
-                // Select the character in the slot if any
-                if (_unitSlots[slotIndex] != null)
-                {
-                    _selectedCharacter = _unitSlots[slotIndex];
-                    UpdateAllUI();
-                }
+                // If empty slot clicked, maybe deselect? Or do nothing.
+                // Let's deselect to clear detail panel
+                _selectedCharacter = null;
+                UpdateAllUI();
             }
         }
 
@@ -559,6 +527,66 @@ namespace Arcana.Tactics.UI
 
 
 
+        public void OnCharacterDroppedOnSlot(CharacterData charData, int slotIndex)
+        {
+            // Check cost
+            int currentTotalCost = CalculateTotalCost();
+            int costDiff = charData.cost;
+            if (_unitSlots[slotIndex] != null) costDiff -= _unitSlots[slotIndex].cost;
+
+            // If moving from another slot (should be handled by OnSlotDroppedOnSlot, but just in case)
+            int existingIndex = GetSlotIndex(charData);
+            if (existingIndex != -1)
+            {
+                _unitSlots[existingIndex] = null;
+                costDiff = 0;
+            }
+
+            if (currentTotalCost + costDiff > maxCost)
+            {
+                Debug.LogWarning("Cost Limit Exceeded!");
+                return;
+            }
+
+            _unitSlots[slotIndex] = charData;
+
+            // Initialize coding data if needed
+            if (!_codingData.ContainsKey(charData.id))
+            {
+                _codingData[charData.id] = _dataManager.CreateDefaultPlan(charData);
+            }
+
+            _selectedCharacter = charData;
+            UpdateAllUI();
+        }
+
+        public void OnSlotDroppedOnSlot(int sourceSlotIndex, int targetSlotIndex)
+        {
+            if (sourceSlotIndex == targetSlotIndex) return;
+
+            // Swap or Move
+            CharacterData sourceChar = _unitSlots[sourceSlotIndex];
+            CharacterData targetChar = _unitSlots[targetSlotIndex];
+
+            // Cost check is not needed for swap if both exist, or move if target is empty
+            // But if target has char and source has char, cost sum remains same.
+            // If target has char and source is empty (impossible in drag), ...
+
+            _unitSlots[targetSlotIndex] = sourceChar;
+            _unitSlots[sourceSlotIndex] = targetChar;
+
+            UpdateAllUI();
+        }
+
+        public void OnSlotDroppedOnPool(int sourceSlotIndex)
+        {
+            if (_unitSlots[sourceSlotIndex] != null)
+            {
+                _unitSlots[sourceSlotIndex] = null;
+                // Optional: Clear data? No, keep it.
+                UpdateAllUI();
+            }
+        }
     }
 }
 
