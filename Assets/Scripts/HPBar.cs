@@ -22,6 +22,7 @@ public class HPBar : MonoBehaviour
     private Transform targetCharacter;
     private Camera mainCamera;
     private float targetValue;
+    private string characterName;
     
     void Start()
     {
@@ -68,7 +69,7 @@ public class HPBar : MonoBehaviour
     }
     
     // HP 바 초기화
-    public void Initialize(Transform character, float maxHp, float currentHp)
+    public void Initialize(Transform character, float maxHp, float currentHp, string name)
     {
         targetCharacter = character;
         
@@ -77,6 +78,10 @@ public class HPBar : MonoBehaviour
             float hpPercent = currentHp / maxHp;
             hpSlider.value = hpPercent;
             targetValue = hpPercent;
+            characterName = name;
+
+            GetComponentInChildren<TextMeshProUGUI>().text = characterName;            
+
             UpdateColor(hpPercent);
         }
     }

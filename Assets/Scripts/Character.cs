@@ -234,8 +234,8 @@ public class Character : MonoBehaviour
 
             if (hpBar != null)
             {
-                hpBar.Initialize(transform, maxHp, hp);
-                hpBar.SetOffset(hpBarOffset);
+                hpBar.Initialize(transform, maxHp, hp, characterName);
+                hpBar.SetOffset(hpBarOffset);                
             }
         }
     }
