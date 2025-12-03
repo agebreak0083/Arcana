@@ -336,6 +336,7 @@ namespace Arcana.Tactics
             public string name;
             public string description;
             public string model;
+            public List<string> advantage;
             public ClassStats stats;
         }
 

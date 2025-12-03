@@ -44,15 +44,38 @@ public class ClassStats
     public float GetCriticalRateValue() => GetStatValue(criticalRate) * 2f;       // 치명타: 2~12%
     public float GetGuardRateValue() => GetStatValue(guardRate) * 5f;             // 가드: 5~30%
     public float GetActionSpeedValue() => 50f + GetStatValue(actionSpeed) * 10f;  // 행동속도: 60~110
+
+    /// <summary>
+    /// ClassStats 객체의 복사본을 생성 (Deep Copy)
+    /// </summary>
+    public ClassStats Clone()
+    {
+        return new ClassStats
+        {
+            hp = this.hp,
+            physicalAttack = this.physicalAttack,
+            physicalDefense = this.physicalDefense,
+            magicalAttack = this.magicalAttack,
+            magicalDefense = this.magicalDefense,
+            accuracy = this.accuracy,
+            evasion = this.evasion,
+            criticalRate = this.criticalRate,
+            guardRate = this.guardRate,
+            actionSpeed = this.actionSpeed,
+            actionPoint = this.actionPoint,
+            passivePoint = this.passivePoint
+        };
+    }
 }
 
 [Serializable]
 public class CharacterClass
 {
-    public string name;             // 직업 이름
-    public string description;      // 직업 설명
-    public int cost;                // 코스트
-    public ClassStats stats;        // 스테이터스
+    public string name;                 // 직업 이름
+    public string description;          // 직업 설명
+    public int cost;                    // 코스트
+    public List<string> advantage;      // 유리한 상성 직업 목록
+    public ClassStats stats;            // 스테이터스
 }
 
 [Serializable]

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Arcana.Tactics;
 
 /// <summary>
 /// 스킬 데이터를 로드하고 관리하는 매니저
@@ -233,18 +234,76 @@ public class SkillManager : MonoBehaviour
         }
     }
 
-    // 데미지 계산 (간단한 예제)
-    private float CalculateDamage(float basePower, Character user, Character target, string damageType)
+    [Header("Battle Settings")]
+    public float defaultCriticalRate = 20f;      // 기본 치명타 확률 (%)
+    public float criticalDamageMultiplier = 1.5f; // 치명타 데미지 배율
+    public float advantageDamageMultiplier = 2.0f; // 상성 우위 데미지 배율
+
+    // 데미지 계산
+    private float CalculateDamage(float skillPower, Character user, Character target, string damageType)
     {
-        float damage = basePower;
+        // 1. 공격력 및 방어력 계산
+        float attackValue = 0f;
+        float defenseValue = 0f;
 
-        // 공격력 반영
-        damage += user.stats.GetPhysicalAttackValue() * 0.5f;
+        if (damageType == "magical")
+        {
+            attackValue = user.stats.GetMagicalAttackValue();
+            defenseValue = target.stats.GetMagicalDefenseValue();
+        }
+        else // physical or default
+        {
+            attackValue = user.stats.GetPhysicalAttackValue();
+            defenseValue = target.stats.GetPhysicalDefenseValue();
+        }
 
-        // 방어력 반영 (간단한 계산)
-        // TODO: 실제 게임에 맞는 데미지 공식 적용
+        // 2. 기본 데미지 공식: (공격력 - 방어력) x (위력/100)
+        // 방어력이 공격력보다 높으면 최소 1 데미지 보장
+        float baseDamage = Mathf.Max(1f, attackValue - defenseValue);
 
-        return damage;
+        // 스킬 위력이 0이면 데미지도 0 (버프/디버프 스킬 등)
+        if (skillPower <= 0) return 0;
+
+        float finalDamage = baseDamage * (skillPower / 100f);
+
+        // 3. 클래스 상성 보정
+        if (IsClassAdvantage(user.className, target.className))
+        {
+            finalDamage *= advantageDamageMultiplier;
+
+            if (BattleLogManager.Instance != null)
+            {
+                BattleLogManager.Instance.AddLog($"  <color=#FFFF00>[상성 우위!]</color> 데미지 {advantageDamageMultiplier}배 적용");
+            }
+        }
+
+        // 4. 치명타 계산
+        // 캐릭터의 치명타율 스탯 사용
+        float currentCriticalRate = user.stats.GetCriticalRateValue();
+
+        if (UnityEngine.Random.Range(0f, 100f) < currentCriticalRate)
+        {
+            finalDamage *= criticalDamageMultiplier;
+
+            if (BattleLogManager.Instance != null)
+            {
+                BattleLogManager.Instance.AddLog($"  <color=#FF4500>[치명타!]</color> 데미지 {criticalDamageMultiplier}배 적용");
+            }
+        }
+
+        // 최종 데미지 반올림, 최소 1 보장
+        return Mathf.Max(1f, Mathf.Round(finalDamage));
+    }
+
+    // 클래스 상성 확인
+    private bool IsClassAdvantage(string attackerClass, string targetClass)
+    {
+        var classInfo = TacticsDataManager.Instance.GetClassInfo(attackerClass);
+        if (classInfo != null && classInfo.advantage != null)
+        {
+            return classInfo.advantage.Contains(targetClass);
+        }
+        return false;
     }
 
     // 스킬 정보 문자열로 반환

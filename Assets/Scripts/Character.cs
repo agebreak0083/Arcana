@@ -69,14 +69,14 @@ public class Character : MonoBehaviour
             return;
         }
 
-        // ClassStats 객체 할당
-        stats = classInfo.stats;
+        // ClassStats 객체 복사 (각 캐릭터가 독립적인 stats를 가지도록)
+        stats = classInfo.stats.Clone();
 
         // HP 적용 (등급을 실제 수치로 변환)
         maxHp = stats.GetHPValue();
         hp = maxHp;
 
-        Debug.Log($"{characterName}에게 {className} 직업 스탯 적용 완료");
+        Debug.Log($"{characterName}에게 {className} 직업 스탯 적용 완료 (AP: {stats.actionPoint}, PP: {stats.passivePoint})");
     }
 
     public void SetStrategyName()
@@ -311,6 +311,20 @@ public class Character : MonoBehaviour
 
         stats.actionPoint -= skill.costAP;
         stats.passivePoint -= skill.costPP;
+
+        // 전투 로그에 AP/PP 소모 및 남은 포인트 기록
+        if (BattleLogManager.Instance != null)
+        {
+            string apInfo = skill.costAP > 0 ? $"<color=#FF6B6B>AP -{skill.costAP}</color> (남은 AP: <color=#87CEEB>{stats.actionPoint}</color>)" : "";
+            string ppInfo = skill.costPP > 0 ? $"<color=#FFA500>PP -{skill.costPP}</color> (남은 PP: <color=#90EE90>{stats.passivePoint}</color>)" : "";
+
+            if (!string.IsNullOrEmpty(apInfo) || !string.IsNullOrEmpty(ppInfo))
+            {
+                string separator = (!string.IsNullOrEmpty(apInfo) && !string.IsNullOrEmpty(ppInfo)) ? ", " : "";
+                BattleLogManager.Instance.AddLog($"  → {apInfo}{separator}{ppInfo}");
+            }
+        }
+
         BattleManager.Instance.AddWaitFinished(this);
         BattleManager.Instance.AddWaitFinished(target);
 
