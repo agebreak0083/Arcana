@@ -176,9 +176,10 @@ public class SkillManager : MonoBehaviour
                 if (target != null)
                 {
                     // Skill.power 대신 effect.value를 사용 (JSON 구조상 power 필드가 없음)
-                    float damage = CalculateDamage(effect.value, user, target, effect.damageType);
-                    target.TakeDamage(damage);
-                    Debug.Log($"{target.characterName}에게 {damage} 데미지!");
+                    bool isCritical;
+                    float damage = CalculateDamage(effect.value, user, target, effect.damageType, out isCritical);
+                    target.TakeDamage(damage, isCritical);
+                    Debug.Log($"{target.characterName}에게 {damage} 데미지!{(isCritical ? " (크리티컬!)" : "")}");
 
                     // 전투 로그에 데미지 기록
                     if (BattleLogManager.Instance != null)
@@ -232,8 +233,10 @@ public class SkillManager : MonoBehaviour
     public float advantageDamageMultiplier = 2.0f; // 상성 우위 데미지 배율
 
     // 데미지 계산
-    private float CalculateDamage(float skillPower, Character user, Character target, string damageType)
+    private float CalculateDamage(float skillPower, Character user, Character target, string damageType, out bool isCritical)
     {
+        isCritical = false;
+
         // 1. 공격력 및 방어력 계산
         float attackValue = 0f;
         float defenseValue = 0f;
@@ -275,6 +278,7 @@ public class SkillManager : MonoBehaviour
 
         if (UnityEngine.Random.Range(0f, 100f) < currentCriticalRate)
         {
+            isCritical = true;
             finalDamage *= criticalDamageMultiplier;
 
             if (BattleLogManager.Instance != null)

@@ -12,6 +12,7 @@ public class BattleUI : MonoBehaviour
 
     public GameObject victoryPanelPrefab;
     public GameObject defeatPanelPrefab;
+    public GameObject damageTextPrefab; // 데미지 텍스트 프리팹
 
     [Header("Animation Settings")]
     public float skillNameDisplayTime = 2f; // 스킬 이름 표시 시간
@@ -200,6 +201,62 @@ public class BattleUI : MonoBehaviour
         {
             GameObject victoryPanel = Instantiate(victoryPanelPrefab);
             victoryPanel.transform.SetParent(transform, false);
+        }
+    }
+
+    /// <summary>
+    /// 데미지 텍스트 표시
+    /// </summary>
+    /// <param name="damage">데미지 양</param>
+    /// <param name="worldPosition">월드 좌표 (캐릭터 위치)</param>
+    /// <param name="isCritical">크리티컬 여부</param>
+    public void ShowDamageText(int damage, Vector3 worldPosition, bool isCritical = false)
+    {
+        if (damageTextPrefab == null)
+        {
+            Debug.LogWarning("BattleUI: damageTextPrefab is not assigned!");
+            return;
+        }
+
+        // 캔버스 찾기
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas == null)
+        {
+            canvas = FindFirstObjectByType<Canvas>();
+        }
+
+        if (canvas == null)
+        {
+            Debug.LogError("BattleUI: Canvas not found for damage text!");
+            return;
+        }
+
+        // 데미지 텍스트 생성
+        GameObject damageTextObj = Instantiate(damageTextPrefab, canvas.transform);
+
+        // 월드 좌표를 스크린 좌표로 변환
+        Camera mainCamera = Camera.main;
+        if (mainCamera != null)
+        {
+            Vector3 screenPos = mainCamera.WorldToScreenPoint(worldPosition);
+
+            // 스크린 좌표를 캔버스 로컬 좌표로 변환
+            RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+            Vector2 localPoint;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvasRect,
+                screenPos,
+                canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : mainCamera,
+                out localPoint);
+
+            damageTextObj.GetComponent<RectTransform>().localPosition = localPoint;
+        }
+
+        // DamageText 컴포넌트 설정
+        DamageText damageText = damageTextObj.GetComponent<DamageText>();
+        if (damageText != null)
+        {
+            damageText.Setup(damage, isCritical);
         }
     }
 }

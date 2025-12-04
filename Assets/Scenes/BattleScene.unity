@@ -745,6 +745,7 @@ MonoBehaviour:
   highSpeedBtn: {fileID: 1502527388}
   victoryPanelPrefab: {fileID: 151767564086076965, guid: cc943b71bfdfd084bbeffc8167b90a28, type: 3}
   defeatPanelPrefab: {fileID: 151767564086076965, guid: 6ada3051dceda894babd588cf4b5b0e6, type: 3}
+  damageTextPrefab: {fileID: 2462066039525638164, guid: 6cdfa54aeb76f9049b97760efe662b28, type: 3}
   skillNameDisplayTime: 2
 --- !u!114 &454355981
 MonoBehaviour:

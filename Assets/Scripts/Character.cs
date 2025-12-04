@@ -213,13 +213,21 @@ public class Character : MonoBehaviour
     }
 
     // HP 변경
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, bool isCritical = false)
     {
         Animator animator = GetComponent<Animator>();
         StartCoroutine(PlayAnimationAndWait(animator, "Damaged@loop"));
 
         hp = Mathf.Max(0, hp - damage);
         UpdateHPBar();
+
+        // 데미지 텍스트 표시
+        if (BattleUI.Instance != null)
+        {
+            // 캐릭터 머리 위 위치 계산 (약간 위로)
+            Vector3 damageTextPosition = transform.position + Vector3.up * 1f;
+            BattleUI.Instance.ShowDamageText(Mathf.RoundToInt(damage), damageTextPosition, isCritical);
+        }
 
         if (hp <= 0)
         {
