@@ -243,12 +243,19 @@ namespace Arcana.Tactics.UI
                     card.Setup(charData, this, false);
                 }
 
-                // Add DropHandler to the ScrollView for dragging back to pool
-                var scrollView = characterPoolContainer.GetComponentInParent<ScrollRect>();
-                if (scrollView != null)
+                // Add DropHandler to the characterPoolContainer for dragging back to pool
+                if (characterPoolContainer != null)
                 {
-                    var dropHandler = scrollView.gameObject.GetComponent<CharacterPoolDropHandler>();
-                    if (dropHandler == null) dropHandler = scrollView.gameObject.AddComponent<CharacterPoolDropHandler>();
+                    // Ensure container has Image for raycast
+                    var containerImage = characterPoolContainer.GetComponent<Image>();
+                    if (containerImage == null)
+                    {
+                        containerImage = characterPoolContainer.gameObject.AddComponent<Image>();
+                        containerImage.color = new Color(0, 0, 0, 0); // Transparent
+                    }
+
+                    var dropHandler = characterPoolContainer.GetComponent<CharacterPoolDropHandler>();
+                    if (dropHandler == null) dropHandler = characterPoolContainer.gameObject.AddComponent<CharacterPoolDropHandler>();
                     dropHandler.Setup(this);
                 }
             }

@@ -36,6 +36,8 @@ namespace Arcana.Tactics.UI
             _draggable.data = slotIndex;
             _draggable.dragImageSource = characterPortrait;
 
+            Debug.Log($"[FormationSlotUI] Setup slot {index} - DraggableItem: {_draggable != null}, dragImageSource: {characterPortrait != null}");
+
             UpdateState(null);
         }
 
@@ -64,6 +66,7 @@ namespace Arcana.Tactics.UI
             if (_draggable != null)
             {
                 _draggable.isDraggable = (character != null);
+                Debug.Log($"[FormationSlotUI] Slot {slotIndex} UpdateState - Character: {character?.characterName ?? "null"}, isDraggable: {_draggable.isDraggable}, sprite: {characterPortrait.sprite != null}");
             }
         }
 

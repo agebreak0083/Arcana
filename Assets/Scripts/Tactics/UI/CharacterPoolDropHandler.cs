@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 namespace Arcana.Tactics.UI
 {
-    [RequireComponent(typeof(Image))]
     public class CharacterPoolDropHandler : MonoBehaviour, IDropHandler
     {
         private TacticsUIManager _manager;
@@ -12,9 +11,10 @@ namespace Arcana.Tactics.UI
         private void Awake()
         {
             var img = GetComponent<Image>();
-            if (img.sprite == null)
+            if (img != null && img.sprite == null)
             {
                 img.color = new Color(0, 0, 0, 0); // Transparent
+                img.raycastTarget = true; // Ensure it receives raycasts
             }
         }
 

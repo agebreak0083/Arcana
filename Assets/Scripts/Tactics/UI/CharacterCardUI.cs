@@ -39,6 +39,8 @@ namespace Arcana.Tactics.UI
             _draggable.data = data;
             _draggable.dragImageSource = portraitImage;
 
+            Debug.Log($"[CharacterCardUI] Setup {data.characterName} - DraggableItem: {_draggable != null}, dragImageSource: {portraitImage != null}, sprite: {portraitImage.sprite != null}, isDeployed: {isDeployed}");
+
             UpdateVisuals();
         }
 
@@ -62,9 +64,12 @@ namespace Arcana.Tactics.UI
             // If we disable it, the layout group will adjust.
             gameObject.SetActive(!_isDeployed);
 
+            Debug.Log($"[CharacterCardUI] UpdateVisuals {_data?.characterName ?? "null"} - isDeployed: {_isDeployed}, active: {!_isDeployed}");
+
             if (_draggable != null)
             {
                 _draggable.isDraggable = !_isDeployed;
+                Debug.Log($"[CharacterCardUI] DraggableItem isDraggable set to: {_draggable.isDraggable}");
             }
         }
 
