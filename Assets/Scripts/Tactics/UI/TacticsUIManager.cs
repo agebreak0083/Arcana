@@ -5,6 +5,7 @@ using TMPro;
 using Arcana.Tactics.Data;
 using static Arcana.Tactics.TacticsDataManager;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 namespace Arcana.Tactics.UI
 {
@@ -15,6 +16,7 @@ namespace Arcana.Tactics.UI
         public int maxCost = 15;
 
         [Header("UI Containers")]
+        public Transform characterPoolPanel;
         public Transform characterPoolContainer;
         public Transform formationGridContainer; // Should have 6 slots as children
         public Transform codingListContainer;
@@ -31,9 +33,7 @@ namespace Arcana.Tactics.UI
         public Image detailPortrait;
         public TextMeshProUGUI detailCost;
         public TextMeshProUGUI detailName;
-        public TextMeshProUGUI detailClass;
-        public TextMeshProUGUI detailArcana;
-        public TextMeshProUGUI detailSpeed;
+        public TextMeshProUGUI detailClass;        
         public TextMeshProUGUI detailDesc;
         public Button removeFromUnitBtn;
 
@@ -85,6 +85,7 @@ namespace Arcana.Tactics.UI
                 GameObject go = GameObject.Find("PoolScrollView");
                 if (go != null)
                 {
+                    characterPoolPanel = go.transform.parent;
                     Transform viewport = go.transform.Find("Viewport");
                     if (viewport != null) characterPoolContainer = viewport.Find("Content");
                 }
@@ -147,6 +148,11 @@ namespace Arcana.Tactics.UI
                     Transform t = RecursiveFind(characterDetailPanel.transform, "Name");
                     if (t != null) detailName = t.GetComponent<TextMeshProUGUI>();
                 }
+                if(detailClass == null)
+                {
+                    Transform t = RecursiveFind(characterDetailPanel.transform, "Class");
+                    if (t != null) detailClass = t.GetComponent<TextMeshProUGUI>();
+                }
                 if (detailDesc == null)
                 {
                     Transform t = RecursiveFind(characterDetailPanel.transform, "Description");
@@ -156,11 +162,7 @@ namespace Arcana.Tactics.UI
                 {
                     Transform t = RecursiveFind(characterDetailPanel.transform, "RemoveButton");
                     if (t != null) removeFromUnitBtn = t.GetComponent<Button>();
-                }
-
-                if (detailClass == null) detailClass = FindInfoValue("클래스:");
-                if (detailArcana == null) detailArcana = FindInfoValue("고유 아르카나:");
-                if (detailSpeed == null) detailSpeed = FindInfoValue("행동 속도:");
+                }                
 
                 if (detailStatHP == null) detailStatHP = FindDetailStat("Value_HP");
                 if (detailStatPhysAtk == null) detailStatPhysAtk = FindDetailStat("Value_PhysAtk");
@@ -178,28 +180,6 @@ namespace Arcana.Tactics.UI
 
             if (characterCardPrefab == null) characterCardPrefab = Resources.Load<GameObject>("Prefabs/UI/CharacterCardPrefab");
             if (tacticRowPrefab == null) tacticRowPrefab = Resources.Load<GameObject>("Prefabs/UI/TacticRowPrefab");
-        }
-
-        private TextMeshProUGUI FindInfoValue(string labelStart)
-        {
-            if (characterDetailPanel == null) return null;
-            Transform infoArea = RecursiveFind(characterDetailPanel.transform, "InfoArea");
-            if (infoArea == null) return null;
-
-            foreach (Transform child in infoArea)
-            {
-                Transform labelObj = child.Find("Label");
-                if (labelObj != null)
-                {
-                    var labelTmp = labelObj.GetComponent<TextMeshProUGUI>();
-                    if (labelTmp != null && labelTmp.text.StartsWith(labelStart))
-                    {
-                        Transform valueObj = child.Find("Value");
-                        if (valueObj != null) return valueObj.GetComponent<TextMeshProUGUI>();
-                    }
-                }
-            }
-            return null;
         }
 
         private TextMeshProUGUI FindDetailStat(string objName)
@@ -244,18 +224,10 @@ namespace Arcana.Tactics.UI
                 }
 
                 // Add DropHandler to the characterPoolContainer for dragging back to pool
-                if (characterPoolContainer != null)
+                if (characterPoolPanel != null)
                 {
-                    // Ensure container has Image for raycast
-                    var containerImage = characterPoolContainer.GetComponent<Image>();
-                    if (containerImage == null)
-                    {
-                        containerImage = characterPoolContainer.gameObject.AddComponent<Image>();
-                        containerImage.color = new Color(0, 0, 0, 0); // Transparent
-                    }
-
-                    var dropHandler = characterPoolContainer.GetComponent<CharacterPoolDropHandler>();
-                    if (dropHandler == null) dropHandler = characterPoolContainer.gameObject.AddComponent<CharacterPoolDropHandler>();
+                    var dropHandler = characterPoolPanel.GetComponent<CharacterPoolDropHandler>();
+                    if (dropHandler == null) dropHandler = characterPoolPanel.gameObject.AddComponent<CharacterPoolDropHandler>();
                     dropHandler.Setup(this);
                 }
             }
@@ -419,9 +391,7 @@ namespace Arcana.Tactics.UI
             if (c.portrait != null && detailPortrait != null) detailPortrait.sprite = c.portrait;
             if (detailCost != null) detailCost.text = c.cost.ToString();
             if (detailName != null) detailName.text = c.characterName;
-            if (detailClass != null) detailClass.text = c.characterClass;
-            if (detailArcana != null) detailArcana.text = c.arcana;
-            if (detailSpeed != null) detailSpeed.text = c.speed.ToString();
+            if (detailClass != null) detailClass.text = c.characterClass;            
 
             // Get description from ClassList.json based on character's class
             if (detailDesc != null)
@@ -564,6 +534,12 @@ namespace Arcana.Tactics.UI
             }
 
             _selectedCharacter = charData;
+            StartCoroutine(UpdateAllUINextFrame());
+        }
+
+        IEnumerator UpdateAllUINextFrame()
+        {
+            yield return new WaitForEndOfFrame();
             UpdateAllUI();
         }
 
@@ -582,17 +558,20 @@ namespace Arcana.Tactics.UI
             _unitSlots[targetSlotIndex] = sourceChar;
             _unitSlots[sourceSlotIndex] = targetChar;
 
-            UpdateAllUI();
+            StartCoroutine(UpdateAllUINextFrame());
+
+            _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);
         }
 
         public void OnSlotDroppedOnPool(int sourceSlotIndex)
         {
-            if (_unitSlots[sourceSlotIndex] != null)
-            {
-                _unitSlots[sourceSlotIndex] = null;
-                // Optional: Clear data? No, keep it.
-                UpdateAllUI();
-            }
+            if (_unitSlots[sourceSlotIndex] == null) return;
+
+            _unitSlots[sourceSlotIndex] = null;
+            // Optional: Clear data? No, keep it.
+            StartCoroutine(UpdateAllUINextFrame());
+
+            _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);
         }
     }
 }

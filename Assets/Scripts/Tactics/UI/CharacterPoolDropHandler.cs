@@ -13,7 +13,6 @@ namespace Arcana.Tactics.UI
             var img = GetComponent<Image>();
             if (img != null && img.sprite == null)
             {
-                img.color = new Color(0, 0, 0, 0); // Transparent
                 img.raycastTarget = true; // Ensure it receives raycasts
             }
         }

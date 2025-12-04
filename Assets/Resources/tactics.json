@@ -2,36 +2,6 @@
   "positions": [
     {
       "position":"1",
-      "name":"hina3", 
-      "tactics": [
-            {
-            "class": "위치",
-            "plan": [
-                {
-                "skill": "아이스 샷",
-                "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "매직 미사일",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "아이스 코핀",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                }
-            ]
-            }
-        ]      
-    },
-    {
-      "position":"2",
-      "name":""
-    },
-    {
-      "position":"3",
       "name":"hina1", 
       "tactics": [
             {
@@ -39,7 +9,7 @@
             "plan": [
                 {
                 "skill": "가드 슬래시",
-                "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                "condition1": "조건 없음",
                 "condition2": "조건 없음"
                 },
                 {
@@ -57,11 +27,11 @@
         ]      
     },
     {
-      "position":"4",
+      "position":"2",
       "name":""
     },
     {
-      "position":"5",
+      "position":"3",
       "name":"hina2", 
       "tactics": [
             {
@@ -69,7 +39,7 @@
             "plan": [
                 {
                 "skill": "싱글 샷",
-                "condition1": "후열의 [적/아군] 우선",
+                "condition1": "조건 없음",
                 "condition2": "조건 없음"
                 },
                 {
@@ -79,6 +49,36 @@
                 },
                 {
                 "skill": "라인 샷",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                }
+            ]
+            }
+        ]      
+    },
+    {
+      "position":"4",
+      "name":""
+    },
+    {
+      "position":"5",
+      "name":"hina3", 
+      "tactics": [
+            {
+            "class": "위치",
+            "plan": [
+                {
+                "skill": "아이스 샷",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "매직 미사일",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "아이스 코핀",
                 "condition1": "조건 없음",
                 "condition2": "조건 없음"
                 }
