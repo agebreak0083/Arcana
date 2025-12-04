@@ -9,7 +9,7 @@
             "plan": [
                 {
                 "skill": "가드 슬래시",
-                "condition1": "조건 없음",
+                "condition1": "HP가 가장 낮은 [적/아군] 우선",
                 "condition2": "조건 없음"
                 },
                 {
@@ -32,23 +32,23 @@
     },
     {
       "position":"3",
-      "name":"hina2", 
+      "name":"hina3", 
       "tactics": [
             {
-            "class": "헌터",
+            "class": "위치",
             "plan": [
                 {
-                "skill": "싱글 샷",
+                "skill": "아이스 샷",
+                "condition1": "HP가 가장 높은 [적/아군] 우선",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "매직 미사일",
                 "condition1": "조건 없음",
                 "condition2": "조건 없음"
                 },
                 {
-                "skill": "더블 샷",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "라인 샷",
+                "skill": "아이스 코핀",
                 "condition1": "조건 없음",
                 "condition2": "조건 없음"
                 }
@@ -62,23 +62,23 @@
     },
     {
       "position":"5",
-      "name":"hina3", 
+      "name":"hina2", 
       "tactics": [
             {
-            "class": "위치",
+            "class": "헌터",
             "plan": [
                 {
-                "skill": "아이스 샷",
+                "skill": "싱글 샷",
+                "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "더블 샷",
                 "condition1": "조건 없음",
                 "condition2": "조건 없음"
                 },
                 {
-                "skill": "매직 미사일",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "아이스 코핀",
+                "skill": "라인 샷",
                 "condition1": "조건 없음",
                 "condition2": "조건 없음"
                 }

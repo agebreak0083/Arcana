@@ -82,24 +82,25 @@ namespace Arcana.Tactics
 
             // 2. Load CharacterPool (Dynamic Data)
             string poolJson = "";
-            string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "CharacterPool.json");
 
-            if (System.IO.File.Exists(persistentPath))
+            // Try to load from PlayerPrefs first
+            if (PlayerPrefs.HasKey("CharacterPool"))
             {
-                poolJson = System.IO.File.ReadAllText(persistentPath);
-                Debug.Log("Loaded CharacterPool.json from PersistentDataPath");
+                poolJson = PlayerPrefs.GetString("CharacterPool");
+                Debug.Log("Loaded CharacterPool from PlayerPrefs");
             }
             else
             {
+                // Fallback to Resources if no PlayerPrefs data exists
                 TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
                 if (poolAsset != null)
                 {
                     poolJson = poolAsset.text;
-                    Debug.Log("Loaded CharacterPool.json from Resources");
+                    Debug.Log("Loaded CharacterPool from Resources (no PlayerPrefs data found)");
                 }
                 else
                 {
-                    Debug.LogError("Failed to load CharacterPool.json");
+                    Debug.LogError("Failed to load CharacterPool from both PlayerPrefs and Resources");
                     return;
                 }
             }
@@ -493,7 +494,7 @@ namespace Arcana.Tactics
         }
 
         /// <summary>
-        /// CharacterPool.json에 캐릭터 및 작전 정보 저장
+        /// CharacterPool 데이터를 PlayerPrefs에 저장
         /// </summary>
         public void SaveTacticsToFile(Dictionary<string, TacticsPlan> codingData)
         {
@@ -572,21 +573,21 @@ namespace Arcana.Tactics
                 }
                 json += "]\n";
 
-                // 1. Save to PersistentDataPath
-                string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "CharacterPool.json");
-                System.IO.File.WriteAllText(persistentPath, json);
-                Debug.Log($"Tactics saved to {persistentPath}");
+                // Save to PlayerPrefs
+                PlayerPrefs.SetString("CharacterPool", json);
+                PlayerPrefs.Save();
+                Debug.Log("CharacterPool data saved to PlayerPrefs");
 
 #if UNITY_EDITOR
-                // 2. Save to Resources (Editor only)
+                // Also save to Resources folder in editor for inspection
                 string resourcesPath = System.IO.Path.Combine(Application.dataPath, "Resources/CharacterPool.json");
                 System.IO.File.WriteAllText(resourcesPath, json);
-                Debug.Log($"Tactics saved to {resourcesPath}");
+                Debug.Log($"CharacterPool also saved to {resourcesPath} (Editor only)");
 #endif
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"Failed to save tactics: {e.Message}");
+                Debug.LogError($"Failed to save CharacterPool: {e.Message}");
             }
         }
 

@@ -32,7 +32,7 @@
             "plan": [
                 {
                 "skill": "싱글 샷",
-                "condition1": "후열의 [적/아군] 우선",
+                "condition1": "HP가 가장 낮은 [적/아군] 우선",
                 "condition2": "조건 없음"
                 },
                 {
@@ -57,7 +57,7 @@
             "plan": [
                 {
                 "skill": "아이스 샷",
-                "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                "condition1": "HP가 가장 높은 [적/아군] 우선",
                 "condition2": "조건 없음"
                 },
                 {

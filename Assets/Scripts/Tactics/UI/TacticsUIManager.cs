@@ -311,6 +311,7 @@ namespace Arcana.Tactics.UI
 
                 UpdateCodingPanel(); // Just refresh coding panel
                 _dataManager.SaveTacticsToFile(_codingData); // Save to CharacterPool.json
+                _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);
             }
             conditionModal.Close();
         }
