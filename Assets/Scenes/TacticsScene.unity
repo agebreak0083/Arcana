@@ -2807,7 +2807,7 @@ GameObject:
   - component: {fileID: 981827841}
   - component: {fileID: 981827843}
   m_Layer: 0
-  m_Name: TactisManager
+  m_Name: TactisUIManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2827,6 +2827,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Arcana.Tactics.TacticsManager
   availableCharacters: []
   maxCost: 15
+  characterPoolPanel: {fileID: 0}
   characterPoolContainer: {fileID: 0}
   formationGridContainer: {fileID: 0}
   codingListContainer: {fileID: 0}
@@ -2840,8 +2841,6 @@ MonoBehaviour:
   detailCost: {fileID: 0}
   detailName: {fileID: 0}
   detailClass: {fileID: 0}
-  detailArcana: {fileID: 0}
-  detailSpeed: {fileID: 0}
   detailDesc: {fileID: 0}
   removeFromUnitBtn: {fileID: 0}
   detailStatHP: {fileID: 0}
