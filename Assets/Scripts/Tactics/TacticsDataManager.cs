@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Arcana.Tactics.Data;
+using UnityEngine.Networking;
 
 namespace Arcana.Tactics
 {
@@ -42,7 +43,9 @@ namespace Arcana.Tactics
 
             LoadSkillList();
             LoadClassList();
-            LoadCharactersFromJSON();
+
+            // Wait for characters to load from Web
+            yield return StartCoroutine(LoadCharactersFromWeb());
 
             _playerFormationLoadResult = new FormationLoadResult
             {
@@ -108,16 +111,43 @@ namespace Arcana.Tactics
         /// <summary>
         /// JSON 파일에서 캐릭터 데이터 로드
         /// </summary>
-        public void LoadCharactersFromJSON()
+        private const string CharacterListUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeCHZPMcs6QJuZeS7k2MosrZrhChNL5FrRH3ePRd5fQx-O-nSUmR4VwZI6VGhHg65tFcWMmIr2tBha/pub?output=csv";
+
+        /// <summary>
+        /// 웹 CSV에서 캐릭터 데이터 로드 (Web Request)
+        /// </summary>
+        private System.Collections.IEnumerator LoadCharactersFromWeb()
         {
             availableCharacters = new List<CharacterData>();
+            CharacterDefinition[] allCharacters = null;
 
-            // 1. Load CharacterList (Static Data)
-            TextAsset listAsset = Resources.Load<TextAsset>("Table/CharacterList");
-            if (listAsset == null)
+            // 1. Fetch CSV from Web
+            using (UnityWebRequest www = UnityWebRequest.Get(CharacterListUrl))
             {
-                Debug.LogError("Failed to load CharacterList.json");
-                return;
+                yield return www.SendWebRequest();
+
+                if (www.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError($"Failed to load CharacterList from Web: {www.error}. Fallback to local.");
+                    // Fallback to local JSON
+                    TextAsset listAsset = Resources.Load<TextAsset>("Table/CharacterList");
+                    if (listAsset != null)
+                    {
+                        allCharacters = JsonHelper.FromJson<CharacterDefinition>(listAsset.text);
+                    }
+                }
+                else
+                {
+                    Debug.Log("Successfully loaded CharacterList from Web CSV.");
+                    string csvText = www.downloadHandler.text;
+                    allCharacters = ParseCharacterCSV(csvText);
+                }
+            }
+
+            if (allCharacters == null)
+            {
+                Debug.LogError("Failed to load Character definitions from both Web and Local.");
+                yield break;
             }
 
             // 2. Load CharacterPool (Dynamic Data)
@@ -141,12 +171,11 @@ namespace Arcana.Tactics
                 else
                 {
                     Debug.LogError("Failed to load CharacterPool from both PlayerPrefs and Resources");
-                    return;
+                    yield break;
                 }
             }
 
-            // 3. Parse JSON
-            CharacterDefinition[] allCharacters = JsonHelper.FromJson<CharacterDefinition>(listAsset.text);
+            // 3. Parse Pool JSON
             CharacterPoolItem[] myPool = JsonHelper.FromJson<CharacterPoolItem>(poolJson);
 
             // 4. Match and Create Data
@@ -172,7 +201,15 @@ namespace Arcana.Tactics
                     // Load Portrait
                     string spriteName = System.IO.Path.GetFileNameWithoutExtension(def.Portrait);
                     newData.portrait = Resources.Load<Sprite>($"Portraits/{spriteName}");
-                    if (newData.portrait == null) newData.portrait = Resources.Load<Sprite>(spriteName);
+                    if (newData.portrait == null)
+                    {
+                        // Try loading without extension if the csv had it, or vice versa
+                        newData.portrait = Resources.Load<Sprite>(spriteName);
+                    }
+                    if (newData.portrait == null)
+                    {
+                        Debug.LogWarning($"Portrait not found for {def.Name}: {def.Portrait}");
+                    }
 
                     // Assign skills based on class
                     newData.skills = new List<SkillData>();
@@ -218,6 +255,57 @@ namespace Arcana.Tactics
             }
 
             Debug.Log($"Loaded {availableCharacters.Count} characters");
+        }
+
+        private CharacterDefinition[] ParseCharacterCSV(string csvText)
+        {
+            var list = new List<CharacterDefinition>();
+            string[] lines = csvText.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+
+            // Assume header is first line or check content
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string line = lines[i].Trim();
+                if (string.IsNullOrEmpty(line)) continue;
+
+                // Simple comma split (assuming no commas in values)
+                string[] parts = line.Split(',');
+
+                // Skip header (Name,Portrait,Class,Cost)
+                if (parts.Length >= 4 && parts[0] == "Name" && parts[2] == "Class")
+                    continue;
+
+                if (parts.Length >= 4)
+                {
+                    CharacterDefinition def = new CharacterDefinition();
+                    def.Name = parts[0].Trim();
+                    def.Portrait = parts[1].Trim();
+                    def.Class = parts[2].Trim();
+
+                    if (int.TryParse(parts[3].Trim(), out int cost))
+                    {
+                        def.Cost = cost;
+                    }
+                    else
+                    {
+                        def.Cost = 2; // default
+                    }
+
+                    list.Add(def);
+                }
+            }
+            return list.ToArray();
+        }
+
+        /// <summary>
+        /// (Deprecated) JSON 파일에서 캐릭터 데이터 로드 - Kept for compatibility if called externally, but now just starts the coroutine
+        /// </summary>
+        public void LoadCharactersFromJSON()
+        {
+            // This is now async in LoadAllDataAsync. 
+            // If called synchronously from outside, it won't work as expected for Web Request.
+            Debug.LogWarning("LoadCharactersFromJSON is deprecated. Use async loading.");
+            // We can't easily wait here.
         }
 
         /// <summary>
@@ -746,7 +834,7 @@ namespace Arcana.Tactics
                         }
 
                         // Username 설정 (tacticsJson 안에 포함된 username 사용)
-                        _enemyFormationLoadResult.username = username;                        
+                        _enemyFormationLoadResult.username = username;
 
                         // Load each position
                         foreach (var posData in tacticsData.positions)
