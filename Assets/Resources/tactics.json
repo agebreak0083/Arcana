@@ -1,63 +1,12 @@
 {
- "username": "AGEBREAK-WO2_2512062032",
+ "username": "AGEBREAK-WO2_2512062047",
  "positions": [
     {
       "position":"1",
-      "name":"hina1", 
-      "tactics": [
-            {
-            "class": "파이터",
-            "plan": [
-                {
-                "skill": "가드 슬래시",
-                "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "실드 배시",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "디펜더",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "---",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "---",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "가드 슬래시",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "실드 배시",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                },
-                {
-                "skill": "---",
-                "condition1": "조건 없음",
-                "condition2": "조건 없음"
-                }
-            ]
-            }
-        ]      
-    },
-    {
-      "position":"2",
       "name":""
     },
     {
-      "position":"3",
+      "position":"2",
       "name":"hina3", 
       "tactics": [
             {
@@ -108,11 +57,66 @@
         ]      
     },
     {
-      "position":"4",
+      "position":"3",
       "name":""
     },
     {
+      "position":"4",
+      "name":"hina1", 
+      "tactics": [
+            {
+            "class": "파이터",
+            "plan": [
+                {
+                "skill": "가드 슬래시",
+                "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "실드 배시",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "디펜더",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "---",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "---",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "가드 슬래시",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "실드 배시",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                },
+                {
+                "skill": "---",
+                "condition1": "조건 없음",
+                "condition2": "조건 없음"
+                }
+            ]
+            }
+        ]      
+    },
+    {
       "position":"5",
+      "name":""
+    },
+    {
+      "position":"6",
       "name":"hina2", 
       "tactics": [
             {
@@ -161,10 +165,6 @@
             ]
             }
         ]      
-    },
-    {
-      "position":"6",
-      "name":""
     }
   ]
 }

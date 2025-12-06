@@ -385,25 +385,23 @@ namespace Arcana.Tactics
         {
             try
             {
-                // Build positions data
-                var tacticsData = new TacticsFileSaveData
-                {
-                    positions = new List<PositionSaveData>()
-                };
+                // Build positions data using unified structure
+                var positionsList = new List<PositionData>();
 
+                string username;
                 if (UserDataManager.Instance != null && UserDataManager.Instance.currentUserData != null)
                 {
                     // username : playername_날짜시간
-                    tacticsData.username = UserDataManager.Instance.currentUserData.playerName + "_" + DateTime.Now.ToString("yyMMddHHmm");
+                    username = UserDataManager.Instance.currentUserData.playerName + "_" + DateTime.Now.ToString("yyMMddHHmm");
                 }
                 else
                 {
-                    tacticsData.username = "Player_" + DateTime.Now.ToString("yyMMddHHmm");
+                    username = "Player_" + DateTime.Now.ToString("yyMMddHHmm");
                 }
 
                 for (int i = 0; i < 6; i++)
                 {
-                    var posData = new PositionSaveData
+                    var posData = new PositionData
                     {
                         position = (i + 1).ToString(),
                         name = ""
@@ -418,15 +416,10 @@ namespace Arcana.Tactics
                         // If this character has tactics data, add it
                         if (codingData.TryGetValue(character.id, out var plan))
                         {
-                            var tacticData = new TacticsSaveData
-                            {
-                                characterClass = character.characterClass,
-                                plan = new List<TacticRowSaveData>()
-                            };
-
+                            var tacticRowsList = new List<TacticRowData>();
                             foreach (var row in plan.rows)
                             {
-                                tacticData.plan.Add(new TacticRowSaveData
+                                tacticRowsList.Add(new TacticRowData
                                 {
                                     skill = row.skillName,
                                     condition1 = row.condition1,
@@ -434,19 +427,26 @@ namespace Arcana.Tactics
                                 });
                             }
 
-                            posData.tactics = new List<TacticsSaveData> { tacticData };
+                            posData.tactics = new TacticsData[]
+                            {
+                                new TacticsData
+                                {
+                                    characterClass = character.characterClass,
+                                    plan = tacticRowsList.ToArray()
+                                }
+                            };
                         }
                     }
 
-                    tacticsData.positions.Add(posData);
+                    positionsList.Add(posData);
                 }
 
                 // Serialize to JSON with proper formatting
-                string json = "{\n \"username\": \"" + tacticsData.username + "\",\n \"positions\": [\n";
+                string json = "{\n \"username\": \"" + username + "\",\n \"positions\": [\n";
 
-                for (int i = 0; i < tacticsData.positions.Count; i++)
+                for (int i = 0; i < positionsList.Count; i++)
                 {
-                    var pos = tacticsData.positions[i];
+                    var pos = positionsList[i];
                     json += "    {\n";
                     json += $"      \"position\":\"{pos.position}\",\n";
                     json += $"      \"name\":\"";
@@ -458,7 +458,7 @@ namespace Arcana.Tactics
                     json += "\"";
 
                     // Add tactics if present
-                    if (pos.tactics != null && pos.tactics.Count > 0)
+                    if (pos.tactics != null && pos.tactics.Length > 0)
                     {
                         json += ", \n      \"tactics\": [\n";
                         var tactics = pos.tactics[0];
@@ -466,7 +466,7 @@ namespace Arcana.Tactics
                         json += $"            \"class\": \"{tactics.characterClass}\",\n";
                         json += "            \"plan\": [\n";
 
-                        for (int j = 0; j < tactics.plan.Count; j++)
+                        for (int j = 0; j < tactics.plan.Length; j++)
                         {
                             var row = tactics.plan[j];
                             json += "                {\n";
@@ -474,7 +474,7 @@ namespace Arcana.Tactics
                             json += $"                \"condition1\": \"{row.condition1}\",\n";
                             json += $"                \"condition2\": \"{row.condition2}\"\n";
                             json += "                }";
-                            if (j < tactics.plan.Count - 1) json += ",";
+                            if (j < tactics.plan.Length - 1) json += ",";
                             json += "\n";
                         }
 
@@ -484,7 +484,7 @@ namespace Arcana.Tactics
                     }
 
                     json += "\n    }";
-                    if (i < tacticsData.positions.Count - 1) json += ",";
+                    if (i < positionsList.Count - 1) json += ",";
                     json += "\n";
                 }
 
@@ -531,12 +531,12 @@ namespace Arcana.Tactics
         {
             try
             {
-                // Build the save data structure
-                var poolData = new List<CharacterPoolSaveData>();
+                // Build the save data structure using unified classes
+                var poolData = new List<CharacterPoolData>();
 
                 foreach (var character in availableCharacters)
                 {
-                    var saveData = new CharacterPoolSaveData
+                    var saveData = new CharacterPoolData
                     {
                         Name = character.characterName
                     };
@@ -544,15 +544,10 @@ namespace Arcana.Tactics
                     // If this character has tactics data, save it
                     if (codingData.TryGetValue(character.id, out var plan))
                     {
-                        var tacticData = new TacticsSaveData
-                        {
-                            characterClass = character.characterClass,
-                            plan = new List<TacticRowSaveData>()
-                        };
-
+                        var tacticRowsList = new List<TacticRowData>();
                         foreach (var row in plan.rows)
                         {
-                            tacticData.plan.Add(new TacticRowSaveData
+                            tacticRowsList.Add(new TacticRowData
                             {
                                 skill = row.skillName,
                                 condition1 = row.condition1,
@@ -560,7 +555,14 @@ namespace Arcana.Tactics
                             });
                         }
 
-                        saveData.tactics = new List<TacticsSaveData> { tacticData };
+                        saveData.tactics = new TacticsData[]
+                        {
+                            new TacticsData
+                            {
+                                characterClass = character.characterClass,
+                                plan = tacticRowsList.ToArray()
+                            }
+                        };
                     }
 
                     poolData.Add(saveData);
@@ -573,7 +575,7 @@ namespace Arcana.Tactics
                     json += "    {\n";
                     json += $"        \"Name\": \"{poolData[i].Name}\"";
 
-                    if (poolData[i].tactics != null && poolData[i].tactics.Count > 0)
+                    if (poolData[i].tactics != null && poolData[i].tactics.Length > 0)
                     {
                         json += ",\n        \"tactics\": [\n";
                         var tactics = poolData[i].tactics[0];
@@ -581,7 +583,7 @@ namespace Arcana.Tactics
                         json += $"            \"class\": \"{tactics.characterClass}\",\n";
                         json += "            \"plan\": [\n";
 
-                        for (int j = 0; j < tactics.plan.Count; j++)
+                        for (int j = 0; j < tactics.plan.Length; j++)
                         {
                             var row = tactics.plan[j];
                             json += "                {\n";
@@ -589,7 +591,7 @@ namespace Arcana.Tactics
                             json += $"                \"condition1\": \"{row.condition1}\",\n";
                             json += $"                \"condition2\": \"{row.condition2}\"\n";
                             json += "                }";
-                            if (j < tactics.plan.Count - 1) json += ",";
+                            if (j < tactics.plan.Length - 1) json += ",";
                             json += "\n";
                         }
 
@@ -656,7 +658,7 @@ namespace Arcana.Tactics
                     }
                 }
 
-                TacticsFileLoadData tacticsData = JsonUtility.FromJson<TacticsFileLoadData>(json);
+                TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(json);
                 if (tacticsData == null || tacticsData.positions == null)
                 {
                     Debug.LogWarning("Failed to parse tactics.json");
@@ -738,64 +740,63 @@ namespace Arcana.Tactics
             return result;
         }
 
+
+        /// <summary>
+        /// Tactics 파일 데이터 구조 (Save/Load 공용)
+        /// </summary>
         [System.Serializable]
-        public class TacticsSaveData
+        public class TacticsFileData
         {
-            public string characterClass;
-            public List<TacticRowSaveData> plan;
+            public string username;
+            public PositionData[] positions;
         }
 
         [System.Serializable]
-        public class TacticRowSaveData
+        public class PositionData
+        {
+            public string position;
+            public string name;
+            public TacticsData[] tactics;
+        }
+
+        [System.Serializable]
+        public class TacticsData
+        {
+            public string characterClass;  // Save용 필드명
+
+            [System.NonSerialized]
+            private string _class;  // Load용 필드명 (@class)
+
+            // JSON에서 "class" 필드를 읽을 때 사용
+            public string @class
+            {
+                get => string.IsNullOrEmpty(_class) ? characterClass : _class;
+                set
+                {
+                    _class = value;
+                    characterClass = value;
+                }
+            }
+
+            public TacticRowData[] plan;
+        }
+
+        [System.Serializable]
+        public class TacticRowData
         {
             public string skill;
             public string condition1;
             public string condition2;
         }
 
+        /// <summary>
+        /// CharacterPool 데이터 구조 (Save/Load 공용)
+        /// </summary>
         [System.Serializable]
-        public class TacticsFileSaveData
+        public class CharacterPoolData
         {
-            public string username;
-            public List<PositionSaveData> positions;
-        }
-
-        [System.Serializable]
-        public class PositionSaveData
-        {
-            public string position;
-            public string name;
-            public List<TacticsSaveData> tactics;
-        }
-
-        [System.Serializable]
-        public class TacticsFileLoadData
-        {
-            public string username;
-            public PositionLoadData[] positions;
-        }
-
-        [System.Serializable]
-        public class PositionLoadData
-        {
-            public string position;
-            public string name;
-            public TacticsLoadData[] tactics;
-        }
-
-        [System.Serializable]
-        public class TacticsLoadData
-        {
-            public string @class;
-            public TacticRowLoadData[] plan;
-        }
-
-        [System.Serializable]
-        public class TacticRowLoadData
-        {
-            public string skill;
-            public string condition1;
-            public string condition2;
+            public string Name;
+            public TacticsData[] tactics;
         }
 
         public class FormationLoadResult
@@ -803,13 +804,6 @@ namespace Arcana.Tactics
             public string username;
             public CharacterData[] unitSlots;
             public Dictionary<string, TacticsPlan> codingData;
-        }
-
-        [System.Serializable]
-        public class CharacterPoolSaveData
-        {
-            public string Name;
-            public List<TacticsSaveData> tactics;
         }
 
         #endregion
