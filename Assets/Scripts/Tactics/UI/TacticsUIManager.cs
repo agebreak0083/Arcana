@@ -35,7 +35,8 @@ namespace Arcana.Tactics.UI
         public TextMeshProUGUI detailCost;
         public TextMeshProUGUI detailName;
         public TextMeshProUGUI detailClass;
-        public TextMeshProUGUI detailDesc;        
+        public TextMeshProUGUI detailDesc;
+        public TextMeshProUGUI uidText;
 
         [Header("Detail Stats")]
         public TextMeshProUGUI detailStatHP;
@@ -245,7 +246,7 @@ namespace Arcana.Tactics.UI
             }
 
             if (conditionModal != null) conditionModal.Setup(this);
-            if (skillModal != null) skillModal.Setup(this);            
+            if (skillModal != null) skillModal.Setup(this);
             if (runBattleButton != null) runBattleButton.onClick.AddListener(OnRunBattleClicked);
         }
 
@@ -376,6 +377,7 @@ namespace Arcana.Tactics.UI
             UpdateDetailPanel();
             UpdateCodingPanel();
             UpdateCostDisplay();
+            UpdateUserData();
         }
 
         private void UpdatePoolUI()
@@ -419,6 +421,14 @@ namespace Arcana.Tactics.UI
                     }
                     slot.SetActiveHighlight(isActive);
                 }
+            }
+        }
+
+        private void UpdateUserData() 
+        {
+            if (uidText != null && UserDataManager.Instance != null && UserDataManager.Instance.currentUserData != null)
+            {
+                uidText.text = "UID: " + UserDataManager.Instance.currentUserData.playerName;
             }
         }
 
@@ -466,7 +476,7 @@ namespace Arcana.Tactics.UI
                 if (detailStatGuardRate != null) detailStatGuardRate.text = cInfo.stats.guardRate;
                 if (detailStatSpeed != null) detailStatSpeed.text = cInfo.stats.actionSpeed;
             }
-        }   
+        }
 
         private void UpdateCodingPanel()
         {
@@ -495,7 +505,7 @@ namespace Arcana.Tactics.UI
                 var go = Instantiate(tacticRowPrefab, codingListContainer);
                 var rowUI = go.GetComponent<TacticRowUI>();
 
-                if(i < plan.rows.Count)
+                if (i < plan.rows.Count)
                 {
                     rowUI.Setup(this, _selectedCharacter.id, i, plan.rows[i]);
                 }
