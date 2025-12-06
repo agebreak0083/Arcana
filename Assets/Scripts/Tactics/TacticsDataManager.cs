@@ -111,7 +111,7 @@ namespace Arcana.Tactics
         /// <summary>
         /// JSON 파일에서 캐릭터 데이터 로드
         /// </summary>
-        private const string CharacterListUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeCHZPMcs6QJuZeS7k2MosrZrhChNL5FrRH3ePRd5fQx-O-nSUmR4VwZI6VGhHg65tFcWMmIr2tBha/pub?gid=0&single=true&output=csv";
+        private const string CharacterListUrl = "";// "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeCHZPMcs6QJuZeS7k2MosrZrhChNL5FrRH3ePRd5fQx-O-nSUmR4VwZI6VGhHg65tFcWMmIr2tBha/pub?gid=0&single=true&output=csv";
 
         /// <summary>
         /// 웹 CSV에서 캐릭터 데이터 로드 (Web Request)
@@ -122,25 +122,39 @@ namespace Arcana.Tactics
             CharacterDefinition[] allCharacters = null;
 
             // 1. Fetch CSV from Web
-            using (UnityWebRequest www = UnityWebRequest.Get(CharacterListUrl))
+            if(string.IsNullOrEmpty(CharacterListUrl))
             {
-                yield return www.SendWebRequest();
-
-                if (www.result != UnityWebRequest.Result.Success)
+                Debug.LogWarning("CharacterListUrl is empty. Loading from local resources.");
+                
+                // Fallback to local JSON
+                TextAsset listAsset = Resources.Load<TextAsset>("Table/CharacterList");
+                if (listAsset != null)
                 {
-                    Debug.LogError($"Failed to load CharacterList from Web: {www.error}. Fallback to local.");
-                    // Fallback to local JSON
-                    TextAsset listAsset = Resources.Load<TextAsset>("Table/CharacterList");
-                    if (listAsset != null)
-                    {
-                        allCharacters = JsonHelper.FromJson<CharacterDefinition>(listAsset.text);
-                    }
+                    allCharacters = JsonHelper.FromJson<CharacterDefinition>(listAsset.text);
                 }
-                else
+            }
+            else
+            {
+                using (UnityWebRequest www = UnityWebRequest.Get(CharacterListUrl))
                 {
-                    Debug.Log("Successfully loaded CharacterList from Web CSV.");
-                    string csvText = www.downloadHandler.text;
-                    allCharacters = ParseCharacterCSV(csvText);
+                    yield return www.SendWebRequest();
+
+                    if (www.result != UnityWebRequest.Result.Success)
+                    {
+                        Debug.Log($"Failed to load CharacterList from Web: {www.error}. Fallback to local.");
+                        // Fallback to local JSON
+                        TextAsset listAsset = Resources.Load<TextAsset>("Table/CharacterList");
+                        if (listAsset != null)
+                        {
+                            allCharacters = JsonHelper.FromJson<CharacterDefinition>(listAsset.text);
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("Successfully loaded CharacterList from Web CSV.");
+                        string csvText = www.downloadHandler.text;
+                        allCharacters = ParseCharacterCSV(csvText);
+                    }
                 }
             }
 
@@ -308,7 +322,7 @@ namespace Arcana.Tactics
             // We can't easily wait here.
         }
 
-        private const string ClassListUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeCHZPMcs6QJuZeS7k2MosrZrhChNL5FrRH3ePRd5fQx-O-nSUmR4VwZI6VGhHg65tFcWMmIr2tBha/pub?gid=1123298632&single=true&output=csv"; // TODO: 여기에 Google Sheet CSV 링크를 넣어주세요
+        private const string ClassListUrl = ""; // "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeCHZPMcs6QJuZeS7k2MosrZrhChNL5FrRH3ePRd5fQx-O-nSUmR4VwZI6VGhHg65tFcWMmIr2tBha/pub?gid=1123298632&single=true&output=csv"; // TODO: 여기에 Google Sheet CSV 링크를 넣어주세요
 
         /// <summary>
         /// 웹 CSV에서 클래스 데이터 로드 (Web Request)
