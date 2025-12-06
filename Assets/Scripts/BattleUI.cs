@@ -13,6 +13,8 @@ public class BattleUI : MonoBehaviour
     public GameObject victoryPanelPrefab;
     public GameObject defeatPanelPrefab;
     public GameObject damageTextPrefab; // 데미지 텍스트 프리팹
+    public TextMeshProUGUI playerNameText;
+    public TextMeshProUGUI enemyNameText;
 
     [Header("Animation Settings")]
     public float skillNameDisplayTime = 2f; // 스킬 이름 표시 시간
@@ -51,6 +53,22 @@ public class BattleUI : MonoBehaviour
         InitializeHighSpeedButton();
 
         UpdateRoundTurnText(1, 1);
+
+        // 플레이어/적 이름 설정
+        if (Arcana.Tactics.TacticsDataManager.Instance != null)
+        {
+            var playerResult = Arcana.Tactics.TacticsDataManager.Instance.GetPlayerFormationLoadResult();
+            var enemyResult = Arcana.Tactics.TacticsDataManager.Instance.GetEnemyFormationLoadResult();
+
+            if (playerNameText != null && playerResult != null)
+            {
+                playerNameText.text = playerResult.username;
+            }
+            if (enemyNameText != null && enemyResult != null)
+            {
+                enemyNameText.text = enemyResult.username;
+            }
+        }
     }
 
     void Update()

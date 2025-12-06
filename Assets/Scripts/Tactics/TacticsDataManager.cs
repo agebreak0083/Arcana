@@ -391,6 +391,16 @@ namespace Arcana.Tactics
                     positions = new List<PositionSaveData>()
                 };
 
+                if (UserDataManager.Instance != null && UserDataManager.Instance.currentUserData != null)
+                {
+                    // username : playername_날짜시간
+                    tacticsData.username = UserDataManager.Instance.currentUserData.playerName + "_" + DateTime.Now.ToString("yyMMddHHmm");
+                }
+                else
+                {
+                    tacticsData.username = "Player_" + DateTime.Now.ToString("yyMMddHHmm");
+                }
+
                 for (int i = 0; i < 6; i++)
                 {
                     var posData = new PositionSaveData
@@ -432,7 +442,7 @@ namespace Arcana.Tactics
                 }
 
                 // Serialize to JSON with proper formatting
-                string json = "{\n  \"positions\": [\n";
+                string json = "{\n \"username\": \"" + tacticsData.username + "\",\n \"positions\": [\n";
 
                 for (int i = 0; i < tacticsData.positions.Count; i++)
                 {
@@ -618,6 +628,7 @@ namespace Arcana.Tactics
         public FormationLoadResult LoadFormationFromTacticsFile(bool isPlayer)
         {
             FormationLoadResult result = isPlayer ? _playerFormationLoadResult : _enemyFormationLoadResult;
+
             try
             {
                 string json = "";
@@ -651,6 +662,9 @@ namespace Arcana.Tactics
                     Debug.LogWarning("Failed to parse tactics.json");
                     return result;
                 }
+
+                // Set Username                
+                result.username = tacticsData.username;
 
                 // Load each position
                 foreach (var posData in tacticsData.positions)
@@ -742,6 +756,7 @@ namespace Arcana.Tactics
         [System.Serializable]
         public class TacticsFileSaveData
         {
+            public string username;
             public List<PositionSaveData> positions;
         }
 
@@ -756,6 +771,7 @@ namespace Arcana.Tactics
         [System.Serializable]
         public class TacticsFileLoadData
         {
+            public string username;
             public PositionLoadData[] positions;
         }
 
@@ -784,6 +800,7 @@ namespace Arcana.Tactics
 
         public class FormationLoadResult
         {
+            public string username;
             public CharacterData[] unitSlots;
             public Dictionary<string, TacticsPlan> codingData;
         }
