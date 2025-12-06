@@ -27,15 +27,15 @@ namespace Arcana.Tactics.UI
 
         [Header("UI Components")]
         public ConditionModalUI conditionModal;
+        public SkillModal skillModal;
         public TextMeshProUGUI currentCostText;
         public TextMeshProUGUI codingPanelTitle;
         public GameObject characterDetailPanel;
         public Image detailPortrait;
         public TextMeshProUGUI detailCost;
         public TextMeshProUGUI detailName;
-        public TextMeshProUGUI detailClass;        
-        public TextMeshProUGUI detailDesc;
-        public Button removeFromUnitBtn;
+        public TextMeshProUGUI detailClass;
+        public TextMeshProUGUI detailDesc;        
 
         [Header("Detail Stats")]
         public TextMeshProUGUI detailStatHP;
@@ -148,7 +148,7 @@ namespace Arcana.Tactics.UI
                     Transform t = RecursiveFind(characterDetailPanel.transform, "Name");
                     if (t != null) detailName = t.GetComponent<TextMeshProUGUI>();
                 }
-                if(detailClass == null)
+                if (detailClass == null)
                 {
                     Transform t = RecursiveFind(characterDetailPanel.transform, "Class");
                     if (t != null) detailClass = t.GetComponent<TextMeshProUGUI>();
@@ -158,11 +158,6 @@ namespace Arcana.Tactics.UI
                     Transform t = RecursiveFind(characterDetailPanel.transform, "Description");
                     if (t != null) detailDesc = t.GetComponent<TextMeshProUGUI>();
                 }
-                if (removeFromUnitBtn == null)
-                {
-                    Transform t = RecursiveFind(characterDetailPanel.transform, "RemoveButton");
-                    if (t != null) removeFromUnitBtn = t.GetComponent<Button>();
-                }                
 
                 if (detailStatHP == null) detailStatHP = FindDetailStat("Value_HP");
                 if (detailStatPhysAtk == null) detailStatPhysAtk = FindDetailStat("Value_PhysAtk");
@@ -250,7 +245,7 @@ namespace Arcana.Tactics.UI
             }
 
             if (conditionModal != null) conditionModal.Setup(this);
-            if (removeFromUnitBtn != null) removeFromUnitBtn.onClick.AddListener(OnRemoveFromUnitClicked);
+            if (skillModal != null) skillModal.Setup(this);            
             if (runBattleButton != null) runBattleButton.onClick.AddListener(OnRunBattleClicked);
         }
 
@@ -279,20 +274,6 @@ namespace Arcana.Tactics.UI
             }
         }
 
-        public void OnRemoveFromUnitClicked()
-        {
-            if (_selectedCharacter == null) return;
-
-            int idx = GetSlotIndex(_selectedCharacter);
-            if (idx != -1)
-            {
-                _unitSlots[idx] = null;
-                _codingData.Remove(_selectedCharacter.id); // Optional: Clear data on remove
-                _selectedCharacter = null;
-                UpdateAllUI();
-            }
-        }
-
         public void OnConditionClicked(string charId, int rowIndex, int conditionNum)
         {
             _modalTargetCharId = charId;
@@ -314,6 +295,70 @@ namespace Arcana.Tactics.UI
                 _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);
             }
             conditionModal.Close();
+        }
+
+        /// <summary>
+        /// 스킬 이름 클릭 시 호출 (TacticRowUI에서)
+        /// </summary>
+        public void OnSkillNameClicked(string charId, int rowIndex)
+        {
+            _modalTargetCharId = charId;
+            _modalTargetRowIndex = rowIndex;
+
+            // 해당 캐릭터 찾기
+            CharacterData targetCharacter = availableCharacters.Find(c => c.id == charId);
+
+            if (targetCharacter == null)
+            {
+                Debug.LogError($"TacticsUIManager: Character with id {charId} not found!");
+                return;
+            }
+
+            if (skillModal == null)
+            {
+                Debug.LogError("TacticsUIManager: skillModal is not assigned!");
+                return;
+            }
+
+            // 스킬 모달 열기
+            skillModal.Open(targetCharacter, OnSkillSelected);
+        }
+
+        /// <summary>
+        /// 스킬 선택 시 호출 (SkillModal에서 콜백)
+        /// </summary>
+        private void OnSkillSelected(SkillData selectedSkill)
+        {
+            if (_codingData.TryGetValue(_modalTargetCharId, out var plan))
+            {
+                if (_modalTargetRowIndex >= 0 && _modalTargetRowIndex < plan.rows.Count)
+                {
+                    var row = plan.rows[_modalTargetRowIndex];
+
+                    // 스킬 이름 업데이트
+                    row.skillName = selectedSkill.name;
+
+                    // 스킬 타입 업데이트 (AP/PP)
+                    row.skillType = selectedSkill.type; // "active" or "passive"
+
+                    Debug.Log($"TacticsUIManager: Skill changed to {selectedSkill.name} for row {_modalTargetRowIndex}");
+
+                    // UI 업데이트
+                    UpdateCodingPanel();
+
+                    // 데이터 저장
+                    _dataManager.SaveTacticsToFile(_codingData); // CharacterPool.json에 저장
+                    _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData); // tactics.json에 저장
+                }
+                else
+                {
+                    Debug.LogError($"TacticsUIManager: Invalid row index {_modalTargetRowIndex}");
+                }
+            }
+            else
+            {
+                Debug.LogError($"TacticsUIManager: No coding data found for character {_modalTargetCharId}");
+            }
         }
 
         public void OnRunBattleClicked()
@@ -392,7 +437,7 @@ namespace Arcana.Tactics.UI
             if (c.portrait != null && detailPortrait != null) detailPortrait.sprite = c.portrait;
             if (detailCost != null) detailCost.text = c.cost.ToString();
             if (detailName != null) detailName.text = c.characterName;
-            if (detailClass != null) detailClass.text = c.characterClass;            
+            if (detailClass != null) detailClass.text = c.characterClass;
 
             // Get description from ClassList.json based on character's class
             if (detailDesc != null)
@@ -421,10 +466,7 @@ namespace Arcana.Tactics.UI
                 if (detailStatGuardRate != null) detailStatGuardRate.text = cInfo.stats.guardRate;
                 if (detailStatSpeed != null) detailStatSpeed.text = cInfo.stats.actionSpeed;
             }
-
-            bool isDeployed = GetSlotIndex(c) != -1;
-            if (removeFromUnitBtn != null) removeFromUnitBtn.gameObject.SetActive(isDeployed);
-        }
+        }   
 
         private void UpdateCodingPanel()
         {

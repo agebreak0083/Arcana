@@ -348,7 +348,7 @@ public class CharacterCardPrefabCreator : MonoBehaviour
         skillTMP.color = new Color32(45, 212, 191, 255); // #2DD4BF
         skillTMP.alignment = TextAlignmentOptions.Left;
         if (fontAsset != null) skillTMP.font = fontAsset;
-        rowUI.skillNameText = skillTMP;
+        rowUI.skillNameBtn = skillText.GetComponent<Button>();
 
         // 3. Condition1Btn
         GameObject cond1BtnObj = CreateConditionButton("Condition1Btn", tacticRow.transform, fontAsset);
