@@ -6,7 +6,7 @@
       "cost": 1,
       "model": "Assets/Resources/Models/Misaki_sum_humanoid.prefab",
       "advantage": [
-        "헌터"
+        "헌터"        
       ],
       "stats": {
         "hp": "C",
@@ -29,7 +29,8 @@
       "cost": 1,
       "model": "Assets/Resources/Models/Utc_sum_humanoid.prefab",
       "advantage": [
-        "시프"
+        "시프",
+        "그리폰 나이트"
       ],
       "stats": {
         "hp": "D",
@@ -52,7 +53,8 @@
       "cost": 1,
       "model": "Assets/Resources/Models/Yuko_sum_humanoid.prefab",
       "advantage": [
-        "파이터"
+        "파이터",
+        "호플리타이"
       ],
       "stats": {
         "hp": "E",

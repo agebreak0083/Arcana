@@ -42,9 +42,9 @@ namespace Arcana.Tactics
             isDataLoaded = false;
 
             LoadSkillList();
-            LoadClassList();
 
-            // Wait for characters to load from Web
+            // Wait for characters and classes to load from Web
+            yield return StartCoroutine(LoadClassesFromWeb());
             yield return StartCoroutine(LoadCharactersFromWeb());
 
             _playerFormationLoadResult = new FormationLoadResult
@@ -111,7 +111,7 @@ namespace Arcana.Tactics
         /// <summary>
         /// JSON 파일에서 캐릭터 데이터 로드
         /// </summary>
-        private const string CharacterListUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeCHZPMcs6QJuZeS7k2MosrZrhChNL5FrRH3ePRd5fQx-O-nSUmR4VwZI6VGhHg65tFcWMmIr2tBha/pub?output=csv";
+        private const string CharacterListUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeCHZPMcs6QJuZeS7k2MosrZrhChNL5FrRH3ePRd5fQx-O-nSUmR4VwZI6VGhHg65tFcWMmIr2tBha/pub?gid=0&single=true&output=csv";
 
         /// <summary>
         /// 웹 CSV에서 캐릭터 데이터 로드 (Web Request)
@@ -308,8 +308,118 @@ namespace Arcana.Tactics
             // We can't easily wait here.
         }
 
+        private const string ClassListUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeCHZPMcs6QJuZeS7k2MosrZrhChNL5FrRH3ePRd5fQx-O-nSUmR4VwZI6VGhHg65tFcWMmIr2tBha/pub?gid=1123298632&single=true&output=csv"; // TODO: 여기에 Google Sheet CSV 링크를 넣어주세요
+
         /// <summary>
-        /// 클래스 데이터 로드
+        /// 웹 CSV에서 클래스 데이터 로드 (Web Request)
+        /// </summary>
+        private System.Collections.IEnumerator LoadClassesFromWeb()
+        {
+            _classData.Clear();
+            ClassListWrapper wrapper = new ClassListWrapper();
+            List<ClassInfo> classList = new List<ClassInfo>();
+
+            // 1. Fetch CSV from Web
+            if (string.IsNullOrEmpty(ClassListUrl))
+            {
+                Debug.LogWarning("ClassListUrl is empty. Loading from local resources.");
+                LoadClassList(); // Fallback to local
+                yield break;
+            }
+
+            using (UnityWebRequest www = UnityWebRequest.Get(ClassListUrl))
+            {
+                yield return www.SendWebRequest();
+
+                if (www.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError($"Failed to load ClassList from Web: {www.error}. Fallback to local.");
+                    LoadClassList(); // Fallback to local
+                }
+                else
+                {
+                    Debug.Log("Successfully loaded ClassList from Web CSV.");
+                    string csvText = www.downloadHandler.text;
+                    classList = ParseClassCSV(csvText);
+
+                    if (classList != null)
+                    {
+                        foreach (var classInfo in classList)
+                        {
+                            _classData[classInfo.name] = classInfo;
+                        }
+                    }
+                }
+            }
+
+            Debug.Log($"Loaded {_classData.Count} classes.");
+        }
+
+        private List<ClassInfo> ParseClassCSV(string csvText)
+        {
+            var list = new List<ClassInfo>();
+            string[] lines = csvText.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+
+            // Header: name,description,cost,model,advantage,hp,physicalAttack,physicalDefense,magicalAttack,magicalDefense,accuracy,evasion,criticalRate,guardRate,actionSpeed,actionPoint,passivePoint
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string line = lines[i].Trim();
+                if (string.IsNullOrEmpty(line)) continue;
+
+                string[] parts = line.Split(',');
+
+                // Skip header based on content
+                if (parts.Length > 0 && parts[0] == "name") continue;
+
+                if (parts.Length >= 17) // Ensure we have enough columns
+                {
+                    try
+                    {
+                        ClassInfo info = new ClassInfo();
+                        info.name = parts[0].Trim();
+                        info.description = parts[1].Trim();
+                        info.cost = int.Parse(parts[2].Trim());
+                        info.model = parts[3].Trim();
+
+                        // Advantage (semicolon separated)
+                        string advRaw = parts[4].Trim();
+                        if (!string.IsNullOrEmpty(advRaw))
+                        {
+                            info.advantage = new List<string>(advRaw.Split(';'));
+                        }
+                        else
+                        {
+                            info.advantage = new List<string>();
+                        }
+
+                        info.stats = new ClassStats();
+                        info.stats.hp = parts[5].Trim();
+                        info.stats.physicalAttack = parts[6].Trim();
+                        info.stats.physicalDefense = parts[7].Trim();
+                        info.stats.magicalAttack = parts[8].Trim();
+                        info.stats.magicalDefense = parts[9].Trim();
+                        info.stats.accuracy = parts[10].Trim();
+                        info.stats.evasion = parts[11].Trim();
+                        info.stats.criticalRate = parts[12].Trim();
+                        info.stats.guardRate = parts[13].Trim();
+                        info.stats.actionSpeed = parts[14].Trim();
+                        info.stats.actionPoint = int.Parse(parts[15].Trim());
+                        info.stats.passivePoint = int.Parse(parts[16].Trim());
+
+                        list.Add(info);
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogError($"Error parsing class CSV line: {line}. Error: {e.Message}");
+                    }
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// (Local) JSON 파일에서 클래스 데이터 로드
         /// </summary>
         private void LoadClassList()
         {
@@ -482,6 +592,7 @@ namespace Arcana.Tactics
         {
             public string name;
             public string description;
+            public int cost;
             public string model;
             public List<string> advantage;
             public ClassStats stats;
