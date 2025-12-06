@@ -26,16 +26,23 @@ namespace Arcana.Tactics.UI
             _rowIndex = rowIndex;
 
             indexText.text = (rowIndex + 1).ToString();
-            skillNameBtn.GetComponentInChildren<TextMeshProUGUI>().text = rowData.skillName;
+            skillNameBtn.GetComponentInChildren<TextMeshProUGUI>().text = rowData == null ? "---" : rowData.skillName;
             skillNameBtn.onClick.RemoveAllListeners();
             skillNameBtn.onClick.AddListener(() => _manager.OnSkillNameClicked(_charId, _rowIndex));
 
-            // Color coding: AP (Red), PP (Blue)
-            if (rowData.skillType == "AP") skillNameBtn.GetComponentInChildren<TextMeshProUGUI>().color = new Color(1f, 0.4f, 0.4f); // Reddish
-            else skillNameBtn.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0.4f, 0.6f, 1f); // Blueish
+            if (rowData == null)
+            {
+                skillNameBtn.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0.5f, 0.5f, 0.5f); // Gray
+            }
+            else
+            {
+                // Color coding: AP (Red), PP (Blue)
+                if (rowData.skillType == "AP") skillNameBtn.GetComponentInChildren<TextMeshProUGUI>().color = new Color(1f, 0.4f, 0.4f); // Reddish
+                else skillNameBtn.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0.4f, 0.6f, 1f); // Blueish
+            }
 
-            condition1Btn.GetComponentInChildren<TextMeshProUGUI>().text = rowData.condition1;
-            condition2Btn.GetComponentInChildren<TextMeshProUGUI>().text = rowData.condition2;
+            condition1Btn.GetComponentInChildren<TextMeshProUGUI>().text = rowData == null? "조건 없음" : rowData.condition1;
+            condition2Btn.GetComponentInChildren<TextMeshProUGUI>().text = rowData == null? "조건 없음" : rowData.condition2;
 
             condition1Btn.onClick.RemoveAllListeners();
             condition1Btn.onClick.AddListener(() => _manager.OnConditionClicked(_charId, _rowIndex, 1));

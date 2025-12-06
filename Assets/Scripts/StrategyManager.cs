@@ -25,6 +25,10 @@ public class StrategyManager : MonoBehaviour
         for (int i = 0; i < plan.rows.Count; i++)
         {
             var row = plan.rows[i];
+
+            // skillName이 "---"인 Row는 실행되지 않음
+            if (row.skillName == "---") continue;
+
             strategy.actions.Add(new StrategyAction
             {
                 priority = i + 1,

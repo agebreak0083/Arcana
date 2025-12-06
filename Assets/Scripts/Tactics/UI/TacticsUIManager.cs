@@ -483,36 +483,25 @@ namespace Arcana.Tactics.UI
 
             if (codingPanelTitle != null) codingPanelTitle.text = $"{_selectedCharacter.characterName.Split(' ')[0]} - 작전 코딩";
 
-            // If not deployed, maybe we don't show coding? Or show preview? 
-            // The HTML implies coding is available when selected, but data is initialized on placement.
-            // Let's show it if data exists, or empty if not.
 
-            if (_codingData.TryGetValue(_selectedCharacter.id, out var plan))
+            // TacticsRowPrefab은 maxTacticsRow만큼 생성됩니다.
+            // 저장된 plan이 그보다 적은 경우, 나머지는 기본 prefab으로 생성됩니다.
+
+            _codingData.TryGetValue(_selectedCharacter.id, out var plan);
+
+            int maxTacticsRow = TacticsDatabase.MAX_TACTICS_ROW;
+            for (int i = 0; i < maxTacticsRow; i++)
             {
-                if (tacticRowPrefab != null)
+                var go = Instantiate(tacticRowPrefab, codingListContainer);
+                var rowUI = go.GetComponent<TacticRowUI>();
+
+                if(i < plan.rows.Count)
                 {
-                    for (int i = 0; i < plan.rows.Count; i++)
-                    {
-                        var go = Instantiate(tacticRowPrefab, codingListContainer);
-                        var rowUI = go.GetComponent<TacticRowUI>();
-                        rowUI.Setup(this, _selectedCharacter.id, i, plan.rows[i]);
-                    }
+                    rowUI.Setup(this, _selectedCharacter.id, i, plan.rows[i]);
                 }
-            }
-            else
-            {
-                // Show default skills (preview)
-                if (tacticRowPrefab != null && _selectedCharacter.skills != null)
+                else
                 {
-                    for (int i = 0; i < _selectedCharacter.skills.Count; i++)
-                    {
-                        var skill = _selectedCharacter.skills[i];
-                        var go = Instantiate(tacticRowPrefab, codingListContainer);
-                        var rowUI = go.GetComponent<TacticRowUI>();
-                        // Create a temporary row for display
-                        var tempRow = new TacticRow(skill.name, skill.skillType.ToString(), TacticsDatabase.DEFAULT_CONDITION, TacticsDatabase.DEFAULT_CONDITION);
-                        rowUI.Setup(this, _selectedCharacter.id, i, tempRow);
-                    }
+                    rowUI.Setup(this, _selectedCharacter.id, i, null);
                 }
             }
         }

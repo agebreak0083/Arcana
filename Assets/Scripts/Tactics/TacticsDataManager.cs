@@ -314,10 +314,15 @@ namespace Arcana.Tactics
         public TacticsPlan CreateDefaultPlan(CharacterData data)
         {
             var plan = new TacticsPlan(data.id);
-            foreach (var skill in data.skills)
+
+            // TacticsPlan은 이미 8개의 기본 Row를 가지고 있음
+            // 캐릭터의 스킬로 앞부분을 채움
+            for (int i = 0; i < data.skills.Count && i < TacticsDatabase.MAX_TACTICS_ROW; i++)
             {
-                plan.rows.Add(new TacticRow(skill.name, skill.skillType.ToString(), TacticsDatabase.DEFAULT_CONDITION, TacticsDatabase.DEFAULT_CONDITION));
+                var skill = data.skills[i];
+                plan.rows[i] = new TacticRow(skill.name, skill.skillType.ToString(), TacticsDatabase.DEFAULT_CONDITION, TacticsDatabase.DEFAULT_CONDITION);
             }
+
             return plan;
         }
 
@@ -657,10 +662,13 @@ namespace Arcana.Tactics
                         if (tacticData.plan != null && tacticData.plan.Length > 0)
                         {
                             var plan = new TacticsPlan(character.id);
-                            plan.rows.Clear();
 
-                            foreach (var rowData in tacticData.plan)
+                            // TacticsPlan은 이미 8개의 기본 Row를 가지고 있음
+                            // 로드한 데이터로 앞부분을 채움 (최대 8개까지)
+                            for (int i = 0; i < tacticData.plan.Length && i < TacticsDatabase.MAX_TACTICS_ROW; i++)
                             {
+                                var rowData = tacticData.plan[i];
+
                                 // Determine skill type from character's skills
                                 string skillType = "AP";
                                 var skill = character.skills.Find(s => s.name == rowData.skill);
@@ -669,12 +677,12 @@ namespace Arcana.Tactics
                                     skillType = skill.skillType.ToString();
                                 }
 
-                                plan.rows.Add(new TacticRow(
+                                plan.rows[i] = new TacticRow(
                                     rowData.skill,
                                     skillType,
                                     rowData.condition1,
                                     rowData.condition2
-                                ));
+                                );
                             }
 
                             result.codingData[character.id] = plan;

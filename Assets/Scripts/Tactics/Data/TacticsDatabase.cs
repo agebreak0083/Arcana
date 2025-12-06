@@ -65,5 +65,7 @@ namespace Arcana.Tactics
         };
 
         public const string DEFAULT_CONDITION = "조건 없음";
+
+        public static int MAX_TACTICS_ROW = 8;
     }
 }
