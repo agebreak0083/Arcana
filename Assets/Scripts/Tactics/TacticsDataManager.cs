@@ -491,6 +491,22 @@ namespace Arcana.Tactics
                 System.IO.File.WriteAllText(resourcesPath, json);
                 Debug.Log($"Formation saved to {resourcesPath}");
 #endif
+
+                // 3. Save to Firebase (모든 유저의 tactics 데이터 저장)
+                if (FirebaseManager.Instance != null)
+                {
+                    FirebaseManager.Instance.SaveTacticsToFirebase(json, (success, key) =>
+                    {
+                        if (success)
+                        {
+                            Debug.Log($"Firebase에 Tactics 저장 완료: {key}");
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"Firebase 저장 실패: {key}");
+                        }
+                    });
+                }
             }
             catch (System.Exception e)
             {

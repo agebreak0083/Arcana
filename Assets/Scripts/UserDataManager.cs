@@ -92,8 +92,7 @@ public class UserDataManager : MonoBehaviour
         currentUserData = new UserData
         {
             playerName = System.Environment.MachineName, // PC의 HostName 사용
-            gold = 1000,
-            currentStage = 1,
+            tickets = 10,
             ownedCharacters = new List<string>(),
             gameSettings = new GameSettings
             {
@@ -119,20 +118,20 @@ public class UserDataManager : MonoBehaviour
     /// <summary>
     /// 골드 추가
     /// </summary>
-    public void AddGold(int amount)
+    public void AddTickets(int amount)
     {
-        currentUserData.gold += amount;
+        currentUserData.tickets += amount;
         SaveUserData();
     }
 
     /// <summary>
     /// 골드 사용
     /// </summary>
-    public bool SpendGold(int amount)
+    public bool SpendTickets(int amount)
     {
-        if (currentUserData.gold >= amount)
+        if (currentUserData.tickets >= amount)
         {
-            currentUserData.gold -= amount;
+            currentUserData.tickets -= amount;
             SaveUserData();
             return true;
         }
@@ -157,18 +156,6 @@ public class UserDataManager : MonoBehaviour
             currentUserData.ownedCharacters.Add(characterName);
             SaveUserData();
             Debug.Log($"캐릭터 '{characterName}' 획득!");
-        }
-    }
-
-    /// <summary>
-    /// 스테이지 진행
-    /// </summary>
-    public void UpdateStage(int stageNumber)
-    {
-        if (stageNumber > currentUserData.currentStage)
-        {
-            currentUserData.currentStage = stageNumber;
-            SaveUserData();
         }
     }
 
@@ -213,8 +200,7 @@ public class UserDataManager : MonoBehaviour
 public class UserData
 {
     public string playerName;
-    public int gold;
-    public int currentStage;
+    public int tickets;    
     public List<string> ownedCharacters;
     public GameSettings gameSettings;
     public string lastSaveTime;

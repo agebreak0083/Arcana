@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "628822798680",
+    "firebase_url": "https://arcana-tactics-d61a4-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "arcana-tactics-d61a4",
+    "storage_bucket": "arcana-tactics-d61a4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:628822798680:android:a586f8a7e13ff56e35b52d",
+        "android_client_info": {
+          "package_name": "com.krafton.arcana"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYO6OLiICN1_UHbmt6mg-7NVsyhtn87D4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
