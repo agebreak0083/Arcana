@@ -91,3 +91,14 @@ Desktop.ini
 # Windows shortcuts
 *.lnk
 
+# Firebase SDK (large binary files - download separately)
+[Aa]ssets/Firebase/
+[Aa]ssets/Firebase.meta
+[Aa]ssets/ExternalDependencyManager/
+[Aa]ssets/ExternalDependencyManager.meta
+[Aa]ssets/Plugins/Android/Firebase/
+[Aa]ssets/Plugins/iOS/Firebase/
+
+# Keep google-services.json for Firebase configuration
+![Aa]ssets/google-services.json
+![Aa]ssets/google-services.json.meta
