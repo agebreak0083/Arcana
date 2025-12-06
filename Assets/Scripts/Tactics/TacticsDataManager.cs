@@ -441,54 +441,14 @@ namespace Arcana.Tactics
                     positionsList.Add(posData);
                 }
 
-                // Serialize to JSON with proper formatting
-                string json = "{\n \"username\": \"" + username + "\",\n \"positions\": [\n";
-
-                for (int i = 0; i < positionsList.Count; i++)
+                // Serialize to JSON using JsonUtility
+                var tacticsFileData = new TacticsFileData
                 {
-                    var pos = positionsList[i];
-                    json += "    {\n";
-                    json += $"      \"position\":\"{pos.position}\",\n";
-                    json += $"      \"name\":\"";
+                    username = username,
+                    positions = positionsList.ToArray()
+                };
 
-                    if (!string.IsNullOrEmpty(pos.name))
-                    {
-                        json += pos.name.ToLower();
-                    }
-                    json += "\"";
-
-                    // Add tactics if present
-                    if (pos.tactics != null && pos.tactics.Length > 0)
-                    {
-                        json += ", \n      \"tactics\": [\n";
-                        var tactics = pos.tactics[0];
-                        json += "            {\n";
-                        json += $"            \"class\": \"{tactics.characterClass}\",\n";
-                        json += "            \"plan\": [\n";
-
-                        for (int j = 0; j < tactics.plan.Length; j++)
-                        {
-                            var row = tactics.plan[j];
-                            json += "                {\n";
-                            json += $"                \"skill\": \"{row.skill}\",\n";
-                            json += $"                \"condition1\": \"{row.condition1}\",\n";
-                            json += $"                \"condition2\": \"{row.condition2}\"\n";
-                            json += "                }";
-                            if (j < tactics.plan.Length - 1) json += ",";
-                            json += "\n";
-                        }
-
-                        json += "            ]\n";
-                        json += "            }\n";
-                        json += "        ]      ";
-                    }
-
-                    json += "\n    }";
-                    if (i < positionsList.Count - 1) json += ",";
-                    json += "\n";
-                }
-
-                json += "  ]\n}\n";
+                string json = JsonUtility.ToJson(tacticsFileData, true);
 
                 // 1. Save to PersistentDataPath (Runtime usage)
                 string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "tactics.json");
@@ -568,43 +528,19 @@ namespace Arcana.Tactics
                     poolData.Add(saveData);
                 }
 
-                // Serialize to JSON
-                string json = "[\n";
-                for (int i = 0; i < poolData.Count; i++)
+                // Serialize to JSON using JsonUtility
+                // Note: JsonUtility doesn't support List<T> at root level, so we need a wrapper
+                var wrapper = new CharacterPoolDataWrapper { characters = poolData.ToArray() };
+                string json = JsonUtility.ToJson(wrapper, true);
+
+                // Extract the array part (remove wrapper)
+                // This keeps the JSON format compatible with existing files
+                int startIndex = json.IndexOf('[');
+                int endIndex = json.LastIndexOf(']');
+                if (startIndex >= 0 && endIndex >= 0)
                 {
-                    json += "    {\n";
-                    json += $"        \"Name\": \"{poolData[i].Name}\"";
-
-                    if (poolData[i].tactics != null && poolData[i].tactics.Length > 0)
-                    {
-                        json += ",\n        \"tactics\": [\n";
-                        var tactics = poolData[i].tactics[0];
-                        json += "            {\n";
-                        json += $"            \"class\": \"{tactics.characterClass}\",\n";
-                        json += "            \"plan\": [\n";
-
-                        for (int j = 0; j < tactics.plan.Length; j++)
-                        {
-                            var row = tactics.plan[j];
-                            json += "                {\n";
-                            json += $"                \"skill\": \"{row.skill}\",\n";
-                            json += $"                \"condition1\": \"{row.condition1}\",\n";
-                            json += $"                \"condition2\": \"{row.condition2}\"\n";
-                            json += "                }";
-                            if (j < tactics.plan.Length - 1) json += ",";
-                            json += "\n";
-                        }
-
-                        json += "            ]\n";
-                        json += "            }\n";
-                        json += "        ]";
-                    }
-
-                    json += "\n    }";
-                    if (i < poolData.Count - 1) json += ",";
-                    json += "\n";
+                    json = json.Substring(startIndex, endIndex - startIndex + 1);
                 }
-                json += "]\n";
 
                 // Save to PlayerPrefs
                 PlayerPrefs.SetString("CharacterPool", json);
@@ -804,6 +740,15 @@ namespace Arcana.Tactics
             public string username;
             public CharacterData[] unitSlots;
             public Dictionary<string, TacticsPlan> codingData;
+        }
+
+        /// <summary>
+        /// JsonUtility용 Wrapper (배열 직렬화를 위해 필요)
+        /// </summary>
+        [System.Serializable]
+        public class CharacterPoolDataWrapper
+        {
+            public CharacterPoolData[] characters;
         }
 
         #endregion
