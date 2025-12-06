@@ -24,18 +24,22 @@ namespace Arcana.Tactics
         private FormationLoadResult _playerFormationLoadResult;
         private FormationLoadResult _enemyFormationLoadResult;
 
+        public bool isDataLoaded { get; private set; } = false;
+
         void Awake()
         {
             // 씬마다 독립적인 인스턴스 사용
             Instance = this;
-            LoadAllData();
+            StartCoroutine(LoadAllDataAsync());
         }
 
         /// <summary>
-        /// 모든 데이터 로드
+        /// 모든 데이터 비동기 로드
         /// </summary>
-        private void LoadAllData()
+        private System.Collections.IEnumerator LoadAllDataAsync()
         {
+            isDataLoaded = false;
+
             LoadSkillList();
             LoadClassList();
             LoadCharactersFromJSON();
@@ -51,8 +55,44 @@ namespace Arcana.Tactics
                 codingData = new Dictionary<string, TacticsPlan>()
             };
 
+            // Player formation 로드 (로컬 파일)
             _playerFormationLoadResult = LoadFormationFromTacticsFile(true);
-            _enemyFormationLoadResult = LoadFormationFromTacticsFile(false);
+
+            // Firebase 초기화 대기 (최대 5초)
+            float waitTime = 0f;
+            const float maxWaitTime = 5f;
+
+            if (FirebaseManager.Instance != null)
+            {
+                Debug.Log("TacticsDataManager: Firebase 초기화 대기 중...");
+                while (!FirebaseManager.Instance.isFirebaseInitialized && waitTime < maxWaitTime)
+                {
+                    yield return new WaitForSeconds(0.1f);
+                    waitTime += 0.1f;
+                }
+
+                if (FirebaseManager.Instance.isFirebaseInitialized)
+                {
+                    Debug.Log("TacticsDataManager: Firebase 초기화 완료!");
+                }
+                else
+                {
+                    Debug.LogWarning($"TacticsDataManager: Firebase 초기화 타임아웃 ({maxWaitTime}초). 로컬 파일 사용.");
+                }
+            }
+
+            // Enemy formation 로드 (Firebase에서 랜덤 또는 로컬 파일)
+            bool enemyLoadComplete = false;
+            LoadEnemyFormationFromFirebase((success) =>
+            {
+                enemyLoadComplete = true;
+            });
+
+            // Firebase 로딩 완료 대기
+            yield return new WaitUntil(() => enemyLoadComplete);
+
+            isDataLoaded = true;
+            Debug.Log("TacticsDataManager: 모든 데이터 로드 완료");
         }
 
         public FormationLoadResult GetPlayerFormationLoadResult()
@@ -674,6 +714,115 @@ namespace Arcana.Tactics
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Firebase에서 랜덤 적 편성 로드
+        /// </summary>
+        private void LoadEnemyFormationFromFirebase(System.Action<bool> onComplete)
+        {
+            if (FirebaseManager.Instance == null)
+            {
+                Debug.LogWarning("FirebaseManager가 없습니다. 로컬 파일에서 적 편성을 로드합니다.");
+                _enemyFormationLoadResult = LoadFormationFromTacticsFile(false);
+                onComplete?.Invoke(true);
+                return;
+            }
+
+            FirebaseManager.Instance.GetRandomTacticsFromFirebase((success, tacticsJson, username) =>
+            {
+                if (success && !string.IsNullOrEmpty(tacticsJson))
+                {
+                    try
+                    {
+                        // Firebase에서 가져온 JSON 파싱
+                        TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(tacticsJson);
+                        if (tacticsData == null || tacticsData.positions == null)
+                        {
+                            Debug.LogWarning("Firebase 데이터 파싱 실패. 로컬 파일 사용.");
+                            _enemyFormationLoadResult = LoadFormationFromTacticsFile(false);
+                            onComplete?.Invoke(true);
+                            return;
+                        }
+
+                        // Username 설정 (tacticsJson 안에 포함된 username 사용)
+                        _enemyFormationLoadResult.username = username;                        
+
+                        // Load each position
+                        foreach (var posData in tacticsData.positions)
+                        {
+                            if (string.IsNullOrEmpty(posData.name)) continue;
+
+                            int slotIndex = int.Parse(posData.position) - 1;
+                            if (slotIndex < 0 || slotIndex >= 6) continue;
+
+                            // Find the character by name
+                            CharacterData character = availableCharacters.Find(c => c.characterName.ToLower() == posData.name.ToLower());
+                            if (character == null)
+                            {
+                                Debug.LogWarning($"Character {posData.name} not found in available characters");
+                                continue;
+                            }
+
+                            // Place character in slot
+                            _enemyFormationLoadResult.unitSlots[slotIndex] = character;
+
+                            // Load tactics if present
+                            if (posData.tactics != null && posData.tactics.Length > 0)
+                            {
+                                var tacticData = posData.tactics[0];
+                                if (tacticData.plan != null && tacticData.plan.Length > 0)
+                                {
+                                    var plan = new TacticsPlan(character.id);
+
+                                    for (int i = 0; i < tacticData.plan.Length && i < TacticsDatabase.MAX_TACTICS_ROW; i++)
+                                    {
+                                        var rowData = tacticData.plan[i];
+
+                                        string skillType = "AP";
+                                        var skill = character.skills.Find(s => s.name == rowData.skill);
+                                        if (skill != null)
+                                        {
+                                            skillType = skill.skillType.ToString();
+                                        }
+
+                                        plan.rows[i] = new TacticRow(
+                                            rowData.skill,
+                                            skillType,
+                                            rowData.condition1,
+                                            rowData.condition2
+                                        );
+                                    }
+
+                                    _enemyFormationLoadResult.codingData[character.id] = plan;
+                                }
+                            }
+                            else
+                            {
+                                if (!_enemyFormationLoadResult.codingData.ContainsKey(character.id))
+                                {
+                                    _enemyFormationLoadResult.codingData[character.id] = CreateDefaultPlan(character);
+                                }
+                            }
+                        }
+
+                        Debug.Log($"Firebase에서 적 편성 로드 완료 (유저: {username})");
+                        onComplete?.Invoke(true);
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogError($"Firebase 데이터 처리 실패: {e.Message}. 로컬 파일 사용.");
+                        _enemyFormationLoadResult = LoadFormationFromTacticsFile(false);
+                        onComplete?.Invoke(true);
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("Firebase에서 데이터를 가져오지 못했습니다. 로컬 파일 사용.");
+                    _enemyFormationLoadResult = LoadFormationFromTacticsFile(false);
+                    onComplete?.Invoke(true);
+                }
+            });
         }
 
 

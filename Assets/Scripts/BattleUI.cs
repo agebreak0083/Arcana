@@ -52,7 +52,20 @@ public class BattleUI : MonoBehaviour
         // 2배속 버튼 초기화
         InitializeHighSpeedButton();
 
-        UpdateRoundTurnText(1, 1);
+        UpdateRoundTurnText(1, 1);        
+    }
+
+    void Update()
+    {
+        // 스킬 이름 자동 숨김
+        if (skillNameTimer > 0)
+        {
+            skillNameTimer -= Time.deltaTime;
+            if (skillNameTimer <= 0)
+            {
+                HideSkillName();
+            }
+        }
 
         // 플레이어/적 이름 설정
         if (Arcana.Tactics.TacticsDataManager.Instance != null)
@@ -67,19 +80,6 @@ public class BattleUI : MonoBehaviour
             if (enemyNameText != null && enemyResult != null)
             {
                 enemyNameText.text = enemyResult.username;
-            }
-        }
-    }
-
-    void Update()
-    {
-        // 스킬 이름 자동 숨김
-        if (skillNameTimer > 0)
-        {
-            skillNameTimer -= Time.deltaTime;
-            if (skillNameTimer <= 0)
-            {
-                HideSkillName();
             }
         }
     }

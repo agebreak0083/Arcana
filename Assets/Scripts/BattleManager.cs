@@ -71,6 +71,12 @@ public class BattleManager : MonoBehaviour
             Destroy(dummyObject);
         }
 
+        // TacticsDataManager의 데이터 로딩 완료 대기 (Firebase 비동기 로딩 포함)
+        Debug.Log("BattleManager: TacticsDataManager 데이터 로딩 대기 중...");
+        yield return new WaitUntil(() => Arcana.Tactics.TacticsDataManager.Instance != null &&
+                                         Arcana.Tactics.TacticsDataManager.Instance.isDataLoaded);
+        Debug.Log("BattleManager: TacticsDataManager 데이터 로딩 완료!");
+
         // 플레이어 캐릭터 생성
         playerCharacters = CreateCharacters(true);
         // 적 캐릭터 생성

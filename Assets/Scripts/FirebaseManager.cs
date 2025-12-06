@@ -15,7 +15,7 @@ public class FirebaseManager : MonoBehaviour
     public static FirebaseManager Instance { get; private set; }
 
     private DatabaseReference databaseReference;
-    private bool isFirebaseInitialized = false;
+    public bool isFirebaseInitialized { get; private set; } = false;
 
     void Awake()
     {
@@ -166,6 +166,76 @@ public class FirebaseManager : MonoBehaviour
                     onComplete?.Invoke(false, null);
                 }
             });
+    }
+
+    /// <summary>
+    /// Firebase에서 랜덤 Tactics 데이터 가져오기 (적 편성용)
+    /// </summary>
+    /// <param name="onComplete">완료 콜백 (성공 여부, tactics JSON, username)</param>
+    public void GetRandomTacticsFromFirebase(Action<bool, string, string> onComplete)
+    {
+        if (!isFirebaseInitialized)
+        {
+            Debug.LogError("Firebase가 초기화되지 않았습니다.");
+            onComplete?.Invoke(false, null, null);
+            return;
+        }
+
+        // Firebase에서 모든 tactics 데이터 가져오기
+        databaseReference.Child("tactics").GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompleted && !task.IsFaulted && task.Result.Exists)
+            {
+                var allKeys = new System.Collections.Generic.List<string>();
+                foreach (var child in task.Result.Children)
+                {
+                    allKeys.Add(child.Key);
+                }
+
+                if (allKeys.Count > 0)
+                {
+                    // 랜덤 키 선택
+                    int randomIndex = UnityEngine.Random.Range(0, allKeys.Count);
+                    string randomKey = allKeys[randomIndex];
+
+                    // 선택된 키의 데이터 로드 (내부적으로 TacticsFirebaseData 파싱)
+                    databaseReference.Child("tactics").Child(randomKey).GetValueAsync().ContinueWithOnMainThread(loadTask =>
+                    {
+                        if (loadTask.IsCompleted && !loadTask.IsFaulted && loadTask.Result.Exists)
+                        {
+                            string json = loadTask.Result.GetRawJsonValue();
+                            TacticsFirebaseData data = JsonUtility.FromJson<TacticsFirebaseData>(json);
+
+                            if (data != null && !string.IsNullOrEmpty(data.tacticsJson))
+                            {
+                                Debug.Log($"랜덤 Tactics 로드 성공: {randomKey} (유저: {data.username})");
+                                onComplete?.Invoke(true, data.tacticsJson, randomKey);
+                            }
+                            else
+                            {
+                                Debug.LogError($"랜덤 Tactics 데이터 파싱 실패: {randomKey}");
+                                onComplete?.Invoke(false, null, null);
+                            }
+                        }
+                        else
+                        {
+                            Debug.LogError($"랜덤 Tactics 로드 실패: {randomKey}");
+                            onComplete?.Invoke(false, null, null);
+                        }
+                    });
+                }
+                else
+                {
+                    Debug.LogWarning("Firebase에 저장된 Tactics 데이터가 없습니다.");
+                    onComplete?.Invoke(false, null, null);
+                }
+            }
+            else
+            {
+                Debug.LogError($"Firebase Tactics 목록 로드 실패: {task.Exception}");
+                onComplete?.Invoke(false, null, null);
+            }
+        });
     }
 
     /// <summary>
