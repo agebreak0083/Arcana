@@ -1,61 +1,61 @@
 [
     {
         "Name": "카르티",
-        "Portrait": "carti.png",
+        "Portrait": "carti",
         "Class": "파이터",
         "Cost": 2
     },
     {
         "Name": "유노",
-        "Portrait": "yuno.png",
+        "Portrait": "yuno",
         "Class": "헌터",
         "Cost": 2
     },
     {
         "Name": "치사",
-        "Portrait": "chisa.png",
+        "Portrait": "chisa",
         "Class": "위치",
         "Cost": 2
     },
     {
         "Name": "린네",
-        "Portrait": "rinne.png",
+        "Portrait": "rinne",
         "Class": "위치",
         "Cost": 2
     },
     {
         "Name": "플로로",
-        "Portrait": "flo.png",
+        "Portrait": "flo",
         "Class": "헌터",
         "Cost": 2
     },
     {
         "Name": "젠니",
-        "Portrait": "jenny.png",
+        "Portrait": "jenny",
         "Class": "파이터",
         "Cost": 2
     },
     {
         "Name": "아우구스타",
-        "Portrait": "augusta.png",
+        "Portrait": "augusta",
         "Class": "파이터",
         "Cost": 2
     },
     {
         "Name": "칸타렐라",
-        "Portrait": "cantarella.png",
+        "Portrait": "cantarella",
         "Class": "위치",
         "Cost": 2
     },
     {
         "Name": "카를로타",
-        "Portrait": "carolota.png",
+        "Portrait": "carolota",
         "Class": "헌터",
         "Cost": 2
     },
     {
         "Name": "갈브레나",
-        "Portrait": "galbrena.png",
+        "Portrait": "galbrena",
         "Class": "헌터",
         "Cost": 2
     }

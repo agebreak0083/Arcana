@@ -148,5 +148,33 @@
                     ]
                 }
             ]
+        },
+        {
+            "Name": "카를로타",
+            "tactics": []
+        },
+        {
+            "Name": "갈브레나",
+            "tactics": []
+        },
+        {
+            "Name": "플로로",
+            "tactics": []
+        },
+        {
+            "Name": "젠니",
+            "tactics": []
+        },
+        {
+            "Name": "린네",
+            "tactics": []
+        },
+        {
+            "Name": "아우구스타",
+            "tactics": []
+        },
+        {
+            "Name": "칸타렐라",
+            "tactics": []
         }
     ]

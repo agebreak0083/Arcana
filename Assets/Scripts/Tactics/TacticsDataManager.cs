@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Arcana.Tactics.Data;
 using UnityEngine.Networking;
@@ -24,6 +25,7 @@ namespace Arcana.Tactics
         private Dictionary<string, List<SkillData>> _skillMap = new Dictionary<string, List<SkillData>>();
         private FormationLoadResult _playerFormationLoadResult;
         private FormationLoadResult _enemyFormationLoadResult;
+        private CharacterDefinition[] _allCharacterDefinitions; // 모든 캐릭터 정의 목록
 
         public bool isDataLoaded { get; private set; } = false;
 
@@ -110,6 +112,14 @@ namespace Arcana.Tactics
         }
 
         /// <summary>
+        /// 모든 캐릭터 정의 목록을 가져옵니다 (가챠 시스템용)
+        /// </summary>
+        public CharacterDefinition[] GetAllCharacterDefinitions()
+        {
+            return _allCharacterDefinitions;
+        }
+
+        /// <summary>
         /// JSON 파일에서 캐릭터 데이터 로드
         /// </summary>
         private const string CharacterListUrl = "";// "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeCHZPMcs6QJuZeS7k2MosrZrhChNL5FrRH3ePRd5fQx-O-nSUmR4VwZI6VGhHg65tFcWMmIr2tBha/pub?gid=0&single=true&output=csv";
@@ -164,6 +174,9 @@ namespace Arcana.Tactics
                 Debug.LogError("Failed to load Character definitions from both Web and Local.");
                 yield break;
             }
+
+            // Store all character definitions for gacha system
+            _allCharacterDefinitions = allCharacters;
 
             // 2. Load CharacterPool (Dynamic Data)
             string poolJson = "";
@@ -736,6 +749,83 @@ namespace Arcana.Tactics
             catch (System.Exception e)
             {
                 Debug.LogError($"Failed to save formation: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// CharacterPool에 새 캐릭터를 추가합니다 (가챠 시스템용)
+        /// </summary>
+        public void AddCharacterToPool(string characterName)
+        {
+            try
+            {
+                // CharacterPool.json 로드
+                string poolJson = "";
+                string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "CharacterPool.json");
+
+                if (System.IO.File.Exists(persistentPath))
+                {
+                    poolJson = System.IO.File.ReadAllText(persistentPath);
+                }
+                else
+                {
+                    TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
+                    if (poolAsset != null)
+                    {
+                        poolJson = poolAsset.text;
+                    }
+                    else
+                    {
+                        // CharacterPool이 없으면 새로 생성
+                        poolJson = "[]";
+                    }
+                }
+
+                // JSON 파싱
+                CharacterPoolData[] poolData = JsonHelper.FromJson<CharacterPoolData>(poolJson);
+                List<CharacterPoolData> poolList = poolData != null ? new List<CharacterPoolData>(poolData) : new List<CharacterPoolData>();
+
+                // 이미 존재하는지 확인
+                if (poolList.Any(c => c.Name == characterName))
+                {
+                    Debug.Log($"캐릭터 '{characterName}'는 이미 보유하고 있습니다.");
+                    return;
+                }
+
+                // 새 캐릭터 추가 (기본 tactics 없이)
+                var newChar = new CharacterPoolData
+                {
+                    Name = characterName,
+                    tactics = null // 새로 획득한 캐릭터는 tactics가 없음
+                };
+                poolList.Add(newChar);
+
+                // JSON으로 변환
+                var wrapper = new CharacterPoolDataWrapper { characters = poolList.ToArray() };
+                string newJson = JsonUtility.ToJson(wrapper, true);
+
+                // 배열 부분만 추출
+                int startIndex = newJson.IndexOf('[');
+                int endIndex = newJson.LastIndexOf(']');
+                if (startIndex >= 0 && endIndex >= 0)
+                {
+                    newJson = newJson.Substring(startIndex, endIndex - startIndex + 1);
+                }
+
+                // 저장
+                System.IO.File.WriteAllText(persistentPath, newJson);
+                Debug.Log($"CharacterPool에 '{characterName}' 추가 완료");
+
+#if UNITY_EDITOR
+                // Editor에서는 Resources에도 저장
+                string resourcesPath = System.IO.Path.Combine(Application.dataPath, "Resources/CharacterPool.json");
+                System.IO.File.WriteAllText(resourcesPath, newJson);
+                Debug.Log($"CharacterPool also saved to {resourcesPath} (Editor only)");
+#endif
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"CharacterPool에 캐릭터 추가 실패: {e.Message}");
             }
         }
 
