@@ -1,5 +1,5 @@
 {
-    "username": "AGEBREAK-WO2_2512071125",
+    "username": "AGEBREAK-WO2_2512071129",
     "positions": [
         {
             "position": "1",
@@ -115,11 +115,6 @@
         },
         {
             "position": "5",
-            "name": "",
-            "tactics": []
-        },
-        {
-            "position": "6",
             "name": "치사",
             "tactics": [
                 {
@@ -168,6 +163,11 @@
                     ]
                 }
             ]
+        },
+        {
+            "position": "6",
+            "name": "",
+            "tactics": []
         }
     ]
 }
