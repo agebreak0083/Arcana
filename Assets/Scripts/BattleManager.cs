@@ -8,6 +8,8 @@ using static Arcana.Tactics.TacticsDataManager;
 [DefaultExecutionOrder(-50)]
 public class BattleManager : MonoBehaviour
 {
+    public BattleCameraController battleCameraController;
+    
     [Header("Positions")]
     public List<GameObject> playerPositions;
     public List<GameObject> enemyPositions;
@@ -313,9 +315,32 @@ public class BattleManager : MonoBehaviour
             if (BattleLogManager.Instance != null)
                 BattleLogManager.Instance.LogTurnStart(character.characterName, currentRound, currentTurn);
 
+            // 카메라가 현재 턴 캐릭터를 따라가도록 설정
+            if (battleCameraController != null)
+            {
+                battleCameraController.FollowCharacter(character);
+                
+                // 액션 타겟 찾기 (Character의 GetTarget 메서드 사용)
+                Character targetChar = GetActionTarget(character, action);
+                if (targetChar != null)
+                {
+                    battleCameraController.OnActionStart(character, targetChar);
+                }
+                else
+                {
+                    battleCameraController.OnActionStart(character);
+                }
+            }
+
             // 행동 완료 대기
             isWaitingForActionComplete = true;
             yield return new WaitUntil(() => !isWaitingForActionComplete);
+
+            // 액션 종료 시 카메라 복귀
+            if (battleCameraController != null)
+            {
+                battleCameraController.OnActionEnd();
+            }
 
             onResult?.Invoke(true);
         }
@@ -324,6 +349,46 @@ public class BattleManager : MonoBehaviour
             // 행동하지 않음 (조건 불만족, AP 부족 등)
             onResult?.Invoke(false);
         }
+    }
+
+    /// <summary>
+    /// 액션의 타겟 캐릭터를 가져옴 (Character의 GetTarget 로직 재사용)
+    /// </summary>
+    private Character GetActionTarget(Character actor, StrategyAction action)
+    {
+        // Character의 GetTarget 메서드와 동일한 로직 사용
+        List<Character> originalTargets = GetEnemyTargets(actor);
+        List<Character> candidates = new List<Character>(originalTargets);
+
+        // 사망한 캐릭터 제거
+        candidates.RemoveAll(c => c == null || c.hp <= 0);
+
+        if (candidates.Count == 0)
+        {
+            return null;
+        }
+
+        // Condition2 적용 (필터링)
+        if (!string.IsNullOrEmpty(action.condition2) && action.condition2 != "조건 없음")
+        {
+            var filter = TargetConditionFactory.CreateFilter(action.condition2);
+            if (filter != null)
+            {
+                var filtered = filter.Filter(candidates, actor);
+                if (filtered.Count > 0)
+                {
+                    candidates = filtered;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        // Condition1 적용 (선택)
+        var selector = TargetConditionFactory.CreateSelector(action.condition1);
+        return selector.Select(candidates, actor);
     }
 
     // 전투 종료 조건 체크
