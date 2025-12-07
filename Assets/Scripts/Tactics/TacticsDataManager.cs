@@ -204,8 +204,8 @@ namespace Arcana.Tactics
                 }
             }
 
-            // 3. Parse Pool JSON
-            CharacterPoolItem[] myPool = JsonHelper.FromJson<CharacterPoolItem>(poolJson);
+            // 3. Parse Pool JSON (CharacterPoolData 형식으로 파싱)
+            CharacterPoolData[] myPool = JsonHelper.FromJson<CharacterPoolData>(poolJson);
 
             // 4. Match and Create Data
             foreach (var poolItem in myPool)
@@ -610,6 +610,8 @@ namespace Arcana.Tactics
             public string Name;
         }
 
+        // Note: CharacterPoolItem은 더 이상 사용하지 않음. CharacterPoolData를 사용합니다.
+
         [System.Serializable]
         public class ClassListWrapper
         {
@@ -752,6 +754,7 @@ namespace Arcana.Tactics
             }
         }
 
+
         /// <summary>
         /// CharacterPool에 새 캐릭터를 추가합니다 (가챠 시스템용)
         /// </summary>
@@ -792,11 +795,11 @@ namespace Arcana.Tactics
                     return;
                 }
 
-                // 새 캐릭터 추가 (기본 tactics 없이)
+                // 새 캐릭터 추가 (기본 tactics 없이 - 빈 배열로 저장)
                 var newChar = new CharacterPoolData
                 {
                     Name = characterName,
-                    tactics = null // 새로 획득한 캐릭터는 tactics가 없음
+                    tactics = new TacticsData[0] // 빈 배열로 저장 (null이 아닌 빈 배열)
                 };
                 poolList.Add(newChar);
 
@@ -822,6 +825,10 @@ namespace Arcana.Tactics
                 System.IO.File.WriteAllText(resourcesPath, newJson);
                 Debug.Log($"CharacterPool also saved to {resourcesPath} (Editor only)");
 #endif
+
+                // Note: ReloadCharacterPool()은 호출하지 않음
+                // 각 씬은 독립적으로 동작하며, TacticsScene으로 넘어갈 때 TacticsDataManager가 새로 생성되어
+                // LoadCharactersFromWeb()에서 최신 CharacterPool.json을 자동으로 로드함
             }
             catch (System.Exception e)
             {

@@ -77,6 +77,21 @@ namespace Arcana.Tactics.UI
             yield return new WaitUntil(() => _dataManager != null && _dataManager.isDataLoaded);
             Debug.Log("TacticsUIManager: TacticsDataManager 데이터 로딩 완료!");
 
+            // availableCharacters는 TacticsDataManager에서 이미 로드됨 (LoadCharactersFromWeb에서)
+            availableCharacters = _dataManager.availableCharacters;
+
+            // CharacterPool UI 초기화 (데이터 로드 완료 후)
+            if (characterPoolContainer != null && characterCardPrefab != null)
+            {
+                // 모든 캐릭터 카드 생성 (배치 여부는 UpdatePoolUI에서 처리)
+                foreach (var charData in availableCharacters)
+                {
+                    var go = Instantiate(characterCardPrefab, characterPoolContainer);
+                    var card = go.GetComponent<CharacterCardUI>();
+                    card.Setup(charData, this, false);
+                }
+            }
+
             // Load formation from TacticsDataManager (씬마다 독립적인 인스턴스)
             var loadResult = _dataManager.GetPlayerFormationLoadResult();
             if (loadResult != null)
@@ -222,25 +237,15 @@ namespace Arcana.Tactics.UI
                 return;
             }
 
-            // Use data from TacticsDataManager
-            availableCharacters = _dataManager.availableCharacters;
+            // availableCharacters는 Start()에서 데이터 로드 완료 후 설정됨
+            // 여기서는 UI 구조만 초기화
 
-            if (characterPoolContainer != null && characterCardPrefab != null)
+            // Add DropHandler to the characterPoolContainer for dragging back to pool
+            if (characterPoolPanel != null)
             {
-                foreach (var charData in availableCharacters)
-                {
-                    var go = Instantiate(characterCardPrefab, characterPoolContainer);
-                    var card = go.GetComponent<CharacterCardUI>();
-                    card.Setup(charData, this, false);
-                }
-
-                // Add DropHandler to the characterPoolContainer for dragging back to pool
-                if (characterPoolPanel != null)
-                {
-                    var dropHandler = characterPoolPanel.GetComponent<CharacterPoolDropHandler>();
-                    if (dropHandler == null) dropHandler = characterPoolPanel.gameObject.AddComponent<CharacterPoolDropHandler>();
-                    dropHandler.Setup(this);
-                }
+                var dropHandler = characterPoolPanel.GetComponent<CharacterPoolDropHandler>();
+                if (dropHandler == null) dropHandler = characterPoolPanel.gameObject.AddComponent<CharacterPoolDropHandler>();
+                dropHandler.Setup(this);
             }
 
             _formationSlots.Clear();
@@ -420,6 +425,7 @@ namespace Arcana.Tactics.UI
             UpdateUserData();
         }
 
+
         private void UpdatePoolUI()
         {
             if (characterPoolContainer == null) return;
@@ -435,6 +441,7 @@ namespace Arcana.Tactics.UI
                     bool isDeployed = GetSlotIndex(data) != -1;
                     bool isSelected = _selectedCharacter == data;
 
+                    // 배치된 캐릭터는 숨김 (CharacterCardUI.SetDeployed에서 처리)
                     card.SetDeployed(isDeployed);
                     card.SetSelected(isSelected);
                 }
@@ -537,7 +544,12 @@ namespace Arcana.Tactics.UI
             // TacticsRowPrefab은 maxTacticsRow만큼 생성됩니다.
             // 저장된 plan이 그보다 적은 경우, 나머지는 기본 prefab으로 생성됩니다.
 
-            _codingData.TryGetValue(_selectedCharacter.id, out var plan);
+            // Tactics 데이터가 없으면 기본 plan 생성
+            if (!_codingData.TryGetValue(_selectedCharacter.id, out var plan))
+            {
+                plan = _dataManager.CreateDefaultPlan(_selectedCharacter);
+                _codingData[_selectedCharacter.id] = plan;
+            }
 
             int maxTacticsRow = TacticsDatabase.MAX_TACTICS_ROW;
             for (int i = 0; i < maxTacticsRow; i++)
