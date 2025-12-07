@@ -1,5 +1,5 @@
 {
-    "username": "AGEBREAK-WO2_2512071653",
+    "username": "AGEBREAK-WO2_2512071704",
     "positions": [
         {
             "position": "1",
@@ -212,54 +212,8 @@
         },
         {
             "position": "6",
-            "name": "플로로",
-            "tactics": [
-                {
-                    "characterClass": "헌터",
-                    "plan": [
-                        {
-                            "skill": "싱글 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "더블 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "라인 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        }
-                    ]
-                }
-            ]
+            "name": "",
+            "tactics": []
         }
     ]
 }

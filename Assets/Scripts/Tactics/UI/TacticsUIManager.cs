@@ -53,7 +53,8 @@ namespace Arcana.Tactics.UI
 
         [Header("Buttons")]
         public Button runBattleButton;
-        public Button gotoGachaButton; 
+        public Button gotoGachaButton;
+        public GameObject gotoGachaPopup;
 
         // State
         private CharacterData _selectedCharacter; // Currently selected (could be from pool or slot)
@@ -108,6 +109,12 @@ namespace Arcana.Tactics.UI
             }
 
             UpdateAllUI();
+
+            // CharacterPool이 비어있으면, 가챠 팝업을 연다.
+            if (availableCharacters.Count == 0)
+            {
+                gotoGachaPopup.SetActive(true);
+            }
         }
 
         private void AutoAssignReferences()
@@ -205,6 +212,7 @@ namespace Arcana.Tactics.UI
 
             if (runBattleButton == null) runBattleButton = GameObject.Find("RunBattleButton").GetComponent<Button>();
             if (gotoGachaButton == null) gotoGachaButton = GameObject.Find("GachaButton").GetComponent<Button>();
+            if (gotoGachaPopup == null) gotoGachaPopup = GameObject.Find("GachaPopup");
             if (characterCardPrefab == null) characterCardPrefab = Resources.Load<GameObject>("Prefabs/UI/CharacterCardPrefab");
             if (tacticRowPrefab == null) tacticRowPrefab = Resources.Load<GameObject>("Prefabs/UI/TacticRowPrefab");
         }
@@ -270,6 +278,7 @@ namespace Arcana.Tactics.UI
             if (skillModal != null) skillModal.Setup(this);
             if (runBattleButton != null) runBattleButton.onClick.AddListener(OnRunBattleClicked);
             if (gotoGachaButton != null) gotoGachaButton.onClick.AddListener(OnGotoGachaClicked);
+            if (gotoGachaPopup != null) gotoGachaPopup.GetComponentInChildren<Button>().onClick.AddListener(OnGotoGachaClicked);
         }
 
         public void OnGotoGachaClicked()

@@ -4,23 +4,19 @@
             "tactics": []
         },
         {
-            "Name": "플로로",
-            "tactics": []
-        },
-        {
-            "Name": "카르티",
-            "tactics": []
-        },
-        {
-            "Name": "카를로타",
-            "tactics": []
-        },
-        {
             "Name": "린네",
             "tactics": []
         },
         {
             "Name": "유노",
+            "tactics": []
+        },
+        {
+            "Name": "갈브레나",
+            "tactics": []
+        },
+        {
+            "Name": "카를로타",
             "tactics": []
         }
     ]
