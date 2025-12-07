@@ -2842,6 +2842,10 @@ PrefabInstance:
       propertyPath: m_PlayOnAwake
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7802916607981403018, guid: cc943b71bfdfd084bbeffc8167b90a28, type: 3}
+      propertyPath: isPause
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8227914009230068791, guid: cc943b71bfdfd084bbeffc8167b90a28, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

@@ -414,7 +414,29 @@ namespace Arcana.Tactics.UI
 
         public void OnRunBattleClicked()
         {
+            // 로컬 파일에 저장
             _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);
+
+            // Firebase에 저장 (BattleScene으로 이동할 때만)
+            if (FirebaseManager.Instance != null && FirebaseManager.Instance.isFirebaseInitialized)
+            {
+                string tacticsJson = _dataManager.GetTacticsJson(_unitSlots, _codingData);
+                FirebaseManager.Instance.SaveTacticsToFirebase(tacticsJson, (success, key) =>
+                {
+                    if (success)
+                    {
+                        Debug.Log($"Firebase에 Tactics 저장 완료: {key}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Firebase 저장 실패: {key}");
+                    }
+                });
+            }
+            else
+            {
+                Debug.LogWarning("Firebase가 초기화되지 않았습니다. 로컬 파일만 저장됩니다.");
+            }
 
             // BattleScene으로 이동한다. 
             SceneManager.LoadScene("BattleScene");

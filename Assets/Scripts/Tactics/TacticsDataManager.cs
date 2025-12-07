@@ -669,76 +669,84 @@ namespace Arcana.Tactics
         }
 
         /// <summary>
-        /// tactics.json에 포메이션 저장
+        /// Tactics 데이터를 JSON 문자열로 변환
+        /// </summary>
+        public string GetTacticsJson(CharacterData[] unitSlots, Dictionary<string, TacticsPlan> codingData)
+        {
+            // Build positions data using unified structure
+            var positionsList = new List<PositionData>();
+
+            string username;
+            if (UserDataManager.Instance != null && UserDataManager.Instance.currentUserData != null)
+            {
+                // username : playername_날짜시간
+                username = UserDataManager.Instance.currentUserData.playerName + "_" + DateTime.Now.ToString("yyMMddHHmm");
+            }
+            else
+            {
+                username = "Player_" + DateTime.Now.ToString("yyMMddHHmm");
+            }
+
+            for (int i = 0; i < 6; i++)
+            {
+                var posData = new PositionData
+                {
+                    position = (i + 1).ToString(),
+                    name = ""
+                };
+
+                // If there's a character in this slot
+                if (unitSlots[i] != null)
+                {
+                    var character = unitSlots[i];
+                    posData.name = character.characterName;
+
+                    // If this character has tactics data, add it
+                    if (codingData.TryGetValue(character.id, out var plan))
+                    {
+                        var tacticRowsList = new List<TacticRowData>();
+                        foreach (var row in plan.rows)
+                        {
+                            tacticRowsList.Add(new TacticRowData
+                            {
+                                skill = row.skillName,
+                                condition1 = row.condition1,
+                                condition2 = row.condition2
+                            });
+                        }
+
+                        posData.tactics = new TacticsData[]
+                        {
+                            new TacticsData
+                            {
+                                characterClass = character.characterClass,
+                                plan = tacticRowsList.ToArray()
+                            }
+                        };
+                    }
+                }
+
+                positionsList.Add(posData);
+            }
+
+            // Serialize to JSON using JsonUtility
+            var tacticsFileData = new TacticsFileData
+            {
+                username = username,
+                positions = positionsList.ToArray()
+            };
+
+            return JsonUtility.ToJson(tacticsFileData, true);
+        }
+
+        /// <summary>
+        /// tactics.json에 포메이션 저장 (로컬 파일만)
         /// </summary>
         public void SaveFormationToTacticsFile(CharacterData[] unitSlots, Dictionary<string, TacticsPlan> codingData)
         {
             try
             {
-                // Build positions data using unified structure
-                var positionsList = new List<PositionData>();
-
-                string username;
-                if (UserDataManager.Instance != null && UserDataManager.Instance.currentUserData != null)
-                {
-                    // username : playername_날짜시간
-                    username = UserDataManager.Instance.currentUserData.playerName + "_" + DateTime.Now.ToString("yyMMddHHmm");
-                }
-                else
-                {
-                    username = "Player_" + DateTime.Now.ToString("yyMMddHHmm");
-                }
-
-                for (int i = 0; i < 6; i++)
-                {
-                    var posData = new PositionData
-                    {
-                        position = (i + 1).ToString(),
-                        name = ""
-                    };
-
-                    // If there's a character in this slot
-                    if (unitSlots[i] != null)
-                    {
-                        var character = unitSlots[i];
-                        posData.name = character.characterName;
-
-                        // If this character has tactics data, add it
-                        if (codingData.TryGetValue(character.id, out var plan))
-                        {
-                            var tacticRowsList = new List<TacticRowData>();
-                            foreach (var row in plan.rows)
-                            {
-                                tacticRowsList.Add(new TacticRowData
-                                {
-                                    skill = row.skillName,
-                                    condition1 = row.condition1,
-                                    condition2 = row.condition2
-                                });
-                            }
-
-                            posData.tactics = new TacticsData[]
-                            {
-                                new TacticsData
-                                {
-                                    characterClass = character.characterClass,
-                                    plan = tacticRowsList.ToArray()
-                                }
-                            };
-                        }
-                    }
-
-                    positionsList.Add(posData);
-                }
-
-                // Serialize to JSON using JsonUtility
-                var tacticsFileData = new TacticsFileData
-                {
-                    username = username,
-                    positions = positionsList.ToArray()
-                };
-
-                string json = JsonUtility.ToJson(tacticsFileData, true);
+                string json = GetTacticsJson(unitSlots, codingData);
 
                 // 1. Save to PersistentDataPath (Runtime usage)
                 string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "tactics.json");
@@ -752,21 +760,7 @@ namespace Arcana.Tactics
                 Debug.Log($"Formation saved to {resourcesPath}");
 #endif
 
-                // 3. Save to Firebase (모든 유저의 tactics 데이터 저장)
-                if (FirebaseManager.Instance != null)
-                {
-                    FirebaseManager.Instance.SaveTacticsToFirebase(json, (success, key) =>
-                    {
-                        if (success)
-                        {
-                            Debug.Log($"Firebase에 Tactics 저장 완료: {key}");
-                        }
-                        else
-                        {
-                            Debug.LogWarning($"Firebase 저장 실패: {key}");
-                        }
-                    });
-                }
+                // Note: Firebase 저장은 BattleScene으로 이동할 때만 수행됨 (OnRunBattleClicked에서)
             }
             catch (System.Exception e)
             {
