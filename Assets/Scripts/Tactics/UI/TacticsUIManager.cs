@@ -629,6 +629,9 @@ namespace Arcana.Tactics.UI
 
             _selectedCharacter = charData;
             StartCoroutine(UpdateAllUINextFrame());
+
+            // tactics.json에 저장
+            _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);
         }
 
         IEnumerator UpdateAllUINextFrame()

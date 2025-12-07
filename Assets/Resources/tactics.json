@@ -1,5 +1,5 @@
 {
-    "username": "AGEBREAK-WO2_2512071555",
+    "username": "AGEBREAK-WO2_2512071606",
     "positions": [
         {
             "position": "1",
@@ -54,8 +54,54 @@
         },
         {
             "position": "2",
-            "name": "",
-            "tactics": []
+            "name": "치사",
+            "tactics": [
+                {
+                    "characterClass": "위치",
+                    "plan": [
+                        {
+                            "skill": "아이스 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "매직 미사일",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "아이스 코핀",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "position": "3",
@@ -110,8 +156,54 @@
         },
         {
             "position": "4",
-            "name": "",
-            "tactics": []
+            "name": "젠니",
+            "tactics": [
+                {
+                    "characterClass": "파이터",
+                    "plan": [
+                        {
+                            "skill": "가드 슬래시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "실드 배시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "디펜더",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "position": "5",

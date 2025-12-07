@@ -66,7 +66,7 @@ namespace Arcana.Tactics.UI
             if (_draggable != null)
             {
                 _draggable.isDraggable = (character != null);
-                Debug.Log($"[FormationSlotUI] Slot {slotIndex} UpdateState - Character: {character?.characterName ?? "null"}, isDraggable: {_draggable.isDraggable}, sprite: {characterPortrait.sprite != null}");
+                //Debug.Log($"[FormationSlotUI] Slot {slotIndex} UpdateState - Character: {character?.characterName ?? "null"}, isDraggable: {_draggable.isDraggable}, sprite: {characterPortrait.sprite != null}");
             }
         }
 

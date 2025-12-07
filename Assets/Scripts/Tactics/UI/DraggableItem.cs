@@ -156,7 +156,7 @@ namespace Arcana.Tactics.UI
                 // Log every 10 frames to avoid spam
                 if (Time.frameCount % 10 == 0)
                 {
-                    Debug.Log($"[DraggableItem] Drag position updated - Screen: {eventData.position}, Local: {localPoint}, Camera: {eventData.pressEventCamera}");
+                    //Debug.Log($"[DraggableItem] Drag position updated - Screen: {eventData.position}, Local: {localPoint}, Camera: {eventData.pressEventCamera}");
                 }
             }
             else
