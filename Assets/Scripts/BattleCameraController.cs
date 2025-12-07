@@ -4,16 +4,17 @@ using System.Collections;
 public class BattleCameraController : MonoBehaviour
 {
     [Header("Camera Settings")]
-    public float followSpeed = 2.0f;
-    public float zoomSpeed = 1.0f;
+    public float followSpeed = 1.2f; // 더 부드러운 추적을 위해 낮춤
+    public float zoomSpeed = 0.8f;
     public float minZoom = 3.0f;
     public float maxZoom = 8.0f;
     public float defaultZoom = 5.0f;
+    public float minMoveDistance = 0.1f; // 최소 이동 거리 (너무 작은 이동 무시)
 
     [Header("Cinematic Settings")]
     public float actionZoom = 4.0f;
     public float actionDuration = 0.8f;
-    public float transitionDuration = 0.5f;
+    public float transitionDuration = 0.8f; // 더 부드러운 전환을 위해 늘림
     public Vector3 offset = new Vector3(0, 0, -3.0f); // 2D 게임이므로 Y는 0
 
     private Camera cam;
@@ -53,7 +54,20 @@ public class BattleCameraController : MonoBehaviour
         {
             Vector3 targetPos = currentTarget.position;
             Vector3 desiredPosition = new Vector3(targetPos.x + offset.x, fixedCameraY, targetPos.z + offset.z);
-            transform.position = Vector3.Lerp(transform.position, desiredPosition, Time.deltaTime * followSpeed);
+            
+            // 최소 이동 거리 체크 (너무 작은 이동은 무시하여 급격한 움직임 방지)
+            float distance = Vector3.Distance(transform.position, desiredPosition);
+            if (distance > minMoveDistance)
+            {
+                // Time.timeScale에 관계없이 일정한 속도로 이동하도록 조정
+                float adjustedSpeed = followSpeed * (1f / Mathf.Max(Time.timeScale, 0.1f));
+                adjustedSpeed = Mathf.Clamp(adjustedSpeed, 0.5f, 3.0f); // 최소/최대 속도 제한
+                
+                // EaseInOut을 사용하여 더 부드러운 이동
+                float t = Time.deltaTime * adjustedSpeed;
+                t = Mathf.Clamp01(t);
+                transform.position = Vector3.Lerp(transform.position, desiredPosition, t);
+            }
 
             // 2D 게임: 회전 고정
             transform.rotation = fixedCameraRotation;
@@ -61,7 +75,9 @@ public class BattleCameraController : MonoBehaviour
             // 부드러운 줌 조정
             if (cam != null && cam.orthographic)
             {
-                cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetZoom, Time.deltaTime * zoomSpeed);
+                float zoomT = Time.deltaTime * zoomSpeed;
+                zoomT = Mathf.Clamp01(zoomT);
+                cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetZoom, zoomT);
             }
         }
     }
@@ -86,16 +102,21 @@ public class BattleCameraController : MonoBehaviour
     {
         if (target == null) return;
 
+        // 같은 타겟이면 전환하지 않음
+        if (currentTarget == target) return;
+
         currentTarget = target;
+        
+        // 코루틴 전환 대신 LateUpdate에서 자연스럽게 추적하도록 변경
+        // 급격한 전환을 피하기 위해 isTransitioning을 false로 유지
+        isTransitioning = false;
         
         // 기존 전환 중단
         if (currentTransition != null)
         {
             StopCoroutine(currentTransition);
+            currentTransition = null;
         }
-
-        // 부드러운 전환 시작
-        currentTransition = StartCoroutine(SmoothTransitionToTarget(target));
     }
 
     /// <summary>
@@ -128,39 +149,13 @@ public class BattleCameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// 부드러운 타겟 전환
+    /// 부드러운 타겟 전환 (현재는 사용하지 않음 - LateUpdate에서 자연스럽게 추적)
     /// </summary>
     private IEnumerator SmoothTransitionToTarget(Transform target)
     {
-        isTransitioning = true;
-        Vector3 startPos = transform.position;
-        float startZoom = cam != null ? cam.orthographicSize : defaultZoom;
-
-        Vector3 targetPos = target.position;
-        Vector3 endPos = new Vector3(targetPos.x + offset.x, fixedCameraY, targetPos.z + offset.z);
-
-        float elapsed = 0f;
-        while (elapsed < transitionDuration)
-        {
-            elapsed += Time.deltaTime;
-            float t = EaseOutCubic(elapsed / transitionDuration);
-
-            Vector3 currentPos = Vector3.Lerp(startPos, endPos, t);
-            currentPos.y = fixedCameraY; // Y 위치 항상 고정
-            transform.position = currentPos;
-            transform.rotation = fixedCameraRotation; // 회전 고정
-            
-            if (cam != null && cam.orthographic)
-            {
-                cam.orthographicSize = Mathf.Lerp(startZoom, targetZoom, t);
-            }
-
-            yield return null;
-        }
-
-        transform.position = endPos;
-        transform.rotation = fixedCameraRotation;
-        isTransitioning = false;
+        // 이 메서드는 더 이상 사용하지 않지만, 호환성을 위해 유지
+        // 실제 전환은 LateUpdate에서 처리됨
+        yield return null;
     }
 
     /// <summary>
