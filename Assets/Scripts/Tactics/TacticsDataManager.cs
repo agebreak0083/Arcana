@@ -60,6 +60,7 @@ namespace Arcana.Tactics
 
             // Player formation 로드 (로컬 파일)
             _playerFormationLoadResult = LoadFormationFromTacticsFile(true);
+            Debug.Log("TacticsDataManager: Player formation 로드 완료");
 
             // Firebase 초기화 대기 (최대 5초)
             float waitTime = 0f;
@@ -166,25 +167,26 @@ namespace Arcana.Tactics
 
             // 2. Load CharacterPool (Dynamic Data)
             string poolJson = "";
+            string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "CharacterPool.json");
 
-            // Try to load from PlayerPrefs first
-            if (PlayerPrefs.HasKey("CharacterPool"))
+            // 1. Try loading from PersistentDataPath first
+            if (System.IO.File.Exists(persistentPath))
             {
-                poolJson = PlayerPrefs.GetString("CharacterPool");
-                Debug.Log("Loaded CharacterPool from PlayerPrefs");
+                poolJson = System.IO.File.ReadAllText(persistentPath);
+                Debug.Log("Loaded CharacterPool from PersistentDataPath");
             }
             else
             {
-                // Fallback to Resources if no PlayerPrefs data exists
+                // 2. Fallback to Resources
                 TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
                 if (poolAsset != null)
                 {
                     poolJson = poolAsset.text;
-                    Debug.Log("Loaded CharacterPool from Resources (no PlayerPrefs data found)");
+                    Debug.Log("Loaded CharacterPool from Resources (no PersistentDataPath file found)");
                 }
                 else
                 {
-                    Debug.LogError("Failed to load CharacterPool from both PlayerPrefs and Resources");
+                    Debug.LogError("Failed to load CharacterPool from both PersistentDataPath and Resources");
                     yield break;
                 }
             }
@@ -738,7 +740,7 @@ namespace Arcana.Tactics
         }
 
         /// <summary>
-        /// CharacterPool 데이터를 PlayerPrefs에 저장
+        /// CharacterPool 데이터를 파일에 저장
         /// </summary>
         public void SaveTacticsToFile(Dictionary<string, TacticsPlan> codingData)
         {
@@ -795,13 +797,13 @@ namespace Arcana.Tactics
                     json = json.Substring(startIndex, endIndex - startIndex + 1);
                 }
 
-                // Save to PlayerPrefs
-                PlayerPrefs.SetString("CharacterPool", json);
-                PlayerPrefs.Save();
-                Debug.Log("CharacterPool data saved to PlayerPrefs");
+                // 1. Save to PersistentDataPath (Runtime usage)
+                string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "CharacterPool.json");
+                System.IO.File.WriteAllText(persistentPath, json);
+                Debug.Log($"CharacterPool saved to {persistentPath}");
 
 #if UNITY_EDITOR
-                // Also save to Resources folder in editor for inspection
+                // 2. Save to Resources (Editor usage - for user visibility)
                 string resourcesPath = System.IO.Path.Combine(Application.dataPath, "Resources/CharacterPool.json");
                 System.IO.File.WriteAllText(resourcesPath, json);
                 Debug.Log($"CharacterPool also saved to {resourcesPath} (Editor only)");

@@ -17,18 +17,18 @@ namespace Arcana.Tactics.UI
 
         private TacticsUIManager _manager;
         private int _rowIndex;
-        private string _charId;
+        private string _charName;
 
-        public void Setup(TacticsUIManager manager, string charId, int rowIndex, TacticRow rowData)
+        public void Setup(TacticsUIManager manager, string charName, int rowIndex, TacticRow rowData)
         {
             _manager = manager;
-            _charId = charId;
+            _charName = charName;
             _rowIndex = rowIndex;
 
             indexText.text = (rowIndex + 1).ToString();
             skillNameBtn.GetComponentInChildren<TextMeshProUGUI>().text = rowData == null ? "---" : rowData.skillName;
             skillNameBtn.onClick.RemoveAllListeners();
-            skillNameBtn.onClick.AddListener(() => _manager.OnSkillNameClicked(_charId, _rowIndex));
+            skillNameBtn.onClick.AddListener(() => _manager.OnSkillNameClicked(_charName, _rowIndex));
 
             if (rowData == null)
             {
@@ -45,10 +45,10 @@ namespace Arcana.Tactics.UI
             condition2Btn.GetComponentInChildren<TextMeshProUGUI>().text = rowData == null? "조건 없음" : rowData.condition2;
 
             condition1Btn.onClick.RemoveAllListeners();
-            condition1Btn.onClick.AddListener(() => _manager.OnConditionClicked(_charId, _rowIndex, 1));
+            condition1Btn.onClick.AddListener(() => _manager.OnConditionClicked(_charName, _rowIndex, 1));
 
             condition2Btn.onClick.RemoveAllListeners();
-            condition2Btn.onClick.AddListener(() => _manager.OnConditionClicked(_charId, _rowIndex, 2));
+            condition2Btn.onClick.AddListener(() => _manager.OnConditionClicked(_charName, _rowIndex, 2));
         }
     }
 }

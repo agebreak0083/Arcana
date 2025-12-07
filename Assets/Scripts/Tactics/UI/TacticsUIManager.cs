@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -66,15 +67,29 @@ namespace Arcana.Tactics.UI
         private List<FormationSlotUI> _formationSlots = new List<FormationSlotUI>();
         private TacticsDataManager _dataManager;
 
-        private void Start()
+        private IEnumerator Start()
         {
             AutoAssignReferences();
             InitializeUI();
 
+            // TacticsDataManager의 데이터 로딩 완료 대기 (Firebase 비동기 로딩 포함)
+            Debug.Log("TacticsUIManager: TacticsDataManager 데이터 로딩 대기 중...");
+            yield return new WaitUntil(() => _dataManager != null && _dataManager.isDataLoaded);
+            Debug.Log("TacticsUIManager: TacticsDataManager 데이터 로딩 완료!");
+
             // Load formation from TacticsDataManager (씬마다 독립적인 인스턴스)
             var loadResult = _dataManager.GetPlayerFormationLoadResult();
-            _unitSlots = loadResult.unitSlots;
-            _codingData = loadResult.codingData;
+            if (loadResult != null)
+            {
+                _unitSlots = loadResult.unitSlots;
+                _codingData = loadResult.codingData;
+            }
+            else
+            {
+                Debug.LogError("TacticsUIManager: Player formation load result is null!");
+                _unitSlots = new CharacterData[6];
+                _codingData = new Dictionary<string, TacticsPlan>();
+            }
 
             UpdateAllUI();
         }
@@ -275,9 +290,25 @@ namespace Arcana.Tactics.UI
             }
         }
 
-        public void OnConditionClicked(string charId, int rowIndex, int conditionNum)
+        public void OnConditionClicked(string charName, int rowIndex, int conditionNum)
         {
-            _modalTargetCharId = charId;
+            // Use _selectedCharacter if it matches, otherwise find by name
+            CharacterData targetCharacter = null;
+            if (_selectedCharacter != null && _selectedCharacter.characterName == charName)
+            {
+                targetCharacter = _selectedCharacter;
+            }
+            else
+            {
+                targetCharacter = availableCharacters.Find(c => c.characterName == charName);
+            }
+
+            if (targetCharacter == null)
+            {
+                Debug.LogError($"TacticsUIManager: Character with name {charName} not found! Available characters: {string.Join(", ", availableCharacters.Select(c => c.characterName))}");
+                return;
+            }
+            _modalTargetCharId = targetCharacter.id;
             _modalTargetRowIndex = rowIndex;
             _modalTargetConditionNum = conditionNum;
             conditionModal.Open();
@@ -301,19 +332,28 @@ namespace Arcana.Tactics.UI
         /// <summary>
         /// 스킬 이름 클릭 시 호출 (TacticRowUI에서)
         /// </summary>
-        public void OnSkillNameClicked(string charId, int rowIndex)
+        public void OnSkillNameClicked(string charName, int rowIndex)
         {
-            _modalTargetCharId = charId;
             _modalTargetRowIndex = rowIndex;
 
-            // 해당 캐릭터 찾기
-            CharacterData targetCharacter = availableCharacters.Find(c => c.id == charId);
+            // Use _selectedCharacter if it matches, otherwise find by name
+            CharacterData targetCharacter = null;
+            if (_selectedCharacter != null && _selectedCharacter.characterName == charName)
+            {
+                targetCharacter = _selectedCharacter;
+            }
+            else
+            {
+                targetCharacter = availableCharacters.Find(c => c.characterName == charName);
+            }
 
             if (targetCharacter == null)
             {
-                Debug.LogError($"TacticsUIManager: Character with id {charId} not found!");
+                Debug.LogError($"TacticsUIManager: Character with name {charName} not found! Available characters: {string.Join(", ", availableCharacters.Select(c => c.characterName))}");
                 return;
             }
+
+            _modalTargetCharId = targetCharacter.id;
 
             if (skillModal == null)
             {
@@ -507,11 +547,11 @@ namespace Arcana.Tactics.UI
 
                 if (i < plan.rows.Count)
                 {
-                    rowUI.Setup(this, _selectedCharacter.id, i, plan.rows[i]);
+                    rowUI.Setup(this, _selectedCharacter.characterName, i, plan.rows[i]);
                 }
                 else
                 {
-                    rowUI.Setup(this, _selectedCharacter.id, i, null);
+                    rowUI.Setup(this, _selectedCharacter.characterName, i, null);
                 }
             }
         }
