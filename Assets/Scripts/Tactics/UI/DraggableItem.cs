@@ -21,7 +21,7 @@ namespace Arcana.Tactics.UI
             _canvasGroup = GetComponent<CanvasGroup>();
             if (_canvasGroup == null) _canvasGroup = gameObject.AddComponent<CanvasGroup>();
 
-            Debug.Log($"[DraggableItem] Awake - Canvas found: {_canvas != null}, CanvasGroup: {_canvasGroup != null}");
+            //Debug.Log($"[DraggableItem] Awake - Canvas found: {_canvas != null}, CanvasGroup: {_canvasGroup != null}");
         }
 
         public void OnBeginDrag(PointerEventData eventData)

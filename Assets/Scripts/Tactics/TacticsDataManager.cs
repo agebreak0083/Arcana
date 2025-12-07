@@ -18,6 +18,8 @@ namespace Arcana.Tactics
     {
         public static TacticsDataManager Instance { get; private set; }
 
+        public bool isNeedServerData = false;
+
         [Header("Loaded Data")]
         public List<CharacterData> availableCharacters;
 
@@ -64,38 +66,48 @@ namespace Arcana.Tactics
             _playerFormationLoadResult = LoadFormationFromTacticsFile(true);
             Debug.Log("TacticsDataManager: Player formation 로드 완료");
 
-            // Firebase 초기화 대기 (최대 5초)
-            float waitTime = 0f;
-            const float maxWaitTime = 5f;
-
-            if (FirebaseManager.Instance != null)
+            // Enemy formation 로드는 서버 데이터가 필요할 때만 로드
+            if (isNeedServerData)
             {
-                Debug.Log("TacticsDataManager: Firebase 초기화 대기 중...");
-                while (!FirebaseManager.Instance.isFirebaseInitialized && waitTime < maxWaitTime)
+                // Firebase 초기화 대기 (최대 5초)
+                float waitTime = 0f;
+                const float maxWaitTime = 5f;
+
+                if (FirebaseManager.Instance != null)
                 {
-                    yield return new WaitForSeconds(0.1f);
-                    waitTime += 0.1f;
+                    Debug.Log("TacticsDataManager: Firebase 초기화 대기 중...");
+                    while (!FirebaseManager.Instance.isFirebaseInitialized && waitTime < maxWaitTime)
+                    {
+                        yield return new WaitForSeconds(0.1f);
+                        waitTime += 0.1f;
+                    }
+
+                    if (FirebaseManager.Instance.isFirebaseInitialized)
+                    {
+                        Debug.Log("TacticsDataManager: Firebase 초기화 완료!");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"TacticsDataManager: Firebase 초기화 타임아웃 ({maxWaitTime}초). 로컬 파일 사용.");
+                    }
                 }
 
-                if (FirebaseManager.Instance.isFirebaseInitialized)
+                // Enemy formation 로드 (Firebase에서 랜덤 또는 로컬 파일)
+                bool enemyLoadComplete = false;
+                LoadEnemyFormationFromFirebase((success) =>
                 {
-                    Debug.Log("TacticsDataManager: Firebase 초기화 완료!");
-                }
-                else
-                {
-                    Debug.LogWarning($"TacticsDataManager: Firebase 초기화 타임아웃 ({maxWaitTime}초). 로컬 파일 사용.");
-                }
+                    enemyLoadComplete = true;
+                });
+
+                // Firebase 로딩 완료 대기
+                yield return new WaitUntil(() => enemyLoadComplete);
             }
-
-            // Enemy formation 로드 (Firebase에서 랜덤 또는 로컬 파일)
-            bool enemyLoadComplete = false;
-            LoadEnemyFormationFromFirebase((success) =>
+            else
             {
-                enemyLoadComplete = true;
-            });
-
-            // Firebase 로딩 완료 대기
-            yield return new WaitUntil(() => enemyLoadComplete);
+                // 서버 데이터가 필요 없으면 기본 Enemy formation 설정
+                Debug.Log("TacticsDataManager: 서버 데이터 불필요. 기본 Enemy formation 사용.");
+                _enemyFormationLoadResult = LoadFormationFromTacticsFile(false);
+            }
 
             isDataLoaded = true;
             Debug.Log("TacticsDataManager: 모든 데이터 로드 완료");

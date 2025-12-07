@@ -1,27 +1,39 @@
 using System;
 using System.Collections;
 using UnityEngine;
+#if !UNITY_WEBGL
 using Firebase;
 using Firebase.Database;
 using Firebase.Extensions;
+#endif
 
 /// <summary>
 /// Firebase Realtime Database 관리 클래스
 /// - Tactics 데이터를 Firebase에 저장/로드
+/// - WebGL 빌드에서는 Firebase를 사용하지 않음
 /// </summary>
 [DefaultExecutionOrder(-100)]
 public class FirebaseManager : MonoBehaviour
 {
     public static FirebaseManager Instance { get; private set; }
 
+#if !UNITY_WEBGL
     private DatabaseReference databaseReference;
+#endif
     public bool isFirebaseInitialized { get; private set; } = false;
 
     void Awake()
     {
         // 씬마다 독립적인 인스턴스 사용
         Instance = this;
+        
+#if UNITY_WEBGL
+        // WebGL에서는 Firebase를 사용하지 않음
+        isFirebaseInitialized = false;
+        Debug.Log("WebGL 빌드: Firebase는 지원되지 않습니다.");
+#else
         InitializeFirebase();
+#endif
     }
 
     /// <summary>
@@ -29,6 +41,7 @@ public class FirebaseManager : MonoBehaviour
     /// </summary>
     private void InitializeFirebase()
     {
+#if !UNITY_WEBGL
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
         {
             var dependencyStatus = task.Result;
@@ -44,6 +57,9 @@ public class FirebaseManager : MonoBehaviour
                 isFirebaseInitialized = false;
             }
         });
+#else
+        isFirebaseInitialized = false;
+#endif
     }
 
     /// <summary>
@@ -53,6 +69,11 @@ public class FirebaseManager : MonoBehaviour
     /// <param name="onComplete">완료 콜백</param>
     public void SaveTacticsToFirebase(string tacticsJson, Action<bool, string> onComplete = null)
     {
+#if UNITY_WEBGL
+        Debug.LogWarning("WebGL 빌드: Firebase 저장은 지원되지 않습니다.");
+        onComplete?.Invoke(false, "Firebase not supported on WebGL");
+        return;
+#else
         if (!isFirebaseInitialized)
         {
             Debug.LogError("Firebase가 초기화되지 않았습니다.");
@@ -96,6 +117,7 @@ public class FirebaseManager : MonoBehaviour
                 onComplete?.Invoke(false, task.Exception?.Message);
             }
         });
+#endif
     }
 
     /// <summary>
@@ -105,6 +127,11 @@ public class FirebaseManager : MonoBehaviour
     /// <param name="onComplete">완료 콜백 (성공 여부, tactics JSON)</param>
     public void LoadTacticsFromFirebase(string key, Action<bool, string> onComplete)
     {
+#if UNITY_WEBGL
+        Debug.LogWarning("WebGL 빌드: Firebase 로드는 지원되지 않습니다.");
+        onComplete?.Invoke(false, null);
+        return;
+#else
         if (!isFirebaseInitialized)
         {
             Debug.LogError("Firebase가 초기화되지 않았습니다.");
@@ -127,6 +154,7 @@ public class FirebaseManager : MonoBehaviour
                 onComplete?.Invoke(false, null);
             }
         });
+#endif
     }
 
     /// <summary>
@@ -136,6 +164,11 @@ public class FirebaseManager : MonoBehaviour
     /// <param name="onComplete">완료 콜백 (성공 여부, 키 목록)</param>
     public void GetUserTacticsKeys(string username, Action<bool, System.Collections.Generic.List<string>> onComplete)
     {
+#if UNITY_WEBGL
+        Debug.LogWarning("WebGL 빌드: Firebase 키 목록 로드는 지원되지 않습니다.");
+        onComplete?.Invoke(false, null);
+        return;
+#else
         if (!isFirebaseInitialized)
         {
             Debug.LogError("Firebase가 초기화되지 않았습니다.");
@@ -166,6 +199,7 @@ public class FirebaseManager : MonoBehaviour
                     onComplete?.Invoke(false, null);
                 }
             });
+#endif
     }
 
     /// <summary>
@@ -174,6 +208,11 @@ public class FirebaseManager : MonoBehaviour
     /// <param name="onComplete">완료 콜백 (성공 여부, tactics JSON, username)</param>
     public void GetRandomTacticsFromFirebase(Action<bool, string, string> onComplete)
     {
+#if UNITY_WEBGL
+        Debug.LogWarning("WebGL 빌드: Firebase 랜덤 Tactics 로드는 지원되지 않습니다. 로컬 파일을 사용합니다.");
+        onComplete?.Invoke(false, null, null);
+        return;
+#else
         if (!isFirebaseInitialized)
         {
             Debug.LogError("Firebase가 초기화되지 않았습니다.");
@@ -236,6 +275,7 @@ public class FirebaseManager : MonoBehaviour
                 onComplete?.Invoke(false, null, null);
             }
         });
+#endif
     }
 
     /// <summary>
