@@ -3708,6 +3708,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71a6e2bf7c8ddcb4e9d633a4650e464d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Arcana.Tactics.TacticsDataManager
+  isNeedServerData: 1
   availableCharacters: []
 --- !u!1 &1595686273
 GameObject:

@@ -18,5 +18,21 @@
         {
             "Name": "카를로타",
             "tactics": []
+        },
+        {
+            "Name": "칸타렐라",
+            "tactics": []
+        },
+        {
+            "Name": "카르티",
+            "tactics": []
+        },
+        {
+            "Name": "아우구스타",
+            "tactics": []
+        },
+        {
+            "Name": "치사",
+            "tactics": []
         }
     ]

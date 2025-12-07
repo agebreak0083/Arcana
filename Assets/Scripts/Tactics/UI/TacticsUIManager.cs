@@ -7,6 +7,7 @@ using Arcana.Tactics.Data;
 using static Arcana.Tactics.TacticsDataManager;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System;
 
 namespace Arcana.Tactics.UI
 {
@@ -14,17 +15,18 @@ namespace Arcana.Tactics.UI
     {
         [Header("Data")]
         public List<CharacterData> availableCharacters;
-        public int maxCost = 15;
+        public int maxCost = 10;
 
         [Header("UI Containers")]
         public Transform characterPoolPanel;
         public Transform characterPoolContainer;
         public Transform formationGridContainer; // Should have 6 slots as children
         public Transform codingListContainer;
+        public GameObject warningPopup;
 
         [Header("UI Prefabs")]
         public GameObject characterCardPrefab;
-        public GameObject tacticRowPrefab;
+        public GameObject tacticRowPrefab;        
 
         [Header("UI Components")]
         public ConditionModalUI conditionModal;
@@ -36,6 +38,8 @@ namespace Arcana.Tactics.UI
         public TextMeshProUGUI detailCost;
         public TextMeshProUGUI detailName;
         public TextMeshProUGUI detailClass;
+
+        public TextMeshProUGUI detialAP_PP;
         public TextMeshProUGUI detailDesc;
         public TextMeshProUGUI uidText;
 
@@ -150,7 +154,7 @@ namespace Arcana.Tactics.UI
 
             if (currentCostText == null)
             {
-                GameObject go = GameObject.Find("CostText");
+                GameObject go = GameObject.Find("DeckCostText");
                 if (go != null) currentCostText = go.GetComponent<TextMeshProUGUI>();
             }
 
@@ -191,6 +195,11 @@ namespace Arcana.Tactics.UI
                 {
                     Transform t = RecursiveFind(characterDetailPanel.transform, "Class");
                     if (t != null) detailClass = t.GetComponent<TextMeshProUGUI>();
+                }
+                if (detialAP_PP == null)
+                {
+                    Transform t = RecursiveFind(characterDetailPanel.transform, "AP_PP");
+                    if (t != null) detialAP_PP = t.GetComponent<TextMeshProUGUI>();
                 }
                 if (detailDesc == null)
                 {
@@ -531,6 +540,22 @@ namespace Arcana.Tactics.UI
             if (detailCost != null) detailCost.text = c.cost.ToString();
             if (detailName != null) detailName.text = c.characterName;
             if (detailClass != null) detailClass.text = c.characterClass;
+            
+            // AP/PP 정보는 ClassInfo의 stats에서 가져옴
+            if (detialAP_PP != null)
+            {
+                var classInfo = _dataManager.GetClassInfo(c.characterClass);
+                if (classInfo != null && classInfo.stats != null)
+                {
+                    int ap = classInfo.stats.actionPoint;
+                    int pp = classInfo.stats.passivePoint;
+                    detialAP_PP.text = "AP:" + ap.ToString() + " / PP:" + pp.ToString();
+                }
+                else
+                {
+                    detialAP_PP.text = "AP:0 / PP:0";
+                }
+            }
 
             // Get description from ClassList.json based on character's class
             if (detailDesc != null)
@@ -652,6 +677,8 @@ namespace Arcana.Tactics.UI
             if (currentTotalCost + costDiff > maxCost)
             {
                 Debug.LogWarning("Cost Limit Exceeded!");
+
+                ShowWarningPopup("부대 코스트가 최대 값을 넘었습니다.");
                 return;
             }
 
@@ -669,6 +696,19 @@ namespace Arcana.Tactics.UI
             // tactics.json에 저장
             _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);
         }
+
+        private void ShowWarningPopup(string v)
+        {
+            warningPopup.SetActive(true);
+            warningPopup.GetComponentInChildren<TextMeshProUGUI>().text = v;
+            warningPopup.GetComponentInChildren<Button>().onClick.AddListener(CloseWarningPopup);            
+        }
+
+        private void CloseWarningPopup()
+        {
+            warningPopup.SetActive(false);
+        }
+
 
         IEnumerator UpdateAllUINextFrame()
         {
