@@ -197,15 +197,35 @@ namespace Arcana.Tactics
                     poolJson = poolAsset.text;
                     Debug.Log("Loaded CharacterPool from Resources (no PersistentDataPath file found)");
                 }
-                else
-                {
-                    Debug.LogError("Failed to load CharacterPool from both PersistentDataPath and Resources");
-                    yield break;
-                }
             }
 
-            // 3. Parse Pool JSON (CharacterPoolData 형식으로 파싱)
-            CharacterPoolData[] myPool = JsonHelper.FromJson<CharacterPoolData>(poolJson);
+            // 3. Validate and parse Pool JSON
+            CharacterPoolData[] myPool = null;
+            
+            // 빈 파일이거나 유효하지 않은 JSON인 경우 빈 배열로 처리
+            if (string.IsNullOrWhiteSpace(poolJson) || poolJson.Trim() == "")
+            {
+                Debug.LogWarning("CharacterPool.json is empty. Starting with empty pool.");
+                myPool = new CharacterPoolData[0];
+            }
+            else
+            {
+                try
+                {
+                    // CharacterPoolData 형식으로 파싱
+                    myPool = JsonHelper.FromJson<CharacterPoolData>(poolJson);
+                    if (myPool == null)
+                    {
+                        Debug.LogWarning("CharacterPool JSON parsing returned null. Starting with empty pool.");
+                        myPool = new CharacterPoolData[0];
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarning($"CharacterPool JSON parsing failed: {e.Message}. Starting with empty pool.");
+                    myPool = new CharacterPoolData[0];
+                }
+            }
 
             // 4. Match and Create Data
             foreach (var poolItem in myPool)
@@ -777,16 +797,32 @@ namespace Arcana.Tactics
                     {
                         poolJson = poolAsset.text;
                     }
-                    else
-                    {
-                        // CharacterPool이 없으면 새로 생성
-                        poolJson = "[]";
-                    }
                 }
 
-                // JSON 파싱
-                CharacterPoolData[] poolData = JsonHelper.FromJson<CharacterPoolData>(poolJson);
-                List<CharacterPoolData> poolList = poolData != null ? new List<CharacterPoolData>(poolData) : new List<CharacterPoolData>();
+                // 빈 파일이거나 유효하지 않은 JSON인 경우 빈 리스트로 시작
+                List<CharacterPoolData> poolList = new List<CharacterPoolData>();
+                
+                if (!string.IsNullOrWhiteSpace(poolJson) && poolJson.Trim() != "")
+                {
+                    try
+                    {
+                        // JSON 파싱
+                        CharacterPoolData[] poolData = JsonHelper.FromJson<CharacterPoolData>(poolJson);
+                        if (poolData != null)
+                        {
+                            poolList = new List<CharacterPoolData>(poolData);
+                        }
+                    }
+                    catch (System.Exception parseEx)
+                    {
+                        Debug.LogWarning($"CharacterPool JSON 파싱 실패: {parseEx.Message}. 빈 리스트로 시작합니다.");
+                        poolList = new List<CharacterPoolData>();
+                    }
+                }
+                else
+                {
+                    Debug.Log("CharacterPool.json이 비어있습니다. 새로 시작합니다.");
+                }
 
                 // 이미 존재하는지 확인
                 if (poolList.Any(c => c.Name == characterName))
