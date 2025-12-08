@@ -1,26 +1,6 @@
 [
         {
-            "Name": "젠니",
-            "tactics": []
-        },
-        {
-            "Name": "린네",
-            "tactics": []
-        },
-        {
-            "Name": "유노",
-            "tactics": []
-        },
-        {
-            "Name": "갈브레나",
-            "tactics": []
-        },
-        {
-            "Name": "카를로타",
-            "tactics": []
-        },
-        {
-            "Name": "칸타렐라",
+            "Name": "루미",
             "tactics": []
         },
         {
@@ -28,7 +8,7 @@
             "tactics": []
         },
         {
-            "Name": "아우구스타",
+            "Name": "양양",
             "tactics": []
         },
         {
@@ -36,7 +16,19 @@
             "tactics": []
         },
         {
-            "Name": "플로로",
+            "Name": "유호",
+            "tactics": []
+        },
+        {
+            "Name": "절지",
+            "tactics": []
+        },
+        {
+            "Name": "린네",
+            "tactics": []
+        },
+        {
+            "Name": "단근",
             "tactics": []
         }
     ]

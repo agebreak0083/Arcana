@@ -54,9 +54,69 @@
         "Cost": 2
     },
     {
+        "Name": "페비",
+        "Portrait": "pevi",
+        "Class": "파이터",
+        "Cost": 2
+    },
+    {
+        "Name": "루미",
+        "Portrait": "lumi",
+        "Class": "파이터",
+        "Cost": 2
+    },
+    {
+        "Name": "단근",
+        "Portrait": "danjin",
+        "Class": "파이터",
+        "Cost": 2
+    },
+    {
+        "Name": "앙코",
+        "Portrait": "encore",
+        "Class": "위치",
+        "Cost": 2
+    },
+    {
+        "Name": "금희",
+        "Portrait": "Jinhsi",
+        "Class": "위치",
+        "Cost": 2
+    },
+    {
+        "Name": "장리",
+        "Portrait": "Changli",
+        "Class": "위치",
+        "Cost": 2
+    },    
+    {
+        "Name": "샤콘",
+        "Portrait": "Ciaccona",
+        "Class": "헌터",
+        "Cost": 2
+    },
+    {
+        "Name": "양양",
+        "Portrait": "Yangyang",
+        "Class": "헌터",
+        "Cost": 2
+    },
+    {
+        "Name": "유호",
+        "Portrait": "youhu",
+        "Class": "헌터",
+        "Cost": 2
+    },
+    {
         "Name": "갈브레나",
         "Portrait": "galbrena",
         "Class": "헌터",
+        "Cost": 2
+    },
+    {
+        "Name": "절지",
+        "Portrait": "Zhezhi",
+        "Class": "위치",
         "Cost": 2
     }
 ]

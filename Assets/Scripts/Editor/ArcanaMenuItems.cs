@@ -78,6 +78,20 @@ namespace Arcana.Editor
                     $"Successfully deleted {fileCount} files and {dirCount} directories.",
                     "OK"
                 );
+
+                // Resources/CharacterPool.json 삭제
+                string resourcesPath = System.IO.Path.Combine(Application.dataPath, "Resources/CharacterPool.json");
+                if (System.IO.File.Exists(resourcesPath))
+                {
+                    System.IO.File.Delete(resourcesPath);
+                }
+
+                // Resources/tactics.json 삭제
+                string tacticsPath = System.IO.Path.Combine(Application.dataPath, "Resources/tactics.json");
+                if (System.IO.File.Exists(tacticsPath))
+                {
+                    System.IO.File.Delete(tacticsPath);
+                }
             }
             catch (System.Exception e)
             {
