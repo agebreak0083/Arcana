@@ -69,7 +69,7 @@ public class HPBar : MonoBehaviour
     }
     
     // HP 바 초기화
-    public void Initialize(Transform character, float maxHp, float currentHp, string name)
+    public void Initialize(Transform character, float maxHp, float currentHp, string name, string className)
     {
         targetCharacter = character;
         
@@ -80,7 +80,7 @@ public class HPBar : MonoBehaviour
             targetValue = hpPercent;
             characterName = name;
 
-            GetComponentInChildren<TextMeshProUGUI>().text = characterName;            
+            GetComponentInChildren<TextMeshProUGUI>().text = characterName + " (" + className + ")";            
 
             UpdateColor(hpPercent);
         }
