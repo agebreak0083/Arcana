@@ -129,8 +129,17 @@ public class BattleManager : MonoBehaviour
                     var classInfo = Arcana.Tactics.TacticsDataManager.Instance.GetClassInfo(characterData.characterClass);
                     if (classInfo != null && !string.IsNullOrEmpty(classInfo.model))
                     {
-                        // 모델 경로 처리 (Assets/Resources/Models/... -> Models/...)
-                        string modelPath = classInfo.model;
+                        // 모델 경로 처리 (... -> Models/...)
+                        string modelPath = "Models/";
+                        if(string.IsNullOrEmpty(characterData.model))
+                        {
+                            modelPath += classInfo.model;
+                        }
+                        else
+                        {
+                            modelPath += characterData.model;
+                        }
+                        
                         if (modelPath.StartsWith("Assets/Resources/"))
                         {
                             modelPath = modelPath.Substring("Assets/Resources/".Length);

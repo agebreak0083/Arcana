@@ -21,7 +21,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "캐벌리 슬레이",
@@ -39,7 +39,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "스피닝 에지",
@@ -57,7 +57,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "파이터 / 뱅가드": [
@@ -83,7 +83,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "실드 배시",
@@ -101,7 +101,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "디펜더",
@@ -125,7 +125,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "솔저 / 서전트": [
@@ -145,7 +145,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "재블린",
@@ -165,7 +165,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "인핸스드 스피어",
@@ -183,7 +183,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "허스칼 / 바이킹": [
@@ -215,7 +215,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "롤 액스",
@@ -240,7 +240,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "와이드 브레이커",
@@ -270,7 +270,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "소드맨 / 소드 마스터": [
@@ -290,7 +290,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "임페일",
@@ -308,7 +308,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "메테오 슬래시",
@@ -326,7 +326,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "머시너리 / 란츠크네히트": [
@@ -346,7 +346,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "킬링 체인",
@@ -364,7 +364,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "바스타드 크로스",
@@ -382,7 +382,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "호플리타이 / 카타프랙트": [
@@ -402,7 +402,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "라인 프로텍트",
@@ -421,7 +421,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "그레이트 실드",
@@ -440,7 +440,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "글래디에이터 / 버서커": [
@@ -460,7 +460,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "매시브 차지",
@@ -489,7 +489,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "그랜드 슬램",
@@ -509,7 +509,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "워리어 / 브레이커": [
@@ -529,7 +529,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "어설트 블로우",
@@ -547,7 +547,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "라인 버스터",
@@ -565,7 +565,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "헌터 / 스나이퍼": [
@@ -587,7 +587,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "더블 샷",
@@ -607,7 +607,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "라인 샷",
@@ -627,7 +627,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "슈터 / 실드 슈터": [
@@ -649,7 +649,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "톡식 볼트",
@@ -674,7 +674,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "헤비 볼트",
@@ -694,7 +694,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "시프 / 로그": [
@@ -714,7 +714,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "톡식 스로",
@@ -739,7 +739,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "섀도우 바이트",
@@ -776,7 +776,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "액티브 스틸",
@@ -794,7 +794,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "나이트 / 그레이트 나이트": [
@@ -814,7 +814,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "와일드 러시",
@@ -832,7 +832,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "파일 스러스트",
@@ -850,7 +850,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "화이트 나이트 / 세인트 나이트": [
@@ -870,7 +870,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "라인 힐",
@@ -888,7 +888,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "세인트 블레이드",
@@ -906,7 +906,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "블랙 나이트 / 둠 나이트": [
@@ -926,7 +926,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "베놈 액스",
@@ -949,7 +949,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "다크 플레임",
@@ -972,7 +972,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "클레릭 / 비숍": [
@@ -992,7 +992,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "세이크리드 힐",
@@ -1010,7 +1010,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "위저드 / 워록": [
@@ -1037,7 +1037,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "선더스트럭",
@@ -1062,7 +1062,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "볼케이노",
@@ -1082,7 +1082,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "위치 / 소서리스": [
@@ -1109,7 +1109,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "매직 미사일",
@@ -1129,7 +1129,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "아이스 코핀",
@@ -1152,7 +1152,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "샤먼 / 드루이드": [
@@ -1175,7 +1175,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "오펜스 커스",
@@ -1213,7 +1213,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "디펜스 커스",
@@ -1246,7 +1246,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "커스 해저드",
@@ -1260,7 +1260,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "와이번 나이트 / 와이번 룰러": [
@@ -1282,7 +1282,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "파이어 브레스",
@@ -1307,7 +1307,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "템페스트 드라이브",
@@ -1327,7 +1327,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "그리폰 나이트 / 그리폰 룰러": [
@@ -1349,7 +1349,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "페이タル 폴",
@@ -1369,7 +1369,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "에리얼 스마이트",
@@ -1389,7 +1389,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "엘프 펜서": [
@@ -1414,7 +1414,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "그렘린 글레이브",
@@ -1434,7 +1434,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "미라지 스탭",
@@ -1452,7 +1452,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "엘프 아처": [
@@ -1474,7 +1474,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "미스틱 세이버",
@@ -1492,7 +1492,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "아이시클 애로",
@@ -1517,7 +1517,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "워울프": [
@@ -1543,7 +1543,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "데시멀 킬러",
@@ -1561,7 +1561,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "와일드 팡",
@@ -1579,7 +1579,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "워폭스": [
@@ -1599,7 +1599,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "패시브 홀드",
@@ -1617,7 +1617,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "베놈 스러스트",
@@ -1635,7 +1635,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "워베어": [
@@ -1660,7 +1660,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "어라운드 스윙",
@@ -1678,7 +1678,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "어스 스탬프",
@@ -1698,7 +1698,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "워아울": [
@@ -1725,7 +1725,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "나이트 비전",
@@ -1744,7 +1744,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "엑스트라 힐",
@@ -1768,7 +1768,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "페더 소드": [
@@ -1802,7 +1802,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "실드 스마이트",
@@ -1834,7 +1834,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "인핸스 러시",
@@ -1854,7 +1854,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "페더 보우": [
@@ -1882,7 +1882,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "세인트 샷",
@@ -1902,7 +1902,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "포톤 애로",
@@ -1934,7 +1934,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "페더 로드": [
@@ -1954,7 +1954,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "힐 인핸스",
@@ -1972,7 +1972,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "홀리 크레이들",
@@ -1984,7 +1984,7 @@
       "costPP": 0,
       "effects": [],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "페더 실드": [
@@ -2018,7 +2018,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "라인 레지스트",
@@ -2043,7 +2043,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "미스틱 실드",
@@ -2068,7 +2068,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "프리스티스 / 하이 프리스티스": [
@@ -2090,7 +2090,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "큐어 옐",
@@ -2108,7 +2108,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "이노센트 레이",
@@ -2128,7 +2128,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ],
   "크루세이더 / 발키리아": [
@@ -2148,7 +2148,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     },
     {
       "id": "아이언 리퍼",
@@ -2166,7 +2166,7 @@
         }
       ],
       "traits": [],
-      "animation": "Salute"
+      "animation": "Skill_1"
     }
   ]
 }

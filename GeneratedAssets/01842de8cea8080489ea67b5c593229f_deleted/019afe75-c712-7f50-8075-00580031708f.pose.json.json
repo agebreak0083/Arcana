@@ -1,0 +1,11 @@
+{
+    "asset": "5cbac358905b5a8448ae4730b22eb08a",
+    "fileName": "019afe75-c712-7f50-8075-00580031708f.pose.json",
+    "prompt": "Smash to front Enemy, Femail, Genshin game Style, dont move",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 923254704,
+    "w3CTraceId": "93a3abed07ec995e8dd6b873ca3a23d6",
+    "isTrimmed": false
+}

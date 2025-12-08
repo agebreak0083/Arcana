@@ -338,23 +338,52 @@ public class Character : MonoBehaviour
         yield return new WaitForSeconds(moveTime);
 
         // Step 2: 스킬 애니메이션 재생
-        animator.Play(skill.animation, 0, 0f);
-        Debug.Log($"{characterName}: 애니메이션 '{skill.animation}' 재생 시작");
+        if (string.IsNullOrEmpty(skill.animation))
+        {
+            Debug.LogWarning($"{characterName}: 스킬 '{skill.name}'에 애니메이션이 설정되지 않았습니다.");
+            // 애니메이션이 없으면 바로 스킬 효과 적용
+            SkillManager.Instance.ApplySkillEffects(skill, this, target);
+        }
+        else
+        {
+            // 애니메이션 재생
+            animator.Play(skill.animation, 0, 0f);
+            Debug.Log($"{characterName}: 애니메이션 '{skill.animation}' 재생 시작");
 
-        // 스킬 효과 적용
-        float effectTime = 0.5f;
-        yield return new WaitForSeconds(effectTime);
-        SkillManager.Instance.ApplySkillEffects(skill, this, target);
+            // 애니메이션이 실제로 전환될 때까지 대기 (최대 0.5초)
+            float waitTime = 0f;
+            while (!animator.GetCurrentAnimatorStateInfo(0).IsName(skill.animation) && waitTime < 0.5f)
+            {
+                yield return null;
+                waitTime += Time.deltaTime;
+            }
 
-        // 한 프레임 대기 (애니메이션 시작 대기)
-        yield return null;
+            // 애니메이션 상태가 전환되지 않았으면 경고
+            if (!animator.GetCurrentAnimatorStateInfo(0).IsName(skill.animation))
+            {
+                Debug.LogWarning($"{characterName}: 애니메이션 상태 '{skill.animation}'를 찾을 수 없습니다. Animator Controller에 해당 상태가 있는지 확인하세요.");
+            }
 
-        // 현재 애니메이션 상태 정보 가져오기
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            // 스킬 효과 적용
+            float effectTime = 0.5f;
+            yield return new WaitForSeconds(effectTime);
+            SkillManager.Instance.ApplySkillEffects(skill, this, target);
 
-        // 애니메이션 길이만큼 대기
-        float animationLength = stateInfo.length;
-        yield return new WaitForSeconds(animationLength - effectTime);
+            // 현재 애니메이션 상태 정보 가져오기
+            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            
+            // 애니메이션 길이만큼 대기 (상태가 올바르게 전환된 경우에만)
+            if (stateInfo.IsName(skill.animation) && stateInfo.length > 0)
+            {
+                float animationLength = stateInfo.length;
+                yield return new WaitForSeconds(animationLength - effectTime);
+            }
+            else
+            {
+                // 애니메이션 길이를 가져올 수 없으면 기본 대기 시간 사용
+                yield return new WaitForSeconds(1.0f - effectTime);
+            }
+        }
 
         // Step 3: 원래 자리로 복귀 
         float returnTime = 0.5f;
@@ -383,19 +412,49 @@ public class Character : MonoBehaviour
 
     private IEnumerator PlayAnimationAndWait(Animator animator, String animationName)
     {
+        if (string.IsNullOrEmpty(animationName))
+        {
+            Debug.LogWarning($"{characterName}: 애니메이션 이름이 비어있습니다.");
+            yield break;
+        }
+
         // 애니메이션 재생 (normalizedTime = 0으로 설정하여 처음부터 강제 재생)
         // 동일 애니메이션을 연속 재생할 때도 정상 작동
         animator.Play(animationName, 0, 0f);
+        Debug.Log($"{characterName}: 애니메이션 '{animationName}' 재생 시작");
 
-        // 한 프레임 대기 (애니메이션 시작 대기)
-        yield return null;
+        // 애니메이션이 실제로 전환될 때까지 대기 (최대 0.5초)
+        float waitTime = 0f;
+        while (!animator.GetCurrentAnimatorStateInfo(0).IsName(animationName) && waitTime < 0.5f)
+        {
+            yield return null;
+            waitTime += Time.deltaTime;
+        }
 
-        // 현재 애니메이션 상태 정보 가져오기
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        // 애니메이션 상태가 전환되지 않았으면 경고
+        if (!animator.GetCurrentAnimatorStateInfo(0).IsName(animationName))
+        {
+            Debug.LogWarning($"{characterName}: 애니메이션 상태 '{animationName}'를 찾을 수 없습니다. Animator Controller에 해당 상태가 있는지 확인하세요.");
+            // 상태가 없어도 기본 대기 시간 후 완료 처리
+            yield return new WaitForSeconds(0.5f);
+        }
+        else
+        {
+            // 현재 애니메이션 상태 정보 가져오기
+            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        // 애니메이션 길이만큼 대기
-        float animationLength = stateInfo.length;
-        yield return new WaitForSeconds(animationLength);
+            // 애니메이션 길이만큼 대기
+            if (stateInfo.length > 0)
+            {
+                float animationLength = stateInfo.length;
+                yield return new WaitForSeconds(animationLength);
+            }
+            else
+            {
+                // 애니메이션 길이를 가져올 수 없으면 기본 대기 시간 사용
+                yield return new WaitForSeconds(0.5f);
+            }
+        }
 
         // BattleManager에 액션 완료 알림
         if (BattleManager.Instance != null)

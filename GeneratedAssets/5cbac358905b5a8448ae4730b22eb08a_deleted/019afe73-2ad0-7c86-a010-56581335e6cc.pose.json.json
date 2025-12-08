@@ -1,0 +1,11 @@
+{
+    "asset": "5cbac358905b5a8448ae4730b22eb08a",
+    "fileName": "019afe73-2ad0-7c86-a010-56581335e6cc.pose.json",
+    "prompt": "Punch, Femail, Star rail Style, dont move",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 452421767,
+    "w3CTraceId": "1f6da1ce58b969a03389dc79e6698c4b",
+    "isTrimmed": false
+}

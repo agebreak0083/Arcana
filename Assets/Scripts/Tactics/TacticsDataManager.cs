@@ -258,6 +258,7 @@ namespace Arcana.Tactics
                     newData.speed = 10;
                     newData.arcana = "None";
                     newData.description = "No description available.";
+                    newData.model = def.Model ?? ""; // Model 필드 설정
 
                     // Load Portrait
                     string spriteName = System.IO.Path.GetFileNameWithoutExtension(def.Portrait);
@@ -351,6 +352,9 @@ namespace Arcana.Tactics
                     {
                         def.Cost = 2; // default
                     }
+
+                    // Model 필드는 CSV에 없을 수 있으므로 기본값으로 빈 문자열
+                    def.Model = parts.Length >= 5 ? parts[4].Trim() : "";
 
                     list.Add(def);
                 }
@@ -632,6 +636,7 @@ namespace Arcana.Tactics
         {
             public string Name;
             public string Portrait;
+            public string Model;
             public string Class;
             public int Cost;
         }

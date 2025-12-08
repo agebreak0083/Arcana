@@ -1,0 +1,11 @@
+{
+    "asset": "01842de8cea8080489ea67b5c593229f",
+    "fileName": "019afe7a-7310-7345-a3c5-f13dc7f3975b.pose.json",
+    "prompt": "Smash Attack to front eneny, Female, Strength Attack, fantasy",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 1139165353,
+    "w3CTraceId": "f19543db947e961688a45f5b12b1dc3a",
+    "isTrimmed": false
+}

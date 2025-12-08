@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Text;
+using System.Linq;
 
 /// <summary>
 /// JSONBin.io를 사용한 Tactics 데이터 관리 클래스
@@ -319,7 +320,15 @@ public class JSONBinManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"데이터 저장 실패: {request.error} (HTTP {request.responseCode})");
+                string errorResponse = request.downloadHandler?.text ?? "No response";
+                Debug.LogError($"데이터 저장 실패: {request.error} (HTTP {request.responseCode})\nResponse: {errorResponse}");
+                
+                // 403 에러인 경우 상세 정보 로그
+                if (request.responseCode == 403)
+                {
+                    Debug.LogError("403 Forbidden - Access Key 권한을 확인하세요. Read/Write 권한이 필요합니다.");
+                }
+                
                 onComplete?.Invoke(false);
             }
         }

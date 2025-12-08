@@ -16,6 +16,7 @@ namespace Arcana.Tactics.Data
         [TextArea] public string description;
         public int imgSeed; // For the placeholder image URL logic if needed, or just use a Sprite in real Unity
         public Sprite portrait; // In a real project we use Sprites
+        public string model; // Model prefab name/path
         public List<SkillData> skills = new List<SkillData>();
     }
 

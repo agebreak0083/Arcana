@@ -1,0 +1,11 @@
+{
+    "asset": "01842de8cea8080489ea67b5c593229f",
+    "fileName": "019afe79-ff6b-7038-8f34-c9c69de8859e.pose.json",
+    "prompt": "Smash Attack to front eneny, Female, Big Attack, Cute, Beauty",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 1992049005,
+    "w3CTraceId": "934f62ff48a5277faf883c8dd8f532ad",
+    "isTrimmed": false
+}

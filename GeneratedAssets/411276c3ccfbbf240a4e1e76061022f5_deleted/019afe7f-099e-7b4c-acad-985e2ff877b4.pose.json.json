@@ -1,0 +1,11 @@
+{
+    "asset": "411276c3ccfbbf240a4e1e76061022f5",
+    "fileName": "019afe7f-099e-7b4c-acad-985e2ff877b4.pose.json",
+    "prompt": "A dynamic and flashy, Star Rail/Genshin Impact/Wuthering Waves-style subculture female character animation. The character performs a direct, front-facing skill attack on an enemy straight ahead. The animation must be short, approximately 1 second long, and the character must not rotate or change facing direction during the attack (maintaining a clear front view).",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 17634297,
+    "w3CTraceId": "1acfb98d76cc0f348bc518e0c3793169",
+    "isTrimmed": false
+}
