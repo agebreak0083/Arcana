@@ -1,5 +1,5 @@
 {
-    "username": "AGEBREAK-WO2_2512081741",
+    "username": "AGEBREAK-WO2_2512081809",
     "positions": [
         {
             "position": "1",
@@ -212,8 +212,54 @@
         },
         {
             "position": "6",
-            "name": "",
-            "tactics": []
+            "name": "젠니",
+            "tactics": [
+                {
+                    "characterClass": "파이터",
+                    "plan": [
+                        {
+                            "skill": "가드 슬래시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "실드 배시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "디펜더",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

@@ -261,8 +261,8 @@ namespace Arcana.Tactics.UI
             // Add DropHandler to the characterPoolContainer for dragging back to pool
             if (characterPoolPanel != null)
             {
-                var dropHandler = characterPoolPanel.GetComponent<CharacterPoolDropHandler>();
-                if (dropHandler == null) dropHandler = characterPoolPanel.gameObject.AddComponent<CharacterPoolDropHandler>();
+                var dropHandler = characterPoolPanel.GetComponent<CharacterPoolPanel>();
+                if (dropHandler == null) dropHandler = characterPoolPanel.gameObject.AddComponent<CharacterPoolPanel>();
                 dropHandler.Setup(this);
             }
 
