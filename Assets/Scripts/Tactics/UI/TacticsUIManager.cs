@@ -449,15 +449,18 @@ namespace Arcana.Tactics.UI
                     {
                         Debug.LogWarning($"JSONBin.io 저장 실패: {key}");
                     }
+
+                    // 저장 완료 후 BattleScene으로 이동한다.                                     
+                    SceneManager.LoadScene("BattleScene");
                 });
             }
             else
             {
                 Debug.LogWarning("JSONBin.io가 초기화되지 않았습니다. 로컬 파일만 저장됩니다.");
-            }
 
-            // BattleScene으로 이동한다. 
-            SceneManager.LoadScene("BattleScene");
+                // BattleScene으로 이동한다.                 
+                SceneManager.LoadScene("BattleScene");
+            }            
         }
 
         private void UpdateAllUI()

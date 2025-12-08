@@ -1,0 +1,219 @@
+{
+    "username": "AGEBREAK-WO2_2512081642",
+    "positions": [
+        {
+            "position": "1",
+            "name": "루미",
+            "tactics": [
+                {
+                    "characterClass": "파이터",
+                    "plan": [
+                        {
+                            "skill": "가드 슬래시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "실드 배시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "디펜더",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "position": "2",
+            "name": "카르티",
+            "tactics": [
+                {
+                    "characterClass": "파이터",
+                    "plan": [
+                        {
+                            "skill": "가드 슬래시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "실드 배시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "디펜더",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "position": "3",
+            "name": "샤콘",
+            "tactics": [
+                {
+                    "characterClass": "헌터",
+                    "plan": [
+                        {
+                            "skill": "싱글 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "더블 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "라인 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "position": "4",
+            "name": "",
+            "tactics": []
+        },
+        {
+            "position": "5",
+            "name": "갈브레나",
+            "tactics": [
+                {
+                    "characterClass": "헌터",
+                    "plan": [
+                        {
+                            "skill": "싱글 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "더블 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "라인 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "position": "6",
+            "name": "",
+            "tactics": []
+        }
+    ]
+}
