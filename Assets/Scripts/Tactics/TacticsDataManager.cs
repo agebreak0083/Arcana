@@ -69,37 +69,37 @@ namespace Arcana.Tactics
             // Enemy formation 로드는 서버 데이터가 필요할 때만 로드
             if (isNeedServerData)
             {
-                // Firebase 초기화 대기 (최대 5초)
+                // JSONBin.io 초기화 대기 (최대 5초)
                 float waitTime = 0f;
                 const float maxWaitTime = 5f;
 
-                if (FirebaseManager.Instance != null)
+                if (JSONBinManager.Instance != null)
                 {
-                    Debug.Log("TacticsDataManager: Firebase 초기화 대기 중...");
-                    while (!FirebaseManager.Instance.isFirebaseInitialized && waitTime < maxWaitTime)
+                    Debug.Log("TacticsDataManager: JSONBin.io 초기화 대기 중...");
+                    while (!JSONBinManager.Instance.isInitialized && waitTime < maxWaitTime)
                     {
                         yield return new WaitForSeconds(0.1f);
                         waitTime += 0.1f;
                     }
 
-                    if (FirebaseManager.Instance.isFirebaseInitialized)
+                    if (JSONBinManager.Instance.isInitialized)
                     {
-                        Debug.Log("TacticsDataManager: Firebase 초기화 완료!");
+                        Debug.Log("TacticsDataManager: JSONBin.io 초기화 완료!");
                     }
                     else
                     {
-                        Debug.LogWarning($"TacticsDataManager: Firebase 초기화 타임아웃 ({maxWaitTime}초). 로컬 파일 사용.");
+                        Debug.LogWarning($"TacticsDataManager: JSONBin.io 초기화 타임아웃 ({maxWaitTime}초). 로컬 파일 사용.");
                     }
                 }
 
-                // Enemy formation 로드 (Firebase에서 랜덤 또는 로컬 파일)
+                // Enemy formation 로드 (JSONBin.io에서 랜덤 또는 로컬 파일)
                 bool enemyLoadComplete = false;
                 LoadEnemyFormationFromFirebase((success) =>
                 {
                     enemyLoadComplete = true;
                 });
 
-                // Firebase 로딩 완료 대기
+                // JSONBin.io 로딩 완료 대기
                 yield return new WaitUntil(() => enemyLoadComplete);
             }
             else
@@ -1071,29 +1071,29 @@ namespace Arcana.Tactics
         }
 
         /// <summary>
-        /// Firebase에서 랜덤 적 편성 로드
+        /// JSONBin.io에서 랜덤 적 편성 로드
         /// </summary>
         private void LoadEnemyFormationFromFirebase(System.Action<bool> onComplete)
         {
-            if (FirebaseManager.Instance == null)
+            if (JSONBinManager.Instance == null)
             {
-                Debug.LogWarning("FirebaseManager가 없습니다. 로컬 파일에서 적 편성을 로드합니다.");
+                Debug.LogWarning("JSONBinManager가 없습니다. 로컬 파일에서 적 편성을 로드합니다.");
                 _enemyFormationLoadResult = LoadFormationFromTacticsFile(false);
                 onComplete?.Invoke(true);
                 return;
             }
 
-            FirebaseManager.Instance.GetRandomTacticsFromFirebase((success, tacticsJson, username) =>
+            JSONBinManager.Instance.GetRandomTactics((success, tacticsJson, username) =>
             {
                 if (success && !string.IsNullOrEmpty(tacticsJson))
                 {
                     try
                     {
-                        // Firebase에서 가져온 JSON 파싱
+                        // JSONBin.io에서 가져온 JSON 파싱
                         TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(tacticsJson);
                         if (tacticsData == null || tacticsData.positions == null)
                         {
-                            Debug.LogWarning("Firebase 데이터 파싱 실패. 로컬 파일 사용.");
+                            Debug.LogWarning("JSONBin.io 데이터 파싱 실패. 로컬 파일 사용.");
                             _enemyFormationLoadResult = LoadFormationFromTacticsFile(false);
                             onComplete?.Invoke(true);
                             return;

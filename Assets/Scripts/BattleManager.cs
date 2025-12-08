@@ -9,7 +9,11 @@ using static Arcana.Tactics.TacticsDataManager;
 public class BattleManager : MonoBehaviour
 {
     public BattleCameraController battleCameraController;
-    
+
+    [Header("Settings")]
+    public int ticketforWin = 10;
+    public int ticketforLose = 5;
+
     [Header("Positions")]
     public List<GameObject> playerPositions;
     public List<GameObject> enemyPositions;
@@ -391,9 +395,15 @@ public class BattleManager : MonoBehaviour
         return selector.Select(candidates, actor);
     }
 
+    bool isBattleOver = false;     
     // 전투 종료 조건 체크
     private bool CheckBattleOver()
     {
+        if (isBattleOver)
+        {
+            return true;
+        }
+
         bool playerAlive = false;
         bool enemyAlive = false;
 
@@ -402,16 +412,22 @@ public class BattleManager : MonoBehaviour
 
         if (!playerAlive)
         {
+            UserDataManager.Instance.AddTickets(ticketforLose);
             BattleUI.Instance.ShowDefeatPanel();
             Debug.Log("패배... (플레이어 전멸)");
+            isBattleOver = true;
             return true;
         }
         if (!enemyAlive)
         {
+            UserDataManager.Instance.AddTickets(ticketforWin);
             BattleUI.Instance.ShowVictoryPanel();
             Debug.Log("승리! (적 전멸)");
+            isBattleOver = true;
             return true;
         }
+
+        UserDataManager.Instance.SaveUserData();
 
         return false;
     }

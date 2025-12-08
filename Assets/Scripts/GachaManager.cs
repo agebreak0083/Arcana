@@ -139,12 +139,11 @@ public class GachaManager : MonoBehaviour
         characterObtainedPopup_1.SetActive(false);
         characterObtainedPopup_10.SetActive(false);
 
-        // 배경 영상 재생 시작
-        float videoLength = (float)videoOnImage.videoPlayer.clip.length;
+        // 배경 영상 재생 시작 (코루틴 사용)
         videoOnImage.videoPlayer.Play();
 
         // 배경 영상 재생 시간만큼 대기
-        yield return new WaitForSeconds(videoLength);
+        yield return new WaitUntil(() => videoOnImage.videoPlayer.isPlaying == false);
 
         // 배경 영상 재생 완료 후 캐릭터 획득 팝업 표시
         characterObtainedPopup_10.SetActive(true);  

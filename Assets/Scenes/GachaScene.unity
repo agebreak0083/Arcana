@@ -149,6 +149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71a6e2bf7c8ddcb4e9d633a4650e464d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Arcana.Tactics.TacticsDataManager
+  isNeedServerData: 0
   availableCharacters: []
 --- !u!114 &98490307
 MonoBehaviour:
@@ -2837,7 +2838,11 @@ PrefabInstance:
     - target: {fileID: 894009925598253389, guid: cc943b71bfdfd084bbeffc8167b90a28, type: 3}
       propertyPath: m_VideoClip
       value: 
-      objectReference: {fileID: 32900000, guid: 467f5897e95e678428eaa8ea630746ae, type: 3}
+      objectReference: {fileID: 32900000, guid: f9f0219d14c592a4796d72eda1690ae2, type: 3}
+    - target: {fileID: 894009925598253389, guid: cc943b71bfdfd084bbeffc8167b90a28, type: 3}
+      propertyPath: m_DataSource
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 894009925598253389, guid: cc943b71bfdfd084bbeffc8167b90a28, type: 3}
       propertyPath: m_PlayOnAwake
       value: 0
@@ -2845,6 +2850,10 @@ PrefabInstance:
     - target: {fileID: 7802916607981403018, guid: cc943b71bfdfd084bbeffc8167b90a28, type: 3}
       propertyPath: isPause
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7802916607981403018, guid: cc943b71bfdfd084bbeffc8167b90a28, type: 3}
+      propertyPath: videoFileName
+      value: gachaUI.mp4
       objectReference: {fileID: 0}
     - target: {fileID: 8227914009230068791, guid: cc943b71bfdfd084bbeffc8167b90a28, type: 3}
       propertyPath: m_Pivot.x

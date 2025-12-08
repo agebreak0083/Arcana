@@ -4041,26 +4041,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1175493162}
-  - component: {fileID: 1175493161}
+  - component: {fileID: 1175493163}
   m_Layer: 0
-  m_Name: FirebaseManager
+  m_Name: ServerDBManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1175493161
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1175493160}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dfcefc705e0aa124bb1aac4901ebca01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FirebaseManager
 --- !u!4 &1175493162
 Transform:
   m_ObjectHideFlags: 0
@@ -4076,6 +4064,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1175493163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1175493160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c918f97300de2f1448447984d309f3c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JSONBinManager
+  binId: 69363c8eae596e708f8a838f
+  accessKey: $2a$10$sXEbuoWJjS8yOOTbWOJqhev4XtCLCNUqJurky/QhQqFu1ZRBLYRu6
 --- !u!224 &1265136469 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8659165170373108390, guid: 4e67a33f3646a594e8a704b06019f80e, type: 3}
