@@ -175,7 +175,6 @@ public class SkillManager : MonoBehaviour
             case "damage":
                 if (target != null)
                 {
-                    // Skill.power 대신 effect.value를 사용 (JSON 구조상 power 필드가 없음)
                     bool isCritical;
                     float damage = CalculateDamage(effect.value, user, target, effect.damageType, out isCritical);
                     target.TakeDamage(damage, isCritical);
@@ -192,8 +191,7 @@ public class SkillManager : MonoBehaviour
             case "heal":
                 if (target != null)
                 {
-                    target.Heal(effect.value);
-                    Debug.Log($"{target.characterName}의 HP {effect.value} 회복!");
+                    target.Heal(effect.value);                    
 
                     // 전투 로그에 회복 기록
                     if (BattleLogManager.Instance != null)
@@ -204,18 +202,38 @@ public class SkillManager : MonoBehaviour
                 break;
 
             case "buff":
-                Debug.Log($"{effect.stat} +{effect.value}% 버프 적용! (지속: {effect.duration}턴)");
-                // TODO: 실제 버프 시스템 구현
-                break;
+                Character buffTarget = null;
+                if (effect.target == "self")
+                {
+                    buffTarget = user;                    
+                }
+                else if (effect.target == "ally")
+                {
+                    // TODO : 아군 버프 적용
+                }
 
+                buffTarget.AddBuff(effect.stat, effect.value, effect.duration);            
+                Debug.Log($"{buffTarget.characterName}의 {effect.stat} +{effect.value}% 버프 적용! (지속: {effect.duration}턴)");
+
+                // 전투 로그에 버프 기록
+                if (BattleLogManager.Instance != null)
+                {
+                    BattleLogManager.Instance.AddLog($"  <color=#00FF00>[{effect.stat} +{effect.value}% 버프 적용!]</color> (지속: {effect.duration}턴) to {buffTarget.characterName}");
+                }
+                break;
             case "debuff":
                 Debug.Log($"{effect.stat} {effect.value}% 디버프 적용! (지속: {effect.duration}턴)");
                 // TODO: 실제 디버프 시스템 구현
                 break;
 
             case "status":
-                Debug.Log($"{effect.statusName} 상태이상 부여! (확률: {effect.chance}%)");
-                // TODO: 상태이상 시스템 구현
+                // Debug.Log($"{effect.statusName} 상태이상 부여! (확률: {effect.chance}%)");
+                // //debuffTarget.AddBuff(effect.stat, effect.value, effect.duration);
+                // if (BattleLogManager.Instance != null)
+                // {
+                //     BattleLogManager.Instance.AddLog($"  <color=#FF0000>[{effect.stat} {effect.value}% 디버프 적용!]</color> (지속: {effect.duration}턴) to {debuffTarget.characterName}");
+                // }
+                // // TODO: 상태이상 시스템 구현
                 break;
 
             case "restore_pp":
@@ -253,6 +271,22 @@ public class SkillManager : MonoBehaviour
         }
 
         // 2. 기본 데미지 공식: (공격력 - 방어력) x (위력/100)
+        // 타겟의 버프/디버프 수치 계산
+        float targetBuffPercent = 0f;
+        foreach (var buff in target.buffs)
+        {
+            if (buff.stat == "physical_defense")
+            {
+                targetBuffPercent += buff.value;
+            }
+            else if (buff.stat == "magical_defense")
+            {
+                targetBuffPercent += buff.value;
+            }
+        }
+        
+        defenseValue += defenseValue * (targetBuffPercent / 100f);
+
         // 방어력이 공격력보다 높으면 최소 1 데미지 보장
         float baseDamage = Mathf.Max(1f, attackValue - defenseValue);
 

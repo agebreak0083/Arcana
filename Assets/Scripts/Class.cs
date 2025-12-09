@@ -8,8 +8,10 @@ public class ClassStats
     public string hp;                   // HP 등급 (S~E)
     public string physicalAttack;       // 물리공격 등급
     public string physicalDefense;      // 물리방어 등급
+    public float physicalDefenseBuff;  // 물리방어 버프 수치
     public string magicalAttack;        // 마법공격 등급
     public string magicalDefense;       // 마법방어 등급
+    public float magicalDefenseBuff;    // 마법방어 버프 수치
     public string accuracy;             // 명중 등급
     public string evasion;              // 회피 등급
     public string criticalRate;         // 치명타율 등급

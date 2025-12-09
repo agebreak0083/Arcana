@@ -26,6 +26,8 @@ public class Character : MonoBehaviour
     public float hp = 100;
     public float maxHp = 100;
 
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -371,7 +373,7 @@ public class Character : MonoBehaviour
 
             // 현재 애니메이션 상태 정보 가져오기
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-            
+
             // 애니메이션 길이만큼 대기 (상태가 올바르게 전환된 경우에만)
             if (stateInfo.IsName(skill.animation) && stateInfo.length > 0)
             {
@@ -486,6 +488,58 @@ public class Character : MonoBehaviour
                 stats.passivePoint = classInfo.stats.passivePoint;
                 Debug.Log($"{characterName}의 AP/PP가 회복되었습니다. (AP: {stats.actionPoint}, PP: {stats.passivePoint})");
             }
+        }
+    }
+
+    public List<Buff> buffs = new List<Buff>();
+    public class Buff
+    {
+        public string stat;
+        public float value;
+        public int duration;
+    }
+    public void AddBuff(string stat, float value, int duration)
+    {
+        buffs.Add(new Buff { stat = stat, value = value, duration = duration });
+    }
+    public void RemoveBuff(Buff buff)
+    {
+        buffs.Remove(buff);
+
+        // 전투 로그에 버프/디버프 제거 기록
+        if (BattleLogManager.Instance != null)
+        {
+            BattleLogManager.Instance.AddLog($"  <color=#FF0000>[{buff.stat} {buff.value}% 버프/디버프 제거!]</color> from {characterName}");
+        }
+    }
+    public void RemoveAllBuffs()
+    {
+        buffs.Clear();
+    }
+
+    // 배틀 전체의 한턴이 끝날 때마다 호출되는 이벤트
+    public void OnTurnEnd()
+    {
+        // 제거할 버프를 먼저 수집 (순회 중 수정 방지)
+        List<Buff> buffsToRemove = new List<Buff>();
+
+        foreach (var buff in buffs)
+        {
+            if (buff.duration > 0)
+            {
+                buff.duration--;
+            }
+
+            if(buff.duration <= 0)
+            {
+                buffsToRemove.Add(buff);
+            }
+        }
+
+        // 수집한 버프들을 제거
+        foreach (var buff in buffsToRemove)
+        {
+            RemoveBuff(buff);
         }
     }
 }

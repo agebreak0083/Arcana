@@ -77,6 +77,7 @@
         },
         {
           "type": "buff",
+          "target": "self",
           "stat": "physical_defense",
           "value": 20,
           "duration": 3
@@ -89,15 +90,19 @@
       "id": "실드 배시",
       "name": "실드 배시",
       "type": "active",
-      "description": "적 하나에게 공격한다",
+      "description": "적 하나에게 공격한다. 대상에게 기절 부여",
       "target": "single_enemy",
       "costAP": 1,
       "costPP": 0,
       "effects": [
         {
           "type": "damage",
-          "value": 100,
+          "value": 50,
           "damageType": "physical"
+        }, 
+        {
+          "type": "stun",
+          "duration": 1
         }
       ],
       "traits": [],
@@ -114,14 +119,19 @@
       "effects": [
         {
           "type": "damage",
-          "value": 100,
+          "value": 75,
           "damageType": "physical"
         },
         {
-          "type": "buff",
+          "type": "debuff",
           "stat": "physical_defense",
           "value": 50,
           "duration": 3
+        },
+        {
+          "type": "on_hit",
+          "stat": "pp",
+          "value": 1          
         }
       ],
       "traits": [],

@@ -316,17 +316,19 @@ public class BattleManager : MonoBehaviour
     // 턴 루틴 (개별 캐릭터 행동)
     private IEnumerator TurnRoutine(Character character, System.Action<bool> onResult)
     {
+        currentTurn++;
+        Debug.Log($"--- {character.characterName}의 턴 (Round {currentRound} - Turn {currentTurn}) ---");
+
+        // 턴 시작 로그를 먼저 출력 (행동 전에)
+        if (BattleLogManager.Instance != null)
+            BattleLogManager.Instance.LogTurnStart(character.characterName, currentRound, currentTurn);
+
         // 행동 실행 (RunAction 내부에서 조건 체크)
         StrategyAction action = character.RunAction();
 
         if (action != null)
         {
-            currentTurn++;
             UpdateBattleUI();
-
-            Debug.Log($"--- {character.characterName}의 턴 (Round {currentRound} - Turn {currentTurn}) ---");
-            if (BattleLogManager.Instance != null)
-                BattleLogManager.Instance.LogTurnStart(character.characterName, currentRound, currentTurn);
 
             // 카메라가 현재 턴 캐릭터를 따라가도록 설정
             if (battleCameraController != null)
@@ -342,6 +344,15 @@ public class BattleManager : MonoBehaviour
                 else
                 {
                     battleCameraController.OnActionStart(character);
+                }
+            }
+
+            // 모든 캐릭터에게 턴 종료 이벤트 적용
+            foreach (var character_ in charactersTurnList)
+            {
+                if (IsValidCharacter(character_))
+                {
+                    character_.OnTurnEnd();
                 }
             }
 
