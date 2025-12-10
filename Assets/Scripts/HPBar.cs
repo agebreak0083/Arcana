@@ -8,6 +8,9 @@ public class HPBar : MonoBehaviour
     public Slider hpSlider;
     public Image fillImage;
     public TextMeshProUGUI textHP;
+    public TextMeshProUGUI textAP;
+    public TextMeshProUGUI textPP;
+    public TextMeshProUGUI textName;
     
     [Header("Colors")]
     public Color highHealthColor = Color.green;
@@ -23,27 +26,28 @@ public class HPBar : MonoBehaviour
     private Camera mainCamera;
     private float targetValue;
     private string characterName;
-    
+
     void Start()
     {
         mainCamera = Camera.main;
-        
+
         if (hpSlider == null)
         {
             hpSlider = GetComponent<Slider>();
         }
-        
+
         if (fillImage == null && hpSlider != null)
         {
             fillImage = hpSlider.fillRect.GetComponent<Image>();
         }
-        
+
         if (hpSlider != null)
         {
             hpSlider.minValue = 0;
             hpSlider.maxValue = 1;
             targetValue = hpSlider.value;
-        }
+        }       
+        
     }
     
     void LateUpdate()
@@ -124,7 +128,21 @@ public class HPBar : MonoBehaviour
             fillImage.color = lowHealthColor;
         }
     }
-    
+
+    public void UpdateAPPP(int ap, int pp)
+    {
+        textAP.text = "";
+        textPP.text = "";
+        
+        for(int i = 0; i < ap; i++)
+        {
+            textAP.text += "◆";
+        }
+        for(int i = 0; i < pp; i++)
+        {
+            textPP.text += "◆";
+        }
+    }
     // 타겟 캐릭터 설정
     public void SetTarget(Transform character)
     {

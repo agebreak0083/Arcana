@@ -60,7 +60,10 @@ public class Character : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if(hpBar != null)
+        {
+            hpBar.UpdateAPPP(stats.actionPoint, stats.passivePoint);
+        }
     }
 
     public void MoveCharacter(int position)
@@ -587,9 +590,9 @@ public class Character : MonoBehaviour
         }
         else
         {
-            if (isGuard)
+            if (isGuardPosition)
             {
-                isGuard = false;
+                isGuardPosition = false;
 
                 // 가드 전의 위치로 이동 
                 MoveToPosition(originalPosition);                
@@ -663,7 +666,7 @@ public class Character : MonoBehaviour
         return result;
     }
 
-    bool isGuard = false;
+    bool isGuardPosition = false;
     private PassiveSkillResult CheckPassiveSkill(Character user, Character target, Skill skill, SkillEffect effect, PassiveSkillResult result)
     {
         // 자신에게 세팅된 Action 순회, PP 스킬을 찾고, 조건을 체크한다. 
@@ -730,8 +733,11 @@ public class Character : MonoBehaviour
         }
 
         // 가드 포지션으로 이동
-        MoveToPosition(target.transform.position + target.transform.forward * 0.5f);
-        isGuard = true;
+        if (target != this)
+        {
+            MoveToPosition(target.transform.position + target.transform.forward * 0.5f);
+            isGuardPosition = true;
+        }
 
         if (BattleLogManager.Instance != null)
         {
