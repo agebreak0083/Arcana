@@ -5,7 +5,6 @@ using System.Linq;
 using Arcana.Tactics;
 using UnityEngine;
 using DG.Tweening;
-using Unity.AppUI.Editor;
 
 public class Character : MonoBehaviour
 {

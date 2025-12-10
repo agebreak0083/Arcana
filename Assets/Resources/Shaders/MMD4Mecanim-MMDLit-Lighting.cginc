@@ -70,8 +70,9 @@ inline half MMDLit_SpecularRefl( half3 normal, half3 lightDir, half3 viewDir, ha
 #define MMDLIT_CLIP(A_) clip((A_) - (1.0 / 255.0));
 #define MMDLIT_CLIP_FAST(A_)
 #else
-half ___Eliminate; // Please observe terms of use. (Don't modify this code)
-#define MMDLIT_CLIP(A_) clip((A_) * ___Eliminate - (1.0 / 255.0));
+// WebGL/GLES3에서 초기화되지 않은 변수 문제 해결을 위해 상수로 변경
+#define _MMDLitEliminate 1.0
+#define MMDLIT_CLIP(A_) clip((A_) * _MMDLitEliminate - (1.0 / 255.0));
 #define MMDLIT_CLIP_FAST(A_) MMDLIT_CLIP((A_))
 #endif
 
