@@ -1,14 +1,6 @@
 [
         {
-            "Name": "루미",
-            "tactics": []
-        },
-        {
-            "Name": "칸타렐라",
-            "tactics": []
-        },
-        {
-            "Name": "카르티",
+            "Name": "금희",
             "tactics": []
         },
         {
@@ -16,11 +8,7 @@
             "tactics": []
         },
         {
-            "Name": "유호",
-            "tactics": []
-        },
-        {
-            "Name": "갈브레나",
+            "Name": "유노",
             "tactics": []
         },
         {
@@ -28,69 +16,7 @@
             "tactics": []
         },
         {
-            "Name": "유노",
-            "tactics": [
-                {
-                    "characterClass": "헌터",
-                    "plan": [
-                        {
-                            "skill": "싱글 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "더블 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "라인 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "Name": "절지",
-            "tactics": []
-        },
-        {
-            "Name": "앙코",
-            "tactics": []
-        },
-        {
-            "Name": "장리",
-            "tactics": []
-        },
-        {
-            "Name": "플로로",
+            "Name": "페비",
             "tactics": []
         },
         {
@@ -98,19 +24,23 @@
             "tactics": []
         },
         {
-            "Name": "단근",
+            "Name": "칸타렐라",
             "tactics": []
         },
         {
-            "Name": "페비",
+            "Name": "절지",
             "tactics": []
         },
         {
-            "Name": "금희",
+            "Name": "카르티",
             "tactics": []
         },
         {
-            "Name": "카를로타",
+            "Name": "장리",
+            "tactics": []
+        },
+        {
+            "Name": "유호",
             "tactics": []
         },
         {
@@ -118,57 +48,11 @@
             "tactics": []
         },
         {
-            "Name": "치사",
+            "Name": "루미",
             "tactics": []
         },
         {
             "Name": "양양",
-            "tactics": [
-                {
-                    "characterClass": "파이터",
-                    "plan": [
-                        {
-                            "skill": "디펜더",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "실드 배시",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "디펜더",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "애로우 커버",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "퀵 가드",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        }
-                    ]
-                }
-            ]
+            "tactics": []
         }
     ]

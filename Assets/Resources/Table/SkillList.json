@@ -175,31 +175,7 @@
       ],
       "traits": [],
       "animation": "Skill_2"
-    },
-    {
-      "id": "어트랙트",
-      "name": "어트랙트",
-      "type": "start_passive",
-      "description": "전투 시작 시 발동\n적 1열의 공격을 자신에게 유도. 자신의 가드율 +50%",
-      "target": "self",
-      "costAP": 0,
-      "costPP": 1,
-      "effects": [
-        {
-          "type": "taunt",
-          "target": "enemy_front_row"          
-        },
-        {
-          "type": "buff",
-          "target": "self",
-          "stat": "physical_defense",
-          "value": 50,
-          "duration": 3
-        }
-      ],
-      "traits": [],
-      "animation": "Skill_2"
-    }
+    }    
   ],
   "솔저 / 서전트": [
     {

@@ -146,16 +146,16 @@ namespace Arcana.Tactics.UI
             // 텍스트 설정
             if (skillNameText != null)
             {
-                skillNameText.text = skill.name;
-
                 // 코스트 정보 표시. AP/PP가 0이면 표시하지 않음
                 if (skill.costAP > 0)
                 {
-                    skillNameText.text += $" ({skill.costAP} AP)";
+                    // 오렌지 계통
+                    skillNameText.text = $" <color=orange>{skill.name} ({skill.costAP} AP)</color>";
                 }
                 if (skill.costPP > 0)
                 {
-                    skillNameText.text += $" ({skill.costPP} PP)";
+                    // 파란 계통
+                    skillNameText.text = $" <color=blue>{skill.name} ({skill.costPP} PP)</color>";
                 }
             }
 
@@ -168,7 +168,14 @@ namespace Arcana.Tactics.UI
 
             if (skillDamageText != null)
             {
-                skillDamageText.text = "대미지 " +  skill.effects.Find(e => e.type == "damage")?.value.ToString() ?? "0";                
+                if(skill.effects.Find(e => e.type == "damage") != null)
+                {
+                    skillDamageText.text = "대미지 " +  skill.effects.Find(e => e.type == "damage")?.value.ToString() ?? "0";
+                }
+                else
+                {
+                    skillDamageText.text = "";
+                }
             }
 
             // 버튼 클릭 이벤트 등록
