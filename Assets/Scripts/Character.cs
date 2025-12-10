@@ -115,6 +115,17 @@ public class Character : MonoBehaviour
         if (currentStrategy == null) return null;
         if (stats.actionPoint <= 0) return null;
 
+        // BuffList에서 stun이 있으면 행동 불가
+        if (buffs.Any(b => b.stat == "stun"))
+        {
+            Debug.Log($"{characterName}이(가) 기절 상태이므로 행동할 수 없습니다.");
+            if(BattleLogManager.Instance != null)
+            {
+                BattleLogManager.Instance.AddLog($"  <color=#FF0000>[기절 상태이므로 행동할 수 없습니다.]</color> from {characterName}");
+            }
+            return null;
+        }
+
         // 우선순위가 높은 순서대로 조건을 확인하여 실행할 액션 결정
         for (int i = 0; i < availableActions.Count; i++)
         {
