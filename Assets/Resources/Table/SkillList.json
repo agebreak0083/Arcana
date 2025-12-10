@@ -106,7 +106,7 @@
         }
       ],
       "traits": [],
-      "animation": "Skill_1"
+      "animation": "Skill_2"
     },
     {
       "id": "디펜더",
@@ -130,7 +130,7 @@
         },
         {
           "type": "on_hit",
-          "stat": "pp",
+          "stat": "get_pp",
           "value": 1          
         }
       ],

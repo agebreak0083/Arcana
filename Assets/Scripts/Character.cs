@@ -26,6 +26,10 @@ public class Character : MonoBehaviour
     public float hp = 100;
     public float maxHp = 100;
 
+    [Header("Hit Effect")]
+    public float hitEffectDuration = 0.2f; // 피격 반짝임 효과 지속 시간
+    public Material hitEffectMaterial; // 피격 반짝임 효과 머티리얼
+
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -34,7 +38,11 @@ public class Character : MonoBehaviour
         // HP 바 생성
         CreateHPBar();
 
-        // SetStrategyName();
+        hitEffectMaterial = Resources.Load<Material>("Materials/HitFX_White");
+        if (hitEffectMaterial == null)
+        {
+            Debug.LogError("HitEffect Material을 찾을 수 없습니다.");
+        }
     }
 
     void OnDestroy()
@@ -219,6 +227,9 @@ public class Character : MonoBehaviour
     {
         Animator animator = GetComponent<Animator>();
         StartCoroutine(PlayAnimationAndWait(animator, "Damaged@loop"));
+
+        // 피격 반짝임 효과
+        StartCoroutine(FlashWhiteOnHit());
 
         hp = Mathf.Max(0, hp - damage);
         UpdateHPBar();
@@ -540,6 +551,60 @@ public class Character : MonoBehaviour
         foreach (var buff in buffsToRemove)
         {
             RemoveBuff(buff);
+        }
+    }
+
+    // 피격 시 흰색 반짝임 효과
+    private IEnumerator FlashWhiteOnHit()
+    {
+        // 모든 렌더러 가져오기
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        if (renderers.Length == 0)
+        {
+            yield break;
+        }
+
+        // 원본 머티리얼 저장 (렌더러별, 머티리얼 인덱스별)
+        Dictionary<Renderer, Material[]> originalMaterials = new Dictionary<Renderer, Material[]>();
+
+        // 각 렌더러에 대해 흰색 머티리얼 생성 및 교체
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer.materials != null && renderer.materials.Length > 0)
+            {
+                // 원본 머티리얼 배열 복사 저장
+                Material[] originalMats = new Material[renderer.materials.Length];
+                Material[] whiteMats = new Material[renderer.materials.Length];
+
+                for (int i = 0; i < renderer.materials.Length; i++)
+                {
+                    if (renderer.materials[i] != null)
+                    {
+                        // 원본 머티리얼 저장
+                        originalMats[i] = renderer.materials[i];
+
+                        // Hit Effect Material 사용                        
+                        whiteMats[i] = hitEffectMaterial;
+                    }                    
+                }
+
+                originalMaterials[renderer] = originalMats;
+
+                // 흰색 머티리얼로 교체
+                renderer.materials = whiteMats;
+            }
+        }
+
+        // 0.2초 대기
+        yield return new WaitForSeconds(hitEffectDuration);
+
+        // 원본 머티리얼로 복원
+        foreach (Renderer renderer in renderers)
+        {
+            if (originalMaterials.ContainsKey(renderer))
+            {
+                renderer.materials = originalMaterials[renderer];
+            }
         }
     }
 }

@@ -270,8 +270,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1387,8 +1387,10 @@ MonoBehaviour:
     hp: 
     physicalAttack: 
     physicalDefense: 
+    physicalDefenseBuff: 0
     magicalAttack: 
     magicalDefense: 
+    magicalDefenseBuff: 0
     accuracy: 
     evasion: 
     criticalRate: 
@@ -1398,6 +1400,8 @@ MonoBehaviour:
     passivePoint: 0
   hp: 100
   maxHp: 100
+  hitEffectDuration: 0.2
+  hitEffectMaterial: {fileID: 0}
 --- !u!4 &609338588 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 446328, guid: 441d3767f050bfc42987d96a4520af07, type: 3}
@@ -2852,7 +2856,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -20, y: -20}
-  m_SizeDelta: {x: 400, y: 500}
+  m_SizeDelta: {x: 600, y: 500}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1197013232
 MonoBehaviour:
@@ -3213,8 +3217,10 @@ MonoBehaviour:
     hp: 
     physicalAttack: 
     physicalDefense: 
+    physicalDefenseBuff: 0
     magicalAttack: 
     magicalDefense: 
+    magicalDefenseBuff: 0
     accuracy: 
     evasion: 
     criticalRate: 
@@ -3224,6 +3230,8 @@ MonoBehaviour:
     passivePoint: 0
   hp: 100
   maxHp: 100
+  hitEffectDuration: 0.2
+  hitEffectMaterial: {fileID: 0}
 --- !u!4 &1376986586 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 446328, guid: 441d3767f050bfc42987d96a4520af07, type: 3}
@@ -3514,8 +3522,10 @@ MonoBehaviour:
     hp: 
     physicalAttack: 
     physicalDefense: 
+    physicalDefenseBuff: 0
     magicalAttack: 
     magicalDefense: 
+    magicalDefenseBuff: 0
     accuracy: 
     evasion: 
     criticalRate: 
@@ -3525,6 +3535,8 @@ MonoBehaviour:
     passivePoint: 0
   hp: 100
   maxHp: 100
+  hitEffectDuration: 0.2
+  hitEffectMaterial: {fileID: 0}
 --- !u!4 &1525750188 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 448956, guid: 1b116d1d98225c449952c7fe4df59bcc, type: 3}
@@ -4385,8 +4397,10 @@ MonoBehaviour:
     hp: 
     physicalAttack: 
     physicalDefense: 
+    physicalDefenseBuff: 0
     magicalAttack: 
     magicalDefense: 
+    magicalDefenseBuff: 0
     accuracy: 
     evasion: 
     criticalRate: 
@@ -4396,6 +4410,8 @@ MonoBehaviour:
     passivePoint: 0
   hp: 100
   maxHp: 100
+  hitEffectDuration: 0.2
+  hitEffectMaterial: {fileID: 0}
 --- !u!4 &1904942526 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 448956, guid: 1b116d1d98225c449952c7fe4df59bcc, type: 3}

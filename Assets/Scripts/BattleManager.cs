@@ -347,14 +347,8 @@ public class BattleManager : MonoBehaviour
                 }
             }
 
-            // 모든 캐릭터에게 턴 종료 이벤트 적용
-            foreach (var character_ in charactersTurnList)
-            {
-                if (IsValidCharacter(character_))
-                {
-                    character_.OnTurnEnd();
-                }
-            }
+            // 턴 종료 이벤트 호출
+            character.OnTurnEnd();            
 
             // 행동 완료 대기
             isWaitingForActionComplete = true;

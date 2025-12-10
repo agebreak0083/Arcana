@@ -213,12 +213,19 @@ public class SkillManager : MonoBehaviour
                 }
 
                 buffTarget.AddBuff(effect.stat, effect.value, effect.duration);            
-                Debug.Log($"{buffTarget.characterName}의 {effect.stat} +{effect.value}% 버프 적용! (지속: {effect.duration}턴)");
 
                 // 전투 로그에 버프 기록
                 if (BattleLogManager.Instance != null)
                 {
                     BattleLogManager.Instance.AddLog($"  <color=#00FF00>[{effect.stat} +{effect.value}% 버프 적용!]</color> (지속: {effect.duration}턴) to {buffTarget.characterName}");
+                }
+                break;
+            case "stun":
+                target.AddBuff("stun", 0, effect.duration);
+                
+                if (BattleLogManager.Instance != null)
+                {
+                    BattleLogManager.Instance.AddLog($"  <color=#FF0000>[기절 부여!]</color> (지속: {effect.duration}턴) to {target.characterName}");
                 }
                 break;
             case "debuff":
