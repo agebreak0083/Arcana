@@ -269,6 +269,15 @@ public class BattleManager : MonoBehaviour
             }
         }
 
+        // 라운드 시작 시 모든 캐릭터의 Buff/Debuff 제거
+        foreach (var character in charactersTurnList)
+        {
+            if (IsValidCharacter(character))
+            {
+                character.RemoveAllBuffs();
+            }
+        }
+
         UpdateBattleUI();
         yield return new WaitForSeconds(0.5f); // 라운드 시작 연출 대기
 
