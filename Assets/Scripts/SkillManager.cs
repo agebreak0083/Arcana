@@ -217,15 +217,15 @@ public class SkillManager : MonoBehaviour
                 // 전투 로그에 버프 기록
                 if (BattleLogManager.Instance != null)
                 {
-                    BattleLogManager.Instance.AddLog($"  <color=#00FF00>[{effect.stat} +{effect.value}% 버프 적용!]</color> (지속: {effect.duration}턴) to {buffTarget.characterName}");
+                    BattleLogManager.Instance.AddLog($" {buffTarget.characterName} → <color=#00FF00>[{effect.stat} +{effect.value}% 버프 적용!]</color> (지속: {effect.duration}턴)");
                 }
                 break;
             case "stun":
                 target.AddBuff("stun", 0, effect.duration);
-                
+
                 if (BattleLogManager.Instance != null)
                 {
-                    BattleLogManager.Instance.AddLog($"  <color=#FF0000>[기절 부여!]</color> (지속: {effect.duration}턴) to {target.characterName}");
+                    BattleLogManager.Instance.AddLog($" {target.characterName} → <color=#FF0000>[기절 부여!]</color> (지속: {effect.duration}턴)");
                 }
                 break;
             case "debuff":
@@ -233,18 +233,16 @@ public class SkillManager : MonoBehaviour
                 // TODO: 실제 디버프 시스템 구현
                 break;
 
-            case "status":
-                // Debug.Log($"{effect.statusName} 상태이상 부여! (확률: {effect.chance}%)");
-                // //debuffTarget.AddBuff(effect.stat, effect.value, effect.duration);
-                // if (BattleLogManager.Instance != null)
-                // {
-                //     BattleLogManager.Instance.AddLog($"  <color=#FF0000>[{effect.stat} {effect.value}% 디버프 적용!]</color> (지속: {effect.duration}턴) to {debuffTarget.characterName}");
-                // }
-                // // TODO: 상태이상 시스템 구현
-                break;
-
-            case "restore_pp":
-                break;
+            case "on_hit":
+                if (effect.stat == "get_pp")
+                {
+                    user.RestorePP((int)effect.value);
+                    if (BattleLogManager.Instance != null)
+                    {
+                        BattleLogManager.Instance.AddLog($" {user.characterName} → <color=#00FF00>[PP +{effect.value} 회복!]</color>");                        
+                    }
+                }
+                break;           
 
             default:
                 Debug.Log($"효과 적용: {effect.type}");

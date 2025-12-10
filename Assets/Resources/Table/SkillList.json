@@ -123,7 +123,8 @@
           "damageType": "physical"
         },
         {
-          "type": "debuff",
+          "type": "buff",
+          "target": "self",
           "stat": "physical_defense",
           "value": 50,
           "duration": 3
@@ -135,7 +136,7 @@
         }
       ],
       "traits": [],
-      "animation": "Skill_1"
+      "animation": "Skill_2"
     }
   ],
   "솔저 / 서전트": [
