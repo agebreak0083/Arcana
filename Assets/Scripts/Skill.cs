@@ -18,7 +18,7 @@ public class SkillEffect
     public string statusName;        // "stun", "poison", "burn", "freeze", "sleep"
     public float chance;             // 발동 확률 (%)
     public string condition;         // "on_hit", "on_kill" 등
-    public string guardLevel;        // "low", "medium", "high"
+    public string guardLevel;        // "low", "medium", "high"    
 }
 
 /// <summary>

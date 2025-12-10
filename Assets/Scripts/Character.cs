@@ -5,6 +5,7 @@ using System.Linq;
 using Arcana.Tactics;
 using UnityEngine;
 using DG.Tweening;
+using Unity.AppUI.Editor;
 
 public class Character : MonoBehaviour
 {
@@ -14,6 +15,9 @@ public class Character : MonoBehaviour
     Strategy currentStrategy; // 현재 사용 중인 작전
     List<StrategyAction> availableActions = new List<StrategyAction>();
     public int position = 1;
+
+    public bool isPlayer = false;
+    public Vector3 originalPosition;
 
     [Header("HP Bar")]
     public GameObject hpBarPrefab; // HP 바 프리팹
@@ -36,8 +40,7 @@ public class Character : MonoBehaviour
     void Start()
     {
         // HP 바 생성
-        CreateHPBar();
-
+        CreateHPBar();        
         hitEffectMaterial = Resources.Load<Material>("Materials/HitFX_White");
         if (hitEffectMaterial == null)
         {
@@ -119,7 +122,7 @@ public class Character : MonoBehaviour
         if (buffs.Any(b => b.stat == "stun"))
         {
             Debug.Log($"{characterName}이(가) 기절 상태이므로 행동할 수 없습니다.");
-            if(BattleLogManager.Instance != null)
+            if (BattleLogManager.Instance != null)
             {
                 BattleLogManager.Instance.AddLog($"  <color=#FF0000>[기절 상태이므로 행동할 수 없습니다.]</color> from {characterName}");
             }
@@ -236,6 +239,16 @@ public class Character : MonoBehaviour
     // HP 변경
     public void TakeDamage(float damage, bool isCritical = false)
     {
+        if(damage <= 0)
+        {
+            // BattleManager에 액션 완료 알림
+            if (BattleManager.Instance != null)
+            {
+                BattleManager.Instance.OnCharacterActionFinished(this);
+            }
+            return;
+        }
+
         Animator animator = GetComponent<Animator>();
         StartCoroutine(PlayAnimationAndWait(animator, "Damaged@loop"));
 
@@ -251,6 +264,12 @@ public class Character : MonoBehaviour
             // 캐릭터 머리 위 위치 계산 (약간 위로)
             Vector3 damageTextPosition = transform.position + Vector3.up * 1f;
             BattleUI.Instance.ShowDamageText(Mathf.RoundToInt(damage), damageTextPosition, isCritical);
+        }
+
+        // 전투 로그에 데미지 기록
+        if (BattleLogManager.Instance != null)
+        {
+            BattleLogManager.Instance.LogDamage(characterName, Mathf.RoundToInt(damage));
         }
 
         if (hp <= 0)
@@ -540,29 +559,42 @@ public class Character : MonoBehaviour
     }
 
     // 배틀 전체의 한턴이 끝날 때마다 호출되는 이벤트
-    public void OnTurnEnd()
+    public void OnTurnEnd(Character targetCharacter)
     {
-        // 제거할 버프를 먼저 수집 (순회 중 수정 방지)
-        List<Buff> buffsToRemove = new List<Buff>();
-
-        foreach (var buff in buffs)
+        if (this == targetCharacter)
         {
-            if (buff.duration > 0)
+            // 제거할 버프를 먼저 수집 (순회 중 수정 방지)
+            List<Buff> buffsToRemove = new List<Buff>();
+
+            foreach (var buff in buffs)
             {
-                buff.duration--;
+                if (buff.duration > 0)
+                {
+                    buff.duration--;
+                }
+
+                if (buff.duration <= 0)
+                {
+                    buffsToRemove.Add(buff);
+                }
             }
 
-            if(buff.duration <= 0)
+            // 수집한 버프들을 제거
+            foreach (var buff in buffsToRemove)
             {
-                buffsToRemove.Add(buff);
+                RemoveBuff(buff);
             }
         }
-
-        // 수집한 버프들을 제거
-        foreach (var buff in buffsToRemove)
+        else
         {
-            RemoveBuff(buff);
-        }
+            if (isGuard)
+            {
+                isGuard = false;
+
+                // 가드 전의 위치로 이동 
+                MoveToPosition(originalPosition);                
+            }
+        }        
     }
 
     // 피격 시 흰색 반짝임 효과
@@ -596,7 +628,7 @@ public class Character : MonoBehaviour
 
                         // Hit Effect Material 사용                        
                         whiteMats[i] = hitEffectMaterial;
-                    }                    
+                    }
                 }
 
                 originalMaterials[renderer] = originalMats;
@@ -618,4 +650,102 @@ public class Character : MonoBehaviour
             }
         }
     }
+
+    public PassiveSkillResult OnSkillUsed(Character user, Character target, Skill skill, SkillEffect effect, PassiveSkillResult result)
+    {
+        if (stats.passivePoint <= 0)
+        {
+            return result;
+        }
+
+        result = CheckPassiveSkill(user, target, skill, effect, result);
+
+        return result;
+    }
+
+    bool isGuard = false;
+    private PassiveSkillResult CheckPassiveSkill(Character user, Character target, Skill skill, SkillEffect effect, PassiveSkillResult result)
+    {
+        // 자신에게 세팅된 Action 순회, PP 스킬을 찾고, 조건을 체크한다. 
+
+        foreach (var action in availableActions)
+        {
+            // action name으로 스킬 정보를 가져옴. 
+            Skill myPassiveSkill = SkillManager.Instance.GetSkillByName(action.action);
+            if (myPassiveSkill == null || myPassiveSkill.costPP <= 0)
+            {
+                continue;
+            }
+
+            // 스킬의 조건을 체크한다. 
+            foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
+            {
+                if (mySkillEffect.type == "guard")
+                {
+                    PassiveGuard(target, myPassiveSkill, effect, mySkillEffect, result);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private void PassiveGuard(Character target, Skill myPassiveSkill, SkillEffect effect, SkillEffect mySkillEffect, PassiveSkillResult result)
+    {
+        if (result.isGuard) // 다른 캐릭터가 이미 가드한 경우
+        {
+            return;
+        }
+
+        if (target == null || this.isPlayer != target.isPlayer) // 타겟이 없거나 같은 진영이 아닌 경우
+        {
+            return;
+        }
+
+        if (mySkillEffect.damageType != effect.damageType) // 데미지 타입이 다른 경우
+        {
+            return;
+        }
+
+        // 다른 아군 캐릭터인지 체크
+        if (mySkillEffect.target == "ally" && target == this)
+        {
+            return;
+        }
+
+        // 자신인지 체크
+        if (mySkillEffect.target == "self" && target != this)
+        {
+            return;
+        }
+
+        result.isGuard = true;
+        result.guardLevel = mySkillEffect.guardLevel;
+        result.passiveCharacter = this;
+        
+        stats.passivePoint -= myPassiveSkill.costPP;
+        if (BattleLogManager.Instance != null)
+        {
+            BattleLogManager.Instance.AddLog($"{characterName}의 PP가 {myPassiveSkill.costPP} 소모되었습니다. (남은 PP: {stats.passivePoint})");
+        }
+
+        // 가드 포지션으로 이동
+        MoveToPosition(target.transform.position + target.transform.forward * 0.5f);
+        isGuard = true;
+
+        if (BattleLogManager.Instance != null)
+        {
+            BattleLogManager.Instance.AddLog($"{characterName}이(가) {target.characterName}을(를) 가드했습니다.");
+        }
+
+        return;
+    }
+
+
+    public void MoveToPosition(Vector3 position)
+    {
+        transform.DOMove(position, 0.2f).SetEase(Ease.OutQuad);
+    }
 }
+
+

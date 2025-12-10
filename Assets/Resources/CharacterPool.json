@@ -29,7 +29,53 @@
         },
         {
             "Name": "유노",
-            "tactics": []
+            "tactics": [
+                {
+                    "characterClass": "헌터",
+                    "plan": [
+                        {
+                            "skill": "싱글 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "더블 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "라인 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "Name": "절지",
@@ -97,7 +143,7 @@
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "---",
+                            "skill": "애로우 커버",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },

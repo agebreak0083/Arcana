@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Arcana.Tactics;
+using Arcana.Tactics.Data;
 
 /// <summary>
 /// 스킬 데이터를 로드하고 관리하는 매니저
@@ -170,6 +171,9 @@ public class SkillManager : MonoBehaviour
     // 개별 효과 적용
     private void ApplyEffect(SkillEffect effect, Character user, Character target, Skill skill)
     {
+        // 모든 Character에게 누가 누구에게 스킬을 썼는지 알려준다. 
+        PassiveSkillResult result = BattleManager.Instance.OnSkillUsed(user, target, skill, effect);
+
         switch (effect.type)
         {
             case "damage":
@@ -177,21 +181,34 @@ public class SkillManager : MonoBehaviour
                 {
                     bool isCritical;
                     float damage = CalculateDamage(effect.value, user, target, effect.damageType, out isCritical);
-                    target.TakeDamage(damage, isCritical);
-                    Debug.Log($"{target.characterName}에게 {damage} 데미지!{(isCritical ? " (크리티컬!)" : "")}");
 
-                    // 전투 로그에 데미지 기록
-                    if (BattleLogManager.Instance != null)
+                    if(result.isGuard)
                     {
-                        BattleLogManager.Instance.LogDamage(target.characterName, damage);
+                        switch(result.guardLevel)
+                        {
+                            case "low":
+                                damage = damage * BattleSetting.GUARD_EFFECT_LOW;
+                                break;
+                            case "medium":
+                                damage = damage * BattleSetting.GUARD_EFFECT_MEDIUM;
+                                break;
+                            case "high":
+                                damage = damage * BattleSetting.GUARD_EFFECT_HIGH;
+                                break;
+                            case "maximum":
+                                damage = damage * BattleSetting.GUARD_EFFECT_MAXIMUM;
+                                break;
+                        }
                     }
+                    
+                    target.TakeDamage(damage, isCritical);
                 }
                 break;
 
             case "heal":
                 if (target != null)
                 {
-                    target.Heal(effect.value);                    
+                    target.Heal(effect.value);
 
                     // 전투 로그에 회복 기록
                     if (BattleLogManager.Instance != null)
@@ -205,14 +222,14 @@ public class SkillManager : MonoBehaviour
                 Character buffTarget = null;
                 if (effect.target == "self")
                 {
-                    buffTarget = user;                    
+                    buffTarget = user;
                 }
                 else if (effect.target == "ally")
                 {
                     // TODO : 아군 버프 적용
                 }
 
-                buffTarget.AddBuff(effect.stat, effect.value, effect.duration);            
+                buffTarget.AddBuff(effect.stat, effect.value, effect.duration);
 
                 // 전투 로그에 버프 기록
                 if (BattleLogManager.Instance != null)
@@ -239,10 +256,10 @@ public class SkillManager : MonoBehaviour
                     user.RestorePP((int)effect.value);
                     if (BattleLogManager.Instance != null)
                     {
-                        BattleLogManager.Instance.AddLog($" {user.characterName} → <color=#00FF00>[PP +{effect.value} 회복!]</color>");                        
+                        BattleLogManager.Instance.AddLog($" {user.characterName} → <color=#00FF00>[PP +{effect.value} 회복!]</color>");
                     }
                 }
-                break;           
+                break;
 
             default:
                 Debug.Log($"효과 적용: {effect.type}");

@@ -131,7 +131,7 @@ public class BattleManager : MonoBehaviour
                     {
                         // 모델 경로 처리 (... -> Models/...)
                         string modelPath = "Models/";
-                        if(string.IsNullOrEmpty(characterData.model))
+                        if (string.IsNullOrEmpty(characterData.model))
                         {
                             modelPath += classInfo.model;
                         }
@@ -139,7 +139,7 @@ public class BattleManager : MonoBehaviour
                         {
                             modelPath += characterData.model;
                         }
-                        
+
                         if (modelPath.StartsWith("Assets/Resources/"))
                         {
                             modelPath = modelPath.Substring("Assets/Resources/".Length);
@@ -168,6 +168,8 @@ public class BattleManager : MonoBehaviour
                             character.position = i + 1;
                             character.hpBarPrefab = hpBarPrefab;
                             character.hpBarOffset = hpBarOffset;
+                            character.originalPosition = positions[i].transform.position;
+                            character.isPlayer = isPlayer;
 
                             // 클래스 스탯 적용
                             character.ApplyClassStatsToCharacter();
@@ -343,7 +345,7 @@ public class BattleManager : MonoBehaviour
             if (battleCameraController != null)
             {
                 battleCameraController.FollowCharacter(character);
-                
+
                 // 액션 타겟 찾기 (Character의 GetTarget 메서드 사용)
                 Character targetChar = GetActionTarget(character, action);
                 if (targetChar != null)
@@ -357,7 +359,7 @@ public class BattleManager : MonoBehaviour
             }
 
             // 턴 종료 이벤트 호출
-            character.OnTurnEnd();            
+            OnTurnEnd(character);
 
             // 행동 완료 대기
             isWaitingForActionComplete = true;
@@ -375,6 +377,18 @@ public class BattleManager : MonoBehaviour
         {
             // 행동하지 않음 (조건 불만족, AP 부족 등)
             onResult?.Invoke(false);
+        }
+    }
+
+    private void OnTurnEnd(Character targetCharacter)
+    {
+        // 모든 캐릭터에게 턴 종료 이벤트를 호출한다. 
+        foreach (var character in charactersTurnList)
+        {
+            if (IsValidCharacter(character))
+            {
+                character.OnTurnEnd(targetCharacter);
+            }
         }
     }
 
@@ -418,7 +432,7 @@ public class BattleManager : MonoBehaviour
         return selector.Select(candidates, actor);
     }
 
-    bool isBattleOver = false;     
+    bool isBattleOver = false;
     // 전투 종료 조건 체크
     private bool CheckBattleOver()
     {
@@ -498,4 +512,26 @@ public class BattleManager : MonoBehaviour
     {
         waitingCharacters.Add(character);
     }
+
+    public PassiveSkillResult OnSkillUsed(Character user, Character target, Skill skill, SkillEffect effect)
+    {
+        PassiveSkillResult result = new PassiveSkillResult();
+        // 모든 캐릭터에게 누가 누구에게 스킬을 썼는지 알려준다. 
+        foreach (var character in charactersTurnList)
+        {
+            if (IsValidCharacter(character))
+            {
+                result = character.OnSkillUsed(user, target, skill, effect, result);
+            }
+        }
+
+        return result;
+    }
+}
+
+public class PassiveSkillResult
+{
+    public bool isGuard = false;
+    public string guardLevel = "";
+    public Character passiveCharacter = null;
 }
