@@ -77,6 +77,52 @@
         },
         {
             "Name": "양양",
-            "tactics": []
+            "tactics": [
+                {
+                    "characterClass": "파이터",
+                    "plan": [
+                        {
+                            "skill": "실드 배시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "실드 배시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "디펜더",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         }
     ]

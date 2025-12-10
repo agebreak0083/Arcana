@@ -44,6 +44,9 @@ public class Skill
     public string triggerCondition;  // 패시브 발동 조건: "physical_attack", "magical_attack", "ranged_physical_attack"
     public List<SkillEffect> effects; // 효과 리스트
     public List<string> traits;      // 특성: "ranged", "simultaneous_activation_limit", "sure_hit"
+    
+    // Helper property to determine skill type (AP or PP)
+    public string skillType => (type == "active" || costAP > 0) ? "AP" : "PP";
 }
 
 /// <summary>

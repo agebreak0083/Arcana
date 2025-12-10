@@ -24,7 +24,7 @@ namespace Arcana.Tactics
         public List<CharacterData> availableCharacters;
 
         private Dictionary<string, ClassInfo> _classData = new Dictionary<string, ClassInfo>();
-        private Dictionary<string, List<SkillData>> _skillMap = new Dictionary<string, List<SkillData>>();
+        private Dictionary<string, List<Skill>> _skillMap = new Dictionary<string, List<Skill>>();
         private FormationLoadResult _playerFormationLoadResult;
         private FormationLoadResult _enemyFormationLoadResult;
         private CharacterDefinition[] _allCharacterDefinitions; // 모든 캐릭터 정의 목록
@@ -274,7 +274,7 @@ namespace Arcana.Tactics
                     }
 
                     // Assign skills based on class
-                    newData.skills = new List<SkillData>();
+                    newData.skills = new List<Skill>();
 
                     // Find matching key in skill map (e.g. "파이터" in "파이터 / 뱅가드")
                     string matchedKey = null;
@@ -292,7 +292,7 @@ namespace Arcana.Tactics
                         // Clone skills to avoid shared references if we modify them later
                         foreach (var s in classSkills)
                         {
-                            newData.skills.Add(new SkillData
+                            newData.skills.Add(new Skill
                             {
                                 id = s.id,
                                 name = s.name,
@@ -300,15 +300,40 @@ namespace Arcana.Tactics
                                 description = s.description,
                                 target = s.target,
                                 costAP = s.costAP,
-                                costPP = s.costPP
+                                costPP = s.costPP,
+                                // Skill의 모든 필드 초기화 (기본값 사용)
+                                damageType = s.damageType ?? "",
+                                power = s.power,
+                                hitCount = s.hitCount,
+                                accuracyRate = s.accuracyRate,
+                                buttonType = s.buttonType ?? "",
+                                animation = s.animation ?? "",
+                                triggerTiming = s.triggerTiming ?? "",
+                                triggerCondition = s.triggerCondition ?? "",
+                                effects = s.effects != null ? new List<SkillEffect>(s.effects) : new List<SkillEffect>(),
+                                traits = s.traits != null ? new List<string>(s.traits) : new List<string>()
                             });
                         }
                     }
                     else
                     {
                         // Fallback if no skills found
-                        newData.skills.Add(new SkillData { name = "Attack", type = "active", costAP = 1 });
-                        newData.skills.Add(new SkillData { name = "Guard", type = "passive", costPP = 1 });
+                        newData.skills.Add(new Skill { 
+                            id = "attack_default",
+                            name = "Attack", 
+                            type = "active", 
+                            costAP = 1,
+                            effects = new List<SkillEffect>(),
+                            traits = new List<string>()
+                        });
+                        newData.skills.Add(new Skill { 
+                            id = "guard_default",
+                            name = "Guard", 
+                            type = "passive", 
+                            costPP = 1,
+                            effects = new List<SkillEffect>(),
+                            traits = new List<string>()
+                        });
                     }
 
                     // 5. Add to availableCharacters
@@ -564,10 +589,10 @@ namespace Arcana.Tactics
                     string arrayJson = json.Substring(arrayStart, arrayEnd - arrayStart + 1);
                     try
                     {
-                        SkillData[] skills = JsonHelper.FromJson<SkillData>(arrayJson);
+                        Skill[] skills = JsonHelper.FromJson<Skill>(arrayJson);
                         if (skills != null)
                         {
-                            _skillMap[key] = new List<SkillData>(skills);
+                            _skillMap[key] = new List<Skill>(skills);
                         }
                     }
                     catch (System.Exception e)
@@ -599,7 +624,7 @@ namespace Arcana.Tactics
         /// <summary>
         /// 클래스의 스킬 목록 가져오기
         /// </summary>
-        public List<SkillData> GetClassSkills(string className)
+        public List<Skill> GetClassSkills(string className)
         {
             foreach (var key in _skillMap.Keys)
             {
@@ -608,7 +633,7 @@ namespace Arcana.Tactics
                     return _skillMap[key];
                 }
             }
-            return new List<SkillData>();
+            return new List<Skill>();
         }
 
         /// <summary>
@@ -623,7 +648,7 @@ namespace Arcana.Tactics
             for (int i = 0; i < data.skills.Count && i < TacticsDatabase.MAX_TACTICS_ROW; i++)
             {
                 var skill = data.skills[i];
-                plan.rows[i] = new TacticRow(skill.name, skill.skillType.ToString(), TacticsDatabase.DEFAULT_CONDITION, TacticsDatabase.DEFAULT_CONDITION);
+                plan.rows[i] = new TacticRow(skill.name, skill.skillType, TacticsDatabase.DEFAULT_CONDITION, TacticsDatabase.DEFAULT_CONDITION);
             }
 
             return plan;
@@ -1041,7 +1066,7 @@ namespace Arcana.Tactics
                                 var skill = character.skills.Find(s => s.name == rowData.skill);
                                 if (skill != null)
                                 {
-                                    skillType = skill.skillType.ToString();
+                                    skillType = skill.skillType;
                                 }
 
                                 plan.rows[i] = new TacticRow(
@@ -1142,7 +1167,7 @@ namespace Arcana.Tactics
                                         var skill = character.skills.Find(s => s.name == rowData.skill);
                                         if (skill != null)
                                         {
-                                            skillType = skill.skillType.ToString();
+                                            skillType = skill.skillType;
                                         }
 
                                         plan.rows[i] = new TacticRow(

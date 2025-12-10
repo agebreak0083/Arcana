@@ -15,7 +15,7 @@ namespace Arcana.Tactics.UI
 
         private TacticsUIManager _manager;
         private CharacterData _currentCharacter;
-        private System.Action<SkillData> _onSkillSelected;
+        private System.Action<Skill> _onSkillSelected;
 
         private void Awake()
         {
@@ -40,7 +40,7 @@ namespace Arcana.Tactics.UI
         /// </summary>
         /// <param name="character">스킬을 선택할 캐릭터</param>
         /// <param name="onSkillSelected">스킬 선택 시 호출될 콜백</param>
-        public void Open(CharacterData character, System.Action<SkillData> onSkillSelected)
+        public void Open(CharacterData character, System.Action<Skill> onSkillSelected)
         {
             _currentCharacter = character;
             _onSkillSelected = onSkillSelected;
@@ -110,7 +110,7 @@ namespace Arcana.Tactics.UI
         /// <summary>
         /// 개별 스킬 버튼 생성
         /// </summary>
-        private void CreateSkillButton(SkillData skill)
+        private void CreateSkillButton(Skill skill)
         {
             GameObject btnObj = Instantiate(SkillBtnPrefab, skillButtonContainer);
 
@@ -124,6 +124,7 @@ namespace Arcana.Tactics.UI
             // 자식 텍스트 컴포넌트 찾기
             TextMeshProUGUI skillNameText = null;
             TextMeshProUGUI skillDescText = null;
+            TextMeshProUGUI skillDamageText = null;
 
             // "SkillNameText"와 "SkillDescText" 찾기
             foreach (Transform child in btnObj.transform)
@@ -136,6 +137,10 @@ namespace Arcana.Tactics.UI
                 {
                     skillDescText = child.GetComponent<TextMeshProUGUI>();
                 }
+                else if (child.name == "SkillDamageText")
+                {                    
+                    skillDamageText = child.GetComponent<TextMeshProUGUI>();
+                }
             }
 
             // 텍스트 설정
@@ -143,8 +148,15 @@ namespace Arcana.Tactics.UI
             {
                 skillNameText.text = skill.name;
 
-                // 코스트 정보 표시
-                skillNameText.text += $" ({skill.costAP} AP, {skill.costPP} PP)";
+                // 코스트 정보 표시. AP/PP가 0이면 표시하지 않음
+                if (skill.costAP > 0)
+                {
+                    skillNameText.text += $" ({skill.costAP} AP)";
+                }
+                if (skill.costPP > 0)
+                {
+                    skillNameText.text += $" ({skill.costPP} PP)";
+                }
             }
 
             if (skillDescText != null)
@@ -152,6 +164,11 @@ namespace Arcana.Tactics.UI
                 // 스킬 설명 또는 코스트 정보 표시
                 string desc = skill.description ?? skill.type;
                 skillDescText.text = desc;
+            }
+
+            if (skillDamageText != null)
+            {
+                skillDamageText.text = "대미지 " +  skill.effects.Find(e => e.type == "damage")?.value.ToString() ?? "0";                
             }
 
             // 버튼 클릭 이벤트 등록
@@ -162,7 +179,7 @@ namespace Arcana.Tactics.UI
         /// <summary>
         /// 스킬 버튼 클릭 시 호출
         /// </summary>
-        private void OnSkillButtonClicked(SkillData skill)
+        private void OnSkillButtonClicked(Skill skill)
         {
             Debug.Log($"SkillModal: Skill selected - {skill.name}");
 

@@ -17,22 +17,7 @@ namespace Arcana.Tactics.Data
         public int imgSeed; // For the placeholder image URL logic if needed, or just use a Sprite in real Unity
         public Sprite portrait; // In a real project we use Sprites
         public string model; // Model prefab name/path
-        public List<SkillData> skills = new List<SkillData>();
-    }
-
-    [Serializable]
-    public class SkillData
-    {
-        public string id;
-        public string name;
-        public string type; // "active" or "passive" from JSON
-        public string description;
-        public string target;
-        public int costAP;
-        public int costPP;
-
-        // Helper property to maintain compatibility with existing code
-        public SkillType skillType => (type == "active" || costAP > 0) ? SkillType.AP : SkillType.PP;
+        public List<Skill> skills = new List<Skill>();
     }
 
     public enum SkillType

@@ -396,7 +396,7 @@ namespace Arcana.Tactics.UI
         /// <summary>
         /// 스킬 선택 시 호출 (SkillModal에서 콜백)
         /// </summary>
-        private void OnSkillSelected(SkillData selectedSkill)
+        private void OnSkillSelected(Skill selectedSkill)
         {
             if (_codingData.TryGetValue(_modalTargetCharId, out var plan))
             {
@@ -408,7 +408,7 @@ namespace Arcana.Tactics.UI
                     row.skillName = selectedSkill.name;
 
                     // 스킬 타입 업데이트 (AP/PP)
-                    row.skillType = selectedSkill.type; // "active" or "passive"
+                    row.skillType = selectedSkill.skillType; // "AP" or "PP"
 
                     Debug.Log($"TacticsUIManager: Skill changed to {selectedSkill.name} for row {_modalTargetRowIndex}");
 
