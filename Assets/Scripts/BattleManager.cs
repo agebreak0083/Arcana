@@ -429,7 +429,12 @@ public class BattleManager : MonoBehaviour
 
         // Condition1 적용 (선택)
         var selector = TargetConditionFactory.CreateSelector(action.condition1);
-        return selector.Select(candidates, actor);
+        List<Character> targets = selector.Select(candidates, actor);
+        if (targets.Count > 0)
+        {
+            return targets[0];
+        }
+        return null;
     }
 
     bool isBattleOver = false;

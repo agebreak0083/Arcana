@@ -10,13 +10,21 @@ public interface ITargetFilter
     List<Character> Filter(List<Character> candidates, Character self);
 }
 
+public enum SelectType
+{
+    Single,
+    Multiple,
+    Row, 
+    Column,
+    All
+}
 /// <summary>
 /// 타겟 선택 인터페이스
 /// Condition1에서 사용: 필터링된 리스트에서 최종 타겟 1명 선택
 /// </summary>
 public interface ITargetSelector
 {
-    Character Select(List<Character> candidates, Character self);
+    List<Character> Select(List<Character> candidates, Character self, SelectType selectType = SelectType.Single, int selectCount = 1);
 }
 
 // ==================================================================================
@@ -120,40 +128,47 @@ public class FormationFilter : ITargetFilter
 /// </summary>
 public class PositionBasedSelector : ITargetSelector
 {
-    public Character Select(List<Character> candidates, Character self)
+    public List<Character> Select(List<Character> candidates, Character self, SelectType selectType = SelectType.Single, int selectCount = 1)
     {
         if (candidates.Count == 0) return null;
 
-        // 1. 우선 전열(1,2,3)에서 자신의 앞의 적을 찾고
-        int targetPosition = ((self.position - 1) % 3) + 1;
-        var target = candidates.Find(c => c.position == targetPosition);
+        List<Character> selected = new List<Character>();
 
-        // 2. 없으면 전열의 다른 적
-        if (target == null)
+        switch (selectType)
         {
-            target = candidates.Find(c => c.position <= 3);
-        }
+            case SelectType.Single:
+                // 1. 우선 전열(1,2,3)에서 자신의 앞의 적을 찾고
+                int targetPosition = ((self.position - 1) % 3) + 1;
+                var target = candidates.Find(c => c.position == targetPosition);
 
-        // 3. 없으면 후열의 자신의 앞의 적
-        if (target == null)
-        {
-            int backTargetPosition = targetPosition + 3;
-            target = candidates.Find(c => c.position == backTargetPosition);
-        }
+                // 2. 없으면 전열의 다른 적
+                if (target == null)
+                {
+                    target = candidates.Find(c => c.position <= 3);
+                }
 
-        // 4. 없으면 후열의 아무나
-        if (target == null)
-        {
-            target = candidates.Find(c => c.position > 3);
-        }
+                // 3. 없으면 후열의 자신의 앞의 적
+                if (target == null)
+                {
+                    int backTargetPosition = targetPosition + 3;
+                    target = candidates.Find(c => c.position == backTargetPosition);
+                }
 
-        // 5. 그래도 없으면 첫 번째
-        if (target == null && candidates.Count > 0)
-        {
-            target = candidates[0];
-        }
+                // 4. 없으면 후열의 아무나
+                if (target == null)
+                {
+                    target = candidates.Find(c => c.position > 3);
+                }
 
-        return target;
+                // 5. 그래도 없으면 첫 번째
+                if (target == null && candidates.Count > 0)
+                {
+                    target = candidates[0];
+                }
+                selected.Add(target);
+                break;
+        }
+        return selected;      
     }
 }
 
@@ -169,13 +184,32 @@ public class HPBasedSelector : ITargetSelector
         this.selectLowest = selectLowest;
     }
 
-    public Character Select(List<Character> candidates, Character self)
+    public List<Character> Select(List<Character> candidates, Character self, SelectType selectType = SelectType.Single, int selectCount = 1)
     {
         if (candidates.Count == 0) return null;
 
-        return selectLowest
-            ? candidates.OrderBy(c => c.hp).First()
-            : candidates.OrderByDescending(c => c.hp).First();
+        List<Character> selected = new List<Character>();
+        switch (selectType)
+        {
+            case SelectType.Single:
+                selected.Add(selectLowest
+                    ? candidates.OrderBy(c => c.hp).First()
+                    : candidates.OrderByDescending(c => c.hp).First());
+                break;        
+            case SelectType.Multiple:
+                selected.AddRange(selectLowest
+                    ? candidates.OrderBy(c => c.hp).Take(selectCount)
+                    : candidates.OrderByDescending(c => c.hp).Take(selectCount));
+                break;
+            case SelectType.Row:
+                break;
+            case SelectType.Column:
+                break;
+            case SelectType.All:
+                selected.AddRange(candidates);
+                break;
+        }
+        return selected;
     }
 }
 
@@ -191,13 +225,32 @@ public class HPRatioSelector : ITargetSelector
         this.selectLowest = selectLowest;
     }
 
-    public Character Select(List<Character> candidates, Character self)
+    public List<Character> Select(List<Character> candidates, Character self, SelectType selectType = SelectType.Single, int selectCount = 1)
     {
         if (candidates.Count == 0) return null;
 
-        return selectLowest
-            ? candidates.OrderBy(c => c.hp / c.stats.GetHPValue()).First()
-            : candidates.OrderByDescending(c => c.hp / c.stats.GetHPValue()).First();
+        List<Character> selected = new List<Character>();
+        switch (selectType)
+        {
+            case SelectType.Single:
+                selected.Add(selectLowest
+                    ? candidates.OrderBy(c => c.hp / c.stats.GetHPValue()).First()
+                    : candidates.OrderByDescending(c => c.hp / c.stats.GetHPValue()).First());
+                break;        
+            case SelectType.Multiple:
+                selected.AddRange(selectLowest
+                    ? candidates.OrderBy(c => c.hp / c.stats.GetHPValue()).Take(selectCount)
+                    : candidates.OrderByDescending(c => c.hp / c.stats.GetHPValue()).Take(selectCount));
+                break;
+            case SelectType.Row:
+                break;
+            case SelectType.Column:
+                break;
+            case SelectType.All:
+                selected.AddRange(candidates);
+                break;
+        }
+        return selected;
     }
 }
 
@@ -213,13 +266,32 @@ public class APBasedSelector : ITargetSelector
         this.selectLowest = selectLowest;
     }
 
-    public Character Select(List<Character> candidates, Character self)
+    public List<Character> Select(List<Character> candidates, Character self, SelectType selectType = SelectType.Single, int selectCount = 1)
     {
         if (candidates.Count == 0) return null;
+        List<Character> selected = new List<Character>();
+        switch (selectType)
+        {
+            case SelectType.Single:
+                selected.Add(selectLowest
+                    ? candidates.OrderBy(c => c.stats.actionPoint).First()
+                    : candidates.OrderByDescending(c => c.stats.actionPoint).First());
+                break;
+            case SelectType.Multiple:
+                selected.AddRange(selectLowest
+                    ? candidates.OrderBy(c => c.stats.actionPoint).Take(selectCount)
+                    : candidates.OrderByDescending(c => c.stats.actionPoint).Take(selectCount));
+                break;
+            case SelectType.Row:
+                break;
+            case SelectType.Column:
+                break;
+            case SelectType.All:
+                selected.AddRange(candidates);
+                break;
+        }
 
-        return selectLowest
-            ? candidates.OrderBy(c => c.stats.actionPoint).First()
-            : candidates.OrderByDescending(c => c.stats.actionPoint).First();
+        return selected;
     }
 }
 
@@ -250,15 +322,36 @@ public class StatBasedSelector : ITargetSelector
         this.selectLowest = selectLowest;
     }
 
-    public Character Select(List<Character> candidates, Character self)
+    public List<Character> Select(List<Character> candidates, Character self, SelectType selectType = SelectType.Single, int selectCount = 1)
     {
         if (candidates.Count == 0) return null;
 
-        var ordered = selectLowest
-            ? candidates.OrderBy(c => GetStatValue(c))
-            : candidates.OrderByDescending(c => GetStatValue(c));
+        List<Character> selected = new List<Character>();
 
-        return ordered.First();
+        switch (selectType)
+        {
+            case SelectType.Single:
+                var ordered = selectLowest
+                    ? candidates.OrderBy(c => GetStatValue(c))
+                    : candidates.OrderByDescending(c => GetStatValue(c));
+                selected.Add(ordered.First());
+                break;
+            case SelectType.Multiple:
+                var orderedMultiple = selectLowest
+                    ? candidates.OrderBy(c => GetStatValue(c))
+                    : candidates.OrderByDescending(c => GetStatValue(c));
+                selected.AddRange(orderedMultiple.Take(selectCount));
+                break;
+            case SelectType.Row:
+                break;
+            case SelectType.Column:
+                break;
+            case SelectType.All:
+                selected.AddRange(candidates);
+                break;
+        }
+
+        return selected;
     }
 
     private float GetStatValue(Character c)

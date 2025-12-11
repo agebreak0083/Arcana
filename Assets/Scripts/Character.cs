@@ -134,28 +134,33 @@ public class Character : MonoBehaviour
         // 우선순위가 높은 순서대로 조건을 확인하여 실행할 액션 결정
         for (int i = 0; i < availableActions.Count; i++)
         {
-            Character target = GetTarget(availableActions[i]);
-            if (target != null)
+            StrategyAction strategyAction = availableActions[i];
+            Skill skill = SkillManager.Instance.GetSkillByName(strategyAction.action);
+
+            if (skill == null)
             {
-                StrategyAction strategyAction = availableActions[i];
-                Skill skill = SkillManager.Instance.GetSkillByName(strategyAction.action);
-                if (skill == null)
+                Debug.Log($"{characterName}이(가) {strategyAction.action}을(를) 실행할 수 없습니다.");
+                return null;
+            }
+
+            List<Character> targets = GetTarget(skill, strategyAction);
+
+            if (targets.Count > 0)
+            {
+                foreach (var target in targets)
                 {
-                    Debug.Log($"{characterName}이(가) {strategyAction.action}을(를) 실행할 수 없습니다.");
-                    return null;
+                    Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다. 타겟: {target.characterName}");
+
+                    UseSkill(skill.id, target);
+
+                    // 전투 로그에 공격 기록
+                    if (BattleLogManager.Instance != null)
+                    {
+                        BattleLogManager.Instance.LogAttack(characterName, target.characterName, skill.name);
+                    }
                 }
-
-                Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다.");
-
-                // 전투 로그에 공격 기록
-                if (BattleLogManager.Instance != null)
-                {
-                    BattleLogManager.Instance.LogAttack(characterName, target.characterName, skill.name);
-                }
-
-                UseSkill(skill.id, target);
+                
                 return strategyAction;
-
             }
         }
 
@@ -168,7 +173,7 @@ public class Character : MonoBehaviour
     /// Condition2: 필터링 (조건에 맞는 캐릭터만 남김)
     /// Condition1: 선택 (필터링된 리스트에서 최종 타겟 1명 선택)
     /// </summary>
-    private Character GetTarget(StrategyAction action)
+    private List<Character> GetTarget(Skill skill, StrategyAction action)
     {
         // 1. 적 리스트 가져오기 (복사본)
         List<Character> originalTargets = BattleManager.Instance.GetEnemyTargets(this);
@@ -206,18 +211,30 @@ public class Character : MonoBehaviour
 
         // 4. Condition1 적용 (선택)
         var selector = TargetConditionFactory.CreateSelector(action.condition1);
-        Character target = selector.Select(candidates, this);
-
-        if (target != null)
+        List<Character> targets = new List<Character>();
+        
+        if (skill.target == "two_enemies")
         {
-            Debug.Log($"{characterName}의 최종 타겟: {target.characterName} (Condition1: {action.condition1})");
+            targets = selector.Select(candidates, this, SelectType.Multiple, 2);
+        }
+        else
+        {
+            targets = selector.Select(candidates, this);
+        }        
+         
+        if(targets.Count > 0)
+        {
+            foreach(var target in targets)
+            {
+                Debug.Log($"{characterName}의 타겟: {target.characterName} (Condition1: {action.condition1})");
+            }
         }
         else
         {
             Debug.LogWarning($"{characterName}: 타겟 선택 실패");
         }
 
-        return target;
+        return targets;
     }
 
     // HP 바 생성
