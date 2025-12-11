@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 /// <summary>
 /// 타겟 필터링 인터페이스
@@ -26,6 +27,60 @@ public interface ITargetSelector
 {
     List<Character> Select(List<Character> candidates, Character self, SelectType selectType = SelectType.Single, int selectCount = 1);
 }
+
+public class SelectorHelper
+{
+    public static List<Character> GetRowTargets(List<Character> candidates, Character target)
+    {
+        // 우서 조건에 맞는 첫번째 타겟을 찾고, 그 다음에 그 타겟의 행 전체를 타겟팅한다. 
+        // 타겟이 1이면, 1,4,7 위치를 타겟팅한다. 2이면, 2,5,8 위치를 타겟팅한다. 3이면, 3,6,9 위치를 타겟팅한다. 
+        if (target == null)
+        {
+            Debug.LogError("GetRowTargets: Target is null");
+            return null;
+        }
+
+        List<Character> targets = new List<Character>();
+        if (target.position == 1 || target.position == 4)
+        {
+            targets.AddRange(candidates.Where(c => c.position == 1 || c.position == 4).ToList());
+        }
+        else if (target.position == 2 || target.position == 5)
+        {
+            targets.AddRange(candidates.Where(c => c.position == 2 || c.position == 5).ToList());
+        }
+        else if (target.position == 3 || target.position == 6)
+        {
+            targets.AddRange(candidates.Where(c => c.position == 3 || c.position == 6).ToList());
+        }
+        return targets;
+    }
+
+    public static List<Character> GetColumnTargets(List<Character> candidates, Character target)
+    {
+        // 우서 조건에 맞는 첫번째 타겟을 찾고, 그 다음에 그 타겟의 열 전체를 타겟팅한다. 
+        // 타겟이 1~3 사이면 1,2,3 위치를 타겟팅한다. 4~6이면 4,5,6 위치를 타겟팅한다. 
+        if (target == null)
+        {
+            Debug.LogError("GetColumnTargets: Target is null");
+            return null;
+        }
+
+        List<Character> targets = new List<Character>();
+        if(target.position <= 3)
+        {
+            targets.AddRange(candidates.Where(c => c.position <= 3).ToList());
+        }
+        else
+        {
+            targets.AddRange(candidates.Where(c => c.position > 3).ToList());
+        }
+        return targets;
+    }
+
+}
+
+
 
 // ==================================================================================
 // Condition2 Filters (필터링)
@@ -189,21 +244,26 @@ public class HPBasedSelector : ITargetSelector
         if (candidates.Count == 0) return null;
 
         List<Character> selected = new List<Character>();
+        Character target = null;
         switch (selectType)
         {
             case SelectType.Single:
                 selected.Add(selectLowest
                     ? candidates.OrderBy(c => c.hp).First()
                     : candidates.OrderByDescending(c => c.hp).First());
-                break;        
+                break;
             case SelectType.Multiple:
                 selected.AddRange(selectLowest
                     ? candidates.OrderBy(c => c.hp).Take(selectCount)
                     : candidates.OrderByDescending(c => c.hp).Take(selectCount));
                 break;
             case SelectType.Row:
+                target = candidates.OrderBy(c => c.hp).First();
+                selected.AddRange(SelectorHelper.GetRowTargets(candidates, target));
                 break;
             case SelectType.Column:
+                target = candidates.OrderBy(c => c.hp).First();
+                selected.AddRange(SelectorHelper.GetColumnTargets(candidates, target));
                 break;
             case SelectType.All:
                 selected.AddRange(candidates);
@@ -212,6 +272,8 @@ public class HPBasedSelector : ITargetSelector
         return selected;
     }
 }
+
+
 
 /// <summary>
 /// HP 비율 최소/최대 선택
@@ -230,21 +292,26 @@ public class HPRatioSelector : ITargetSelector
         if (candidates.Count == 0) return null;
 
         List<Character> selected = new List<Character>();
+        Character target = null;
         switch (selectType)
         {
             case SelectType.Single:
                 selected.Add(selectLowest
                     ? candidates.OrderBy(c => c.hp / c.stats.GetHPValue()).First()
                     : candidates.OrderByDescending(c => c.hp / c.stats.GetHPValue()).First());
-                break;        
+                break;
             case SelectType.Multiple:
                 selected.AddRange(selectLowest
                     ? candidates.OrderBy(c => c.hp / c.stats.GetHPValue()).Take(selectCount)
                     : candidates.OrderByDescending(c => c.hp / c.stats.GetHPValue()).Take(selectCount));
                 break;
             case SelectType.Row:
+                target = candidates.OrderBy(c => c.hp / c.stats.GetHPValue()).First();
+                selected.AddRange(SelectorHelper.GetRowTargets(candidates, target));
                 break;
             case SelectType.Column:
+                target = candidates.OrderBy(c => c.hp / c.stats.GetHPValue()).First();
+                selected.AddRange(SelectorHelper.GetColumnTargets(candidates, target));
                 break;
             case SelectType.All:
                 selected.AddRange(candidates);
@@ -270,6 +337,7 @@ public class APBasedSelector : ITargetSelector
     {
         if (candidates.Count == 0) return null;
         List<Character> selected = new List<Character>();
+        Character target = null;
         switch (selectType)
         {
             case SelectType.Single:
@@ -283,8 +351,12 @@ public class APBasedSelector : ITargetSelector
                     : candidates.OrderByDescending(c => c.stats.actionPoint).Take(selectCount));
                 break;
             case SelectType.Row:
+                target = candidates.OrderBy(c => c.stats.actionPoint).First();
+                selected.AddRange(SelectorHelper.GetRowTargets(candidates, target));
                 break;
             case SelectType.Column:
+                target = candidates.OrderBy(c => c.stats.actionPoint).First();
+                selected.AddRange(SelectorHelper.GetColumnTargets(candidates, target));
                 break;
             case SelectType.All:
                 selected.AddRange(candidates);
@@ -327,7 +399,7 @@ public class StatBasedSelector : ITargetSelector
         if (candidates.Count == 0) return null;
 
         List<Character> selected = new List<Character>();
-
+        Character target = null;
         switch (selectType)
         {
             case SelectType.Single:
@@ -343,8 +415,12 @@ public class StatBasedSelector : ITargetSelector
                 selected.AddRange(orderedMultiple.Take(selectCount));
                 break;
             case SelectType.Row:
+                target = candidates.OrderBy(c => GetStatValue(c)).First();
+                selected.AddRange(SelectorHelper.GetRowTargets(candidates, target));
                 break;
             case SelectType.Column:
+                target = candidates.OrderBy(c => GetStatValue(c)).First();
+                selected.AddRange(SelectorHelper.GetColumnTargets(candidates, target));
                 break;
             case SelectType.All:
                 selected.AddRange(candidates);

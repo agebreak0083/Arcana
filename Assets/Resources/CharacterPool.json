@@ -1,30 +1,6 @@
 [
         {
-            "Name": "금희",
-            "tactics": []
-        },
-        {
-            "Name": "카를로타",
-            "tactics": []
-        },
-        {
             "Name": "치사",
-            "tactics": []
-        },
-        {
-            "Name": "루미",
-            "tactics": []
-        },
-        {
-            "Name": "플로로",
-            "tactics": []
-        },
-        {
-            "Name": "갈브레나",
-            "tactics": []
-        },
-        {
-            "Name": "장리",
             "tactics": []
         },
         {
@@ -32,52 +8,58 @@
             "tactics": []
         },
         {
-            "Name": "젠니",
-            "tactics": []
-        },
-        {
             "Name": "단근",
             "tactics": []
         },
         {
-            "Name": "유노",
-            "tactics": []
-        },
-        {
-            "Name": "아우구스타",
-            "tactics": []
-        },
-        {
-            "Name": "린네",
-            "tactics": []
-        },
-        {
-            "Name": "절지",
-            "tactics": []
-        },
-        {
-            "Name": "샤콘",
-            "tactics": []
-        },
-        {
-            "Name": "유호",
-            "tactics": []
-        },
-        {
-            "Name": "칸타렐라",
-            "tactics": []
-        },
-        {
             "Name": "양양",
-            "tactics": []
-        },
-        {
-            "Name": "페비",
-            "tactics": []
-        },
-        {
-            "Name": "카르티",
-            "tactics": []
+            "tactics": [
+                {
+                    "characterClass": "파이터",
+                    "plan": [
+                        {
+                            "skill": "가드 슬래시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "실드 배시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "디펜더",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "애로우 커버",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "퀵 가드",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "Name": "방랑자",
@@ -93,6 +75,52 @@
         },
         {
             "Name": "산화",
-            "tactics": []
+            "tactics": [
+                {
+                    "characterClass": "헌터",
+                    "plan": [
+                        {
+                            "skill": "라인 샷",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "더블 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "라인 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         }
     ]

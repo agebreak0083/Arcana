@@ -1,5 +1,5 @@
 {
-    "username": "AGEBREAK-WO2_2512111730",
+    "username": "AGEBREAK-WO2_2512112052",
     "positions": [
         {
             "position": "1",
@@ -60,8 +60,8 @@
                     "characterClass": "헌터",
                     "plan": [
                         {
-                            "skill": "싱글 샷",
-                            "condition1": "조건 없음",
+                            "skill": "라인 샷",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {

@@ -159,7 +159,24 @@ public class Character : MonoBehaviour
                         BattleLogManager.Instance.LogAttack(characterName, target.characterName, skill.name);
                     }
                 }
-                
+
+                // AP/PP 소모
+                stats.actionPoint -= skill.costAP;
+                stats.passivePoint -= skill.costPP;
+
+                // 전투 로그에 AP/PP 소모 및 남은 포인트 기록
+                if (BattleLogManager.Instance != null)
+                {
+                    string apInfo = skill.costAP > 0 ? $"<color=#FF6B6B>AP -{skill.costAP}</color> (남은 AP: <color=#87CEEB>{stats.actionPoint}</color>)" : "";
+                    string ppInfo = skill.costPP > 0 ? $"<color=#FFA500>PP -{skill.costPP}</color> (남은 PP: <color=#90EE90>{stats.passivePoint}</color>)" : "";
+
+                    if (!string.IsNullOrEmpty(apInfo) || !string.IsNullOrEmpty(ppInfo))
+                    {
+                        string separator = (!string.IsNullOrEmpty(apInfo) && !string.IsNullOrEmpty(ppInfo)) ? ", " : "";
+                        BattleLogManager.Instance.AddLog($"  → {apInfo}{separator}{ppInfo}");
+                    }
+                }
+
                 return strategyAction;
             }
         }
@@ -216,6 +233,14 @@ public class Character : MonoBehaviour
         if (skill.target == "two_enemies")
         {
             targets = selector.Select(candidates, this, SelectType.Multiple, 2);
+        }
+        else if(skill.target == "row_enemy")
+        {
+            targets = selector.Select(candidates, this, SelectType.Row);
+        }
+        else if(skill.target == "column_enemy")
+        {
+            targets = selector.Select(candidates, this, SelectType.Column);
         }
         else
         {
@@ -352,23 +377,8 @@ public class Character : MonoBehaviour
         {
             Debug.LogWarning($"스킬 ID '{skillId}'를 찾을 수 없습니다.");
             return;
-        }
-
-        stats.actionPoint -= skill.costAP;
-        stats.passivePoint -= skill.costPP;
-
-        // 전투 로그에 AP/PP 소모 및 남은 포인트 기록
-        if (BattleLogManager.Instance != null)
-        {
-            string apInfo = skill.costAP > 0 ? $"<color=#FF6B6B>AP -{skill.costAP}</color> (남은 AP: <color=#87CEEB>{stats.actionPoint}</color>)" : "";
-            string ppInfo = skill.costPP > 0 ? $"<color=#FFA500>PP -{skill.costPP}</color> (남은 PP: <color=#90EE90>{stats.passivePoint}</color>)" : "";
-
-            if (!string.IsNullOrEmpty(apInfo) || !string.IsNullOrEmpty(ppInfo))
-            {
-                string separator = (!string.IsNullOrEmpty(apInfo) && !string.IsNullOrEmpty(ppInfo)) ? ", " : "";
-                BattleLogManager.Instance.AddLog($"  → {apInfo}{separator}{ppInfo}");
-            }
-        }
+        }        
+    
 
         BattleManager.Instance.AddWaitFinished(this);
         BattleManager.Instance.AddWaitFinished(target);

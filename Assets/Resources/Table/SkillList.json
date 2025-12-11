@@ -663,7 +663,7 @@
       "name": "라인 샷",
       "type": "active",
       "description": "적 한 열에게 공격한다",
-      "target": "row_enemy",
+      "target": "column_enemy",
       "costAP": 2,
       "costPP": 0,
       "effects": [
