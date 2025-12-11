@@ -380,15 +380,19 @@ public class Character : MonoBehaviour
         // 원래 위치 저장
         Vector3 originalPosition = transform.position;
 
-        // Step 1: 타겟 앞으로 이동 (타겟의 X좌표 + 1m)
-        Vector3 targetPosition = target.transform.position + target.transform.forward * 1.0f;
+        if (!skill.traits.Contains("ranged"))
+        {
+            // Step 1: 타겟 앞으로 이동 (타겟의 X좌표 + 1m)
+            Vector3 targetPosition = target.transform.position + target.transform.forward * 1.0f;
 
-        // DoTween으로 이동 
-        float moveTime = 0.5f;
-        transform.DOMove(targetPosition, moveTime).SetEase(Ease.OutQuad);
+            // DoTween으로 이동 
+            float moveTime = 0.5f;
+            transform.DOMove(targetPosition, moveTime).SetEase(Ease.OutQuad);
 
-        // 이동 완료 대기
-        yield return new WaitForSeconds(moveTime);
+            // 이동 완료 대기
+            yield return new WaitForSeconds(moveTime);            
+        }
+
 
         // Step 2: 스킬 애니메이션 재생
         if (string.IsNullOrEmpty(skill.animation))

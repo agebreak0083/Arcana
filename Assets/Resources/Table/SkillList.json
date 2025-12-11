@@ -636,7 +636,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Skill_1"
+      "animation": "SkillArrow_1"
     },
     {
       "id": "더블 샷",
@@ -656,7 +656,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Skill_1"
+      "animation": "SkillArrow_1"
     },
     {
       "id": "라인 샷",
@@ -676,7 +676,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Skill_1"
+      "animation": "SkillArrow_1"
     }
   ],
   "슈터 / 실드 슈터": [
