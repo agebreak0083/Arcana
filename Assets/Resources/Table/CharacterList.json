@@ -1,114 +1,37 @@
 [
     {
-        "Name": "카르티",
-        "Portrait": "carti",
-        "Model": "",
+        "Name": "방랑자",
+        "Portrait": "rover",
+        "Model": "rover",
         "Class": "파이터",
         "Cost": 2
     },
     {
-        "Name": "유노",
-        "Portrait": "yuno",
-        "Model": "",
+        "Name": "산화",
+        "Portrait": "sanhwa",
+        "Model": "sanhwa",
         "Class": "헌터",
         "Cost": 2
     },
     {
         "Name": "치사",
         "Portrait": "chisa",
-        "Model": "",
+        "Model": "chisa",
         "Class": "위치",
         "Cost": 2
-    },
-    {
-        "Name": "린네",
-        "Portrait": "rinne",
-        "Model": "",
-        "Class": "위치",
-        "Cost": 2
-    },
-    {
-        "Name": "플로로",
-        "Portrait": "flo",
-        "Model": "",
-        "Class": "헌터",
-        "Cost": 2
-    },
-    {
-        "Name": "젠니",
-        "Portrait": "jenny",
-        "Model": "",
-        "Class": "파이터",
-        "Cost": 2
-    },
-    {
-        "Name": "아우구스타",
-        "Portrait": "augusta",
-        "Model": "",
-        "Class": "파이터",
-        "Cost": 2
-    },
-    {
-        "Name": "칸타렐라",
-        "Portrait": "cantarella",
-        "Model": "",
-        "Class": "위치",
-        "Cost": 2
-    },
-    {
-        "Name": "카를로타",
-        "Portrait": "carolota",
-        "Model": "",
-        "Class": "헌터",
-        "Cost": 2
-    },
-    {
-        "Name": "페비",
-        "Portrait": "pevi",
-        "Model": "",
-        "Class": "파이터",
-        "Cost": 2
-    },
-    {
-        "Name": "루미",
-        "Portrait": "lumi",
-        "Model": "",
-        "Class": "파이터",
-        "Cost": 2
-    },
+    },        
     {
         "Name": "단근",
         "Portrait": "danjin",
-        "Model": "",
+        "Model": "dangun",
         "Class": "파이터",
         "Cost": 2
     },
     {
         "Name": "앙코",
         "Portrait": "encore",
-        "Model": "",
+        "Model": "anko",
         "Class": "위치",
-        "Cost": 2
-    },
-    {
-        "Name": "금희",
-        "Portrait": "Jinhsi",
-        "Model": "",
-        "Class": "위치",
-        "Cost": 2
-    },
-    {
-        "Name": "장리",
-        "Portrait": "Changli",
-        "Model": "",
-        "Class": "위치",
-        "Cost": 2
-    },    
-    {
-        "Name": "샤콘",
-        "Portrait": "Ciaccona",
-        "Model": "",
-        "Class": "헌터",
         "Cost": 2
     },
     {
@@ -119,24 +42,17 @@
         "Cost": 2
     },
     {
-        "Name": "유호",
-        "Portrait": "youhu",
-        "Model": "",
-        "Class": "헌터",
-        "Cost": 2
-    },
-    {
-        "Name": "갈브레나",
-        "Portrait": "galbrena",
-        "Model": "",
-        "Class": "헌터",
-        "Cost": 2
-    },
-    {
-        "Name": "절지",
-        "Portrait": "Zhezhi",
-        "Model": "",
+        "Name": "설지",
+        "Portrait": "sulji",
+        "Model": "sulhi",
         "Class": "위치",
+        "Cost": 2
+    },
+    {
+        "Name": "도기",
+        "Portrait": "dogi",
+        "Model": "dogi",
+        "Class": "파이터",
         "Cost": 2
     }
 ]

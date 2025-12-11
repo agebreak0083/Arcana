@@ -193,44 +193,24 @@ namespace Arcana.Tactics
             // 2. Load CharacterPool (Dynamic Data)
             string poolJson = "";
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-            // 웹빌드에서는 PlayerPrefs 사용 (브라우저 LocalStorage)
+            // 모든 플랫폼에서 PlayerPrefs 사용
             poolJson = PlayerPrefs.GetString("CharacterPool", "");
             if (!string.IsNullOrEmpty(poolJson))
             {
-                Debug.Log("Loaded CharacterPool from PlayerPrefs (WebGL)");
+                Debug.Log("Loaded CharacterPool from PlayerPrefs");
             }
             else
             {
-                // Fallback to Resources
+                // PlayerPrefs에 없으면 Resources에서 로드 (에디터에서 주로 사용)
+#if UNITY_EDITOR
                 TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
                 if (poolAsset != null)
                 {
                     poolJson = poolAsset.text;
-                    Debug.Log("Loaded CharacterPool from Resources (WebGL, no PlayerPrefs found)");
+                    Debug.Log("Loaded CharacterPool from Resources (no PlayerPrefs found)");
                 }
-            }
-#else
-            // 다른 플랫폼에서는 파일 시스템 사용
-            string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "CharacterPool.json");
-
-            // 1. Try loading from PersistentDataPath first
-            if (System.IO.File.Exists(persistentPath))
-            {
-                poolJson = System.IO.File.ReadAllText(persistentPath);
-                Debug.Log("Loaded CharacterPool from PersistentDataPath");
-            }
-            else
-            {
-                // 2. Fallback to Resources
-                TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
-                if (poolAsset != null)
-                {
-                    poolJson = poolAsset.text;
-                    Debug.Log("Loaded CharacterPool from Resources (no PersistentDataPath file found)");
-                }
-            }
 #endif
+            }
 
             // 3. Validate and parse Pool JSON
             CharacterPoolData[] myPool = null;
@@ -811,23 +791,16 @@ namespace Arcana.Tactics
             {
                 string json = GetTacticsJson(unitSlots, codingData);
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-                // 웹빌드에서는 PlayerPrefs 사용 (브라우저 LocalStorage)
+                // 모든 플랫폼에서 PlayerPrefs 사용
                 PlayerPrefs.SetString("tactics", json);
-                PlayerPrefs.Save(); // 웹에서는 즉시 저장
-                Debug.Log("Formation saved to PlayerPrefs (WebGL)");
-#else
-                // 1. Save to PersistentDataPath (Runtime usage)
-                string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "tactics.json");
-                System.IO.File.WriteAllText(persistentPath, json);
-                Debug.Log($"Formation saved to {persistentPath}");
+                PlayerPrefs.Save();
+                Debug.Log("Formation saved to PlayerPrefs");
 
 #if UNITY_EDITOR
-                // 2. Save to Resources (Editor usage - for user visibility)
+                // 에디터에서는 Resources에도 저장 (사용자 가시성)
                 string resourcesPath = System.IO.Path.Combine(Application.dataPath, "Resources/tactics.json");
                 System.IO.File.WriteAllText(resourcesPath, json);
-                Debug.Log($"Formation saved to {resourcesPath}");
-#endif
+                Debug.Log($"Formation saved to {resourcesPath} (Editor only)");
 #endif
 
                 // Note: Firebase 저장은 BattleScene으로 이동할 때만 수행됨 (OnRunBattleClicked에서)
@@ -848,35 +821,20 @@ namespace Arcana.Tactics
             {
                 // CharacterPool.json 로드
                 string poolJson = "";
-                string persistentPath = ""; // 저장 부분에서도 사용하기 위해 메서드 스코프에서 선언
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-                // 웹빌드에서는 PlayerPrefs 사용
+                // 모든 플랫폼에서 PlayerPrefs 사용
                 poolJson = PlayerPrefs.GetString("CharacterPool", "");
                 if (string.IsNullOrEmpty(poolJson))
                 {
+                    // PlayerPrefs에 없으면 Resources에서 로드 (에디터에서 주로 사용)
+#if UNITY_EDITOR
                     TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
                     if (poolAsset != null)
                     {
                         poolJson = poolAsset.text;
                     }
-                }
-#else
-                persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "CharacterPool.json");
-
-                if (System.IO.File.Exists(persistentPath))
-                {
-                    poolJson = System.IO.File.ReadAllText(persistentPath);
-                }
-                else
-                {
-                    TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
-                    if (poolAsset != null)
-                    {
-                        poolJson = poolAsset.text;
-                    }
-                }
 #endif
+                }
 
                 // 빈 파일이거나 유효하지 않은 JSON인 경우 빈 리스트로 시작
                 List<CharacterPoolData> poolList = new List<CharacterPoolData>();
@@ -930,27 +888,16 @@ namespace Arcana.Tactics
                     newJson = newJson.Substring(startIndex, endIndex - startIndex + 1);
                 }
 
-                // 저장
-#if UNITY_WEBGL && !UNITY_EDITOR
-                // 웹빌드에서는 PlayerPrefs 사용
+                // 저장 - 모든 플랫폼에서 PlayerPrefs 사용
                 PlayerPrefs.SetString("CharacterPool", newJson);
-                PlayerPrefs.Save(); // 웹에서는 즉시 저장
-                Debug.Log($"CharacterPool에 '{characterName}' 추가 완료 (WebGL)");
-#else
-                // persistentPath는 이미 위에서 정의됨
-                if (string.IsNullOrEmpty(persistentPath))
-                {
-                    persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "CharacterPool.json");
-                }
-                System.IO.File.WriteAllText(persistentPath, newJson);
+                PlayerPrefs.Save();
                 Debug.Log($"CharacterPool에 '{characterName}' 추가 완료");
 
 #if UNITY_EDITOR
-                // Editor에서는 Resources에도 저장
+                // 에디터에서는 Resources에도 저장 (사용자 가시성)
                 string resourcesPath = System.IO.Path.Combine(Application.dataPath, "Resources/CharacterPool.json");
                 System.IO.File.WriteAllText(resourcesPath, newJson);
                 Debug.Log($"CharacterPool also saved to {resourcesPath} (Editor only)");
-#endif
 #endif
 
                 // Note: ReloadCharacterPool()은 호출하지 않음
@@ -1021,23 +968,16 @@ namespace Arcana.Tactics
                     json = json.Substring(startIndex, endIndex - startIndex + 1);
                 }
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-                // 웹빌드에서는 PlayerPrefs 사용 (브라우저 LocalStorage)
+                // 모든 플랫폼에서 PlayerPrefs 사용
                 PlayerPrefs.SetString("CharacterPool", json);
-                PlayerPrefs.Save(); // 웹에서는 즉시 저장
-                Debug.Log("CharacterPool saved to PlayerPrefs (WebGL)");
-#else
-                // 1. Save to PersistentDataPath (Runtime usage)
-                string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "CharacterPool.json");
-                System.IO.File.WriteAllText(persistentPath, json);
-                Debug.Log($"CharacterPool saved to {persistentPath}");
+                PlayerPrefs.Save();
+                Debug.Log("CharacterPool saved to PlayerPrefs");
 
 #if UNITY_EDITOR
-                // 2. Save to Resources (Editor usage - for user visibility)
+                // 에디터에서는 Resources에도 저장 (사용자 가시성)
                 string resourcesPath = System.IO.Path.Combine(Application.dataPath, "Resources/CharacterPool.json");
                 System.IO.File.WriteAllText(resourcesPath, json);
                 Debug.Log($"CharacterPool also saved to {resourcesPath} (Editor only)");
-#endif
 #endif
             }
             catch (System.Exception e)
@@ -1057,54 +997,32 @@ namespace Arcana.Tactics
             {
                 string json = "";
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-                // 웹빌드에서는 PlayerPrefs 사용 (브라우저 LocalStorage)
+                // 모든 플랫폼에서 PlayerPrefs 사용
                 json = PlayerPrefs.GetString("tactics", "");
                 if (!string.IsNullOrEmpty(json))
                 {
-                    Debug.Log("Loaded tactics.json from PlayerPrefs (WebGL)");
+                    Debug.Log("Loaded tactics.json from PlayerPrefs");
                 }
                 else
                 {
-                    // Fallback to Resources
+                    // PlayerPrefs에 없으면 Resources에서 로드 (에디터에서 주로 사용)
+#if UNITY_EDITOR
                     TextAsset tacticsAsset = Resources.Load<TextAsset>("tactics");
                     if (tacticsAsset != null)
                     {
                         json = tacticsAsset.text;
-                        Debug.Log("Loaded tactics.json from Resources (WebGL, no PlayerPrefs found)");
+                        Debug.Log("Loaded tactics.json from Resources (no PlayerPrefs found)");
                     }
                     else
                     {
-                        Debug.LogWarning("tactics.json not found in PlayerPrefs or Resources (WebGL)");
+                        Debug.LogWarning("tactics.json not found in PlayerPrefs or Resources");
                         return result;
                     }
-                }
 #else
-                // 다른 플랫폼에서는 파일 시스템 사용
-                string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, "tactics.json");
-
-                // 1. Try loading from PersistentDataPath first
-                if (System.IO.File.Exists(persistentPath))
-                {
-                    json = System.IO.File.ReadAllText(persistentPath);
-                    Debug.Log("Loaded tactics.json from PersistentDataPath");
-                }
-                else
-                {
-                    // 2. Fallback to Resources
-                    TextAsset tacticsAsset = Resources.Load<TextAsset>("tactics");
-                    if (tacticsAsset != null)
-                    {
-                        json = tacticsAsset.text;
-                        Debug.Log("Loaded tactics.json from Resources");
-                    }
-                    else
-                    {
-                        Debug.LogWarning("tactics.json not found in Resources or PersistentDataPath");
-                        return result;
-                    }
-                }
+                    Debug.LogWarning("tactics.json not found in PlayerPrefs");
+                    return result;
 #endif
+                }
 
                 TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(json);
                 if (tacticsData == null || tacticsData.positions == null)
