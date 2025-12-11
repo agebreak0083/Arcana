@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Arcana.Tactics;
+using Arcana.Tactics.Data;
 using UnityEngine;
 using static Arcana.Tactics.TacticsDataManager;
 
@@ -10,9 +11,6 @@ public class BattleManager : MonoBehaviour
 {
     public BattleCameraController battleCameraController;
 
-    [Header("Settings")]
-    public int ticketforWin = 10;
-    public int ticketforLose = 5;
 
     [Header("Positions")]
     public List<GameObject> playerPositions;
@@ -259,6 +257,16 @@ public class BattleManager : MonoBehaviour
         currentTurn = 0;
         Debug.Log($"=== 라운드 {currentRound} 시작 ===");
 
+        // 최대 라운드 초과 체크
+        if (currentRound > BattleSetting.MAX_ROUNDS)
+        {
+            Debug.Log($"패배... (최대 라운드 {BattleSetting.MAX_ROUNDS} 초과)");
+            UserDataManager.Instance.AddTickets(BattleSetting.TICKET_FOR_LOSE);
+            BattleUI.Instance.ShowDefeatPanel();
+            isBattleOver = true;
+            yield break;
+        }
+
         if (BattleLogManager.Instance != null)
             BattleLogManager.Instance.LogRoundStart(currentRound);
 
@@ -454,7 +462,7 @@ public class BattleManager : MonoBehaviour
 
         if (!playerAlive)
         {
-            UserDataManager.Instance.AddTickets(ticketforLose);
+            UserDataManager.Instance.AddTickets(BattleSetting.TICKET_FOR_LOSE);
             BattleUI.Instance.ShowDefeatPanel();
             Debug.Log("패배... (플레이어 전멸)");
             isBattleOver = true;
@@ -462,7 +470,7 @@ public class BattleManager : MonoBehaviour
         }
         if (!enemyAlive)
         {
-            UserDataManager.Instance.AddTickets(ticketforWin);
+            UserDataManager.Instance.AddTickets(BattleSetting.TICKET_FOR_WIN);
             BattleUI.Instance.ShowVictoryPanel();
             Debug.Log("승리! (적 전멸)");
             isBattleOver = true;

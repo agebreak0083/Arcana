@@ -10,5 +10,8 @@ namespace Arcana.Tactics.Data
         public static float GUARD_EFFECT_MEDIUM = 0.5f;
         public static float GUARD_EFFECT_HIGH = 0.3f;
         public static float GUARD_EFFECT_MAXIMUM = 0.0f;
+        public static int MAX_ROUNDS = 3;
+        public static int TICKET_FOR_WIN = 10;
+        public static int TICKET_FOR_LOSE = 5;        
     }
 }
