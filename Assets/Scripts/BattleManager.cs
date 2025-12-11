@@ -484,11 +484,11 @@ public class BattleManager : MonoBehaviour
     }
 
     // 스킬 이름 표시
-    public void ShowSkillName(string skillName)
+    public void ShowSkillName(bool isPlayer, string skillName)
     {
         if (BattleUI.Instance != null)
         {
-            BattleUI.Instance.ShowSkillName(skillName);
+            BattleUI.Instance.ShowSkillName(isPlayer, skillName);
         }
     }
 

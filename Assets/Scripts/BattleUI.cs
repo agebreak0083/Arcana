@@ -178,12 +178,23 @@ public class BattleUI : MonoBehaviour
     }
 
     // 스킬 이름 표시
-    public void ShowSkillName(string skillName)
+    public void ShowSkillName(bool isPlayer, string skillName)
     {
         if (skillNameText != null)
         {
             skillNameText.text = skillName;
             skillNameText.gameObject.SetActive(true);
+
+            if (isPlayer)
+            {
+                // 연한 파란색
+                skillNameText.color = new Color(0.4f, 0.6f, 1f);
+            }
+            else
+            {
+                // 연한 빨간색
+                skillNameText.color = new Color(1f, 0.4f, 0.4f);
+            }
             skillNameTimer = skillNameDisplayTime;
         }
     }

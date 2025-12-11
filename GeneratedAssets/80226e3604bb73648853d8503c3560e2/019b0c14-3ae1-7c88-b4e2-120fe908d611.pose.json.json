@@ -1,0 +1,11 @@
+{
+    "asset": "80226e3604bb73648853d8503c3560e2",
+    "fileName": "019b0c14-3ae1-7c88-b4e2-120fe908d611.pose.json",
+    "prompt": "Femail, Fighter,  Two hand Guard",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 53048982,
+    "w3CTraceId": "4691659b859009ecab5d9b66216694ed",
+    "isTrimmed": false
+}

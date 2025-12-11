@@ -252,7 +252,15 @@ public class Character : MonoBehaviour
         }
 
         Animator animator = GetComponent<Animator>();
-        StartCoroutine(PlayAnimationAndWait(animator, "Damaged@loop"));
+        if(isGuard)
+        {
+            StartCoroutine(PlayAnimationAndWait(animator, "Guard"));
+        }
+        else
+        {
+            StartCoroutine(PlayAnimationAndWait(animator, "Damaged"));
+        }
+        
 
         // 피격 반짝임 효과
         StartCoroutine(FlashWhiteOnHit());
@@ -349,7 +357,7 @@ public class Character : MonoBehaviour
         BattleManager.Instance.AddWaitFinished(target);
 
         // UI에 스킬 이름 표시
-        BattleManager.Instance.ShowSkillName(skill.name);
+        BattleManager.Instance.ShowSkillName(this.isPlayer, skill.name);
 
         if (skill.animation != "")
         {
@@ -589,9 +597,9 @@ public class Character : MonoBehaviour
         }
         else
         {
-            if (isGuardPosition)
+            if (isGuard)
             {
-                isGuardPosition = false;
+                isGuard = false;
 
                 // 가드 전의 위치로 이동 
                 MoveToPosition(originalPosition);                
@@ -665,7 +673,7 @@ public class Character : MonoBehaviour
         return result;
     }
 
-    bool isGuardPosition = false;
+    bool isGuard = false;
     private PassiveSkillResult CheckPassiveSkill(Character user, Character target, Skill skill, SkillEffect effect, PassiveSkillResult result)
     {
         // 자신에게 세팅된 Action 순회, PP 스킬을 찾고, 조건을 체크한다. 
@@ -684,7 +692,7 @@ public class Character : MonoBehaviour
             {
                 if (mySkillEffect.type == "guard")
                 {
-                    PassiveGuard(target, myPassiveSkill, effect, mySkillEffect, result);
+                    PassiveGuard(target,skill, myPassiveSkill, effect, mySkillEffect, result);
                 }
             }
         }
@@ -692,7 +700,7 @@ public class Character : MonoBehaviour
         return result;
     }
 
-    private void PassiveGuard(Character target, Skill myPassiveSkill, SkillEffect effect, SkillEffect mySkillEffect, PassiveSkillResult result)
+    private void PassiveGuard(Character target, Skill skill, Skill myPassiveSkill, SkillEffect effect, SkillEffect mySkillEffect, PassiveSkillResult result)
     {
         if (result.isGuard) // 다른 캐릭터가 이미 가드한 경우
         {
@@ -708,7 +716,12 @@ public class Character : MonoBehaviour
         {
             return;
         }
-
+        
+        if(skill.traits == myPassiveSkill.traits) // 스킬 특성과 패시브 스킬 특성이 같은 경우 (ex. 원거리 방어, 근거리 방어)
+        {
+            return;
+        }
+    
         // 다른 아군 캐릭터인지 체크
         if (mySkillEffect.target == "ally" && target == this)
         {
@@ -728,19 +741,31 @@ public class Character : MonoBehaviour
         stats.passivePoint -= myPassiveSkill.costPP;
         if (BattleLogManager.Instance != null)
         {
-            BattleLogManager.Instance.AddLog($"{characterName}의 PP가 {myPassiveSkill.costPP} 소모되었습니다. (남은 PP: {stats.passivePoint})");
+            BattleLogManager.Instance.AddLog($"{characterName}의 <color=#FFA500>PP가 {myPassiveSkill.costPP} 소모되었습니다.</color> (남은 PP: <color=#90EE90>{stats.passivePoint}</color>)");
         }
 
         // 가드 포지션으로 이동
         if (target != this)
         {
-            MoveToPosition(target.transform.position + target.transform.forward * 0.5f);
-            isGuardPosition = true;
+            MoveToPosition(target.transform.position + target.transform.forward * 0.5f);           
+        }
+
+        isGuard = true;
+
+        // UI에 스킬 이름 표시
+        BattleManager.Instance.ShowSkillName(this.isPlayer, myPassiveSkill.name);
+
+        // 가드 애니메이션 재생 
+        Animator animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            Debug.Log($"{characterName}: 가드 애니메이션 '{myPassiveSkill.animation}' 재생 시작");
+            animator.Play(myPassiveSkill.animation, 0, 0f);
         }
 
         if (BattleLogManager.Instance != null)
         {
-            BattleLogManager.Instance.AddLog($"{characterName}이(가) {target.characterName}을(를) 가드했습니다.");
+            BattleLogManager.Instance.AddLog($"{characterName}이(가) {target.characterName}을(를) <color=#87CEEB>{myPassiveSkill.name}</color> 가드했습니다.");
         }
 
         return;

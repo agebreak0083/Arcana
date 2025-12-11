@@ -1,0 +1,11 @@
+{
+    "asset": "80226e3604bb73648853d8503c3560e2",
+    "fileName": "019b0c17-a50d-7f77-85a6-42e0de33cc00.pose.json",
+    "prompt": "Female fighter, unarmed, performing a two-handed frontal block (parry). The action should be highly exaggerated and visibly large. Block against a strong frontal attack. Powerful stance.",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 1052091703,
+    "w3CTraceId": "ad99cb8b7091d1007a0a3e67fec60e71",
+    "isTrimmed": false
+}

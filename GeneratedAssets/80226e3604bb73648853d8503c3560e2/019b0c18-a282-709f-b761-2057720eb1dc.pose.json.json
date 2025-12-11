@@ -1,0 +1,11 @@
+{
+    "asset": "80226e3604bb73648853d8503c3560e2",
+    "fileName": "019b0c18-a282-709f-b761-2057720eb1dc.pose.json",
+    "prompt": "Cinematic sequence: Female martial artist performing a 'Super Defense' move. The character pushes both hands forward in a massive, exaggerated gesture, creating an invisible shield effect or force field that dramatically stops the frontal attack. The whole body posture must scream 'invulnerability' upon completion of the block.",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 178534120,
+    "w3CTraceId": "985ecbda957e92a8b8209357adc3b8bf",
+    "isTrimmed": false
+}

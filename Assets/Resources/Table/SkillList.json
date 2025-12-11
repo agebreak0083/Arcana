@@ -154,14 +154,14 @@
           "guardLevel": "maximum"
         }
       ],
-      "traits": [],
-      "animation": "Skill_2"
+      "traits": ["ranged"],
+      "animation": "Guard"
     },
     {
       "id": "퀵 가드",
       "name": "퀵 가드",
       "type": "passive",
-      "description": "물리 공격을 받기 직전에 발동\n적의 공격을 가드(중)으로 막는다",
+      "description": "자신이 물리 공격을 받기 직전에 발동\n적의 공격을 가드(중)으로 막는다",
       "target": "self",
       "costAP": 0,
       "costPP": 1,
@@ -174,7 +174,7 @@
         }
       ],
       "traits": [],
-      "animation": "Skill_2"
+      "animation": "Guard"
     }    
   ],
   "솔저 / 서전트": [

@@ -78,5 +78,21 @@
         {
             "Name": "카르티",
             "tactics": []
+        },
+        {
+            "Name": "방랑자",
+            "tactics": []
+        },
+        {
+            "Name": "도기",
+            "tactics": []
+        },
+        {
+            "Name": "설지",
+            "tactics": []
+        },
+        {
+            "Name": "산화",
+            "tactics": []
         }
     ]
