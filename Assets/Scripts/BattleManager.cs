@@ -526,7 +526,7 @@ public class BattleManager : MonoBehaviour
         waitingCharacters.Add(character);
     }
 
-    public PassiveSkillResult OnSkillUsed(Character user, Character target, Skill skill, SkillEffect effect)
+    public PassiveSkillResult OnBeforeSkillUse(Character user, Character target, Skill skill, SkillEffect effect)
     {
         PassiveSkillResult result = new PassiveSkillResult();
         // 모든 캐릭터에게 누가 누구에게 스킬을 썼는지 알려준다. 
