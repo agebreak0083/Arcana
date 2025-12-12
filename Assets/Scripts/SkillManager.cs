@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Arcana.Tactics;
@@ -157,14 +158,17 @@ public class SkillManager : MonoBehaviour
     }
 
     // 스킬 효과 적용
-    public void ApplySkillEffects(Skill skill, Character user, Character target)
+    public void ApplySkillEffects(Skill skill, Character user, List<Character> targets)
     {
         if (skill == null || user == null) return;
 
         // 각 효과 적용
         foreach (SkillEffect effect in skill.effects)
         {
-            ApplyEffect(effect, user, target, skill);
+            foreach(var target in targets)
+            {
+                ApplyEffect(effect, user, target, skill);
+            }
         }
     }
 
@@ -498,7 +502,7 @@ public class SkillManager : MonoBehaviour
     }
 
     
-    public PassiveSkillResult CheckPassiveSkillAfterSkillUse(Character actionCharacter, Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
+    public IEnumerator CheckPassiveSkillAfterSkillUse(Character actionCharacter, Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
     {
         bool bCheckPassiveSkill = false;    
 
@@ -516,12 +520,11 @@ public class SkillManager : MonoBehaviour
             {
                 if(actionCharacter == user)
                 {
-                    return result;
+                    yield break;
                 }
 
                 if(myPassiveSkill.target == "chase" && targets.Count > 0 && targets[0].isPlayer != actionCharacter.isPlayer)
-                {
-                    actionCharacter.UseSkill(myPassiveSkill.id, targets[0]);
+                {                    
                     bCheckPassiveSkill = true;
                 }                
             }            
@@ -539,11 +542,12 @@ public class SkillManager : MonoBehaviour
                     BattleLogManager.Instance.AddLog($"{actionCharacter.characterName}의 <color=#FFA500>PP가 {myPassiveSkill.costPP} 소모되었습니다.</color> (남은 PP: <color=#90EE90>{actionCharacter.stats.passivePoint}</color>)");
                 }
 
-                return result;
+                // UseSkill은 코루틴이므로 yield return으로 완료까지 대기
+                yield return StartCoroutine(actionCharacter.UseSkill(myPassiveSkill.id, targets));
+
+                yield break;
             }
         }
-
-        return result;
     }
 }
 

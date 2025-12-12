@@ -114,11 +114,19 @@ public class Character : MonoBehaviour
         //Debug.Log($"{characterName}의 작전 액션: {availableActions.Count}개");
     }
 
-    // 작전에 따라 행동 결정
-    public StrategyAction RunAction()
+    // 작전에 따라 행동 결정 (코루틴으로 변경하여 스킬 애니메이션 완료 대기)
+    public IEnumerator RunAction(System.Action<StrategyAction> onComplete)
     {
-        if (currentStrategy == null) return null;
-        if (stats.actionPoint <= 0) return null;
+        if (currentStrategy == null)
+        {
+            onComplete?.Invoke(null);
+            yield break;
+        }
+        if (stats.actionPoint <= 0)
+        {
+            onComplete?.Invoke(null);
+            yield break;
+        }
 
         // BuffList에서 stun이 있으면 행동 불가
         if (buffs.Any(b => b.stat == "stun"))
@@ -128,7 +136,8 @@ public class Character : MonoBehaviour
             {
                 BattleLogManager.Instance.AddLog($"  <color=#FF0000>[기절 상태이므로 행동할 수 없습니다.]</color> from {characterName}");
             }
-            return null;
+            onComplete?.Invoke(null);
+            yield break;
         }
 
         // 우선순위가 높은 순서대로 조건을 확인하여 실행할 액션 결정
@@ -140,30 +149,30 @@ public class Character : MonoBehaviour
             if (skill == null)
             {
                 Debug.Log($"{characterName}이(가) {strategyAction.action}을(를) 실행할 수 없습니다.");
-                return null;
+                continue;
             }
 
             List<Character> targets = GetTarget(skill, strategyAction);
 
-            if (targets.Count > 0)
+            // 조건에 해당하는 타겟을 찾았다.
+            if (targets != null && targets.Count > 0)
             {
+                // 스킬 사용 전 패시브 스킬 체크
                 BattleManager.Instance.OnBeforeSkillUse(this, targets, skill);
 
-                foreach (var target in targets)
+                // 모든 타겟에 대해 스킬 사용                 
+                yield return StartCoroutine(UseSkill(skill.id, targets));
+
+                foreach(var target in targets)
                 {
                     Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다. 타겟: {target.characterName}");
-
-                    UseSkill(skill.id, target);
-
                     // 전투 로그에 공격 기록
                     if (BattleLogManager.Instance != null)
                     {
                         BattleLogManager.Instance.LogAttack(characterName, target.characterName, skill.name);
                     }
                 }
-
-                BattleManager.Instance.OnAfterSkillUse(this, targets, skill);
-
+                
                 // AP/PP 소모
                 stats.actionPoint -= skill.costAP;
                 stats.passivePoint -= skill.costPP;
@@ -181,12 +190,15 @@ public class Character : MonoBehaviour
                     }
                 }
 
-                return strategyAction;
+                yield return StartCoroutine(BattleManager.Instance.OnAfterSkillUse(this, targets, skill));
+
+                onComplete?.Invoke(strategyAction);
+                yield break;
             }
         }
 
         Debug.Log($"{characterName}이(가) 행동할 수 없습니다.");
-        return null;
+        onComplete?.Invoke(null);
     }
 
     /// <summary>
@@ -371,40 +383,33 @@ public class Character : MonoBehaviour
 
     // ========== 스킬 시스템 ==========
 
-    // 스킬 사용 (ID로)
-    public void UseSkill(string skillId, Character target)
+    // 스킬 사용 (ID로) - 코루틴으로 변경하여 애니메이션 완료까지 대기
+    public IEnumerator UseSkill(string skillId, List<Character> targets)
     {
-        if (SkillManager.Instance == null) return;
+        if (SkillManager.Instance == null) yield break;
 
         Skill skill = SkillManager.Instance.GetSkillById(skillId);
         if (skill == null)
         {
             Debug.LogWarning($"스킬 ID '{skillId}'를 찾을 수 없습니다.");
-            return;
+            yield break;
         }        
-    
 
         BattleManager.Instance.AddWaitFinished(this);
-        BattleManager.Instance.AddWaitFinished(target);
+        // foreach(var target in targets)
+        // {
+        //     BattleManager.Instance.AddWaitFinished(target);
+        // }
 
         // UI에 스킬 이름 표시
         BattleManager.Instance.ShowSkillName(this.isPlayer, skill.name);
 
-        if (skill.animation != "")
-        {
-            // 코루틴으로 애니메이션 종료 대기
-            StartCoroutine(PlaySkillAnimationAndWait(skill, target));
-            return;
-        }
-        else
-        {
-            // 애니메이션이 없으면 바로 스킬 효과 적용
-            OnSkillAnimationComplete(skill, target);
-        }
+        // 애니메이션 재생 및 완료 대기
+        yield return StartCoroutine(PlaySkillAnimationAndWait(skill, targets));
     }
 
     // 애니메이션 재생 후 대기하는 코루틴 (DoTween 이동 포함)
-    private IEnumerator PlaySkillAnimationAndWait(Skill skill, Character target)
+    private IEnumerator PlaySkillAnimationAndWait(Skill skill, List<Character> targets)
     {
         Animator animator = GetComponent<Animator>();
         if (animator == null)
@@ -412,6 +417,12 @@ public class Character : MonoBehaviour
             Debug.LogWarning($"{characterName}: Animator 컴포넌트를 찾을 수 없습니다.");
             yield break;
         }
+
+        Character target = targets[0];
+
+        // 카메라 액션 시작 
+        BattleManager.Instance.CameraActionStart(this, target);
+        
 
         // 원래 위치 저장
         Vector3 originalPosition = transform.position;
@@ -434,8 +445,9 @@ public class Character : MonoBehaviour
         if (string.IsNullOrEmpty(skill.animation))
         {
             Debug.LogWarning($"{characterName}: 스킬 '{skill.name}'에 애니메이션이 설정되지 않았습니다.");
+
             // 애니메이션이 없으면 바로 스킬 효과 적용
-            SkillManager.Instance.ApplySkillEffects(skill, this, target);
+            SkillManager.Instance.ApplySkillEffects(skill, this, targets);
         }
         else
         {
@@ -460,7 +472,7 @@ public class Character : MonoBehaviour
             // 스킬 효과 적용
             float effectTime = 0.5f;
             yield return new WaitForSeconds(effectTime);
-            SkillManager.Instance.ApplySkillEffects(skill, this, target);
+            SkillManager.Instance.ApplySkillEffects(skill, this, targets);
 
             // 현재 애니메이션 상태 정보 가져오기
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
@@ -485,6 +497,9 @@ public class Character : MonoBehaviour
         // 복귀 완료 대기
         yield return new WaitForSeconds(returnTime);
 
+        // 카메라 액션 종료 
+        BattleManager.Instance.CameraActionEnd();
+
         // 애니메이션 종료 후 실행
         OnSkillAnimationComplete(skill, target);
     }
@@ -493,8 +508,6 @@ public class Character : MonoBehaviour
     private void OnSkillAnimationComplete(Skill skill, Character target)
     {
         Debug.Log($"{characterName}: {skill.name} 애니메이션 완료!");
-
-
 
         // BattleManager에 액션 완료 알림
         if (BattleManager.Instance != null)
@@ -713,15 +726,14 @@ public class Character : MonoBehaviour
         return result;
     }
 
-    public PassiveSkillResult OnAfterSkillUse(Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
+    public IEnumerator OnAfterSkillUse(Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
     {
         if(stats.passivePoint <= 0)
         {
-            return result;
+            yield break;
         }
 
-        result = SkillManager.Instance.CheckPassiveSkillAfterSkillUse(this, user, targets, skill, result);
-        return result;
+        yield return SkillManager.Instance.StartCoroutine(SkillManager.Instance.CheckPassiveSkillAfterSkillUse(this, user, targets, skill, result));
     }
 
     bool isGuard = false;

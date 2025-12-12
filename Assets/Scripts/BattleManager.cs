@@ -31,7 +31,7 @@ public class BattleManager : MonoBehaviour
     private StrategyManager strategyManager;
     private SkillManager skillManager;
     private ClassManager classManager;
-    private bool isWaitingForActionComplete = false;
+    
 
     private int currentRound = 0;   // 현재 라운드
     private int currentTurn = 0;    // 현재 턴
@@ -223,12 +223,7 @@ public class BattleManager : MonoBehaviour
     {
         Debug.Log($"{character.characterName}의 행동이 완료되었습니다.");
 
-        waitingCharacters.Remove(character);
-        if (waitingCharacters.Count == 0)
-        {
-            // 대기중인 캐릭터가 없으면 다음턴 진행 (TurnRoutine에서 WaitUntil로 처리됨)
-            isWaitingForActionComplete = false;
-        }
+        waitingCharacters.Remove(character);        
     }
 
     // ==================================================================================
@@ -342,42 +337,20 @@ public class BattleManager : MonoBehaviour
         if (BattleLogManager.Instance != null)
             BattleLogManager.Instance.LogTurnStart(character.characterName, currentRound, currentTurn);
 
-        // 행동 실행 (RunAction 내부에서 조건 체크)
-        StrategyAction action = character.RunAction();
+        // 행동 실행 (RunAction 내부에서 조건 체크 및 애니메이션 완료까지 대기)
+        StrategyAction action = null;
+        yield return StartCoroutine(character.RunAction((result) => action = result));
 
         if (action != null)
         {
-            UpdateBattleUI();
-
-            // 카메라가 현재 턴 캐릭터를 따라가도록 설정
-            if (battleCameraController != null)
-            {
-                battleCameraController.FollowCharacter(character);
-
-                // 액션 타겟 찾기 (Character의 GetTarget 메서드 사용)
-                Character targetChar = GetActionTarget(character, action);
-                if (targetChar != null)
-                {
-                    battleCameraController.OnActionStart(character, targetChar);
-                }
-                else
-                {
-                    battleCameraController.OnActionStart(character);
-                }
-            }
-
-            // 액션 종료 시 카메라 복귀
-            if (battleCameraController != null)
-            {
-                battleCameraController.OnActionEnd();
-            }
+            UpdateBattleUI();            
 
             // 턴 종료 이벤트 호출
             OnTurnEnd(character);
 
-            // 행동 완료 대기
-            isWaitingForActionComplete = true;
-            yield return new WaitUntil(() => !isWaitingForActionComplete);
+            // 행동 완료 대기 (모든 waitingCharacters가 완료될 때까지)
+            
+            yield return new WaitUntil(() => waitingCharacters.Count == 0);            
 
             onResult?.Invoke(true);
         }
@@ -385,6 +358,23 @@ public class BattleManager : MonoBehaviour
         {
             // 행동하지 않음 (조건 불만족, AP 부족 등)
             onResult?.Invoke(false);
+        }
+    }
+
+    public void CameraActionStart(Character character, Character target)
+    {
+        if (battleCameraController != null)
+        {
+            battleCameraController.FollowCharacter(character);
+            battleCameraController.OnActionStart(character, target);
+        }
+    }
+
+    public void CameraActionEnd()
+    {
+        if (battleCameraController != null)
+        {
+            battleCameraController.OnActionEnd();
         }
     }
 
@@ -543,14 +533,14 @@ public class BattleManager : MonoBehaviour
         return passiveSkillResult;
     }
 
-    public void OnAfterSkillUse(Character user, List<Character> targets, Skill skill)
+    public IEnumerator OnAfterSkillUse(Character user, List<Character> targets, Skill skill)
     {
         // 모든 캐릭터에게 스킬 사용 후 이벤트를 호출한다. 
         foreach (var character in charactersTurnList)
         {
             if (IsValidCharacter(character))
             {
-                passiveSkillResult = character.OnAfterSkillUse(user, targets, skill, passiveSkillResult);
+                yield return StartCoroutine(character.OnAfterSkillUse(user, targets, skill, passiveSkillResult));
             }
         }
     }
