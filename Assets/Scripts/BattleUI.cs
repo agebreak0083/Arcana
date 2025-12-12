@@ -15,6 +15,7 @@ public class BattleUI : MonoBehaviour
     public GameObject damageTextPrefab; // 데미지 텍스트 프리팹
     public TextMeshProUGUI playerNameText;
     public TextMeshProUGUI enemyNameText;
+    public TextMeshProUGUI debugText;
 
     [Header("Animation Settings")]
     public float skillNameDisplayTime = 2f; // 스킬 이름 표시 시간

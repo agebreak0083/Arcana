@@ -320,7 +320,7 @@ public class SkillManager : MonoBehaviour
         // 스킬 위력이 0이면 데미지도 0 (버프/디버프 스킬 등)
         if (skillPower <= 0) return 0;
 
-        float finalDamage = baseDamage * (skillPower / 100f);
+        float finalDamage = baseDamage * (skillPower / 100f) * BattleSetting.DAMAGE_MULTIPLIER;
 
         // 3. 클래스 상성 보정
         if (IsClassAdvantage(user.className, target.className))

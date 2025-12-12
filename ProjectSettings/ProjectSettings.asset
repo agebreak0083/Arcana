@@ -885,10 +885,10 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: 737d8e7c-b5fa-4721-a30c-8d0563336a41
+  cloudProjectId: 2b411ace-9f46-4f94-88f1-7d365737fc7b
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Arcana (1)
+  projectName: Arcana
   organizationId: agebreak0083
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
