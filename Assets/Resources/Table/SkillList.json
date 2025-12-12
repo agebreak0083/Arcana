@@ -703,9 +703,10 @@
       "name": "체이스",
       "type": "passive",
       "description": "다른 아군이 공격했을 때 발동\n적 하나를 추격한다",
-      "target": "single_enemy",
+      "target": "chase",
       "costAP": 0,
       "costPP": 1,
+      "checkPhase":"after_skill_use_ally",
       "effects": [
         {
           "type": "damage",
@@ -716,7 +717,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Guard"
+      "animation": "SkillArrow_1"
     }    
   ],
   "슈터 / 실드 슈터": [

@@ -383,5 +383,167 @@ public class SkillManager : MonoBehaviour
 
         return info;
     }
+
+    public PassiveSkillResult CheckPassiveSkillBeforeSkillUse(Character actionCharacter, Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
+    {
+        bool bCheckPassiveSkill = false;
+
+        // 자신에게 세팅된 Action 순회, PP 스킬을 찾고, 조건을 체크한다. 
+        foreach (var action in actionCharacter.availableActions)
+        {
+            // action name으로 스킬 정보를 가져옴. 
+            Skill myPassiveSkill = SkillManager.Instance.GetSkillByName(action.action);
+            if (myPassiveSkill == null || myPassiveSkill.costPP <= 0)
+            {
+                continue;
+            }
+
+            // 스킬의 조건을 체크한다. 
+            if(myPassiveSkill.checkPhase == "guard")
+            {
+                foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
+                {
+                    if (mySkillEffect.type == "guard")
+                    {
+                        foreach (SkillEffect effect in skill.effects)
+                        {
+                            if (effect.type == "damage")
+                            {
+                                bCheckPassiveSkill = PassiveGuard(actionCharacter, targets[0],skill, myPassiveSkill, effect, mySkillEffect, result);
+                            }
+                        }                        
+                    }
+                }
+            }
+            else if(myPassiveSkill.checkPhase == "before_skill_use_self")
+            {
+                if(user != actionCharacter)
+                {
+                    return result;
+                }
+
+                foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
+                {
+                    if (mySkillEffect.type == "sure_hit")
+                    {
+                        result.isSureHit = true;                        
+                        bCheckPassiveSkill = true;
+                    }
+
+                }
+            }            
+
+            if(bCheckPassiveSkill)
+            {
+                actionCharacter.stats.passivePoint -= myPassiveSkill.costPP;
+                
+                // UI에 스킬 이름 표시
+                BattleManager.Instance.ShowSkillName(actionCharacter.isPlayer, myPassiveSkill.name);
+
+                if (BattleLogManager.Instance != null)
+                {
+                    BattleLogManager.Instance.AddLog($"{actionCharacter.characterName}이(가) <color=#87CEEB>{myPassiveSkill.name}</color>를 발동했습니다.");
+                    BattleLogManager.Instance.AddLog($"{actionCharacter.characterName}의 <color=#FFA500>PP가 {myPassiveSkill.costPP} 소모되었습니다.</color> (남은 PP: <color=#90EE90>{actionCharacter.stats.passivePoint}</color>)");
+                }
+
+                return result;
+            }
+        }
+
+        return result;
+    }
+
+    public bool PassiveGuard(Character actionCharacter, Character target, Skill skill, Skill myPassiveSkill, SkillEffect effect, SkillEffect mySkillEffect, PassiveSkillResult result)
+    {
+        if (result.isGuard) // 다른 캐릭터가 이미 가드한 경우
+        {
+            return false;
+        }
+
+        if (target == null || actionCharacter.isPlayer != target.isPlayer) // 타겟이 없거나 같은 진영이 아닌 경우
+        {
+            return false;
+        }
+
+        if (mySkillEffect.damageType != effect.damageType) // 데미지 타입이 다른 경우
+        {
+            return false;
+        }
+        
+        if(skill.traits == myPassiveSkill.traits) // 스킬 특성과 패시브 스킬 특성이 같은 경우 (ex. 원거리 방어, 근거리 방어)
+        {
+            return false;
+        }
+    
+        // 다른 아군 캐릭터인지 체크
+        if (mySkillEffect.target == "ally" && target == actionCharacter)
+        {
+            return false;
+        }
+
+        // 자신인지 체크
+        if (mySkillEffect.target == "self" && target != actionCharacter)
+        {
+            return false;
+        }
+
+        result.isGuard = true;
+        result.guardLevel = mySkillEffect.guardLevel;
+        result.passiveCharacter = actionCharacter;
+
+        // 가드 액션 실행행
+        actionCharacter.ActionGuard(target);
+
+        return true;
+    }
+
+    
+    public PassiveSkillResult CheckPassiveSkillAfterSkillUse(Character actionCharacter, Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
+    {
+        bool bCheckPassiveSkill = false;    
+
+        // 자신에게 세팅된 Action 순회, PP 스킬을 찾고, 조건을 체크한다. 
+        foreach (var action in actionCharacter.availableActions)
+        {
+            // action name으로 스킬 정보를 가져옴. 
+            Skill myPassiveSkill = SkillManager.Instance.GetSkillByName(action.action);
+            if (myPassiveSkill == null || myPassiveSkill.costPP <= 0)
+            {
+                continue;
+            }
+
+            if(myPassiveSkill.checkPhase == "after_skill_use_ally")
+            {
+                if(actionCharacter == user)
+                {
+                    return result;
+                }
+
+                if(myPassiveSkill.target == "chase" && targets.Count > 0 && targets[0].isPlayer != actionCharacter.isPlayer)
+                {
+                    actionCharacter.UseSkill(myPassiveSkill.id, targets[0]);
+                    bCheckPassiveSkill = true;
+                }                
+            }            
+
+            if(bCheckPassiveSkill)
+            {
+                actionCharacter.stats.passivePoint -= myPassiveSkill.costPP;
+                
+                // UI에 스킬 이름 표시
+                BattleManager.Instance.ShowSkillName(actionCharacter.isPlayer, myPassiveSkill.name);
+
+                if (BattleLogManager.Instance != null)
+                {
+                    BattleLogManager.Instance.AddLog($"{actionCharacter.characterName}이(가) <color=#87CEEB>{myPassiveSkill.name}</color>를 발동했습니다.");
+                    BattleLogManager.Instance.AddLog($"{actionCharacter.characterName}의 <color=#FFA500>PP가 {myPassiveSkill.costPP} 소모되었습니다.</color> (남은 PP: <color=#90EE90>{actionCharacter.stats.passivePoint}</color>)");
+                }
+
+                return result;
+            }
+        }
+
+        return result;
+    }
 }
 
