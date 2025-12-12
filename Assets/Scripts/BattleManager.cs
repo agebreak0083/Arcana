@@ -366,18 +366,18 @@ public class BattleManager : MonoBehaviour
                 }
             }
 
+            // 액션 종료 시 카메라 복귀
+            if (battleCameraController != null)
+            {
+                battleCameraController.OnActionEnd();
+            }
+
             // 턴 종료 이벤트 호출
             OnTurnEnd(character);
 
             // 행동 완료 대기
             isWaitingForActionComplete = true;
             yield return new WaitUntil(() => !isWaitingForActionComplete);
-
-            // 액션 종료 시 카메라 복귀
-            if (battleCameraController != null)
-            {
-                battleCameraController.OnActionEnd();
-            }
 
             onResult?.Invoke(true);
         }
@@ -526,19 +526,33 @@ public class BattleManager : MonoBehaviour
         waitingCharacters.Add(character);
     }
 
-    public PassiveSkillResult OnBeforeSkillUse(Character user, Character target, Skill skill, SkillEffect effect)
+    public PassiveSkillResult passiveSkillResult = new PassiveSkillResult();
+    public PassiveSkillResult OnBeforeSkillUse(Character user, List<Character> targets, Skill skill)
     {
-        PassiveSkillResult result = new PassiveSkillResult();
+        passiveSkillResult.Initialize();
+
         // 모든 캐릭터에게 누가 누구에게 스킬을 썼는지 알려준다. 
         foreach (var character in charactersTurnList)
         {
             if (IsValidCharacter(character))
             {
-                result = character.OnSkillUsed(user, target, skill, effect, result);
+                passiveSkillResult = character.OnBeforeSkillUse(user, targets, skill, passiveSkillResult);
             }
         }
 
-        return result;
+        return passiveSkillResult;
+    }
+
+    public void OnAfterSkillUse(Character user, List<Character> targets, Skill skill)
+    {
+        // 모든 캐릭터에게 스킬 사용 후 이벤트를 호출한다. 
+        foreach (var character in charactersTurnList)
+        {
+            if (IsValidCharacter(character))
+            {
+                passiveSkillResult = character.OnAfterSkillUse(user, targets, skill, passiveSkillResult);
+            }
+        }
     }
 }
 
@@ -546,5 +560,14 @@ public class PassiveSkillResult
 {
     public bool isGuard = false;
     public string guardLevel = "";
+    public bool isSureHit = false;
     public Character passiveCharacter = null;
+
+    public void Initialize()
+    {
+        isGuard = false;
+        guardLevel = "";
+        isSureHit = false;
+        passiveCharacter = null;
+    }
 }

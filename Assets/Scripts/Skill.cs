@@ -42,6 +42,7 @@ public class Skill
     public int costPP;               // 소모 PP
     public string triggerTiming;     // 패시브 발동 시점: "before_hit", "after_hit", "battle_start", "before_ally_hit"
     public string triggerCondition;  // 패시브 발동 조건: "physical_attack", "magical_attack", "ranged_physical_attack"
+    public string checkPhase;        // 패시브 체크 단계: "guard", "before_skill_use_self"
     public List<SkillEffect> effects; // 효과 리스트
     public List<string> traits;      // 특성: "ranged", "simultaneous_activation_limit", "sure_hit"
     

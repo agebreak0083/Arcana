@@ -172,7 +172,8 @@ public class SkillManager : MonoBehaviour
     private void ApplyEffect(SkillEffect effect, Character user, Character target, Skill skill)
     {
         // 모든 Character에게 누가 누구에게 스킬을 썼는지 알려준다. 
-        PassiveSkillResult result = BattleManager.Instance.OnBeforeSkillUse(user, target, skill, effect);
+        //PassiveSkillResult result = BattleManager.Instance.OnBeforeSkillUse(user, target, skill, effect);
+        PassiveSkillResult result = BattleManager.Instance.passiveSkillResult;
 
         switch (effect.type)
         {

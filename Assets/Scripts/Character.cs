@@ -147,6 +147,8 @@ public class Character : MonoBehaviour
 
             if (targets.Count > 0)
             {
+                BattleManager.Instance.OnBeforeSkillUse(this, targets, skill);
+
                 foreach (var target in targets)
                 {
                     Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다. 타겟: {target.characterName}");
@@ -159,6 +161,8 @@ public class Character : MonoBehaviour
                         BattleLogManager.Instance.LogAttack(characterName, target.characterName, skill.name);
                     }
                 }
+
+                BattleManager.Instance.OnAfterSkillUse(this, targets, skill);
 
                 // AP/PP 소모
                 stats.actionPoint -= skill.costAP;
@@ -388,22 +392,27 @@ public class Character : MonoBehaviour
 
         if (skill.animation != "")
         {
-            Animator animator = GetComponent<Animator>();
-            if (animator != null)
-            {
-                // 코루틴으로 애니메이션 종료 대기
-                StartCoroutine(PlaySkillAnimationAndWait(animator, skill, target));
-                return;
-            }
+            // 코루틴으로 애니메이션 종료 대기
+            StartCoroutine(PlaySkillAnimationAndWait(skill, target));
+            return;
         }
-
-        // 애니메이션이 없으면 바로 스킬 효과 적용
-        OnSkillAnimationComplete(skill, target);
+        else
+        {
+            // 애니메이션이 없으면 바로 스킬 효과 적용
+            OnSkillAnimationComplete(skill, target);
+        }
     }
 
     // 애니메이션 재생 후 대기하는 코루틴 (DoTween 이동 포함)
-    private IEnumerator PlaySkillAnimationAndWait(Animator animator, Skill skill, Character target)
+    private IEnumerator PlaySkillAnimationAndWait(Skill skill, Character target)
     {
+        Animator animator = GetComponent<Animator>();
+        if (animator == null)
+        {
+            Debug.LogWarning($"{characterName}: Animator 컴포넌트를 찾을 수 없습니다.");
+            yield break;
+        }
+
         // 원래 위치 저장
         Vector3 originalPosition = transform.position;
 
@@ -692,23 +701,24 @@ public class Character : MonoBehaviour
         }
     }
 
-    public PassiveSkillResult OnSkillUsed(Character user, Character target, Skill skill, SkillEffect effect, PassiveSkillResult result)
+    public PassiveSkillResult OnBeforeSkillUse(Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
     {
         if (stats.passivePoint <= 0)
         {
             return result;
         }
 
-        result = CheckPassiveSkill(user, target, skill, effect, result);
+        result = CheckPassiveSkillBeforeSkillUse(user, targets, skill, result);        
 
         return result;
     }
 
     bool isGuard = false;
-    private PassiveSkillResult CheckPassiveSkill(Character user, Character target, Skill skill, SkillEffect effect, PassiveSkillResult result)
+    private PassiveSkillResult CheckPassiveSkillBeforeSkillUse(Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
     {
-        // 자신에게 세팅된 Action 순회, PP 스킬을 찾고, 조건을 체크한다. 
+        bool bCheckPassiveSkill = false;
 
+        // 자신에게 세팅된 Action 순회, PP 스킬을 찾고, 조건을 체크한다. 
         foreach (var action in availableActions)
         {
             // action name으로 스킬 정보를 가져옴. 
@@ -719,62 +729,98 @@ public class Character : MonoBehaviour
             }
 
             // 스킬의 조건을 체크한다. 
-            foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
+            if(myPassiveSkill.checkPhase == "guard")
             {
-                if (mySkillEffect.type == "guard")
+                foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
                 {
-                    PassiveGuard(target,skill, myPassiveSkill, effect, mySkillEffect, result);
+                    if (mySkillEffect.type == "guard")
+                    {
+                        foreach (SkillEffect effect in skill.effects)
+                        {
+                            if (effect.type == "damage")
+                            {
+                                bCheckPassiveSkill = PassiveGuard(targets[0],skill, myPassiveSkill, effect, mySkillEffect, result);
+                            }
+                        }                        
+                    }
                 }
+            }
+            else if(myPassiveSkill.checkPhase == "before_skill_use_self")
+            {
+                if(user != this)
+                {
+                    return result;
+                }
+
+                foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
+                {
+                    if (mySkillEffect.type == "sure_hit")
+                    {
+                        result.isSureHit = true;                        
+                        bCheckPassiveSkill = true;
+                    }
+
+                }
+            }            
+
+            if(bCheckPassiveSkill)
+            {
+                stats.passivePoint -= myPassiveSkill.costPP;
+                
+                // UI에 스킬 이름 표시
+                BattleManager.Instance.ShowSkillName(this.isPlayer, myPassiveSkill.name);
+
+                if (BattleLogManager.Instance != null)
+                {
+                    BattleLogManager.Instance.AddLog($"{characterName}이(가) <color=#87CEEB>{myPassiveSkill.name}</color>를 발동했습니다.");
+                    BattleLogManager.Instance.AddLog($"{characterName}의 <color=#FFA500>PP가 {myPassiveSkill.costPP} 소모되었습니다.</color> (남은 PP: <color=#90EE90>{stats.passivePoint}</color>)");
+                }
+
+                return result;
             }
         }
 
         return result;
     }
 
-    private void PassiveGuard(Character target, Skill skill, Skill myPassiveSkill, SkillEffect effect, SkillEffect mySkillEffect, PassiveSkillResult result)
+    private bool PassiveGuard(Character target, Skill skill, Skill myPassiveSkill, SkillEffect effect, SkillEffect mySkillEffect, PassiveSkillResult result)
     {
         if (result.isGuard) // 다른 캐릭터가 이미 가드한 경우
         {
-            return;
+            return false;
         }
 
         if (target == null || this.isPlayer != target.isPlayer) // 타겟이 없거나 같은 진영이 아닌 경우
         {
-            return;
+            return false;
         }
 
         if (mySkillEffect.damageType != effect.damageType) // 데미지 타입이 다른 경우
         {
-            return;
+            return false;
         }
         
         if(skill.traits == myPassiveSkill.traits) // 스킬 특성과 패시브 스킬 특성이 같은 경우 (ex. 원거리 방어, 근거리 방어)
         {
-            return;
+            return false;
         }
     
         // 다른 아군 캐릭터인지 체크
         if (mySkillEffect.target == "ally" && target == this)
         {
-            return;
+            return false;
         }
 
         // 자신인지 체크
         if (mySkillEffect.target == "self" && target != this)
         {
-            return;
+            return false;
         }
 
         result.isGuard = true;
         result.guardLevel = mySkillEffect.guardLevel;
         result.passiveCharacter = this;
         
-        stats.passivePoint -= myPassiveSkill.costPP;
-        if (BattleLogManager.Instance != null)
-        {
-            BattleLogManager.Instance.AddLog($"{characterName}의 <color=#FFA500>PP가 {myPassiveSkill.costPP} 소모되었습니다.</color> (남은 PP: <color=#90EE90>{stats.passivePoint}</color>)");
-        }
-
         // 가드 포지션으로 이동
         if (target != this)
         {
@@ -782,9 +828,6 @@ public class Character : MonoBehaviour
         }
 
         isGuard = true;
-
-        // UI에 스킬 이름 표시
-        BattleManager.Instance.ShowSkillName(this.isPlayer, myPassiveSkill.name);
 
         // 가드 애니메이션 재생 
         Animator animator = GetComponent<Animator>();
@@ -794,12 +837,7 @@ public class Character : MonoBehaviour
             animator.Play(myPassiveSkill.animation, 0, 0f);
         }
 
-        if (BattleLogManager.Instance != null)
-        {
-            BattleLogManager.Instance.AddLog($"{characterName}이(가) {target.characterName}을(를) <color=#87CEEB>{myPassiveSkill.name}</color> 가드했습니다.");
-        }
-
-        return;
+        return true;
     }
 
 
@@ -807,6 +845,12 @@ public class Character : MonoBehaviour
     {
         transform.DOMove(position, 0.2f).SetEase(Ease.OutQuad);
     }
+
+    internal PassiveSkillResult OnAfterSkillUse(Character user, List<Character> targets, Skill skill, PassiveSkillResult passiveSkillResult)
+    {
+        return passiveSkillResult;
+    }
+
 }
 
 

@@ -146,6 +146,7 @@
       "target": "single_ally",
       "costAP": 0,
       "costPP": 1,
+      "checkPhase":"guard",
       "effects": [
         {
           "type": "guard",
@@ -165,6 +166,7 @@
       "target": "self",
       "costAP": 0,
       "costPP": 1,
+      "checkPhase":"guard",
       "effects": [
         {
           "type": "guard",
@@ -677,7 +679,45 @@
         "ranged"
       ],
       "animation": "SkillArrow_1"
-    }
+    }, 
+    {
+      "id": "이글 아이",
+      "name": "이글 아이",
+      "type": "passive",
+      "description": "자신이 액티브 스킬로 공격하기 전에 발동\n1번만 자신의 공격 필중",
+      "target": "self",
+      "costAP": 0,
+      "costPP": 1,      
+      "checkPhase":"before_skill_use_self",
+      "effects": [
+        {
+          "type": "sure_hit"          
+        }
+      ],
+      "traits": [
+      ],
+      "animation": "Guard"
+    },
+    {
+      "id": "체이스",
+      "name": "체이스",
+      "type": "passive",
+      "description": "다른 아군이 공격했을 때 발동\n적 하나를 추격한다",
+      "target": "single_enemy",
+      "costAP": 0,
+      "costPP": 1,
+      "effects": [
+        {
+          "type": "damage",
+          "value": 75,
+          "damageType": "physical"
+        }
+      ],
+      "traits": [
+        "ranged"
+      ],
+      "animation": "Guard"
+    }    
   ],
   "슈터 / 실드 슈터": [
     {
