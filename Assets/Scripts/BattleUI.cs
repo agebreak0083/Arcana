@@ -221,7 +221,8 @@ public class BattleUI : MonoBehaviour
         if (defeatPanelPrefab != null)
         {
             GameObject defeatPanel = Instantiate(defeatPanelPrefab);
-            defeatPanel.transform.SetParent(transform, false);
+            Transform endPanel = transform.Find("EndPanel");
+            defeatPanel.transform.SetParent(endPanel, false);
         }
     }
 
@@ -230,7 +231,8 @@ public class BattleUI : MonoBehaviour
         if (victoryPanelPrefab != null)
         {
             GameObject victoryPanel = Instantiate(victoryPanelPrefab);
-            victoryPanel.transform.SetParent(transform, false);
+            Transform endPanel = transform.Find("EndPanel");
+            victoryPanel.transform.SetParent(endPanel, false);
         }
     }
 

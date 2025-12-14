@@ -275,6 +275,8 @@ public class SkillManager : MonoBehaviour
             physicalAttackValue = user.GetPhysicalAttackValue();
             physicalDefenseValue = target.GetPhysicalDefenseValue();                
             magicalAttackValue = 0f + result.GetEnchantMagicalAttackValue();
+
+            Debug.Log($"physicalAttackValue: {physicalAttackValue}, physicalDefenseValue: {physicalDefenseValue}, magicalAttackValue: {magicalAttackValue}");
         }
         else if(damageType == "magical")
         {
@@ -287,8 +289,12 @@ public class SkillManager : MonoBehaviour
         float physcalBaseDamage = Mathf.Max(0f, physicalAttackValue - physicalDefenseValue) * skillPower / 100f;
         float magicalBaseDamage = Mathf.Max(0f, magicalAttackValue - magicalDefenseValue) * skillPower / 100f;
 
+        Debug.Log($"physcalBaseDamage: {physcalBaseDamage}, magicalBaseDamage: {magicalBaseDamage}");
+
         float finalDamage = (physcalBaseDamage + magicalBaseDamage) * BattleSetting.DAMAGE_MULTIPLIER;
         finalDamage = Mathf.Max(1f, finalDamage); // 최소 대미지 1 보장
+
+        Debug.Log($"finalDamage: {finalDamage}");
 
         // 3. 클래스 상성 보정
         if (IsClassAdvantage(user.className, target.className))
@@ -334,6 +340,8 @@ public class SkillManager : MonoBehaviour
                     finalDamage = finalDamage * BattleSetting.GUARD_EFFECT_MAXIMUM;
                     break;
             }
+
+            result.isGuard = false;
         }
 
         // 최종 데미지 반올림, 최소 1 보장
@@ -535,7 +543,7 @@ public class SkillManager : MonoBehaviour
                     yield break;
                 }
 
-                if(myPassiveSkill.target == "chase" && targets.Count > 0 && targets[0].isPlayer != actionCharacter.isPlayer)
+                if(myPassiveSkill.target == "chase" && targets.Count > 0 && targets[0].hp > 0 && targets[0].isPlayer != actionCharacter.isPlayer)
                 {                    
                     bCheckPassiveSkill = true;
                 }                
