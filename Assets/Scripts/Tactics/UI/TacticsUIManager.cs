@@ -439,15 +439,15 @@ namespace Arcana.Tactics.UI
             if (JSONBinManager.Instance != null && JSONBinManager.Instance.isInitialized)
             {
                 string tacticsJson = _dataManager.GetTacticsJson(_unitSlots, _codingData);
-                JSONBinManager.Instance.SaveTactics(tacticsJson, (success, key) =>
+                JSONBinManager.Instance.SaveTactics(tacticsJson, (success, message) =>
                 {
                     if (success)
                     {
-                        Debug.Log($"JSONBin.io에 Tactics 저장 완료: {key}");
+                        Debug.Log($"JSONBin.io에 Tactics 저장 완료: {message}");
                     }
                     else
                     {
-                        Debug.LogWarning($"JSONBin.io 저장 실패: {key}");
+                        Debug.LogWarning($"JSONBin.io 저장 실패: {message}");
                     }
 
                     // 저장 완료 후 BattleScene으로 이동한다.                                     

@@ -157,21 +157,20 @@ public class Character : MonoBehaviour
             // 조건에 해당하는 타겟을 찾았다.
             if (targets != null && targets.Count > 0)
             {
-                // 스킬 사용 전 패시브 스킬 체크
-                BattleManager.Instance.OnBeforeSkillUse(this, targets, skill);
-
-                // 모든 타겟에 대해 스킬 사용                 
-                yield return StartCoroutine(UseSkill(skill.id, targets));
-
                 foreach(var target in targets)
                 {
                     Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다. 타겟: {target.characterName}");
+                    
                     // 전투 로그에 공격 기록
-                    if (BattleLogManager.Instance != null)
-                    {
-                        BattleLogManager.Instance.LogAttack(characterName, target.characterName, skill.name);
-                    }
+                    BattleLogManager.Instance.LogAttack(characterName, target.characterName, skill.name);
                 }
+
+                // 스킬 사용 전 패시브 스킬 체크
+                BattleManager.Instance.passiveSkillResult.Initialize();
+                yield return StartCoroutine(BattleManager.Instance.OnBeforeSkillUse(this, targets, skill));
+
+                // 모든 타겟에 대해 스킬 사용                 
+                yield return StartCoroutine(UseSkill(skill.id, targets));
                 
                 // AP/PP 소모
                 stats.actionPoint -= skill.costAP;
@@ -190,6 +189,7 @@ public class Character : MonoBehaviour
                     }
                 }
 
+                // 스킬 사용 후 패시브 스킬 체크
                 yield return StartCoroutine(BattleManager.Instance.OnAfterSkillUse(this, targets, skill));
 
                 onComplete?.Invoke(strategyAction);
@@ -598,7 +598,7 @@ public class Character : MonoBehaviour
     public List<Buff> buffs = new List<Buff>();
     public class Buff
     {
-        public string stat;
+        public string stat;        
         public float value;
         public int duration;
     }
@@ -714,16 +714,14 @@ public class Character : MonoBehaviour
         }
     }
 
-    public PassiveSkillResult OnBeforeSkillUse(Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
+    public IEnumerator OnBeforeSkillUse(Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
     {
         if (stats.passivePoint <= 0)
         {
-            return result;
+            yield break;
         }
 
-        result = SkillManager.Instance.CheckPassiveSkillBeforeSkillUse(this, user, targets, skill, result);        
-
-        return result;
+        yield return StartCoroutine(SkillManager.Instance.CheckPassiveSkillBeforeSkillUse(this, user, targets, skill, result));
     }
 
     public IEnumerator OnAfterSkillUse(Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
@@ -733,7 +731,7 @@ public class Character : MonoBehaviour
             yield break;
         }
 
-        yield return SkillManager.Instance.StartCoroutine(SkillManager.Instance.CheckPassiveSkillAfterSkillUse(this, user, targets, skill, result));
+        yield return StartCoroutine(SkillManager.Instance.CheckPassiveSkillAfterSkillUse(this, user, targets, skill, result));
     }
 
     bool isGuard = false;
@@ -741,7 +739,7 @@ public class Character : MonoBehaviour
     {
         if(this != target)
         {
-            MoveToPosition(target.transform.position + target.transform.forward * 0.5f);
+            target.MoveToPosition(target.transform.position + target.transform.forward * 0.5f);
         }
         
         isGuard = true;        
@@ -755,10 +753,43 @@ public class Character : MonoBehaviour
         }
     }
 
-
     public void MoveToPosition(Vector3 position)
     {
         transform.DOMove(position, 0.2f).SetEase(Ease.OutQuad);
+    }
+
+    float CalculateBuffValue(string stat, float baseStat)
+    {
+        float buffPercent = 0f;
+        foreach (var buff in buffs)
+        {
+            if (buff.stat == stat)
+            {
+                buffPercent += buff.value;                
+            }
+        }
+        return baseStat * (1f + buffPercent / 100f);
+    }
+
+    public float GetPhysicalAttackValue()
+    {
+        float baseStat = stats.GetPhysicalAttackValue();
+        return CalculateBuffValue("physical_attack", baseStat);
+    }
+    public float GetPhysicalDefenseValue()
+    {
+        float baseStat = stats.GetPhysicalDefenseValue();
+        return CalculateBuffValue("physical_defense", baseStat);
+    }
+    public float GetMagicalAttackValue()
+    {
+        float baseStat = stats.GetMagicalAttackValue();
+        return CalculateBuffValue("magical_attack", baseStat);
+    }
+    public float GetMagicalDefenseValue()
+    {
+        float baseStat = stats.GetMagicalDefenseValue();
+        return CalculateBuffValue("magical_defense", baseStat);
     }
 }
 

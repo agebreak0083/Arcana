@@ -28,11 +28,6 @@ namespace Arcana.Tactics.Data
         /// </summary>
         public static IEnumerator LoadFromGoogleSheet(TextMeshProUGUI textComponent)
         {
-            if (isInitialized)
-            {
-                yield break;
-            }
-
             Debug.Log("BattleSetting: 구글 시트에서 설정값 로딩 시작...");
 
             using (UnityWebRequest request = UnityWebRequest.Get(GOOGLE_SHEET_CSV_URL))

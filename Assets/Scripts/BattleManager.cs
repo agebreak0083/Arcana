@@ -520,20 +520,16 @@ public class BattleManager : MonoBehaviour
     }
 
     public PassiveSkillResult passiveSkillResult = new PassiveSkillResult();
-    public PassiveSkillResult OnBeforeSkillUse(Character user, List<Character> targets, Skill skill)
+    public IEnumerator OnBeforeSkillUse(Character user, List<Character> targets, Skill skill)
     {
-        passiveSkillResult.Initialize();
-
         // 모든 캐릭터에게 누가 누구에게 스킬을 썼는지 알려준다. 
         foreach (var character in charactersTurnList)
         {
             if (IsValidCharacter(character))
             {
-                passiveSkillResult = character.OnBeforeSkillUse(user, targets, skill, passiveSkillResult);
+                yield return StartCoroutine(character.OnBeforeSkillUse(user, targets, skill, passiveSkillResult));
             }
-        }
-
-        return passiveSkillResult;
+        }        
     }
 
     public IEnumerator OnAfterSkillUse(Character user, List<Character> targets, Skill skill)
@@ -555,6 +551,7 @@ public class PassiveSkillResult
     public string guardLevel = "";
     public bool isSureHit = false;
     public Character passiveCharacter = null;
+    public List<SkillEffect> enchantEffects = new List<SkillEffect>();
 
     public void Initialize()
     {
@@ -562,5 +559,32 @@ public class PassiveSkillResult
         guardLevel = "";
         isSureHit = false;
         passiveCharacter = null;
+        enchantEffects.Clear();
+    }
+
+    public float GetEnchantMagicalAttackValue()
+    {
+        float value = 0f;
+        foreach (var enchantEffect in enchantEffects)
+        {
+            if (enchantEffect.stat == "magical_attack")
+            {
+                value += enchantEffect.value;
+            }
+        }
+        return value;
+    }
+
+    public float GetEnchantPhysicalAttackValue()
+    {
+            float value = 0f;
+            foreach (var enchantEffect in enchantEffects)
+            {
+                if (enchantEffect.stat == "physical_attack")
+                {
+                    value += enchantEffect.value;
+                }
+            }
+            return value;
     }
 }

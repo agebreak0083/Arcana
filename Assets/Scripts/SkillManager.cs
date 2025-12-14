@@ -185,27 +185,7 @@ public class SkillManager : MonoBehaviour
                 if (target != null)
                 {
                     bool isCritical;
-                    float damage = CalculateDamage(effect.value, user, target, effect.damageType, out isCritical);
-
-                    if(result.isGuard)
-                    {
-                        switch(result.guardLevel)
-                        {
-                            case "low":
-                                damage = damage * BattleSetting.GUARD_EFFECT_LOW;
-                                break;
-                            case "medium":
-                                damage = damage * BattleSetting.GUARD_EFFECT_MEDIUM;
-                                break;
-                            case "high":
-                                damage = damage * BattleSetting.GUARD_EFFECT_HIGH;
-                                break;
-                            case "maximum":
-                                damage = damage * BattleSetting.GUARD_EFFECT_MAXIMUM;
-                                break;
-                        }
-                    }
-                    
+                    float damage = CalculateDamage(effect.value, user, target, effect.damageType, result, out isCritical);
                     target.TakeDamage(damage, isCritical);
                 }
                 break;
@@ -278,49 +258,37 @@ public class SkillManager : MonoBehaviour
     public float advantageDamageMultiplier = 2.0f; // 상성 우위 데미지 배율
 
     // 데미지 계산
-    private float CalculateDamage(float skillPower, Character user, Character target, string damageType, out bool isCritical)
+    private float CalculateDamage(float skillPower, Character user, Character target, string damageType, PassiveSkillResult result, out bool isCritical)
     {
         isCritical = false;
 
+        // 스킬 위력이 0이면 데미지도 0 (버프/디버프 스킬 등)
+        if (skillPower <= 0) return 0.0f;
+
         // 1. 공격력 및 방어력 계산
-        float attackValue = 0f;
-        float defenseValue = 0f;
-
-        if (damageType == "magical")
+        float physicalAttackValue = 0f;
+        float physicalDefenseValue = 0f;
+        float magicalAttackValue = 0f;
+        float magicalDefenseValue = 0f;
+        if(damageType == "physical")
         {
-            attackValue = user.stats.GetMagicalAttackValue();
-            defenseValue = target.stats.GetMagicalDefenseValue();
+            physicalAttackValue = user.GetPhysicalAttackValue();
+            physicalDefenseValue = target.GetPhysicalDefenseValue();                
+            magicalAttackValue = 0f + result.GetEnchantMagicalAttackValue();
         }
-        else // physical or default
+        else if(damageType == "magical")
         {
-            attackValue = user.stats.GetPhysicalAttackValue();
-            defenseValue = target.stats.GetPhysicalDefenseValue();
-        }
-
-        // 2. 기본 데미지 공식: (공격력 - 방어력) x (위력/100)
-        // 타겟의 버프/디버프 수치 계산
-        float targetBuffPercent = 0f;
-        foreach (var buff in target.buffs)
-        {
-            if (buff.stat == "physical_defense")
-            {
-                targetBuffPercent += buff.value;
-            }
-            else if (buff.stat == "magical_defense")
-            {
-                targetBuffPercent += buff.value;
-            }
+            magicalAttackValue = user.GetMagicalAttackValue();
+            magicalDefenseValue = target.GetMagicalDefenseValue();                
+            physicalAttackValue = 0f + result.GetEnchantPhysicalAttackValue();
         }
         
-        defenseValue += defenseValue * (targetBuffPercent / 100f);
+        // 2. 기본 데미지 공식: (공격력 - 방어력) x (위력/100)        
+        float physcalBaseDamage = Mathf.Max(0f, physicalAttackValue - physicalDefenseValue) * skillPower / 100f;
+        float magicalBaseDamage = Mathf.Max(0f, magicalAttackValue - magicalDefenseValue) * skillPower / 100f;
 
-        // 방어력이 공격력보다 높으면 최소 1 데미지 보장
-        float baseDamage = Mathf.Max(1f, attackValue - defenseValue);
-
-        // 스킬 위력이 0이면 데미지도 0 (버프/디버프 스킬 등)
-        if (skillPower <= 0) return 0;
-
-        float finalDamage = baseDamage * (skillPower / 100f) * BattleSetting.DAMAGE_MULTIPLIER;
+        float finalDamage = (physcalBaseDamage + magicalBaseDamage) * BattleSetting.DAMAGE_MULTIPLIER;
+        finalDamage = Mathf.Max(1f, finalDamage); // 최소 대미지 1 보장
 
         // 3. 클래스 상성 보정
         if (IsClassAdvantage(user.className, target.className))
@@ -345,6 +313,26 @@ public class SkillManager : MonoBehaviour
             if (BattleLogManager.Instance != null)
             {
                 BattleLogManager.Instance.AddLog($"  <color=#FF4500>[치명타!]</color> 데미지 {criticalDamageMultiplier}배 적용");
+            }
+        }
+
+        // 가드 효과 적용
+        if(result.isGuard)
+        {
+            switch(result.guardLevel)
+            {
+                case "low":
+                    finalDamage = finalDamage * BattleSetting.GUARD_EFFECT_LOW;
+                    break;
+                case "medium":
+                    finalDamage = finalDamage * BattleSetting.GUARD_EFFECT_MEDIUM;
+                    break;
+                case "high":
+                    finalDamage = finalDamage * BattleSetting.GUARD_EFFECT_HIGH;
+                    break;
+                case "maximum":
+                    finalDamage = finalDamage * BattleSetting.GUARD_EFFECT_MAXIMUM;
+                    break;
             }
         }
 
@@ -388,7 +376,7 @@ public class SkillManager : MonoBehaviour
         return info;
     }
 
-    public PassiveSkillResult CheckPassiveSkillBeforeSkillUse(Character actionCharacter, Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
+    public IEnumerator CheckPassiveSkillBeforeSkillUse(Character actionCharacter, Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
     {
         bool bCheckPassiveSkill = false;
 
@@ -403,6 +391,7 @@ public class SkillManager : MonoBehaviour
             }
 
             // 스킬의 조건을 체크한다. 
+            // 가드 스킬
             if(myPassiveSkill.checkPhase == "guard")
             {
                 foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
@@ -419,23 +408,43 @@ public class SkillManager : MonoBehaviour
                     }
                 }
             }
+            // 자신이 스킬을 사용 하기전
             else if(myPassiveSkill.checkPhase == "before_skill_use_self")
             {
-                if(user != actionCharacter)
+                if(user == actionCharacter)
                 {
-                    return result;
-                }
-
-                foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
-                {
-                    if (mySkillEffect.type == "sure_hit")
+                    foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
                     {
-                        result.isSureHit = true;                        
-                        bCheckPassiveSkill = true;
-                    }
+                        if (mySkillEffect.type == "sure_hit")
+                        {
+                            result.isSureHit = true;                        
+                            bCheckPassiveSkill = true;
+                        }
 
+                    }                    
                 }
             }            
+            // 아군이 스킬을 사용 하기전
+            else if(myPassiveSkill.checkPhase == "before_skill_use_ally")
+            {
+                if(actionCharacter != user && actionCharacter.isPlayer == user.isPlayer)
+                {
+                    foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
+                    {
+                        if (mySkillEffect.type == "buff")
+                        {
+                            user.AddBuff(mySkillEffect.stat, mySkillEffect.value, mySkillEffect.duration);
+                        }
+                        else if (mySkillEffect.type == "enchant")
+                        {
+                            result.enchantEffects.Add(mySkillEffect);                            
+
+                            // 인챈트 헀다고 로그에 추가. 패시브 스킬 이름은 파스텔톤 파란계통으로 표시. 
+                            BattleLogManager.Instance.AddLog($" {actionCharacter.characterName}의 <color=#FFA500>{myPassiveSkill.name}</color> <color=#00FF00>[{mySkillEffect.stat} +{mySkillEffect.value} 인챈트 적용!]</color>");
+                        }
+                    }
+                }
+            }
 
             if(bCheckPassiveSkill)
             {
@@ -450,11 +459,11 @@ public class SkillManager : MonoBehaviour
                     BattleLogManager.Instance.AddLog($"{actionCharacter.characterName}의 <color=#FFA500>PP가 {myPassiveSkill.costPP} 소모되었습니다.</color> (남은 PP: <color=#90EE90>{actionCharacter.stats.passivePoint}</color>)");
                 }
 
-                return result;
+                yield break;
             }
         }
 
-        return result;
+        yield break;
     }
 
     public bool PassiveGuard(Character actionCharacter, Character target, Skill skill, Skill myPassiveSkill, SkillEffect effect, SkillEffect mySkillEffect, PassiveSkillResult result)
@@ -474,9 +483,12 @@ public class SkillManager : MonoBehaviour
             return false;
         }
         
-        if(skill.traits == myPassiveSkill.traits) // 스킬 특성과 패시브 스킬 특성이 같은 경우 (ex. 원거리 방어, 근거리 방어)
+        if(myPassiveSkill.traits.Contains("ranged"))
         {
-            return false;
+            if(!skill.traits.Contains("ranged"))
+            {
+                return false;
+            }
         }
     
         // 다른 아군 캐릭터인지 체크

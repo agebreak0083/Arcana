@@ -5,7 +5,53 @@
         },
         {
             "Name": "앙코",
-            "tactics": []
+            "tactics": [
+                {
+                    "characterClass": "위치",
+                    "plan": [
+                        {
+                            "skill": "아이스 코핀",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "매직 미사일",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "아이스 코핀",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "매직 세이버",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "Name": "단근",
@@ -13,13 +59,17 @@
         },
         {
             "Name": "양양",
+            "tactics": []
+        },
+        {
+            "Name": "방랑자",
             "tactics": [
                 {
                     "characterClass": "파이터",
                     "plan": [
                         {
                             "skill": "가드 슬래시",
-                            "condition1": "조건 없음",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
@@ -62,10 +112,6 @@
             ]
         },
         {
-            "Name": "방랑자",
-            "tactics": []
-        },
-        {
             "Name": "도기",
             "tactics": []
         },
@@ -75,52 +121,6 @@
         },
         {
             "Name": "산화",
-            "tactics": [
-                {
-                    "characterClass": "헌터",
-                    "plan": [
-                        {
-                            "skill": "라인 샷",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "더블 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "라인 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "이글 아이",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "체이스",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        }
-                    ]
-                }
-            ]
+            "tactics": []
         }
     ]

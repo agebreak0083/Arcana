@@ -79,6 +79,7 @@
           "type": "buff",
           "target": "self",
           "stat": "physical_defense",
+          "buff_type": "percent",
           "value": 20,
           "duration": 3
         }
@@ -1180,7 +1181,7 @@
       "id": "아이스 샷",
       "name": "아이스 샷",
       "type": "active",
-      "description": "적 하나에게 마법 공격한다.대상에게 동결을 부여한다",
+      "description": "적 하나에게 마법 공격한다\n대상에게 동결을 부여한다",
       "target": "single_enemy",
       "costAP": 1,
       "costPP": 0,
@@ -1188,7 +1189,7 @@
         {
           "type": "damage",
           "value": 100,
-          "damageType": "physical"
+          "damageType": "magical"
         },
         {
           "type": "status",
@@ -1199,7 +1200,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Skill_1"
+      "animation": "SkillMagic_1"
     },
     {
       "id": "매직 미사일",
@@ -1213,27 +1214,27 @@
         {
           "type": "damage",
           "value": 100,
-          "damageType": "physical"
+          "damageType": "magical"
         }
       ],
       "traits": [
         "ranged"
       ],
-      "animation": "Skill_1"
+      "animation": "SkillMagic_1"
     },
     {
       "id": "아이스 코핀",
       "name": "아이스 코핀",
       "type": "active",
-      "description": "적 한 열에게 마법 공격한다.대상에게 동결을 부여한다.대상이 동결일 경우,위력+50",
-      "target": "row_enemy",
+      "description": "적 한 열에게 마법 공격한다.\n대상에게 동결을 부여한다.\n대상이 동결일 경우,위력+50",
+      "target": "column_enemy",
       "costAP": 2,
       "costPP": 0,
       "effects": [
         {
           "type": "damage",
           "value": 100,
-          "damageType": "physical"
+          "damageType": "magical"
         },
         {
           "type": "status",
@@ -1241,8 +1242,27 @@
           "chance": 100
         }
       ],
-      "traits": [],
-      "animation": "Skill_1"
+      "traits": ["ranged"],
+      "animation": "SkillMagic_1"
+    },
+    {
+      "id": "매직 세이버",
+      "name": "매직 세이버",
+      "type": "passive",
+      "description": "다른 아군이 물리 공격하기 전에 발동(액티브)\n1번만 아군 하나의 공격에 마법 대미지(위력 50) 추가",
+      "target": "single_ally",
+      "costAP": 0,
+      "costPP": 1,
+      "checkPhase":"before_skill_use_ally",
+      "effects": [        
+        {
+          "type": "enchant",
+          "stat": "magical_attack",          
+          "value": 50             
+        }
+      ],
+      "traits": ["ranged"],
+      "animation": "SkillMagic_1"
     }
   ],
   "샤먼 / 드루이드": [
@@ -1628,6 +1648,7 @@
         {
           "type": "buff",
           "stat": "physical_attack",
+          "buff_type": "percent",
           "value": 50,
           "duration": 3
         }
@@ -1804,12 +1825,14 @@
         {
           "type": "buff",
           "stat": "magical_defense",
+          "buff_type": "percent",
           "value": 50,
           "duration": 3
         },
         {
           "type": "buff",
           "stat": "physical_defense",
+          "buff_type": "percent",
           "value": 50,
           "duration": 3
         }
