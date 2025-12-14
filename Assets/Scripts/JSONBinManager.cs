@@ -261,8 +261,8 @@ public class JSONBinManager : MonoBehaviour
     {
         string url = $"{baseUrl}/{binId}/latest";
 
-        // 재시도 로직 (최대 5회)
-        const int maxRetries = 5;
+        // 재시도 로직 (최대 7회) - HTTP/2 오류 대응
+        const int maxRetries = 7;
         int retryCount = 0;
         bool success = false;
 
@@ -272,22 +272,20 @@ public class JSONBinManager : MonoBehaviour
             {
                 Debug.Log($"JSONBin.io 로드 재시도 {retryCount}/{maxRetries - 1}...");
                 
-                // Connection 에러인 경우 더 긴 대기 시간 제공
-                bool isConnectionError = retryCount == 1; // 첫 재시도는 Connection 에러일 가능성 높음
-                float waitTime = isConnectionError ? 3f : Mathf.Max(2f, Mathf.Pow(2, retryCount - 1));
+                // 재시도 전 연결 정리 (HTTP/2 오류 방지)
+                CleanupPreviousConnections();
+                
+                // 재시도 전 대기 시간 (지수 백오프, 최소 3초)
+                float waitTime = Mathf.Max(3f, Mathf.Pow(2, retryCount - 1));
                 yield return new WaitForSeconds(waitTime);
                 
-                // Connection 에러인 경우 연결 정리
-                if (isConnectionError)
-                {
-                    CleanupPreviousConnections();
-                }
+                // 추가 대기 시간 (연결이 완전히 정리되도록)
+                yield return new WaitForSeconds(1f);
             }
-
-            // 요청 전에 이전 요청이 완전히 정리될 시간 제공 (첫 요청인 경우)
-            if (retryCount == 0)
+            else
             {
-                yield return new WaitForSeconds(0.5f);
+                // 첫 요청 전에 이전 요청이 완전히 정리될 시간 제공
+                yield return new WaitForSeconds(1f);
             }
 
             UnityWebRequest request = null;
@@ -302,7 +300,6 @@ public class JSONBinManager : MonoBehaviour
                 
                 // User-Agent 헤더 추가 (일부 서버에서 HTTP/1.1을 선호할 수 있음)
                 request.SetRequestHeader("User-Agent", "Unity-WebRequest/1.0");
-                request.SetRequestHeader("Connection", "close"); // HTTP/2 문제 해결
 
                 yield return request.SendWebRequest();
 
@@ -385,6 +382,8 @@ public class JSONBinManager : MonoBehaviour
                         (request.error.Contains("PROTOCOL_ERROR") || 
                          request.error.Contains("stream") || 
                          request.error.Contains("Curl error 92") ||
+                         request.error.Contains("HTTP/2") ||
+                         request.error.Contains("not closed cleanly") ||
                          request.responseCode == 0);
                     
                     if (isConnectionError || isProtocolError)
@@ -392,10 +391,14 @@ public class JSONBinManager : MonoBehaviour
                         string errorType = isConnectionError ? "Connection" : "HTTP/2 프로토콜";
                         Debug.LogWarning($"{errorType} 오류: {request.error} - 재시도 예정...");
                         
-                        // Connection 에러인 경우 연결 정리
-                        if (isConnectionError)
+                        // HTTP/2 오류 또는 Connection 에러인 경우 모두 연결 정리
+                        CleanupPreviousConnections();
+                        
+                        // HTTP/2 오류인 경우 추가 대기 시간 제공
+                        if (isProtocolError)
                         {
-                            CleanupPreviousConnections();
+                            Debug.Log("HTTP/2 프로토콜 오류 감지 - 연결 정리 후 대기...");
+                            yield return new WaitForSeconds(2f);
                         }
                         
                         retryCount++;
@@ -455,8 +458,8 @@ public class JSONBinManager : MonoBehaviour
         // 먼저 직접 JSON 객체로 시도
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-        // 재시도 로직 (최대 5회)
-        const int maxRetries = 5;
+        // 재시도 로직 (최대 7회) - HTTP/2 오류 대응
+        const int maxRetries = 7;
         int retryCount = 0;
         bool success = false;
         string lastError = null;
@@ -467,22 +470,20 @@ public class JSONBinManager : MonoBehaviour
             {
                 Debug.Log($"JSONBin.io 저장 재시도 {retryCount}/{maxRetries - 1}...");
                 
-                // Connection 에러인 경우 더 긴 대기 시간 제공
-                bool isConnectionError = retryCount == 1; // 첫 재시도는 Connection 에러일 가능성 높음
-                float waitTime = isConnectionError ? 3f : Mathf.Max(2f, Mathf.Pow(2, retryCount - 1));
+                // 재시도 전 연결 정리 (HTTP/2 오류 방지)
+                CleanupPreviousConnections();
+                
+                // 재시도 전 대기 시간 (지수 백오프, 최소 3초)
+                float waitTime = Mathf.Max(3f, Mathf.Pow(2, retryCount - 1));
                 yield return new WaitForSeconds(waitTime);
                 
-                // Connection 에러인 경우 연결 정리
-                if (isConnectionError)
-                {
-                    CleanupPreviousConnections();
-                }
+                // 추가 대기 시간 (연결이 완전히 정리되도록)
+                yield return new WaitForSeconds(1f);
             }
-
-            // 요청 전에 이전 요청이 완전히 정리될 시간 제공 (첫 요청인 경우)
-            if (retryCount == 0)
+            else
             {
-                yield return new WaitForSeconds(0.5f);
+                // 첫 요청 전에 이전 요청이 완전히 정리될 시간 제공
+                yield return new WaitForSeconds(1f);
             }
 
             UnityWebRequest request = null;
@@ -493,7 +494,6 @@ public class JSONBinManager : MonoBehaviour
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Content-Type", "application/json");
                 request.SetRequestHeader("X-Access-Key", accessKey);
-                request.SetRequestHeader("Connection", "close"); // HTTP/2 문제 해결
                 
                 // HTTP/2 프로토콜 오류 방지를 위한 설정
                 // 타임아웃 설정 (30초)
@@ -526,6 +526,8 @@ public class JSONBinManager : MonoBehaviour
                         (request.error.Contains("PROTOCOL_ERROR") || 
                          request.error.Contains("stream") || 
                          request.error.Contains("Curl error 92") ||
+                         request.error.Contains("HTTP/2") ||
+                         request.error.Contains("not closed cleanly") ||
                          request.responseCode == 0);
                     
                     if (isConnectionError || isProtocolError)
@@ -534,10 +536,14 @@ public class JSONBinManager : MonoBehaviour
                         lastError = $"{errorType} 오류: {request.error}";
                         Debug.LogWarning($"{lastError} - 재시도 예정...");
                         
-                        // Connection 에러인 경우 연결 정리
-                        if (isConnectionError)
+                        // HTTP/2 오류 또는 Connection 에러인 경우 모두 연결 정리
+                        CleanupPreviousConnections();
+                        
+                        // HTTP/2 오류인 경우 추가 대기 시간 제공
+                        if (isProtocolError)
                         {
-                            CleanupPreviousConnections();
+                            Debug.Log("HTTP/2 프로토콜 오류 감지 - 연결 정리 후 대기...");
+                            yield return new WaitForSeconds(2f);
                         }
                         
                         retryCount++;

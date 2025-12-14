@@ -72,10 +72,18 @@ public static class TargetConditionFactory
             return new FormationFilter(false);
         }
 
-        // TODO: 병종, 상태이상 등 추가 필터 구현
-        // 현재는 기본 필터만 구현
+        // 편성 인원 (ex. 적이 2명 이상 / 아군이 3명 이하)
+        {
+            var match = Regex.Match(condition, @"(\w+)이 (\d+)명 (이상|이하)");
+            if (match.Success)
+            {
+                string target = match.Groups[1].Value;
+                int count = int.Parse(match.Groups[2].Value);
+                bool isAbove = match.Groups[3].Value == "이상";
+                return new PersonCountFilter(target, count, isAbove);
+            }
+        }
 
-        Debug.LogWarning($"[TargetConditionFactory] 미구현 Condition2: {condition}");
         return null;
     }
 

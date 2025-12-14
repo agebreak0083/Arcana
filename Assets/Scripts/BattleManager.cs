@@ -24,8 +24,8 @@ public class BattleManager : MonoBehaviour
     [Header("Dummy Object")]
     public GameObject dummyObject;
 
-    private List<Character> playerCharacters = new List<Character>();
-    private List<Character> enemyCharacters = new List<Character>();
+    public List<Character> playerCharacters = new List<Character>();
+    public List<Character> enemyCharacters = new List<Character>();
     private List<Character> charactersTurnList = new List<Character>();
     private List<Character> waitingCharacters = new List<Character>();
     private StrategyManager strategyManager;

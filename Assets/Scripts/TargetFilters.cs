@@ -189,40 +189,41 @@ public class PositionBasedSelector : ITargetSelector
 
         List<Character> selected = new List<Character>();
 
-        switch (selectType)
+        for(int i = 0; i < selectCount; i++)        
         {
-            case SelectType.Single:
-                // 1. 우선 전열(1,2,3)에서 자신의 앞의 적을 찾고
-                int targetPosition = ((self.position - 1) % 3) + 1;
-                var target = candidates.Find(c => c.position == targetPosition);
+            // 1. 우선 전열(1,2,3)에서 자신의 앞의 적을 찾고
+            int targetPosition = ((self.position - 1) % 3) + 1;
+            var target = candidates.Find(c => c.position == targetPosition);
 
-                // 2. 없으면 전열의 다른 적
-                if (target == null)
-                {
-                    target = candidates.Find(c => c.position <= 3);
-                }
+            // 2. 없으면 전열의 다른 적
+            if (target == null)
+            {
+                target = candidates.Find(c => c.position <= 3);
+            }
 
-                // 3. 없으면 후열의 자신의 앞의 적
-                if (target == null)
-                {
-                    int backTargetPosition = targetPosition + 3;
-                    target = candidates.Find(c => c.position == backTargetPosition);
-                }
+            // 3. 없으면 후열의 자신의 앞의 적
+            if (target == null)
+            {
+                int backTargetPosition = targetPosition + 3;
+                target = candidates.Find(c => c.position == backTargetPosition);
+            }
 
-                // 4. 없으면 후열의 아무나
-                if (target == null)
-                {
-                    target = candidates.Find(c => c.position > 3);
-                }
+            // 4. 없으면 후열의 아무나
+            if (target == null)
+            {
+                target = candidates.Find(c => c.position > 3);
+            }
 
-                // 5. 그래도 없으면 첫 번째
-                if (target == null && candidates.Count > 0)
-                {
-                    target = candidates[0];
-                }
-                selected.Add(target);
-                break;
+            // 5. 그래도 없으면 첫 번째
+            if (target == null && candidates.Count > 0)
+            {
+                target = candidates[0];
+            }
+            
+            selected.Add(target);
+            candidates.Remove(target);
         }
+        
         return selected;      
     }
 }
@@ -447,3 +448,41 @@ public class StatBasedSelector : ITargetSelector
         }
     }
 }
+
+    public class PersonCountFilter : ITargetFilter
+    {
+        private string target;
+        private int count;
+        private bool isAbove;
+
+        public PersonCountFilter(string target, int count, bool isAbove)
+        {
+            this.target = target;
+            this.count = count;
+            this.isAbove = isAbove;
+        }   
+
+        public List<Character> Filter(List<Character> candidates, Character self)
+        {
+            // 적이 n명 이상, 이하인 경우
+            if(target == "적")
+            {
+                if( isAbove ? candidates.Count >= count : candidates.Count <= count) // 조건에 맞는 경우
+                {
+                    return candidates;
+                }                
+            }
+            // 아군이 n명 이상, 이하인 경우
+            else if(target == "아군")
+            {
+                // playerCharacter 중에서 hp >= 0 인 캐릭터만 찾는다.
+                List<Character> playerCharacters = BattleManager.Instance.playerCharacters.Where(c => c.hp >= 0).ToList();
+                if(isAbove ? playerCharacters.Count >= count : playerCharacters.Count <= count) // 조건에 맞는 경우
+                {
+                    return candidates;
+                }                
+            }
+
+            return new List<Character>();
+        }
+    }

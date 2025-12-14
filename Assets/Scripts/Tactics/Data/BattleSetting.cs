@@ -21,7 +21,6 @@ namespace Arcana.Tactics.Data
         public static int TICKET_FOR_LOSE = 5;        
         public static float DAMAGE_MULTIPLIER = 1.0f;
 
-        private static bool isInitialized = false;
 
         /// <summary>
         /// 구글 시트에서 CSV를 다운로드하여 BattleSetting 값을 설정합니다.
@@ -37,8 +36,7 @@ namespace Arcana.Tactics.Data
                 if (request.result == UnityWebRequest.Result.Success)
                 {
                     string csvData = request.downloadHandler.text;
-                    ParseAndApplyCSV(csvData);
-                    isInitialized = true;
+                    ParseAndApplyCSV(csvData);                    
                     Debug.Log("BattleSetting: 구글 시트에서 설정값 로딩 완료!");
                 }
                 else

@@ -209,12 +209,7 @@ public class Character : MonoBehaviour
     private List<Character> GetTarget(Skill skill, StrategyAction action)
     {
         // 1. 적 리스트 가져오기 (복사본)
-        List<Character> originalTargets = BattleManager.Instance.GetEnemyTargets(this);
-        List<Character> candidates = new List<Character>(originalTargets);
-
-        // 2. 사망한 캐릭터 제거
-        candidates.RemoveAll(c => c == null || c.hp <= 0);
-
+        List<Character> candidates = BattleManager.Instance.GetEnemyTargets(this).Where(c => c.hp > 0).ToList();
         if (candidates.Count == 0)
         {
             Debug.LogWarning($"{characterName}: 타겟 후보가 없습니다.");
@@ -237,6 +232,26 @@ public class Character : MonoBehaviour
                 {
                     // 필터링 조건을 만족하는 타겟이 없으면 null 반환
                     Debug.LogWarning($"{characterName}: Condition2 '{action.condition2}' 조건을 만족하는 타겟이 없습니다.");
+                    return null;
+                }
+            }
+        }
+
+        // Condition1 적용 (필터링)
+        if (!string.IsNullOrEmpty(action.condition1) && action.condition1 != "조건 없음")   
+        {
+            var filter = TargetConditionFactory.CreateFilter(action.condition1);
+            if (filter != null) 
+            {
+                var filtered = filter.Filter(candidates, this);
+                if (filtered.Count > 0)
+                {
+                    candidates = filtered;
+                    Debug.Log($"{characterName}: Condition1 '{action.condition1}' 적용 → {candidates.Count}명 남음");
+                }
+                else
+                {
+                    Debug.LogWarning($"{characterName}: Condition1 '{action.condition1}' 조건을 만족하는 타겟이 없습니다.");
                     return null;
                 }
             }

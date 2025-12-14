@@ -652,7 +652,7 @@
       "effects": [
         {
           "type": "damage",
-          "value": 100,
+          "value": 70,
           "damageType": "physical"
         }
       ],
@@ -1213,7 +1213,7 @@
       "effects": [
         {
           "type": "damage",
-          "value": 100,
+          "value": 70,
           "damageType": "magical"
         }
       ],
