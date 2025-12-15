@@ -437,6 +437,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8813ded6a7551d5489a8699816ba4527, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  versionText: {fileID: 1397555955}
   startButton: {fileID: 282112991}
   gachaButton: {fileID: 1515206883}
 --- !u!4 &1054185346
