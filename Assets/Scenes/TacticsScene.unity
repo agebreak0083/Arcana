@@ -4133,7 +4133,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Arcana.Tactics.TacticsManager
   availableCharacters: []
-  maxCost: 10
+  maxCost: 6
   characterPoolPanel: {fileID: 0}
   characterPoolContainer: {fileID: 0}
   formationGridContainer: {fileID: 0}
