@@ -2,7 +2,7 @@
 
 #### 08. Business Model
 
-수집은 사랑으로, 기능은 지능으로. 이중 BM 구조.
+수집은 사랑으로, 승리는 전략략으로. 이중 BM 구조.
 
 **MAIN: Character Gacha (LTV Core)**
 *"이 캐릭터가 있어야 내 전략이 완성된다."*
