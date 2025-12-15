@@ -5,8 +5,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Text;
 using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 /// <summary>
 /// JSONBin.io를 사용한 Tactics 데이터 관리 클래스
@@ -22,18 +20,14 @@ public class JSONBinManager : MonoBehaviour
     
     private string baseUrl = "https://api.jsonbin.io/v3/b";
     public bool isInitialized { get; private set; } = false;
-    
-    // HttpClient 인스턴스 (HTTP/2 문제 해결을 위해 사용)
-    private static HttpClient httpClient = null;
-    private static readonly object httpClientLock = new object();
 
     void Awake()
     {
         // 씬마다 독립적인 인스턴스 사용
         Instance = this;
         
-        // HttpClient 초기화 (HTTP/2 문제 해결)
-        InitializeHttpClient();
+        // 비정상 종료 후 재시작 시 이전 연결 정리
+        CleanupPreviousConnections();
         
         // JSONBin.io는 별도 초기화 불필요 (항상 사용 가능)
         isInitialized = !string.IsNullOrEmpty(binId) && !string.IsNullOrEmpty(accessKey);
@@ -44,57 +38,7 @@ public class JSONBinManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("JSONBinManager: JSONBin.io 초기화 완료 (HttpClient 사용)");
-        }
-    }
-
-    void OnDestroy()
-    {
-        // HttpClient 정리 (선택적 - 정적 인스턴스이므로 유지할 수도 있음)
-        // DisposeHttpClient();
-    }
-
-    /// <summary>
-    /// HttpClient 초기화 (HTTP/2 문제 해결)
-    /// </summary>
-    private void InitializeHttpClient()
-    {
-        lock (httpClientLock)
-        {
-            if (httpClient == null)
-            {
-                var handler = new HttpClientHandler();
-                
-                // HTTP/1.1을 강제하기 위한 설정
-                // HttpClient는 기본적으로 HTTP/2를 지원하지만, 
-                // 서버가 HTTP/1.1만 지원하면 자동으로 다운그레이드됨
-                
-                httpClient = new HttpClient(handler)
-                {
-                    Timeout = TimeSpan.FromSeconds(30)
-                };
-                
-                // 기본 헤더 설정
-                httpClient.DefaultRequestHeaders.Add("User-Agent", "Unity-HttpClient/1.0");
-                
-                Debug.Log("JSONBinManager: HttpClient 초기화 완료");
-            }
-        }
-    }
-
-    /// <summary>
-    /// HttpClient 정리 (필요시 사용)
-    /// </summary>
-    private void DisposeHttpClient()
-    {
-        lock (httpClientLock)
-        {
-            if (httpClient != null)
-            {
-                httpClient.Dispose();
-                httpClient = null;
-                Debug.Log("JSONBinManager: HttpClient 정리 완료");
-            }
+            Debug.Log("JSONBinManager: JSONBin.io 초기화 완료");
         }
     }
 
@@ -105,11 +49,9 @@ public class JSONBinManager : MonoBehaviour
     {
         try
         {
-            // UnityWebRequest의 쿠키 캐시 정리 (이전 코드와의 호환성)
+            // UnityWebRequest의 쿠키 캐시 정리
             UnityWebRequest.ClearCookieCache();
             
-            // HttpClient는 정적 인스턴스이므로 별도 정리 불필요
-            // 필요시 HttpClient를 재생성할 수 있음
             Debug.Log("JSONBinManager: 이전 연결 정리 완료");
         }
         catch (Exception e)
@@ -312,66 +254,40 @@ public class JSONBinManager : MonoBehaviour
     // ========== 내부 메서드 ==========
 
     /// <summary>
-    /// JSONBin.io에서 모든 Tactics 데이터 로드 (HttpClient 사용)
+    /// JSONBin.io에서 모든 Tactics 데이터 로드
     /// </summary>
     private IEnumerator LoadAllTactics(Action<bool, TacticsDatabase> onComplete)
     {
         string url = $"{baseUrl}/{binId}/latest";
-        
-        // HttpClient를 사용한 비동기 요청을 코루틴으로 변환
-        Task<TacticsDatabase> loadTask = LoadAllTacticsAsync(url);
-        
-        // Task가 완료될 때까지 대기
-        while (!loadTask.IsCompleted)
-        {
-            yield return null;
-        }
-        
-        // 결과 처리
-        if (loadTask.IsFaulted)
-        {
-            Debug.LogError($"데이터 로드 실패: {loadTask.Exception?.GetBaseException()?.Message}");
-            onComplete?.Invoke(true, new TacticsDatabase { tactics = new List<TacticsData>() });
-        }
-        else
-        {
-            onComplete?.Invoke(true, loadTask.Result);
-        }
-    }
-
-    /// <summary>
-    /// HttpClient를 사용한 비동기 로드
-    /// </summary>
-    private async Task<TacticsDatabase> LoadAllTacticsAsync(string url)
-    {
-        const int maxRetries = 3;
+        const int maxRetries = 5;
         int retryCount = 0;
-        
-        while (retryCount < maxRetries)
+        bool success = false;
+
+        while (retryCount < maxRetries && !success)
         {
-            try
+            if (retryCount > 0)
             {
-                lock (httpClientLock)
+                Debug.Log($"JSONBin.io 로드 재시도 {retryCount}/{maxRetries - 1}...");
+                yield return new WaitForSeconds(Mathf.Max(2f, Mathf.Pow(2, retryCount - 1)));
+            }
+
+            using (UnityWebRequest request = UnityWebRequest.Get(url))
+            {
+                request.SetRequestHeader("X-Access-Key", accessKey);
+                request.timeout = 30;
+                request.SetRequestHeader("User-Agent", "Unity-WebRequest/1.0");
+
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
                 {
-                    if (httpClient == null)
+                    try
                     {
-                        InitializeHttpClient();
-                    }
-                }
-                
-                using (var request = new HttpRequestMessage(HttpMethod.Get, url))
-                {
-                    request.Headers.Add("X-Access-Key", accessKey);
-                    
-                    var response = await httpClient.SendAsync(request);
-                    
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string responseText = await response.Content.ReadAsStringAsync();
-                        
+                        string responseText = request.downloadHandler.text;
                         TacticsDatabase database = null;
                         
                         // JSONBin.io v3 API 응답 파싱
+                        // 방법 1: JSONBinResponseWrapper로 시도 (record가 객체인 경우)
                         try
                         {
                             var wrapper = JsonUtility.FromJson<JSONBinResponseWrapper>(responseText);
@@ -382,19 +298,22 @@ public class JSONBinManager : MonoBehaviour
                         }
                         catch (Exception e1)
                         {
+                            // 방법 2: JSONBinResponse로 시도 (record가 문자열인 경우)
                             try
                             {
-                                var jsonResponse = JsonUtility.FromJson<JSONBinResponse>(responseText);
-                                if (jsonResponse != null && !string.IsNullOrEmpty(jsonResponse.record))
+                                var response = JsonUtility.FromJson<JSONBinResponse>(responseText);
+                                if (response != null && !string.IsNullOrEmpty(response.record))
                                 {
-                                    if (jsonResponse.record.Trim().StartsWith("{"))
+                                    // record가 JSON 문자열인 경우 파싱
+                                    if (response.record.Trim().StartsWith("{"))
                                     {
-                                        database = JsonUtility.FromJson<TacticsDatabase>(jsonResponse.record);
+                                        database = JsonUtility.FromJson<TacticsDatabase>(response.record);
                                     }
                                 }
                             }
                             catch (Exception e2)
                             {
+                                // 방법 3: 직접 TacticsDatabase로 파싱 시도
                                 try
                                 {
                                     database = JsonUtility.FromJson<TacticsDatabase>(responseText);
@@ -406,55 +325,73 @@ public class JSONBinManager : MonoBehaviour
                             }
                         }
                         
+                        // 최종 체크: database가 null이거나 tactics가 null이면 빈 데이터베이스 생성
                         if (database == null || database.tactics == null)
                         {
                             database = new TacticsDatabase { tactics = new List<TacticsData>() };
                         }
                         
-                        Debug.Log("JSONBin.io 로드 성공 (HttpClient)");
-                        return database;
+                        success = true;
+                        onComplete?.Invoke(true, database);
+                        yield break;
                     }
-                    else
+                    catch (Exception e)
                     {
-                        string errorText = await response.Content.ReadAsStringAsync();
-                        Debug.LogWarning($"HTTP {response.StatusCode}: {errorText}");
-                        
-                        // 4xx 에러는 재시도하지 않음
-                        if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
-                        {
-                            return new TacticsDatabase { tactics = new List<TacticsData>() };
-                        }
-                        
-                        retryCount++;
-                        if (retryCount < maxRetries)
-                        {
-                            await Task.Delay(1000 * retryCount); // 지수 백오프
-                        }
+                        Debug.LogError($"JSON 파싱 실패: {e.Message}\nResponse: {request.downloadHandler.text}");
+                        // 빈 데이터베이스 반환
+                        success = true;
+                        onComplete?.Invoke(true, new TacticsDatabase { tactics = new List<TacticsData>() });
+                        yield break;
                     }
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogWarning($"JSONBin.io 로드 오류 (재시도 {retryCount + 1}/{maxRetries}): {e.Message}");
-                retryCount++;
-                
-                if (retryCount < maxRetries)
-                {
-                    await Task.Delay(1000 * retryCount);
                 }
                 else
                 {
-                    Debug.LogError($"데이터 로드 실패 (재시도 {maxRetries}회 모두 실패): {e.Message}");
-                    return new TacticsDatabase { tactics = new List<TacticsData>() };
+                    // Connection 에러 또는 HTTP/2 프로토콜 오류인 경우 재시도
+                    bool isConnectionError = request.error != null && 
+                        (request.error.Contains("Connection") || 
+                         request.error.Contains("Clean Clear") ||
+                         request.error.Contains("was not closed cleanly"));
+                    
+                    bool isProtocolError = request.error != null && 
+                        (request.error.Contains("PROTOCOL_ERROR") || 
+                         request.error.Contains("stream") || 
+                         request.error.Contains("Curl error 92") ||
+                         request.responseCode == 0);
+                    
+                    if (isConnectionError || isProtocolError)
+                    {
+                        string errorType = isConnectionError ? "Connection" : "HTTP/2 프로토콜";
+                        Debug.LogWarning($"{errorType} 오류: {request.error} - 재시도 예정...");
+                        
+                        // Connection 에러인 경우 연결 정리
+                        if (isConnectionError)
+                        {
+                            CleanupPreviousConnections();
+                        }
+                        
+                        retryCount++;
+                        continue;
+                    }
+                    
+                    Debug.LogError($"데이터 로드 실패: {request.error} (HTTP {request.responseCode})");
+                    // 빈 데이터베이스 반환 (새로 시작)
+                    success = true;
+                    onComplete?.Invoke(true, new TacticsDatabase { tactics = new List<TacticsData>() });
+                    yield break;
                 }
             }
         }
-        
-        return new TacticsDatabase { tactics = new List<TacticsData>() };
+
+        // 모든 재시도 실패 시 빈 데이터베이스 반환
+        if (!success)
+        {
+            Debug.LogError($"데이터 로드 실패 (재시도 {maxRetries}회 모두 실패)");
+            onComplete?.Invoke(true, new TacticsDatabase { tactics = new List<TacticsData>() });
+        }
     }
 
     /// <summary>
-    /// JSONBin.io에 모든 Tactics 데이터 저장 (HttpClient 사용)
+    /// JSONBin.io에 모든 Tactics 데이터 저장
     /// </summary>
     private IEnumerator SaveAllTactics(TacticsDatabase database, Action<bool, string> onComplete)
     {
@@ -473,141 +410,177 @@ public class JSONBinManager : MonoBehaviour
             yield break;
         }
         
+        // JSON 유효성 검사 (디버깅용)
         Debug.Log($"JSONBin.io 저장 시도: {jsonSize} bytes, {database.tactics.Count}개의 tactics");
         
-        // HttpClient를 사용한 비동기 요청을 코루틴으로 변환
-        Task<bool> saveTask = SaveAllTacticsAsync(url, json, jsonSize);
-        
-        // Task가 완료될 때까지 대기
-        while (!saveTask.IsCompleted)
-        {
-            yield return null;
-        }
-        
-        // 결과 처리
-        if (saveTask.IsFaulted)
-        {
-            string errorMessage = saveTask.Exception?.GetBaseException()?.Message ?? "Unknown Error";
-            Debug.LogError($"데이터 저장 실패: {errorMessage}");
-            onComplete?.Invoke(false, errorMessage);
-        }
-        else
-        {
-            bool success = saveTask.Result;
-            if (success)
-            {
-                Debug.Log("JSONBin.io 저장 성공 (HttpClient)");
-                onComplete?.Invoke(true, null);
-            }
-            else
-            {
-                onComplete?.Invoke(false, "Save failed");
-            }
-        }
-    }
+        // JSONBin.io v3 API는 때때로 JSON을 문자열로 감싸야 할 수 있음
+        // 하지만 일반적으로는 직접 JSON 객체를 보내는 것이 맞음
+        // 먼저 직접 JSON 객체로 시도
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-    /// <summary>
-    /// HttpClient를 사용한 비동기 저장
-    /// </summary>
-    private async Task<bool> SaveAllTacticsAsync(string url, string json, int jsonSize)
-    {
-        const int maxRetries = 3;
+        // 재시도 로직 (최대 5회)
+        const int maxRetries = 5;
         int retryCount = 0;
-        
-        while (retryCount < maxRetries)
+        bool success = false;
+        string lastError = null;
+
+        while (retryCount < maxRetries && !success)
         {
+            if (retryCount > 0)
+            {
+                Debug.Log($"JSONBin.io 저장 재시도 {retryCount}/{maxRetries - 1}...");
+                
+                // Connection 에러인 경우 더 긴 대기 시간 제공
+                bool isConnectionError = retryCount == 1; // 첫 재시도는 Connection 에러일 가능성 높음
+                float waitTime = isConnectionError ? 3f : Mathf.Max(2f, Mathf.Pow(2, retryCount - 1));
+                yield return new WaitForSeconds(waitTime);
+                
+                // Connection 에러인 경우 연결 정리
+                if (isConnectionError)
+                {
+                    CleanupPreviousConnections();
+                }
+            }
+
+            // 요청 전에 이전 요청이 완전히 정리될 시간 제공 (첫 요청인 경우)
+            if (retryCount == 0)
+            {
+                yield return new WaitForSeconds(0.5f);
+            }
+
+            UnityWebRequest request = null;
             try
             {
-                lock (httpClientLock)
-                {
-                    if (httpClient == null)
-                    {
-                        InitializeHttpClient();
-                    }
-                }
+                request = new UnityWebRequest(url, "PUT");
+                request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.SetRequestHeader("X-Access-Key", accessKey);
                 
-                using (var request = new HttpRequestMessage(HttpMethod.Put, url))
-                {
-                    request.Headers.Add("X-Access-Key", accessKey);
-                    request.Content = new StringContent(json, Encoding.UTF8, "application/json");
-                    
-                    var response = await httpClient.SendAsync(request);
-                    
-                    if (response.IsSuccessStatusCode)
-                    {
-                        Debug.Log("JSONBin.io 저장 성공 (HttpClient)");
-                        return true;
-                    }
-                    else
-                    {
-                        string errorText = await response.Content.ReadAsStringAsync();
-                        string errorMessage = $"HTTP {(int)response.StatusCode}: {response.ReasonPhrase}";
-                        
-                        // 4xx 에러는 재시도하지 않음
-                        if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
-                        {
-                            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
-                            {
-                                Debug.LogError($"400 Bad Request - 요청 형식이 잘못되었습니다.");
-                                Debug.LogError($"에러 응답: {errorText}");
-                                Debug.LogError($"전송 시도한 JSON 크기: {jsonSize} bytes");
-                                
-                                // JSON 유효성 검사
-                                try
-                                {
-                                    var testParse = JsonUtility.FromJson<TacticsDatabase>(json);
-                                    Debug.Log("JSON 파싱 테스트: 성공 (JSON 형식은 유효함)");
-                                }
-                                catch (Exception e)
-                                {
-                                    Debug.LogError($"JSON 파싱 테스트 실패: {e.Message}");
-                                }
-                            }
-                            else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
-                            {
-                                errorMessage = "403 Forbidden - Access Key 권한을 확인하세요. Read/Write 권한이 필요합니다.";
-                            }
-                            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                            {
-                                errorMessage = "401 Unauthorized - Access Key가 유효하지 않습니다.";
-                            }
-                            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-                            {
-                                errorMessage = "404 Not Found - Bin ID가 존재하지 않습니다.";
-                            }
-                            
-                            Debug.LogError(errorMessage);
-                            return false;
-                        }
-                        
-                        // 5xx 에러는 재시도
-                        Debug.LogWarning($"{errorMessage} - 재시도 예정...");
-                        retryCount++;
-                        if (retryCount < maxRetries)
-                        {
-                            await Task.Delay(1000 * retryCount);
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogWarning($"JSONBin.io 저장 오류 (재시도 {retryCount + 1}/{maxRetries}): {e.Message}");
-                retryCount++;
+                // HTTP/2 프로토콜 오류 방지를 위한 설정
+                // 타임아웃 설정 (30초)
+                request.timeout = 30;
                 
-                if (retryCount < maxRetries)
+                // User-Agent 헤더 추가 (일부 서버에서 HTTP/1.1을 선호할 수 있음)
+                request.SetRequestHeader("User-Agent", "Unity-WebRequest/1.0");
+
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
                 {
-                    await Task.Delay(1000 * retryCount);
+                    Debug.Log("JSONBin.io 저장 성공");
+                    success = true;
+                    onComplete?.Invoke(true, null);
+                    yield break;
                 }
                 else
                 {
-                    Debug.LogError($"데이터 저장 실패 (재시도 {maxRetries}회 모두 실패): {e.Message}");
-                    return false;
+                    string errorResponse = request.downloadHandler?.text ?? "No response";
+                    string errorMessage = $"HTTP {request.responseCode}: {request.error}";
+                    
+                    // Connection 에러 또는 HTTP/2 프로토콜 오류인 경우 재시도
+                    bool isConnectionError = request.error != null && 
+                        (request.error.Contains("Connection") || 
+                         request.error.Contains("Clean Clear") ||
+                         request.error.Contains("was not closed cleanly"));
+                    
+                    bool isProtocolError = request.error != null && 
+                        (request.error.Contains("PROTOCOL_ERROR") || 
+                         request.error.Contains("stream") || 
+                         request.error.Contains("Curl error 92") ||
+                         request.responseCode == 0);
+                    
+                    if (isConnectionError || isProtocolError)
+                    {
+                        string errorType = isConnectionError ? "Connection" : "HTTP/2 프로토콜";
+                        lastError = $"{errorType} 오류: {request.error}";
+                        Debug.LogWarning($"{lastError} - 재시도 예정...");
+                        
+                        // Connection 에러인 경우 연결 정리
+                        if (isConnectionError)
+                        {
+                            CleanupPreviousConnections();
+                        }
+                        
+                        retryCount++;
+                        continue;
+                    }
+                    
+                    // 400 에러인 경우 상세 정보 추가
+                    if (request.responseCode == 400)
+                    {
+                        errorMessage = $"400 Bad Request - 요청 형식이 잘못되었습니다.";
+                        Debug.LogError(errorMessage);
+                        Debug.LogError($"에러 응답: {errorResponse}");
+                        Debug.LogError($"전송 시도한 JSON 크기: {jsonSize} bytes");
+                        Debug.LogError($"전송 시도한 JSON (처음 1000자):\n{json.Substring(0, Math.Min(1000, json.Length))}...");
+                        
+                        // JSON 유효성 검사 시도
+                        try
+                        {
+                            var testParse = JsonUtility.FromJson<TacticsDatabase>(json);
+                            Debug.Log("JSON 파싱 테스트: 성공 (JSON 형식은 유효함)");
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError($"JSON 파싱 테스트 실패: {e.Message}");
+                        }
+                        
+                        // 400 에러는 재시도하지 않음
+                        onComplete?.Invoke(false, errorMessage);
+                        yield break;
+                    }
+                    else if (request.responseCode == 403)
+                    {
+                        errorMessage = "403 Forbidden - Access Key 권한을 확인하세요. Read/Write 권한이 필요합니다.";
+                        Debug.LogError(errorMessage);
+                        // 403 에러는 재시도하지 않음
+                        onComplete?.Invoke(false, errorMessage);
+                        yield break;
+                    }
+                    else if (request.responseCode == 401)
+                    {
+                        errorMessage = "401 Unauthorized - Access Key가 유효하지 않습니다.";
+                        Debug.LogError(errorMessage);
+                        // 401 에러는 재시도하지 않음
+                        onComplete?.Invoke(false, errorMessage);
+                        yield break;
+                    }
+                    else if (request.responseCode == 404)
+                    {
+                        errorMessage = "404 Not Found - Bin ID가 존재하지 않습니다.";
+                        Debug.LogError(errorMessage);
+                        // 404 에러는 재시도하지 않음
+                        onComplete?.Invoke(false, errorMessage);
+                        yield break;
+                    }
+                    else
+                    {
+                        // 기타 네트워크 오류는 재시도
+                        lastError = errorMessage;
+                        Debug.LogWarning($"데이터 저장 실패: {errorMessage}\nResponse: {errorResponse} - 재시도 예정...");
+                        retryCount++;
+                        continue;
+                    }
+                }
+            }
+            finally
+            {
+                // 명시적으로 Dispose 호출
+                if (request != null)
+                {
+                    request.Dispose();
                 }
             }
         }
-        
-        return false;
+
+        // 모든 재시도 실패
+        if (!success)
+        {
+            string finalError = lastError ?? "Unknown Error";
+            Debug.LogError($"데이터 저장 실패 (재시도 {maxRetries}회 모두 실패): {finalError}");
+            onComplete?.Invoke(false, finalError);
+        }
     }
 
     /// <summary>

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcana Tactics Pitch Deck</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for a dark, futuristic theme */
+        :root {
+            --bg-color: #0f172a;
+            --accent-teal: #2dd4bf;
+            --accent-pink: #f472b6;
+            --text-main: #f1f5f9;
+            --text-sub: #94a3b8;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            font-family: 'Noto Sans KR', sans-serif;
+            color: var(--text-main);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Slide Container (Maintaining 16:9 Aspect Ratio) */
+        #deck-container {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            background: radial-gradient(circle at 10% 20%, #1e1b4b 0%, #0f172a 90%);
+            box-shadow: 0 0 50px rgba(45, 212, 191, 0.1);
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+
+        /* Background Grid */
+        .bg-grid {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(45, 212, 191, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(45, 212, 191, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Slide Common Styles */
+        .slide {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            padding: 50px 70px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        .slide.prev {
+            transform: translateX(-50px);
+            opacity: 0;
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            color: var(--accent-teal);
+            margin-bottom: 10px;
+            border-left: 5px solid var(--accent-pink);
+            padding-left: 20px;
+            text-shadow: 0 0 20px rgba(45, 212, 191, 0.3);
+        }
+
+        .sub-title {
+            font-size: 1.2rem;
+            color: var(--text-sub);
+            margin-bottom: 30px;
+            padding-left: 25px;
+        }
+
+        /* Component: Glass Box */
+        .glass-box {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        /* Navigation */
+        .nav-controls {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--text-sub);
+            color: var(--text-sub);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .nav-btn:hover {
+            border-color: var(--accent-teal);
+            color: var(--accent-teal);
+            box-shadow: 0 0 15px rgba(45, 212, 191, 0.5);
+        }
+        .page-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            color: var(--text-sub);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.2rem;
+            z-index: 100;
+        }
+
+        /* Custom Layout Utils */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            height: 100%;
+        }
+
+        /* Roadmap Specific Style - Horizontal Grid for High Visibility (Page 7) */
+        .roadmap-container {
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+            height: 100%;
+            padding-bottom: 30px;
+        }
+        
+        .roadmap-row {
+            display: grid;
+            /* Year Label + 4 Quarters */
+            grid-template-columns: 100px 1fr 1fr 1fr 1fr; 
+            gap: 15px;
+            align-items: stretch;
+        }
+
+        .year-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 900;
+            font-size: 1.8rem;
+            letter-spacing: 5px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            padding: 20px 0;
+            min-height: 100%;
+        }
+        .year-1-label { background: linear-gradient(to bottom, #134e4a, #0f766e); color: #5eead4; border: 3px solid #2dd4bf; }
+        .year-2-label { background: linear-gradient(to bottom, #831843, #be185d); color: #fbcfe8; border: 3px solid #f472b6; }
+
+        .milestone-card {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .milestone-card:hover {
+            transform: translateY(-8px);
+            background: rgba(30, 41, 59, 0.95);
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.7);
+        }
+
+        .milestone-card.y1:hover { border-color: var(--accent-teal); }
+        .milestone-card.y2:hover { border-color: var(--accent-pink); }
+
+        .quarter-badge {
+            position: absolute;
+            top: 0; right: 0;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-bottom-left-radius: 8px;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .q-teal { background: var(--accent-teal); color: #0f172a; }
+        .q-pink { background: var(--accent-pink); color: #0f172a; }
+
+        .milestone-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+            margin-top: 10px;
+        }
+        .milestone-desc {
+            font-size: 0.85rem;
+            color: #ccc;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+        .milestone-output {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(255,255,255,0.15);
+            font-size: 0.8rem;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+        .milestone-output span { font-weight: 700; }
+        .y1 .milestone-output span { color: var(--accent-teal); }
+        .y2 .milestone-output span { color: var(--accent-pink); }
+
+    </style>
+</head>
+<body>
+
+<div id="deck-container">
+    <div class="bg-grid"></div>
+
+    <!-- PAGE 1: TITLE -->
+    <div class="slide active" id="slide-1">
+        <div class="flex flex-col justify-center items-center h-full text-center relative">
+            <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center opacity-10">
+                <div class="w-[600px] h-[600px] rounded-full border border-teal-500 animate-pulse"></div>
+                <div class="absolute w-[400px] h-[400px] rounded-full border border-pink-500 animate-spin-slow" style="animation-duration: 20s;"></div>
+            </div>
+            
+            <h3 class="text-pink-400 tracking-[0.5em] mb-4 text-xl">PROJECT PROPOSAL</h3>
+            <h1 class="text-8xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 drop-shadow-2xl">ARCANA TACTICS</h1>
+            <p class="text-2xl text-gray-300 font-light mt-6 italic">"수집은 사랑으로, 승리는 지능으로."</p>
+            
+            <div class="mt-12 flex gap-4">
+                <span class="glass-box px-8 py-2 text-teal-300 font-bold border-teal-500/50">Strategy SRPG</span>
+                <span class="glass-box px-8 py-2 text-pink-300 font-bold border-pink-500/50">Subculture GaaS</span>
+                <span class="glass-box px-8 py-2 text-blue-300 font-bold border-blue-500/50">AI-Native Dev</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 2: MARKET OPPORTUNITY -->
+    <div class="slide" id="slide-2">
+        <h1 class="page-title">01. Market Opportunity</h1>
+        <p class="sub-title">우리는 서브컬처 시장의 거대한 빈틈(Void)을 발견했습니다.</p>
+        
+        <div class="flex flex-col h-full pb-10">
+            <div class="grid grid-cols-2 gap-8 h-full">
+                <div class="space-y-6 flex flex-col justify-center">
+                    <div class="glass-box border-l-4 border-l-pink-500">
+                        <h3 class="text-xl font-bold text-pink-400 mb-2">기존 서브컬처 RPG의 한계</h3>
+                        <p class="text-gray-300">"캐릭터는 예쁘지만, 게임은 지루하다."</p>
+                        <p class="text-sm text-gray-400 mt-2">단순 방치형, 스펙 위주의 자동 전투로 인한 '전략적 깊이'의 부재.</p>
+                    </div>
+                    <div class="glass-box border-l-4 border-l-teal-500">
+                        <h3 class="text-xl font-bold text-teal-400 mb-2">전략 게이머의 갈증</h3>
+                        <p class="text-gray-300">"모바일에서 할만한 진짜 전략 게임이 없다."</p>
+                        <p class="text-sm text-gray-400 mt-2">PC/콘솔(유니콘 오버로드 등)의 깊이를 원하지만, 모바일의 접근성을 충족하는 게임 부재.</p>
+                    </div>
+                </div>
+                <div class="glass-box flex flex-col justify-center items-center h-full bg-gradient-to-br from-slate-800 to-slate-900">
+                    <h2 class="text-3xl font-bold text-white mb-6">THE SOLUTION</h2>
+                    <div class="text-center space-y-4">
+                        <div class="text-2xl font-bold text-teal-300">ARCANA TACTICS</div>
+                        <div class="text-4xl">X</div>
+                        <div class="flex justify-center gap-6">
+                            <div class="text-center p-4 bg-slate-900/50 rounded-lg shadow-xl">
+                                <div class="text-pink-400 font-bold text-xl">Visual (Beauty)</div>
+                                <div class="text-sm text-gray-400">호요버스급 감성 충족</div>
+                            </div>
+                            <div class="text-center p-4 bg-slate-900/50 rounded-lg shadow-xl">
+                                <div class="text-teal-400 font-bold text-xl">Logic (Strategy)</div>
+                                <div class="text-sm text-gray-400">정통 SRPG 전략 깊이</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 3: CORE GAMEPLAY (CREATIVITY) - UPDATED -->
+    <div class="slide" id="slide-3">
+        <h1 class="page-title">02. Core Gameplay: Tactical System</h1>
+        <p class="sub-title">"전술 배치를 넘어, 승리하는 연산을 설계하다."</p>
+
+        <div class="flex gap-6 h-full pb-10">
+            <div class="w-1/2 glass-box flex flex-col justify-center relative overflow-hidden p-8">
+                <!-- UI Mockup Graphic for Tactical Programming/Placement -->
+                <div class="relative z-10 p-4 border border-teal-500/30 rounded bg-gray-900 shadow-lg mb-4">
+                    <span class="text-xs font-mono text-teal-400 block mb-1">UNIT CARD: [Aris] - Element: Fire</span>
+                    <div class="text-white font-mono text-lg">Special Skill: Burn Target (100% chance, 3 turns)</div>
+                </div>
+                <div class="relative z-10 p-4 border border-pink-500/30 rounded bg-gray-900 shadow-lg mb-4 ml-8">
+                    <span class="text-xs font-mono text-pink-400 block mb-1">PLACEMENT EFFECT: (Adjacent to Water Unit)</span>
+                    <div class="text-white font-mono text-lg">Debuff: -10% Damage, **But** +1 Mana per turn.</div>
+                </div>
+                <div class="relative z-10 p-4 border border-blue-500/30 rounded bg-gray-900 shadow-lg ml-16">
+                    <span class="text-xs font-mono text-blue-400 block mb-1">ARCANA COMBINATION: (Fire + Water + Wind)</span>
+                    <div class="text-white font-mono text-lg">Trigger **'Supernova'** Ultimate Skill. (Massive AoE damage)</div>
+                </div>
+                <div class="mt-8 text-center text-teal-300 font-bold text-lg">▲ Tactical Operation System: Placement & Combo Logic</div>
+            </div>
+            
+            <div class="w-1/2 space-y-6 pt-8">
+                <div class="glass-box border-l-4 border-l-teal-500">
+                    <h3 class="text-lg font-bold text-white mb-2">1. 아르카나 전술 배치</h3>
+                    <p class="text-sm text-gray-300">캐릭터의 속성, 직업, 배치 위치가 주변 유닛과의 시너지를 결정합니다. 단순 SRPG를 넘어선 '전술 퍼즐'입니다.</p>
+                </div>
+                <div class="glass-box border-l-4 border-l-pink-500">
+                    <h3 class="text-lg font-bold text-white mb-2">2. 연산과 조합의 쾌감</h3>
+                    <ul class="text-sm text-gray-300 list-disc pl-5 space-y-1">
+                        <li><strong class="text-teal-400">연산(Cost Control):</strong> 제한된 자원(마나)으로 필살기 조합을 설계.</li>
+                        <li><strong class="text-pink-400">조합(Arcana Combo):</strong> 특정 아르카나 유닛 조합으로 히든 스킬 발동.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 4: SCENARIO & IMMERSION (CREATIVITY) -->
+    <div class="slide" id="slide-4">
+        <h1 class="page-title">03. Scenario Immersion</h1>
+        <p class="sub-title">전략 실패가 곧 회귀(Loop)로 이어지는 능동적 스토리텔링</p>
+
+        <div class="content-grid h-full pb-10 items-center">
+            <div class="glass-box flex flex-col justify-center items-center text-center h-full bg-slate-900/60">
+                <div class="text-8xl mb-4 text-pink-400">🔄</div>
+                <h2 class="text-3xl font-bold text-white mb-2">Loop & Regression System</h2>
+                <p class="text-gray-300 px-8 text-lg mt-4">"당신의 전술이 실패하면,<br>그녀들은 죽고 시간은 되돌아갑니다."</p>
+            </div>
+            <div class="flex flex-col justify-center gap-6">
+                <div class="glass-box border-l-4 border-purple-500">
+                    <h4 class="font-bold text-purple-300 text-xl mb-1">슈타인즈 게이트식 전개</h4>
+                    <p class="text-sm text-gray-400">회귀를 통해 얻은 '미래 정보(적의 패턴)'를 다음 루프의 전술 배치에 반영해야만 클리어 가능. **지적 추리 요구**</p>
+                </div>
+                <div class="glass-box border-l-4 border-red-500">
+                    <h4 class="font-bold text-red-300 text-xl mb-1">캐릭터 구원 서사 (High LTV)</h4>
+                    <p class="text-sm text-gray-400">단순한 감상이 아닌, 플레이어의 지능으로 캐릭터의 운명을 바꾸는 강력한 몰입감과 소유 욕구.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 5: PROTOTYPE (FEASIBILITY) -->
+    <div class="slide" id="slide-5">
+        <h1 class="page-title">04. Prototype Ready</h1>
+        <p class="sub-title">"우리는 상상이 아니라, 작동하는 엔진을 가지고 있습니다."</p>
+
+        <div class="glass-box w-full h-[60%] flex flex-col justify-center items-center border border-teal-500/50 relative overflow-hidden group">
+            <!-- Placeholder for Prototype Screenshot -->
+            <div class="absolute inset-0 bg-gray-900 flex items-center justify-center group-hover:scale-105 transition duration-500">
+                <div class="text-center">
+                    <div class="text-6xl mb-4 text-white">⚙️</div>
+                    <h3 class="text-2xl font-bold text-white">Playable Prototype Build</h3>
+                    <p class="text-teal-400 mt-2 text-lg">Core Engine Verified (Web / Mobile)</p>
+                </div>
+            </div>
+            <div class="absolute bottom-0 w-full bg-black/80 p-4 flex justify-around items-center backdrop-blur-sm border-t border-gray-700">
+                <span class="text-sm text-teal-300 font-medium">✅ 전술 배치 및 연산 UI 구현 완료</span>
+                <span class="text-sm text-pink-300 font-medium">✅ 아르카나 조합 로직 적용</span>
+                <span class="text-sm text-blue-300 font-medium">✅ 턴 기반 전투 시뮬레이션</span>
+            </div>
+        </div>
+        <div class="mt-8 text-center">
+            <p class="text-xl text-white">핵심 재미와 전략적 깊이에 대한 <span class="text-teal-400 font-bold">내부 검증은 완료</span>되었습니다.</p>
+        </div>
+    </div>
+
+    <!-- PAGE 6: TARGET AUDIENCE (MARKETABILITY) -->
+    <div class="slide" id="slide-6">
+        <h1 class="page-title">05. Core Audience & Target</h1>
+        <p class="sub-title">AI 효율로 AA급 퀄리티를 달성, 전략 덕후 시장을 독점합니다.</p>
+
+        <div class="flex justify-center items-stretch h-[60%] gap-8 pb-10">
+            <!-- Market Tier Card -->
+            <div class="glass-box w-1/3 flex flex-col items-center justify-center text-center bg-gradient-to-br from-pink-900/40 to-slate-900/40 border-pink-500/50">
+                <div class="text-8xl mb-4 text-pink-400 font-bold font-sans">AA</div>
+                <h3 class="text-2xl font-bold text-white">Target Tier</h3>
+                <p class="text-sm text-gray-400 mt-2">데스티니 차일드, 오픈 시기의 니케 수준의 퀄리티</p>
+                <div class="mt-6">
+                    <p class="text-md text-teal-300 font-bold">AI 생산성으로 개발 비용 40% 이상 절감</p>
+                </div>
+            </div>
+
+            <!-- Audience Card -->
+            <div class="glass-box w-2/3 flex flex-col justify-center p-8 bg-teal-900/30 border-teal-500/50">
+                <h3 class="text-2xl font-bold text-teal-400 mb-4">Core Audience Segmentation</h3>
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="border-l-4 border-teal-500 pl-4">
+                        <div class="font-bold text-xl text-white mb-1">서브컬처 팬</div>
+                        <p class="text-sm text-gray-400">단순 반복 RPG에 지친 고관여 유저 (High LTV).</p>
+                    </div>
+                    <div class="border-l-4 border-pink-500 pl-4">
+                        <div class="font-bold text-xl text-white mb-1">전략/퍼즐 게이머</div>
+                        <p class="text-sm text-gray-400">지적 쾌감을 추구하며 잔존율(Retention)이 높은 유저.</p>
+                    </div>
+                </div>
+                <div class="mt-auto pt-6 border-t border-gray-700/50 flex justify-between text-lg font-bold">
+                    <span class="text-pink-300">#HighQualityVisuals</span>
+                    <span class="text-teal-300">#DeepTactics</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 7: ROADMAP (FEASIBILITY) - FOCUS SLIDE -->
+    <div class="slide" id="slide-7">
+        <h1 class="page-title">07. Roadmap (24 Months)</h1>
+        <p class="sub-title">2년 8단계 마일스톤. 시인성 개선 및 2년차 계획 포함 완료.</p>
+
+        <div class="roadmap-container">
+            <!-- Year 1 Row (Teal Accent) -->
+            <div class="roadmap-row">
+                <div class="year-label year-1-label">YEAR 1</div>
+                
+                <!-- M1: Core Proof -->
+                <div class="milestone-card y1">
+                    <span class="quarter-badge q-teal">Q1</span>
+                    <div class="milestone-title text-teal-300">M1: Core Proof</div>
+                    <p class="milestone-desc">코어 전투 엔진, 전술 배치 연산 로직, 비동기 PVP 서버 프로토타입 개발 완료</p>
+                    <div class="milestone-output">핵심 산출물: <span>Playable Prototype</span></div>
+                </div>
+                <!-- M2: Art Foundation -->
+                <div class="milestone-card y1">
+                    <span class="quarter-badge q-teal">Q2</span>
+                    <div class="milestone-title text-teal-300">M2: Art Foundation</div>
+                    <p class="milestone-desc">AI 화풍 학습 파이프라인 구축, Live2D 캐릭터 4종 및 핵심 UI/UX 확정</p>
+                    <div class="milestone-output">핵심 산출물: <span>Art Bible & UI/UX v1.0</span></div>
+                </div>
+                <!-- M3: Vertical Slice -->
+                <div class="milestone-card y1">
+                    <span class="quarter-badge q-teal">Q3</span>
+                    <div class="milestone-title text-teal-300">M3: Vertical Slice</div>
+                    <p class="milestone-desc">루프 시나리오 1챕터, 전투 연출 통합. 콘텐츠 연동 테스트</p>
+                    <div class="milestone-output">핵심 산출물: <span>Alpha Build (FGT)</span></div>
+                </div>
+                <!-- M4: Content Expand -->
+                <div class="milestone-card y1">
+                    <span class="quarter-badge q-teal">Q4</span>
+                    <div class="milestone-title text-teal-300">M4: Content Expand</div>
+                    <p class="milestone-desc">캐릭터 20종 최종 완성, 3:3 공성전 코어 로직 구현 및 테스트</p>
+                    <div class="milestone-output">핵심 산출물: <span>Beta v0.5 (Content)</span></div>
+                </div>
+            </div>
+
+            <!-- Year 2 Row (Pink Accent) -->
+            <div class="roadmap-row">
+                <div class="year-label year-2-label">YEAR 2</div>
+                
+                <!-- M5: Loop System -->
+                <div class="milestone-card y2">
+                    <span class="quarter-badge q-pink">Q1</span>
+                    <div class="milestone-title text-pink-300">M5: Loop System</div>
+                    <p class="milestone-desc">회귀/기록 시스템 최종 연동, 메인 스토리 50% 분량 완성 및 QA</p>
+                    <div class="milestone-output">핵심 산출물: <span>Scenario Mode Finalized</span></div>
+                </div>
+                <!-- M6: Siege & Social -->
+                <div class="milestone-card y2">
+                    <span class="quarter-badge q-pink">Q2</span>
+                    <div class="milestone-title text-pink-300">M6: Siege & Social</div>
+                    <p class="milestone-desc">3:3 공성전, 길드, 소셜 기능 통합. 서버 확장성 및 부하 테스트 (Stress Test)</p>
+                    <div class="milestone-output">핵심 산출물: <span>CBT Ready Build</span></div>
+                </div>
+                <!-- M7: Balancing & CBT -->
+                <div class="milestone-card y2">
+                    <span class="quarter-badge q-pink">Q3</span>
+                    <div class="milestone-title text-pink-300">M7: Balancing & CBT</div>
+                    <p class="milestone-desc">클로즈 베타 테스트 진행, 데이터 기반 밸런스 및 BM 최종 최적화</p>
+                    <div class="milestone-output">핵심 산출물: <span>CBT Report & v1.0 Launch Candidate</span></div>
+                </div>
+                <!-- M8: Grand Open -->
+                <div class="milestone-card y2">
+                    <span class="quarter-badge q-pink">Q4</span>
+                    <div class="milestone-title text-pink-300">M8: Grand Open</div>
+                    <p class="milestone-desc">마켓 검수 및 제출, 글로벌 로컬라이제이션 최종 확인 및 마케팅</p>
+                    <div class="milestone-output">핵심 산출물: <span>Global Launch</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 8: BUSINESS MODEL (MARKETABILITY) -->
+    <div class="slide" id="slide-8">
+        <h1 class="page-title">08. Business Model</h1>
+        <p class="sub-title">수집은 사랑으로, 기능은 지능으로. 이중 BM 구조.</p>
+
+        <div class="content-grid h-full pb-10">
+            <div class="glass-box border-t-4 border-t-teal-500">
+                <h3 class="text-2xl font-bold text-teal-400 mb-4">MAIN: Character Gacha (LTV Core)</h3>
+                <p class="text-gray-300 mb-4 text-lg">"이 캐릭터가 있어야 내 전략이 완성된다."</p>
+                <ul class="space-y-3 text-base text-gray-400 list-disc pl-5">
+                    <li class="flex items-center">🔹 <span class="ml-2 text-white">전략적 인질:</span> 고유 아르카나 전술(배치/조합) 보유로 수집 가치 부여.</li>
+                    <li class="flex items-center">🔹 <span class="ml-2 text-white">코스트 밸런스:</span> 모든 등급 캐릭터의 활용처 보장.</li>
+                    <li class="flex items-center">🔹 <span class="ml-2 text-white">메타 순환:</span> 시즌별/콘텐츠별 필수 캐릭터 변화 유도.</li>
+                </ul>
+            </div>
+            <div class="glass-box border-t-4 border-t-pink-500">
+                <h3 class="text-2xl font-bold text-pink-400 mb-4">SUB: Premium Skins (High Margin)</h3>
+                <p class="text-gray-300 mb-4 text-lg">"내 최애의 승리는 더 화려해야 한다."</p>
+                <ul class="space-y-3 text-base text-gray-400 list-disc pl-5">
+                    <li class="flex items-center">✨ <span class="ml-2 text-white">연출 강화:</span> 전술 성공/필살기 컷신 변화 등.</li>
+                    <li class="flex items-center">✨ <span class="ml-2 text-white">감성 만족:</span> 루프 탈출(구원) 후 구매 동기 부여 극대화.</li>
+                    <li class="flex items-center">✨ <span class="ml-2 text-white">High Margin:</span> 밸런스 영향 없는 순수 고수익 상품.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 9: TEAM (FEASIBILITY) -->
+    <div class="slide" id="slide-9">
+        <h1 class="page-title">09. Team & Strategy</h1>
+        <p class="sub-title">"재미를 검증한 3인의 소수 정예와 AI 생산성 혁명"</p>
+
+        <div class="flex h-[70%] gap-8 pb-10">
+            <!-- Starting Team -->
+            <div class="w-1/3 glass-box flex flex-col items-center bg-teal-900/30 border-teal-500/50">
+                <div class="text-4xl font-bold text-teal-400 mb-4">PHASE 1 (START)</div>
+                <h2 class="text-6xl font-extrabold text-white mb-6">3명</h2>
+                <div class="space-y-3 w-full">
+                    <div class="p-3 bg-gray-800 rounded flex justify-between items-center"><span class="font-bold text-white">PD / TD</span><span class="text-sm text-teal-300">총괄 / 아키텍처</span></div>
+                    <div class="p-3 bg-gray-800 rounded flex justify-between items-center"><span class="font-bold text-white">Main Server Tech</span><span class="text-xs text-blue-300">서버/클라 (Fullstack)</span></div>
+                    <div class="p-3 bg-gray-800 rounded flex justify-between items-center"><span class="font-bold text-white">Main Planner</span><span class="text-sm text-purple-300">시스템 / 시나리오</span></div>
+                </div>
+            </div>
+            
+            <!-- Growth & Final Team -->
+            <div class="w-2/3 flex flex-col gap-4">
+                <div class="glass-box flex items-center justify-between bg-pink-900/30 border-pink-500/50">
+                    <div class="text-4xl font-bold text-pink-400">PHASE 2 (FINAL)</div>
+                    <h2 class="text-6xl font-extrabold text-white mr-4">7명</h2>
+                </div>
+
+                <div class="glass-box flex-grow p-6">
+                    <h3 class="text-xl font-bold text-teal-400 mb-4 border-b border-teal-500/30 pb-2">AI-Native Productivity Revolution</h3>
+                    <p class="text-base text-gray-300 mb-4">
+                        최고의 생산성(AI)을 활용하여 적은 인원(7명)으로 AA급 볼륨에 도전합니다.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="flex items-center text-gray-300">
+                            <span class="w-2 h-2 bg-pink-500 rounded-full mr-2 shrink-0"></span>
+                            <span>**Art (2명):** AI 시안 → TA 리터칭 파이프라인.</span>
+                        </div>
+                        <div class="flex items-center text-gray-300">
+                            <span class="w-2 h-2 bg-pink-500 rounded-full mr-2 shrink-0"></span>
+                            <span>**Tech (3명):** 서버, 클라이언트 최적화 집중.</span>
+                        </div>
+                        <div class="flex items-center text-gray-300">
+                            <span class="w-2 h-2 bg-pink-500 rounded-full mr-2 shrink-0"></span>
+                            <span>**Planning (2명):** 콘텐츠 확장 및 밸런스 전담.</span>
+                        </div>
+                        <div class="flex items-center text-gray-300">
+                            <span class="w-2 h-2 bg-pink-500 rounded-full mr-2 shrink-0"></span>
+                            <span>**Result:** 일반 팀 대비 40% 이상 개발 비용 절감 효과.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 10: CLOSING -->
+    <div class="slide" id="slide-10">
+        <div class="flex flex-col justify-center items-center h-full text-center">
+            <h2 class="text-4xl font-bold text-white mb-8">We are Ready to Code the Future.</h2>
+            <p class="text-xl text-gray-400 mb-12 max-w-2xl">
+                기술은 준비되었습니다. 기획은 검증되었습니다.<br>
+                이제, 시장을 흔들 디자인(Art)을 입힐 차례입니다.
+            </p>
+            
+            <div class="glass-box px-12 py-8 border-teal-500">
+                <h3 class="text-2xl font-bold text-teal-400 mb-2">ARCANA TACTICS</h3>
+                <p class="text-gray-400 mb-6">Contact Us for Investment</p>
+                <div class="text-white font-mono text-xl font-bold">director@arcanatactics.com</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="page-indicator">01 / 10</div>
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" onclick="prevSlide()">❮</button>
+        <button class="nav-btn" id="nextBtn" onclick="nextSlide()">❯</button>
+    </div>
+</div>
+
+<script>
+    const slides = document.querySelectorAll('.slide');
+    const indicator = document.querySelector('.page-indicator');
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+
+    // Function to update the slide display
+    function updateSlide(newIndex) {
+        if (newIndex >= 0 && newIndex < totalSlides) {
+            // Find the current active slide and mark it as previous for transition
+            const activeSlide = document.querySelector('.slide.active');
+            if (activeSlide && activeSlide.id !== slides[newIndex].id) {
+                activeSlide.classList.remove('active');
+                activeSlide.classList.add('prev');
+                // Use a short timeout to ensure the 'prev' class is removed after transition ends
+                setTimeout(() => activeSlide.classList.remove('prev'), 500);
+            }
+
+            // Activate the new slide
+            slides[newIndex].classList.add('active');
+            currentSlide = newIndex;
+            indicator.textContent = `${String(currentSlide + 1).padStart(2, '0')} / ${String(totalSlides).padStart(2, '0')}`;
+        }
+    }
+
+    // Next slide function
+    function nextSlide() {
+        if (currentSlide < totalSlides - 1) {
+            updateSlide(currentSlide + 1);
+        }
+    }
+
+    // Previous slide function
+    function prevSlide() {
+        if (currentSlide > 0) {
+            updateSlide(currentSlide - 1);
+        }
+    }
+
+    // Keyboard navigation (Arrow keys)
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowRight' || event.key === ' ') { // Space or Right Arrow
+            nextSlide();
+        } else if (event.key === 'ArrowLeft') { // Left Arrow
+            prevSlide();
+        }
+    });
+
+    // Initialize the deck
+    document.addEventListener('DOMContentLoaded', () => {
+        // Ensure only the first slide is visible initially
+        slides.forEach((slide, index) => {
+            slide.classList.remove('active', 'prev');
+            if (index === 0) {
+                slide.classList.add('active');
+            }
+        });
+        updateSlide(0); // Set initial state and indicator
+    });
+</script>
+
+</body>
+</html>
