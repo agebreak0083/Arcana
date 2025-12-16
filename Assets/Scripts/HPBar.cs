@@ -108,6 +108,12 @@ public class HPBar : MonoBehaviour
         
         UpdateColor(hpPercent);
         textHP.text = $"{currentHp} / {maxHp}";
+
+        // HP가 0이되면 HP바 숨김 
+        if (currentHp <= 0)
+        {
+            Show(false);
+        }        
     }
     
     // HP 비율에 따른 색상 변경

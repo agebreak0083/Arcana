@@ -15,7 +15,7 @@ public class IntroManager : MonoBehaviour
     {
         if(versionText != null)
         {
-            versionText.text = "v.09";
+            versionText.text = "v.10";
         }
         startButton.onClick.AddListener(OnStartButtonClicked);
         gachaButton.onClick.AddListener(OnGachaButtonClicked);

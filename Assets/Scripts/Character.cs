@@ -347,6 +347,12 @@ public class Character : MonoBehaviour
         // 피격 반짝임 효과
         StartCoroutine(FlashWhiteOnHit());
 
+        // 카메라 쉐이크
+        if (BattleManager.Instance != null && BattleManager.Instance.battleCameraController != null)
+        {
+            BattleManager.Instance.battleCameraController.OnHit(this);
+        }
+
         hp = Mathf.Max(0, hp - damage);
         UpdateHPBar();
 
