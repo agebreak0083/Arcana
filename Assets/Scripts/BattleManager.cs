@@ -1,14 +1,33 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Arcana.Tactics;
 using Arcana.Tactics.Data;
 using UnityEngine;
 using static Arcana.Tactics.TacticsDataManager;
 
+public class BattleSimulationResult
+{
+    public float randomSeed = 0.0f;
+    public bool isPlayerWin = false;
+    public FormationLoadResult playerFormationLoadResult = null;
+    public FormationLoadResult enemyFormationLoadResult = null;
+
+    public string playerName = "";
+    public string enemyName = "";
+    public int playerHP_Max = 100;
+    public int playerHP_Remaining = 100;
+    public int enemyHP_Max = 100;
+    public int enemyHP_Remaining = 100;
+}
+
 [DefaultExecutionOrder(-50)]
 public class BattleManager : MonoBehaviour
 {
+    public bool autoStart = true;
+    [HideInInspector] public bool isSimulationMode = false;
+    private GameObject simulationObject;
     public BattleCameraController battleCameraController;
 
 
@@ -26,12 +45,14 @@ public class BattleManager : MonoBehaviour
 
     public List<Character> playerCharacters = new List<Character>();
     public List<Character> enemyCharacters = new List<Character>();
+    public FormationLoadResult playerFormationLoadResult;
+    public FormationLoadResult enemyFormationLoadResult;
     private List<Character> charactersTurnList = new List<Character>();
     private List<Character> waitingCharacters = new List<Character>();
     private StrategyManager strategyManager;
     private SkillManager skillManager;
     private ClassManager classManager;
-    
+    public static BattleSimulationResult battleSimulationResult = new BattleSimulationResult();
 
     private int currentRound = 0;   // 현재 라운드
     private int currentTurn = 0;    // 현재 턴
@@ -76,13 +97,21 @@ public class BattleManager : MonoBehaviour
         }
 
         // BattleSetting 로드 (구글 시트에서)
-        yield return StartCoroutine(BattleSetting.LoadFromGoogleSheet(BattleUI.Instance.debugText));
+        yield return StartCoroutine(BattleSetting.LoadFromGoogleSheet());
 
         // TacticsDataManager의 데이터 로딩 완료 대기 (Firebase 비동기 로딩 포함)
         Debug.Log("BattleManager: TacticsDataManager 데이터 로딩 대기 중...");
         yield return new WaitUntil(() => Arcana.Tactics.TacticsDataManager.Instance != null &&
                                          Arcana.Tactics.TacticsDataManager.Instance.isDataLoaded);
         Debug.Log("BattleManager: TacticsDataManager 데이터 로딩 완료!");
+
+        // 자동 시작 하지 않을때 = 시뮬레이션 모드
+        if(!autoStart)
+        {
+            yield break;
+        }
+
+        BattleSetting.PrintAllSettings(BattleUI.Instance.debugText);
 
         // 플레이어 캐릭터 생성
         playerCharacters = CreateCharacters(true);
@@ -93,9 +122,48 @@ public class BattleManager : MonoBehaviour
         InitializeCharactersTurnList();
 
         // 1초 후 전투 시작
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(1f);      
+
+        UnityEngine.Random.InitState((int)(battleSimulationResult.randomSeed * 1000000));
+        Debug.Log("BattleManager: Start - randomSeed: " + battleSimulationResult.randomSeed);  
 
         StartCoroutine(BattleRoutine());
+    }
+
+    public IEnumerator SimulationModeStart()
+    {
+        isSimulationMode = true;
+        battleSimulationResult.randomSeed = UnityEngine.Random.value;
+        UnityEngine.Random.InitState((int)(battleSimulationResult.randomSeed * 1000000));
+        Debug.Log("BattleManager: SimulationModeStart - randomSeed: " + battleSimulationResult.randomSeed);
+
+        // 시뮬레이션 오브젝트 생성 
+        if(simulationObject != null)
+        {
+            Destroy(simulationObject);
+        }
+        simulationObject = new GameObject("SimulationObject");        
+
+        // 플레이어 캐릭터 생성
+        playerCharacters = CreateCharacters(true);
+        // 적 캐릭터 생성
+        enemyCharacters = CreateCharacters(false);
+        // 턴 리스트 초기화
+        InitializeCharactersTurnList();        
+
+        yield return StartCoroutine(BattleRoutine());
+        
+        battleSimulationResult.playerFormationLoadResult = playerFormationLoadResult;
+        battleSimulationResult.enemyFormationLoadResult = enemyFormationLoadResult;
+        battleSimulationResult.playerName = playerFormationLoadResult.username;
+        battleSimulationResult.enemyName = enemyFormationLoadResult.username;
+        battleSimulationResult.playerHP_Max = (int)playerCharacters.Sum(x => x.maxHp);
+        battleSimulationResult.enemyHP_Max = (int)enemyCharacters.Sum(x => x.maxHp);
+        battleSimulationResult.playerHP_Remaining = (int)playerCharacters.Sum(x => x.hp);
+        battleSimulationResult.enemyHP_Remaining = (int)enemyCharacters.Sum(x => x.hp);
+
+        isSimulationMode = false;
+        yield break;
     }
 
     private List<Character> CreateCharacters(bool isPlayer = true)
@@ -106,12 +174,14 @@ public class BattleManager : MonoBehaviour
 
         if (isPlayer)
         {
-            formationResult = TacticsDataManager.Instance.GetPlayerFormationLoadResult();
+            playerFormationLoadResult = TacticsDataManager.Instance.GetPlayerFormationLoadResult();
+            formationResult = playerFormationLoadResult;
             positions = playerPositions;
         }
         else
         {
-            formationResult = TacticsDataManager.Instance.GetEnemyFormationLoadResult();
+            enemyFormationLoadResult = TacticsDataManager.Instance.GetEnemyFormationLoadResult();
+            formationResult = enemyFormationLoadResult;
             positions = enemyPositions;
         }
 
@@ -150,9 +220,21 @@ public class BattleManager : MonoBehaviour
                             modelPath = modelPath.Substring(0, modelPath.Length - ".prefab".Length);
                         }
 
-                        GameObject prefab = Resources.Load<GameObject>(modelPath);
-                        if (prefab != null)
+                        Character character = null;
+
+                        if(isSimulationMode)
                         {
+                            character = simulationObject.AddComponent<Character>();
+                        }
+                        else                                                   
+                        {
+                            GameObject prefab = Resources.Load<GameObject>(modelPath);
+                            if(prefab == null)
+                            {
+                                Debug.LogError($"Failed to load model from Resources: {modelPath}");
+                                continue;
+                            }
+
                             GameObject charObj = Instantiate(prefab);
 
                             // 위치 설정
@@ -162,32 +244,33 @@ public class BattleManager : MonoBehaviour
                                 charObj.transform.rotation = positions[i].transform.rotation * Quaternion.Euler(0, 90, 0);
                             }
 
-                            // 캐릭터 클래스를 생성한다. 
-                            Character character = charObj.AddComponent<Character>();
-                            character.characterName = characterData.characterName;
-                            character.className = characterData.characterClass;
-                            character.position = i + 1;
-                            character.hpBarPrefab = hpBarPrefab;
-                            character.hpBarOffset = hpBarOffset;
-                            character.originalPosition = positions[i].transform.position;
-                            character.isPlayer = isPlayer;
-
-                            // 클래스 스탯 적용
-                            character.ApplyClassStatsToCharacter();
-
-                            // 작전 설정
-                            if (formationResult.codingData.TryGetValue(characterData.id, out var plan))
-                            {
-                                Strategy strategy = StrategyManager.Instance.CreateStrategy(plan);
-                                character.SetStrategy(strategy);
-                            }
-
-                            createdCharacters.Add(character);
+                            character = charObj.AddComponent<Character>();
                         }
-                        else
+
+                        // 캐릭터 클래스를 생성한다.                             
+                        character.characterName = characterData.characterName;
+                        character.className = characterData.characterClass;
+                        character.position = i + 1;
+                        character.hpBarPrefab = hpBarPrefab;
+                        character.hpBarOffset = hpBarOffset;                        
+                        character.isPlayer = isPlayer;
+
+                        if(positions != null && i < positions.Count && positions[i] != null)
                         {
-                            Debug.LogError($"Failed to load model from Resources: {modelPath}");
+                            character.originalPosition = positions[i].transform.position;
+                        }                        
+
+                        // 클래스 스탯 적용
+                        character.ApplyClassStatsToCharacter();
+
+                        // 작전 설정
+                        if (formationResult.codingData.TryGetValue(characterData.id, out var plan))
+                        {
+                            Strategy strategy = StrategyManager.Instance.CreateStrategy(plan);
+                            character.SetStrategy(strategy);
                         }
+
+                        createdCharacters.Add(character);                        
                     }
                 }
             }
@@ -238,6 +321,7 @@ public class BattleManager : MonoBehaviour
     {
         Debug.Log("=== 전투 시작 ===");
         currentRound = 0; // 라운드 초기화
+        isBattleOver = false;
 
         while (!CheckBattleOver())
         {
@@ -286,8 +370,11 @@ public class BattleManager : MonoBehaviour
             }
         }
 
-        UpdateBattleUI();
-        yield return new WaitForSeconds(0.5f); // 라운드 시작 연출 대기
+        if(!isSimulationMode)
+        {
+            UpdateBattleUI();
+            yield return new WaitForSeconds(0.5f); // 라운드 시작 연출 대기            
+        }
 
         // 2. Action Phase
         bool roundActive = true;
@@ -326,8 +413,11 @@ public class BattleManager : MonoBehaviour
             }
         }
 
-        // 3. Round End Phase
-        yield return new WaitForSeconds(1.0f);
+        if(!isSimulationMode)
+        {
+            // 3. Round End Phase
+            yield return new WaitForSeconds(1.0f);
+        }
     }
 
     // 턴 루틴 (개별 캐릭터 행동)
@@ -346,13 +436,15 @@ public class BattleManager : MonoBehaviour
 
         if (action != null)
         {
-            UpdateBattleUI();            
+            if(!isSimulationMode)
+            {
+                UpdateBattleUI();            
+            }
 
             // 턴 종료 이벤트 호출
             OnTurnEnd(character);
 
-            // 행동 완료 대기 (모든 waitingCharacters가 완료될 때까지)
-            
+            // 행동 완료 대기 (모든 waitingCharacters가 완료될 때까지)            
             yield return new WaitUntil(() => waitingCharacters.Count == 0);            
 
             onResult?.Invoke(true);
@@ -456,18 +548,37 @@ public class BattleManager : MonoBehaviour
         if (!playerAlive)
         {
             UserDataManager.Instance.AddTickets(BattleSetting.TICKET_FOR_LOSE);
-            BattleUI.Instance.ShowDefeatPanel();
+
+            if(BattleUI.Instance != null)
+            {
+                BattleUI.Instance.ShowDefeatPanel();
+            }
             Debug.Log("패배... (플레이어 전멸)");
             isBattleOver = true;
+
             return true;
         }
         if (!enemyAlive)
         {
             UserDataManager.Instance.AddTickets(BattleSetting.TICKET_FOR_WIN);
-            BattleUI.Instance.ShowVictoryPanel();
+            if(BattleUI.Instance != null)
+            {
+                BattleUI.Instance.ShowVictoryPanel();
+            }
             Debug.Log("승리! (적 전멸)");
             isBattleOver = true;
+
             return true;
+        }
+
+        if(isSimulationMode)
+        {
+            battleSimulationResult.isPlayerWin = playerAlive;
+        }
+        else
+        {
+            // 시뮬레이션 모드가 아니라 Battle Scene이라면, 끝나면 시뮬레이션 결과 리셋. 
+            battleSimulationResult = new BattleSimulationResult();
         }
 
         UserDataManager.Instance.SaveUserData();

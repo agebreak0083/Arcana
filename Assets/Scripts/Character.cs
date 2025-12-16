@@ -162,7 +162,10 @@ public class Character : MonoBehaviour
                     Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다. 타겟: {target.characterName}");
                     
                     // 전투 로그에 공격 기록
-                    BattleLogManager.Instance.LogAttack(characterName, target.characterName, skill.name);
+                    if(BattleLogManager.Instance != null)
+                    {
+                        BattleLogManager.Instance.LogAttack(characterName, target.characterName, skill.name);
+                    }
                 }
 
                 // 스킬 사용 전 패시브 스킬 체크
@@ -324,6 +327,12 @@ public class Character : MonoBehaviour
             return;
         }
 
+        if(BattleManager.Instance.isSimulationMode) // 시뮬레이션 모드일 때는 애니메이션 재생하지 않음
+        {
+            hp = Mathf.Max(0, hp - damage);            
+            return;
+        }
+
         Animator animator = GetComponent<Animator>();
         if(isGuard)
         {
@@ -410,17 +419,22 @@ public class Character : MonoBehaviour
             yield break;
         }        
 
-        BattleManager.Instance.AddWaitFinished(this);
-        // foreach(var target in targets)
-        // {
-        //     BattleManager.Instance.AddWaitFinished(target);
-        // }
+        if(BattleManager.Instance.isSimulationMode) // 시뮬레이션 모드일 때는 스킬 이름 표시하지 않음
+        {
+            //  바로 스킬 효과 적용
+            SkillManager.Instance.ApplySkillEffects(skill, this, targets);            
+            yield break;
+        }
+        else
+        {
+            BattleManager.Instance.AddWaitFinished(this);        
 
-        // UI에 스킬 이름 표시
-        BattleManager.Instance.ShowSkillName(this.isPlayer, skill.name);
+            // UI에 스킬 이름 표시
+            BattleManager.Instance.ShowSkillName(this.isPlayer, skill.name);
 
-        // 애니메이션 재생 및 완료 대기
-        yield return StartCoroutine(PlaySkillAnimationAndWait(skill, targets));
+            // 애니메이션 재생 및 완료 대기
+            yield return StartCoroutine(PlaySkillAnimationAndWait(skill, targets));
+        }        
     }
 
     // 애니메이션 재생 후 대기하는 코루틴 (DoTween 이동 포함)
@@ -752,6 +766,11 @@ public class Character : MonoBehaviour
     bool isGuard = false;
     public void ActionGuard(Character target)
     {
+        if(BattleManager.Instance.isSimulationMode) // 시뮬레이션 모드일 때는 가드 액션 실행하지 않음
+        {
+            return;
+        }
+
         if(this != target)
         {
             target.MoveToPosition(target.transform.position + target.transform.forward * 0.5f);

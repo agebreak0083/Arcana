@@ -35,13 +35,14 @@ namespace Arcana.Tactics
         {
             // 씬마다 독립적인 인스턴스 사용
             Instance = this;
-            StartCoroutine(LoadAllDataAsync());
+            string enemyName = BattleManager.battleSimulationResult.enemyName;
+            StartCoroutine(LoadAllDataAsync(enemyName));
         }
 
         /// <summary>
         /// 모든 데이터 비동기 로드
         /// </summary>
-        private System.Collections.IEnumerator LoadAllDataAsync()
+        private System.Collections.IEnumerator LoadAllDataAsync(string enemyName)
         {
             isDataLoaded = false;
 
@@ -94,7 +95,7 @@ namespace Arcana.Tactics
 
                 // Enemy formation 로드 (JSONBin.io에서 랜덤 또는 로컬 파일)
                 bool enemyLoadComplete = false;
-                LoadEnemyFormationFromFirebase((success) =>
+                LoadEnemyFormationFromJsonBin(enemyName, (success) =>
                 {
                     enemyLoadComplete = true;
                 });
@@ -1109,7 +1110,7 @@ namespace Arcana.Tactics
         /// <summary>
         /// JSONBin.io에서 랜덤 적 편성 로드
         /// </summary>
-        private void LoadEnemyFormationFromFirebase(System.Action<bool> onComplete)
+        private void LoadEnemyFormationFromJsonBin(string enemyName, System.Action<bool> onComplete)
         {
             if (JSONBinManager.Instance == null)
             {
@@ -1119,7 +1120,7 @@ namespace Arcana.Tactics
                 return;
             }
 
-            JSONBinManager.Instance.GetRandomTactics((success, tacticsJson, username) =>
+            JSONBinManager.Instance.GetRandomTactics(enemyName, (success, tacticsJson, username) =>
             {
                 if (success && !string.IsNullOrEmpty(tacticsJson))
                 {

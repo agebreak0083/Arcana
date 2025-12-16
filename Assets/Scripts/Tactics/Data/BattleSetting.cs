@@ -22,12 +22,12 @@ namespace Arcana.Tactics.Data
         public static float DAMAGE_MULTIPLIER = 1.0f;
 
         [Header("내부 데이터")]
-        public static string enemyTactics = ""; // 택틱스씬에서 정해진 적 택틱스 이름
+        public static string enemyTactics = ""; // 택틱스씬에서 정해진 적 택틱스 이름        
 
         /// <summary>
         /// 구글 시트에서 CSV를 다운로드하여 BattleSetting 값을 설정합니다.
         /// </summary>
-        public static IEnumerator LoadFromGoogleSheet(TextMeshProUGUI textComponent)
+        public static IEnumerator LoadFromGoogleSheet()
         {
             Debug.Log("BattleSetting: 구글 시트에서 설정값 로딩 시작...");
 
@@ -45,9 +45,7 @@ namespace Arcana.Tactics.Data
                 {
                     Debug.LogError($"BattleSetting: 구글 시트 로딩 실패 - {request.error}");
                     Debug.LogWarning("BattleSetting: 기본값을 사용합니다.");
-                }
-
-                PrintAllSettings(textComponent);
+                }                
             }
         }
 

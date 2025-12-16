@@ -23,6 +23,7 @@ namespace Arcana.Tactics.UI
         public Transform formationGridContainer; // Should have 6 slots as children
         public Transform codingListContainer;
         public GameObject warningPopup;
+        public GameObject battleSimulationResultUI;
 
         [Header("UI Prefabs")]
         public GameObject characterCardPrefab;
@@ -432,10 +433,31 @@ namespace Arcana.Tactics.UI
 
         public void OnRunBattleClicked()
         {
+            StartCoroutine(OnRunBattleClickedCoroutine());
+        }
+
+        private IEnumerator OnRunBattleClickedCoroutine()
+        {
             // 로컬 파일에 저장
             _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);
 
-            // JSONBin.io에 저장 (BattleScene으로 이동할 때만)
+            // 시뮬레이션 모드 스타트 - 완료될 때까지 대기
+            yield return StartCoroutine(BattleManager.Instance.SimulationModeStart());
+            
+            battleSimulationResultUI.SetActive(true);            
+            BattleSimulationResultUI battleSimulationResultUIComponent = battleSimulationResultUI.GetComponent<BattleSimulationResultUI>();
+            if(battleSimulationResultUIComponent != null)
+            {
+                battleSimulationResultUIComponent.UpdateUI(); 
+                battleSimulationResultUIComponent.startBattleButton.onClick.AddListener(OnStartBattleClicked);
+            }
+            
+            yield break;                   
+        }
+
+        private void OnStartBattleClicked()
+        {
+            // JSONBin.io에 저장
             if (JSONBinManager.Instance != null && JSONBinManager.Instance.isInitialized)
             {
                 string tacticsJson = _dataManager.GetTacticsJson(_unitSlots, _codingData);
@@ -460,7 +482,7 @@ namespace Arcana.Tactics.UI
 
                 // BattleScene으로 이동한다.                 
                 SceneManager.LoadScene("BattleScene");
-            }            
+            }   
         }
 
         private void UpdateAllUI()

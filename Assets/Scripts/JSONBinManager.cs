@@ -181,7 +181,7 @@ public class JSONBinManager : MonoBehaviour
     /// JSONBin.io에서 랜덤 Tactics 데이터 가져오기 (적 편성용)
     /// </summary>
     /// <param name="onComplete">완료 콜백 (성공 여부, tactics JSON, username)</param>
-    public void GetRandomTactics(Action<bool, string, string> onComplete)
+    public void GetRandomTactics(string enemyName, Action<bool, string, string> onComplete)
     {
         if (!isInitialized)
         {
@@ -199,12 +199,21 @@ public class JSONBinManager : MonoBehaviour
                 return;
             }
 
-            // 랜덤 선택
-            int randomIndex = UnityEngine.Random.Range(0, allTactics.tactics.Count);
-            var randomTactic = allTactics.tactics[randomIndex];
+            // enemyName과 일치하는 데이터 선택
+            var matchingTactics = allTactics.tactics.FindAll(t => t.key == enemyName);
+            if(matchingTactics.Count == 0)
+            {
+                Debug.LogWarning($"enemyName: {enemyName}의 Tactics 데이터를 찾을 수 없습니다.");                
 
-            Debug.Log($"랜덤 Tactics 로드 성공: {randomTactic.key} (유저: {randomTactic.username})");
-            onComplete?.Invoke(true, randomTactic.tacticsJson, randomTactic.key);
+                int randomIndex = UnityEngine.Random.Range(0, allTactics.tactics.Count);
+                var randomTactic = allTactics.tactics[randomIndex];
+                matchingTactics.Add(randomTactic);
+            }
+
+            var selectedTactic = matchingTactics[0];
+
+            Debug.Log($"Tactics 로드 성공: {selectedTactic.key} (유저: {selectedTactic.username})");
+            onComplete?.Invoke(true, selectedTactic.tacticsJson, selectedTactic.key);
         }));
     }
 

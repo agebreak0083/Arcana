@@ -447,8 +447,11 @@ public class SkillManager : MonoBehaviour
                         {
                             result.enchantEffects.Add(mySkillEffect);                            
 
-                            // 인챈트 헀다고 로그에 추가. 패시브 스킬 이름은 파스텔톤 파란계통으로 표시. 
-                            BattleLogManager.Instance.AddLog($" {actionCharacter.characterName}의 <color=#FFA500>{myPassiveSkill.name}</color> <color=#00FF00>[{mySkillEffect.stat} +{mySkillEffect.value} 인챈트 적용!]</color>");
+                            if(BattleLogManager.Instance != null)
+                            {
+                                // 인챈트 헀다고 로그에 추가. 패시브 스킬 이름은 파스텔톤 파란계통으로 표시. 
+                                BattleLogManager.Instance.AddLog($" {actionCharacter.characterName}의 <color=#FFA500>{myPassiveSkill.name}</color> <color=#00FF00>[{mySkillEffect.stat} +{mySkillEffect.value} 인챈트 적용!]</color>");
+                            }
                         }
                     }
                 }
