@@ -21,6 +21,8 @@ namespace Arcana.Tactics.Data
         public static int TICKET_FOR_LOSE = 5;        
         public static float DAMAGE_MULTIPLIER = 1.0f;
 
+        [Header("내부 데이터")]
+        public static string enemyTactics = ""; // 택틱스씬에서 정해진 적 택틱스 이름
 
         /// <summary>
         /// 구글 시트에서 CSV를 다운로드하여 BattleSetting 값을 설정합니다.
