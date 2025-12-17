@@ -16,7 +16,7 @@ public class IntroManager : MonoBehaviour
     {
         if(versionText != null)
         {
-            versionText.text = "v.12";
+            versionText.text = "v.13";
         }
 
         SetId(UserDataManager.Instance.currentUserData.playerName);
@@ -49,7 +49,7 @@ public class IntroManager : MonoBehaviour
     {
         UserDataManager.Instance.currentUserData.playerName = idText.text;
         UserDataManager.Instance.SaveUserData();
-        SceneManager.LoadScene("TacticsScene");
+        SceneManager.LoadScene("StoryBoardScene");
     }
 
     void OnGachaButtonClicked()
