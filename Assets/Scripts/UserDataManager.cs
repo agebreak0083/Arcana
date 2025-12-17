@@ -175,6 +175,14 @@ public class UserDataManager : MonoBehaviour
             SaveUserData();
         }
     }
+
+    public int UdpateScore(int addWin, int AddLose)
+    {
+        currentUserData.winCount += addWin;
+        currentUserData.loseCount += AddLose;
+        currentUserData.score += (addWin * 3) - (AddLose * 1);
+        return currentUserData.score;
+    }
 }
 
 /// <summary>
@@ -185,6 +193,10 @@ public class UserData
 {
     public string playerName;
     public int tickets;    
+    public int score; 
+    public int winCount; 
+    public int loseCount; 
+    public int ranking;
     public List<string> ownedCharacters;
     public GameSettings gameSettings;
     public string lastSaveTime;

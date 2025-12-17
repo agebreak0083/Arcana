@@ -159,13 +159,16 @@ public class Character : MonoBehaviour
             {
                 foreach(var target in targets)
                 {
-                    Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다. 타겟: {target.characterName}");
-                    
-                    // 전투 로그에 공격 기록
-                    if(BattleLogManager.Instance != null)
+                    if(skill != null && target != null)
                     {
-                        BattleLogManager.Instance.LogAttack(characterName, target.characterName, skill.name);
-                    }
+                        Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다. 타겟: {target.characterName}");
+
+                        // 전투 로그에 공격 기록
+                        if(BattleLogManager.Instance != null)
+                        {
+                            BattleLogManager.Instance.LogAttack(characterName, target.characterName, skill.name);
+                        }
+                    }                    
                 }
 
                 // 스킬 사용 전 패시브 스킬 체크

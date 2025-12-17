@@ -1,5 +1,9 @@
 {
-    "username": "운빨좆망겜_2512171340",
+    "key": "agebreak_2512171844",
+    "username": "agebreak_2512171844",
+    "score": 54,
+    "winCount": 19,
+    "loseCount": 3,
     "positions": [
         {
             "position": "1",
@@ -64,7 +68,7 @@
         },
         {
             "position": "4",
-            "name": "산화",
+            "name": "치사",
             "tactics": [
                 {
                     "characterClass": "헌터",
@@ -120,7 +124,7 @@
         },
         {
             "position": "6",
-            "name": "설지",
+            "name": "앙코",
             "tactics": [
                 {
                     "characterClass": "위치",

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Text;
@@ -19,6 +20,10 @@ public class JSONBinManager : MonoBehaviour
     
     private string baseUrl = "https://api.jsonbin.io/v3/b";
     public bool isInitialized { get; private set; } = false;
+    
+    // 캐시된 Tactics 데이터
+    private TacticsDatabase cachedTacticsDatabase = null;
+    private bool isCacheValid = false;
 
     void Awake()
     {
@@ -217,6 +222,57 @@ public class JSONBinManager : MonoBehaviour
         }));
     }
 
+    /// <summary>
+    /// JSONBin.io에서 모든 Tactics 데이터 로드 (public, 랭킹 계산용)
+    /// </summary>
+    /// <param name="onComplete">완료 콜백 (성공 여부, TacticsDatabase)</param>
+    public void GetAllTactics(System.Action<bool, TacticsDatabase> onComplete)
+    {
+        if (!isInitialized)
+        {
+            onComplete?.Invoke(false, null);
+            return;
+        }
+
+        // 캐시가 있으면 즉시 반환
+        if (isCacheValid && cachedTacticsDatabase != null)
+        {
+            Debug.Log("캐시된 Tactics 데이터 반환");
+            onComplete?.Invoke(true, cachedTacticsDatabase);
+            return;
+        }
+
+        StartCoroutine(LoadAllTactics(onComplete));
+    }
+
+    /// <summary>
+    /// 캐시를 무효화합니다 (새 데이터를 강제로 로드하려는 경우 사용)
+    /// </summary>
+    public void InvalidateCache()
+    {
+        isCacheValid = false;
+        cachedTacticsDatabase = null;
+        Debug.Log("Tactics 데이터 캐시 무효화");
+    }
+
+    /// <summary>
+    /// TacticsDatabase를 서버에 저장 (외부에서 호출 가능)
+    /// </summary>
+    public void SaveTacticsDatabase(TacticsDatabase database, Action<bool> onComplete = null)
+    {
+        if (!isInitialized)
+        {
+            Debug.LogError("JSONBinManager가 초기화되지 않았습니다.");
+            onComplete?.Invoke(false);
+            return;
+        }
+
+        StartCoroutine(SaveAllTactics(database, (success) =>
+        {
+            onComplete?.Invoke(success);
+        }));
+    }
+
     // ========== 내부 메서드 ==========
 
     /// <summary>
@@ -286,20 +342,30 @@ public class JSONBinManager : MonoBehaviour
                         database = new TacticsDatabase { tactics = new List<TacticsData>() };
                     }
                     
+                    // 캐시에 저장
+                    cachedTacticsDatabase = database;
+                    isCacheValid = true;
+                    
                     onComplete?.Invoke(true, database);
                 }
                 catch (Exception e)
                 {
                     Debug.LogError($"JSON 파싱 실패: {e.Message}\nResponse: {request.downloadHandler.text}");
-                    // 빈 데이터베이스 반환
-                    onComplete?.Invoke(true, new TacticsDatabase { tactics = new List<TacticsData>() });
+                    // 빈 데이터베이스 생성 및 캐시
+                    var emptyDatabase = new TacticsDatabase { tactics = new List<TacticsData>() };
+                    cachedTacticsDatabase = emptyDatabase;
+                    isCacheValid = true;
+                    onComplete?.Invoke(true, emptyDatabase);
                 }
             }
             else
             {
                 Debug.LogError($"데이터 로드 실패: {request.error} (HTTP {request.responseCode})");
-                // 빈 데이터베이스 반환 (새로 시작)
-                onComplete?.Invoke(true, new TacticsDatabase { tactics = new List<TacticsData>() });
+                // 빈 데이터베이스 생성 및 캐시
+                var emptyDatabase = new TacticsDatabase { tactics = new List<TacticsData>() };
+                cachedTacticsDatabase = emptyDatabase;
+                isCacheValid = true;
+                onComplete?.Invoke(true, emptyDatabase);
             }
         }
     }
@@ -309,6 +375,43 @@ public class JSONBinManager : MonoBehaviour
     /// </summary>
     private IEnumerator SaveAllTactics(TacticsDatabase database, Action<bool> onComplete)
     {
+        // Score 높은 순으로 최대 100개만 유지
+        if (database.tactics != null && database.tactics.Count > 100)
+        {
+            // 각 tacticsJson을 파싱해서 score 추출
+            var tacticsWithScore = new List<(TacticsData tactic, int score)>();
+            
+            foreach (var tactic in database.tactics)
+            {
+                int score = 0;
+                if (!string.IsNullOrEmpty(tactic.tacticsJson))
+                {
+                    try
+                    {
+                        // TacticsFileData 구조를 사용하여 score 추출
+                        var tacticsFileData = JsonUtility.FromJson<TacticsFileData>(tactic.tacticsJson);
+                        if (tacticsFileData != null)
+                        {
+                            score = tacticsFileData.score;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogWarning($"Tactics JSON 파싱 실패 (score 추출): {e.Message}");
+                    }
+                }
+                tacticsWithScore.Add((tactic, score));
+            }
+            
+            // Score 높은 순으로 정렬
+            tacticsWithScore.Sort((a, b) => b.score.CompareTo(a.score));
+            
+            // 상위 100개만 유지
+            database.tactics = tacticsWithScore.Take(100).Select(x => x.tactic).ToList();
+            
+            Debug.Log($"Score 기준 상위 100개만 유지: {tacticsWithScore.Count}개 -> {database.tactics.Count}개");
+        }
+        
         string url = $"{baseUrl}/{binId}";
         string json = JsonUtility.ToJson(database);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
@@ -319,27 +422,18 @@ public class JSONBinManager : MonoBehaviour
         
         Debug.Log($"저장할 데이터 크기: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB, {dataSize} bytes)");
         
-        // 데이터가 너무 크면 오래된 데이터 제거
+        // 데이터가 너무 크면 오래된 데이터 제거 (score 기준으로 이미 정렬되어 있음)
         if (dataSize > maxSizeBytes)
         {
-            Debug.LogWarning($"데이터 크기가 제한을 초과합니다 ({dataSize / (1024f * 1024f):F2} MB > {maxSizeBytes / (1024f * 1024f):F2} MB). 오래된 데이터를 제거합니다.");
+            Debug.LogWarning($"데이터 크기가 제한을 초과합니다 ({dataSize / (1024f * 1024f):F2} MB > {maxSizeBytes / (1024f * 1024f):F2} MB). 낮은 score 데이터를 제거합니다.");
             
-            // 타임스탬프 기준으로 정렬하고 오래된 것부터 제거
+            // Score가 낮은 것부터 제거 (이미 score 높은 순으로 정렬되어 있으므로 뒤에서부터 제거)
             if (database.tactics != null && database.tactics.Count > 0)
             {
-                // 타임스탬프로 정렬 (오래된 것부터)
-                database.tactics.Sort((a, b) => 
-                {
-                    if (string.IsNullOrEmpty(a.timestamp)) return 1;
-                    if (string.IsNullOrEmpty(b.timestamp)) return -1;
-                    return string.Compare(a.timestamp, b.timestamp);
-                });
-                
-                // 데이터 크기가 제한 이하가 될 때까지 오래된 데이터 제거
                 int removedCount = 0;
                 while (dataSize > maxSizeBytes && database.tactics.Count > 0)
                 {
-                    database.tactics.RemoveAt(0);
+                    database.tactics.RemoveAt(database.tactics.Count - 1); // 마지막 요소 제거 (낮은 score)
                     removedCount++;
                     
                     // 다시 JSON 변환하여 크기 확인
@@ -348,7 +442,7 @@ public class JSONBinManager : MonoBehaviour
                     dataSize = bodyRaw.Length;
                 }
                 
-                Debug.LogWarning($"{removedCount}개의 오래된 Tactics 데이터를 제거했습니다. 현재 크기: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
+                Debug.LogWarning($"{removedCount}개의 낮은 score Tactics 데이터를 제거했습니다. 현재 크기: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
             }
         }
 
@@ -365,6 +459,11 @@ public class JSONBinManager : MonoBehaviour
             {
                 // database.tactics.count와 용량 사이즈 출력
                 Debug.Log($"데이터 저장 성공: {database.tactics.Count}개의 Tactics 데이터를 저장했습니다. 용량 사이즈: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
+                
+                // 캐시 업데이트
+                cachedTacticsDatabase = database;
+                isCacheValid = true;
+                
                 onComplete?.Invoke(true);
             }
             else
@@ -402,6 +501,18 @@ public class JSONBinManager : MonoBehaviour
     // ========== 데이터 클래스 ==========
 
     /// <summary>
+    /// TacticsFileData 구조 (score 추출용)
+    /// </summary>
+    [Serializable]
+    private class TacticsFileData
+    {
+        public string username;
+        public int score = 0;
+        public int winCount = 0;
+        public int loseCount = 0;
+    }
+
+    /// <summary>
     /// JSONBin.io 응답 구조 (record가 문자열인 경우)
     /// </summary>
     [Serializable]
@@ -423,7 +534,7 @@ public class JSONBinManager : MonoBehaviour
     /// Tactics 데이터베이스 구조
     /// </summary>
     [Serializable]
-    private class TacticsDatabase
+    public class TacticsDatabase
     {
         public List<TacticsData> tactics = new List<TacticsData>();
     }
@@ -432,7 +543,7 @@ public class JSONBinManager : MonoBehaviour
     /// 개별 Tactics 데이터 구조
     /// </summary>
     [Serializable]
-    private class TacticsData
+    public class TacticsData
     {
         public string key;
         public string username;

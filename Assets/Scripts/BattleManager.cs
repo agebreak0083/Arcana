@@ -592,6 +592,17 @@ public class BattleManager : MonoBehaviour
         }
         else
         {
+            // 서버 스코어 업데이트 (player, enemy 모두)
+            TacticsDataManager.Instance.UpdateScore(playerFormationLoadResult.username, isPlayerWin ? 1 : 0, isPlayerWin ? 0 : 1);
+            TacticsDataManager.Instance.UpdateScore(enemyFormationLoadResult.username, isPlayerWin ? 0 : 1, isPlayerWin ? 1 : 0);
+            
+            int newScore = UserDataManager.Instance.UdpateScore(isPlayerWin ? 1 : 0, isPlayerWin ? 0 : 1);
+            TacticsDataManager.Instance.GetRanking(newScore, (ranking) =>
+            {
+                UserDataManager.Instance.currentUserData.ranking = ranking;
+                UserDataManager.Instance.SaveUserData();
+            });
+            
             // 시뮬레이션 모드가 아니라 Battle Scene이라면, 끝나면 시뮬레이션 결과 리셋. 
             battleSimulationResult = new BattleSimulationResult();
         }

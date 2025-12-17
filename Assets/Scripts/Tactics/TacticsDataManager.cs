@@ -127,6 +127,282 @@ namespace Arcana.Tactics
         }
 
         /// <summary>
+        /// 점수를 받아서 전체 랭킹을 반환합니다 (비동기)
+        /// </summary>
+        /// <param name="score">랭킹을 확인할 점수</param>
+        /// <param name="onComplete">완료 콜백 (랭킹, 0이면 데이터 로드 실패)</param>
+        public void GetRanking(int score, System.Action<int> onComplete)
+        {
+            if (JSONBinManager.Instance == null || !JSONBinManager.Instance.isInitialized)
+            {
+                Debug.LogWarning("JSONBinManager가 초기화되지 않았습니다.");
+                onComplete?.Invoke(0);
+                return;
+            }
+
+            // JSONBinManager에서 모든 Tactics 데이터 로드
+            JSONBinManager.Instance.GetAllTactics((success, database) =>
+            {
+                if (!success || database == null || database.tactics == null)
+                {
+                    Debug.LogWarning("Tactics 데이터 로드 실패");
+                    onComplete?.Invoke(0);
+                    return;
+                }
+
+                // 모든 Tactics JSON을 파싱하여 TacticsFileData로 변환
+                Dictionary<string, int> userScores = new Dictionary<string, int>();
+
+                foreach (JSONBinManager.TacticsData tactic in database.tactics)
+                {
+                    if (string.IsNullOrEmpty(tactic.tacticsJson)) continue;
+
+                    try
+                    {
+                        TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(tactic.tacticsJson);
+                        if (tacticsData != null && !string.IsNullOrEmpty(tacticsData.username))
+                        {
+                            // key 값 설정 (JSONBinManager의 key 사용)
+                            if (string.IsNullOrEmpty(tacticsData.key))
+                            {
+                                tacticsData.key = tactic.key;
+                            }
+                            
+                            userScores[tacticsData.key] = tacticsData.score;
+                            
+                        }
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogWarning($"Tactics JSON 파싱 실패: {e.Message}");
+                        continue;
+                    }
+                }
+
+                // score가 높은 순서대로 정렬
+                var sortedScores = userScores.Values.OrderByDescending(x => x).ToList();
+
+                // 주어진 score보다 높은 점수를 가진 사용자 수를 세어서 랭킹 계산
+                // 예: [100, 90, 80, 70], 내 점수 85 -> 랭킹 3 (100, 90이 더 높음)
+                int ranking = sortedScores.Count(s => s > score) + 1;
+
+                // 가장 높은 score를 가진 사용자의 이름과 score 가져오기
+                string highestScoreUsername = userScores.Keys.FirstOrDefault(k => userScores[k] == sortedScores.First());
+                int highestScore = sortedScores.First();
+
+                Debug.Log($"가장 높은 score를 가진 사용자: {highestScoreUsername}, score: {highestScore}");
+
+                onComplete?.Invoke(ranking);
+            });
+        }
+
+        /// <summary>
+        /// 모든 유저의 TacticsData를 score 순으로 가져옵니다 (비동기)
+        /// </summary>
+        /// <param name="onComplete">완료 콜백 (유저 데이터 리스트: username, score, winCount, loseCount)</param>
+        public void GetAllUsersSortedByScore(System.Action<List<(string username, int score, int winCount, int loseCount)>> onComplete)
+        {
+            if (JSONBinManager.Instance == null || !JSONBinManager.Instance.isInitialized)
+            {
+                Debug.LogWarning("JSONBinManager가 초기화되지 않았습니다.");
+                onComplete?.Invoke(new List<(string, int, int, int)>());
+                return;
+            }
+
+            // JSONBinManager에서 모든 Tactics 데이터 로드
+            JSONBinManager.Instance.GetAllTactics((success, database) =>
+            {
+                if (!success || database == null || database.tactics == null)
+                {
+                    Debug.LogWarning("Tactics 데이터 로드 실패");
+                    onComplete?.Invoke(new List<(string, int, int, int)>());
+                    return;
+                }
+
+                // 모든 Tactics JSON을 파싱하여 TacticsFileData로 변환
+                Dictionary<string, (int score, int winCount, int loseCount)> userData = new Dictionary<string, (int, int, int)>();
+
+                foreach (JSONBinManager.TacticsData tactic in database.tactics)
+                {
+                    if (string.IsNullOrEmpty(tactic.tacticsJson)) continue;
+
+                    try
+                    {
+                        TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(tactic.tacticsJson);                        
+                        if (tacticsData != null && !string.IsNullOrEmpty(tacticsData.username))
+                        {
+                            userData[tacticsData.username] = (tacticsData.score, tacticsData.winCount, tacticsData.loseCount);                            
+                        }
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogWarning($"Tactics JSON 파싱 실패: {e.Message}");
+                        continue;
+                    }
+                }
+
+                // score가 높은 순서대로 정렬하여 리스트로 변환
+                var sortedUsers = userData
+                    .Select(kvp => (username: kvp.Key, score: kvp.Value.score, winCount: kvp.Value.winCount, loseCount: kvp.Value.loseCount))
+                    .OrderByDescending(x => x.score)
+                    .ToList();
+
+                onComplete?.Invoke(sortedUsers);
+            });
+        }
+
+        /// <summary>
+        /// 사용자의 랭킹을 가져옵니다 (비동기)
+        /// </summary>
+        /// <param name="username">랭킹을 확인할 사용자 이름</param>
+        /// <param name="onComplete">완료 콜백 (랭킹, 0이면 사용자를 찾을 수 없음)</param>
+        public void GetRankingByUsername(string key, System.Action<int> onComplete)
+        {
+            if (JSONBinManager.Instance == null || !JSONBinManager.Instance.isInitialized)
+            {
+                Debug.LogWarning("JSONBinManager가 초기화되지 않았습니다.");
+                onComplete?.Invoke(0);
+                return;
+            }
+
+            // JSONBinManager에서 모든 Tactics 데이터 로드
+            JSONBinManager.Instance.GetAllTactics((success, database) =>
+            {
+                if (!success || database == null || database.tactics == null)
+                {
+                    Debug.LogWarning("Tactics 데이터 로드 실패");
+                    onComplete?.Invoke(0);
+                    return;
+                }
+
+                // 모든 Tactics JSON을 파싱하여 TacticsFileData로 변환
+                Dictionary<string, int> userScores = new Dictionary<string, int>();
+
+                foreach (JSONBinManager.TacticsData tactic in database.tactics)
+                {
+                    if (string.IsNullOrEmpty(tactic.tacticsJson)) continue;
+
+                    try
+                    {
+                        TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(tactic.tacticsJson);
+                        if (tacticsData != null && !string.IsNullOrEmpty(tacticsData.username))
+                        {
+                            // key 값 설정 (JSONBinManager의 key 사용)
+                            if (string.IsNullOrEmpty(tacticsData.key))
+                            {
+                                tacticsData.key = tactic.key;
+                            }
+
+                            userScores[tacticsData.key] = tacticsData.score;                           
+                        }
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogWarning($"Tactics JSON 파싱 실패: {e.Message}");
+                        continue;
+                    }
+                }
+
+                // score가 높은 순서대로 정렬
+                var sortedUsers = userScores.OrderByDescending(x => x.Value).ToList();
+
+                // 주어진 username의 순서 찾기
+                for (int i = 0; i < sortedUsers.Count; i++)
+                {
+                    if (sortedUsers[i].Key == key)
+                    {
+                        onComplete?.Invoke(i + 1); // 1부터 시작하는 랭킹
+                        return;
+                    }
+                }
+
+                // 사용자를 찾을 수 없음
+                onComplete?.Invoke(0);
+            });
+        }
+
+        public int UpdateScore(string key, int addWin, int addLose)
+        {
+            // UserName에 해당하는 Tactis Data를 찾아서, 
+            // win/lose Count를 업데이트하고, Score를 업데이트한다. (Win : + 3점, Lose : - 1점)
+            // 이 값은 저장할때 서버에도 업데이트하여 저장한다.
+            
+            if (string.IsNullOrEmpty(key))
+            {
+                Debug.LogWarning("UpdateScore: userName이 비어있습니다.");
+                return 0;
+            }
+
+            int newScore = 0;
+
+            // 서버 데이터 업데이트
+            if (JSONBinManager.Instance != null && JSONBinManager.Instance.isInitialized)
+            {
+                JSONBinManager.Instance.GetAllTactics((success, database) =>
+                {
+                    if (!success || database == null || database.tactics == null)
+                    {
+                        Debug.LogWarning("서버 데이터 로드 실패. 로컬 데이터만 업데이트되었습니다.");
+                        return;
+                    }
+
+                    bool serverUpdated = false;
+                    
+                    // 해당 userName의 모든 tactics 데이터 찾아서 업데이트
+                    foreach (var tactic in database.tactics)
+                    {
+                        if (string.IsNullOrEmpty(tactic.tacticsJson)) continue;
+
+                        try
+                        {
+                            TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(tactic.tacticsJson);
+                            if (tacticsData != null && !string.IsNullOrEmpty(tacticsData.key) &&
+                                tacticsData.key == key)
+                            {
+                                // winCount, loseCount 업데이트
+                                tacticsData.winCount += addWin;
+                                tacticsData.loseCount += addLose;
+                                
+                                // Score 업데이트 (Win: +3점, Lose: -1점)
+                                tacticsData.score += (addWin * 3) - (addLose * 1);
+                                newScore = tacticsData.score;                                
+                                
+                                // 업데이트된 JSON으로 교체
+                                tactic.tacticsJson = JsonUtility.ToJson(tacticsData, true);
+                                serverUpdated = true;
+                                
+                                Debug.Log($"서버 데이터 업데이트: {key} - Win: +{addWin}, Lose: +{addLose}, Score: {tacticsData.score}");
+                            }
+                        }
+                        catch (System.Exception e)
+                        {
+                            Debug.LogWarning($"Tactics JSON 파싱 실패: {e.Message}");
+                            continue;
+                        }
+                    }
+
+                    if (serverUpdated)
+                    {
+                        // 서버에 저장
+                        JSONBinManager.Instance.SaveTacticsDatabase(database, (success) =>
+                        {
+                            if (success)
+                            {
+                                Debug.Log("서버에 Score 업데이트 완료");
+                            }
+                            else
+                            {
+                                Debug.LogError("서버에 Score 업데이트 실패");
+                            }
+                        });
+                    }                   
+                });
+            }
+
+            return newScore;
+        }
+
+        /// <summary>
         /// 모든 캐릭터 정의 목록을 가져옵니다 (가챠 시스템용)
         /// </summary>
         public CharacterDefinition[] GetAllCharacterDefinitions()
@@ -722,15 +998,21 @@ namespace Arcana.Tactics
             // Build positions data using unified structure
             var positionsList = new List<PositionData>();
 
-            string username;
+            string username = "";
+            int score = 0;
+            int winCount = 0;
+            int loseCount = 0;
+
             if (UserDataManager.Instance != null && UserDataManager.Instance.currentUserData != null)
             {
+                score = UserDataManager.Instance.currentUserData.score;
+                winCount = UserDataManager.Instance.currentUserData.winCount;
+                loseCount = UserDataManager.Instance.currentUserData.loseCount;            
+                
                 // username : playername_날짜시간
                 username = UserDataManager.Instance.currentUserData.playerName + "_" + DateTime.Now.ToString("yyMMddHHmm");
-            }
-            else
-            {
-                username = "Player_" + DateTime.Now.ToString("yyMMddHHmm");
+
+                Debug.Log($"GetTacticsJson: username: {username}, score: {score}, winCount: {winCount}, loseCount: {loseCount}");
             }
 
             for (int i = 0; i < 6; i++)
@@ -753,7 +1035,7 @@ namespace Arcana.Tactics
                         var tacticRowsList = new List<TacticRowData>();
                         foreach (var row in plan.rows)
                         {
-                            tacticRowsList.Add(new TacticRowData
+                            tacticRowsList.Add(new TacticRowData 
                             {
                                 skill = row.skillName,
                                 condition1 = row.condition1,
@@ -775,10 +1057,17 @@ namespace Arcana.Tactics
                 positionsList.Add(posData);
             }
 
+            // Key 생성: username_날짜시간 (JSONBinManager와 동일한 형식)
+            string key = username;
+
             // Serialize to JSON using JsonUtility
             var tacticsFileData = new TacticsFileData
             {
+                key = key,
                 username = username,
+                score = score,
+                winCount = winCount,
+                loseCount = loseCount,
                 positions = positionsList.ToArray()
             };
 
@@ -1034,8 +1323,11 @@ namespace Arcana.Tactics
                     return result;
                 }
 
-                // Set Username                
+                // Set Username and stats
                 result.username = tacticsData.username;
+                result.score = tacticsData.score;
+                result.winCount = tacticsData.winCount;
+                result.loseCount = tacticsData.loseCount;
 
                 // Load each position
                 foreach (var posData in tacticsData.positions)
@@ -1225,7 +1517,11 @@ namespace Arcana.Tactics
         [System.Serializable]
         public class TacticsFileData
         {
-            public string username;
+            public string key;
+            public string username;            
+            public int score = 0;
+            public int winCount = 0;
+            public int loseCount = 0;
             public PositionData[] positions;
         }
 
@@ -1280,6 +1576,9 @@ namespace Arcana.Tactics
         public class FormationLoadResult
         {
             public string username;
+            public int score = 0;
+            public int winCount = 0;
+            public int loseCount = 0;
             public CharacterData[] unitSlots;
             public Dictionary<string, TacticsPlan> codingData;
         }

@@ -16,6 +16,7 @@ public class BattleUI : MonoBehaviour
     public TextMeshProUGUI playerNameText;
     public TextMeshProUGUI enemyNameText;
     public TextMeshProUGUI debugText;
+    public LeaderBoardUI leaderBoardUI;
 
     [Header("Animation Settings")]
     public float skillNameDisplayTime = 2f; // 스킬 이름 표시 시간
@@ -223,6 +224,8 @@ public class BattleUI : MonoBehaviour
             GameObject defeatPanel = Instantiate(defeatPanelPrefab);
             Transform endPanel = transform.Find("EndPanel");
             defeatPanel.transform.SetParent(endPanel, false);
+            leaderBoardUI.UpdateLeaderBoard();
+            leaderBoardUI.gameObject.SetActive(true);
         }
     }
 
@@ -233,6 +236,8 @@ public class BattleUI : MonoBehaviour
             GameObject victoryPanel = Instantiate(victoryPanelPrefab);
             Transform endPanel = transform.Find("EndPanel");
             victoryPanel.transform.SetParent(endPanel, false);
+            leaderBoardUI.UpdateLeaderBoard();
+            leaderBoardUI.gameObject.SetActive(true);
         }
     }
 

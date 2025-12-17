@@ -43,6 +43,7 @@ namespace Arcana.Tactics.UI
         public TextMeshProUGUI detialAP_PP;
         public TextMeshProUGUI detailDesc;
         public TextMeshProUGUI uidText;
+        public TextMeshProUGUI rankingText;
 
         [Header("Detail Stats")]
         public TextMeshProUGUI detailStatHP;
@@ -545,7 +546,18 @@ namespace Arcana.Tactics.UI
         {
             if (uidText != null && UserDataManager.Instance != null && UserDataManager.Instance.currentUserData != null)
             {
-                uidText.text = "UID: " + UserDataManager.Instance.currentUserData.playerName;
+                uidText.text = UserDataManager.Instance.currentUserData.playerName;
+            }
+
+            if (rankingText != null && UserDataManager.Instance != null && UserDataManager.Instance.currentUserData != null)
+            {
+                // 랭킹 / 스코어 / win /lose 정보 표시 (색상 구분. 원색 말고, 파스텔 컬러 사용. 파스텔 컬러 리스트: https://colorhunt.co/palette/6272a499b8d2c5e1f5ebf8ff)
+                rankingText.text = "<color=#6272a4> 랭킹:" + UserDataManager.Instance.currentUserData.ranking.ToString() + "</color> /";
+                rankingText.text += "<color=#99b8d2> 스코어:" + UserDataManager.Instance.currentUserData.score.ToString() + "</color> /";
+                // 초록색 톤의 파스텔 컬러 사용
+                rankingText.text += "<color=#40e0d0> Win:" + UserDataManager.Instance.currentUserData.winCount.ToString() + "</color> /";
+                // 파란색 톤의 파스텔 컬러 사용
+                rankingText.text += "<color=#4169e1> Lose:" + UserDataManager.Instance.currentUserData.loseCount.ToString() + "</color>";
             }
         }
 
