@@ -363,7 +363,8 @@ public class JSONBinManager : MonoBehaviour
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                Debug.Log($"데이터 저장 성공: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
+                // database.tactics.count와 용량 사이즈 출력
+                Debug.Log($"데이터 저장 성공: {database.tactics.Count}개의 Tactics 데이터를 저장했습니다. 용량 사이즈: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
                 onComplete?.Invoke(true);
             }
             else

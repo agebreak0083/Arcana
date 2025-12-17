@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 /// <summary>
@@ -16,29 +15,13 @@ public class UserDataManager : MonoBehaviour
     [Header("User Data")]
     public UserData currentUserData;
 
-    private string saveFilePath;
-    private const string SAVE_FILE_NAME = "userdata.json";
+    private const string PLAYER_PREFS_KEY = "UserData";
 
     void Awake()
     {
-        // 씬마다 독립적인 인스턴스 사용 (파일에서 로드)
+        // 씬마다 독립적인 인스턴스 사용 (PlayerPrefs에서 로드)
         Instance = this;
-        InitializeSavePath();
         LoadUserData();
-    }
-
-    /// <summary>
-    /// 저장 파일 경로 초기화
-    /// </summary>
-    private void InitializeSavePath()
-    {
-#if UNITY_SWITCH
-        // Nintendo Switch에서는 persistentDataPath 사용 불가
-        saveFilePath = Path.Combine(Application.dataPath, SAVE_FILE_NAME);
-#else
-        saveFilePath = Path.Combine(Application.persistentDataPath, SAVE_FILE_NAME);
-#endif
-        Debug.Log($"UserData 저장 경로: {saveFilePath}");
     }
 
     /// <summary>
@@ -46,13 +29,13 @@ public class UserDataManager : MonoBehaviour
     /// </summary>
     public void LoadUserData()
     {
-        if (File.Exists(saveFilePath))
+        if (PlayerPrefs.HasKey(PLAYER_PREFS_KEY))
         {
             try
             {
-                string json = File.ReadAllText(saveFilePath);
+                string json = PlayerPrefs.GetString(PLAYER_PREFS_KEY);
                 currentUserData = JsonUtility.FromJson<UserData>(json);
-                Debug.Log("사용자 데이터 로드 완료");
+                Debug.Log("사용자 데이터 로드 완료 (PlayerPrefs)");
             }
             catch (Exception e)
             {
@@ -75,8 +58,9 @@ public class UserDataManager : MonoBehaviour
         try
         {
             string json = JsonUtility.ToJson(currentUserData, true);
-            File.WriteAllText(saveFilePath, json);
-            Debug.Log("사용자 데이터 저장 완료");
+            PlayerPrefs.SetString(PLAYER_PREFS_KEY, json);
+            PlayerPrefs.Save();
+            Debug.Log("사용자 데이터 저장 완료 (PlayerPrefs)");
         }
         catch (Exception e)
         {
@@ -91,7 +75,7 @@ public class UserDataManager : MonoBehaviour
     {
         currentUserData = new UserData
         {
-            playerName = System.Environment.MachineName, // PC의 HostName 사용
+            playerName = "",
             tickets = 10,
             ownedCharacters = new List<string>(),
             gameSettings = new GameSettings
