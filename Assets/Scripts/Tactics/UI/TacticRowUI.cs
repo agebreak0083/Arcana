@@ -14,6 +14,7 @@ namespace Arcana.Tactics.UI
         public TextMeshProUGUI condition1Text;
         public Button condition2Btn;
         public TextMeshProUGUI condition2Text;
+        public TextMeshProUGUI ap_pp_Star; 
 
         private TacticsUIManager _manager;
         private int _rowIndex;
@@ -33,12 +34,42 @@ namespace Arcana.Tactics.UI
             if (rowData == null)
             {
                 skillNameBtn.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0.5f, 0.5f, 0.5f); // Gray
+                ap_pp_Star.text = "";
             }
             else
             {
+                // 스킬 정보 가져오기
+                Skill skill = null;
+                if (!string.IsNullOrEmpty(rowData.skillName) && rowData.skillName != "---" && SkillManager.Instance != null)
+                {
+                    skill = SkillManager.Instance.GetSkillByName(rowData.skillName);
+                }
+
                 // Color coding: AP (Red), PP (Blue)
-                if (rowData.skillType == "AP") skillNameBtn.GetComponentInChildren<TextMeshProUGUI>().color = new Color(1f, 0.4f, 0.4f); // Reddish
-                else skillNameBtn.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0.4f, 0.6f, 1f); // Blueish
+                if (rowData.skillType == "AP") 
+                {
+                    skillNameBtn.GetComponentInChildren<TextMeshProUGUI>().color = new Color(1f, 0.4f, 0.4f); // Reddish
+                    ap_pp_Star.color = new Color(1f, 0.4f, 0.4f);
+
+                    ap_pp_Star.text = "";
+                    int costAP = skill != null ? skill.costAP : 0;
+                    for(int i = 0; i < costAP; i++)
+                    {
+                        ap_pp_Star.text += "★";
+                    }
+                }
+                else 
+                {
+                    skillNameBtn.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0.4f, 0.6f, 1f); // Blueish
+                    ap_pp_Star.color = new Color(0.4f, 0.6f, 1f);
+
+                    ap_pp_Star.text = "";
+                    int costPP = skill != null ? skill.costPP : 0;
+                    for(int i = 0; i < costPP; i++)
+                    {
+                        ap_pp_Star.text += "★";
+                    }
+                }                
             }
 
             condition1Btn.GetComponentInChildren<TextMeshProUGUI>().text = rowData == null? "조건 없음" : rowData.condition1;
