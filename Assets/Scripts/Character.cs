@@ -219,6 +219,18 @@ public class Character : MonoBehaviour
             return null;
         }
 
+        // Melee 특성을 가진 스킬일 때는 앞열의 타겟만을 필터링 한다. 
+        if (skill.traits.Contains("melee"))
+        {
+            List<Character> meleeTargets = candidates.Where(c => c.position <= 3).ToList();
+            if(meleeTargets.Count > 0)
+            {
+                candidates = meleeTargets;
+            }
+            // 전열이 없으면 그대로 candidates를 사용       
+            
+        }
+
         // 3. Condition2 적용 (필터링)
         if (!string.IsNullOrEmpty(action.condition2) && action.condition2 != "조건 없음")
         {
