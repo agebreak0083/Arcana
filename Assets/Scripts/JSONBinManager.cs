@@ -312,6 +312,45 @@ public class JSONBinManager : MonoBehaviour
         string url = $"{baseUrl}/{binId}";
         string json = JsonUtility.ToJson(database);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+        
+        // 데이터 크기 확인 (JSONBin.io Pro Plan 제한: 10MB)
+        const int maxSizeBytes = 1 * 1024 * 1024; // 9MB (안전 마진 포함)
+        int dataSize = bodyRaw.Length;
+        
+        Debug.Log($"저장할 데이터 크기: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB, {dataSize} bytes)");
+        
+        // 데이터가 너무 크면 오래된 데이터 제거
+        if (dataSize > maxSizeBytes)
+        {
+            Debug.LogWarning($"데이터 크기가 제한을 초과합니다 ({dataSize / (1024f * 1024f):F2} MB > {maxSizeBytes / (1024f * 1024f):F2} MB). 오래된 데이터를 제거합니다.");
+            
+            // 타임스탬프 기준으로 정렬하고 오래된 것부터 제거
+            if (database.tactics != null && database.tactics.Count > 0)
+            {
+                // 타임스탬프로 정렬 (오래된 것부터)
+                database.tactics.Sort((a, b) => 
+                {
+                    if (string.IsNullOrEmpty(a.timestamp)) return 1;
+                    if (string.IsNullOrEmpty(b.timestamp)) return -1;
+                    return string.Compare(a.timestamp, b.timestamp);
+                });
+                
+                // 데이터 크기가 제한 이하가 될 때까지 오래된 데이터 제거
+                int removedCount = 0;
+                while (dataSize > maxSizeBytes && database.tactics.Count > 0)
+                {
+                    database.tactics.RemoveAt(0);
+                    removedCount++;
+                    
+                    // 다시 JSON 변환하여 크기 확인
+                    json = JsonUtility.ToJson(database);
+                    bodyRaw = Encoding.UTF8.GetBytes(json);
+                    dataSize = bodyRaw.Length;
+                }
+                
+                Debug.LogWarning($"{removedCount}개의 오래된 Tactics 데이터를 제거했습니다. 현재 크기: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
+            }
+        }
 
         using (UnityWebRequest request = new UnityWebRequest(url, "PUT"))
         {
@@ -324,11 +363,20 @@ public class JSONBinManager : MonoBehaviour
 
             if (request.result == UnityWebRequest.Result.Success)
             {
+                Debug.Log($"데이터 저장 성공: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
                 onComplete?.Invoke(true);
             }
             else
             {
-                Debug.LogError($"데이터 저장 실패: {request.error} (HTTP {request.responseCode})");
+                if (request.responseCode == 413)
+                {
+                    Debug.LogError($"데이터 저장 실패: 페이로드가 너무 큽니다 (HTTP 413). 데이터 크기: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
+                    Debug.LogError("해결 방법: 오래된 Tactics 데이터를 수동으로 삭제하거나, 데이터를 여러 bin으로 나누어 저장하세요.");
+                }
+                else
+                {
+                    Debug.LogError($"데이터 저장 실패: {request.error} (HTTP {request.responseCode})");
+                }
                 onComplete?.Invoke(false);
             }
         }

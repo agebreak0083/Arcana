@@ -285,7 +285,14 @@ public class Character : MonoBehaviour
         {
             foreach(var target in targets)
             {
-                Debug.Log($"{characterName}의 타겟: {target.characterName} (Condition1: {action.condition1})");
+                if(target != null)
+                {
+                    Debug.Log($"{characterName}의 타겟: {target.characterName} (Condition1: {action.condition1})");
+                }
+                else
+                {
+                    Debug.LogWarning($"{characterName}: 타겟이 null입니다.");
+                }
             }
         }
         else

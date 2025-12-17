@@ -343,8 +343,8 @@ public class BattleManager : MonoBehaviour
         if (currentRound > BattleSetting.MAX_ROUNDS)
         {
             Debug.Log($"패배... (최대 라운드 {BattleSetting.MAX_ROUNDS} 초과)");
-            UserDataManager.Instance.AddTickets(BattleSetting.TICKET_FOR_LOSE);
-            BattleUI.Instance.ShowDefeatPanel();
+            SetPlayerWinLose(false);
+            
             isBattleOver = true;
             yield break;
         }
@@ -547,18 +547,27 @@ public class BattleManager : MonoBehaviour
 
         if (!playerAlive)
         {
-            UserDataManager.Instance.AddTickets(BattleSetting.TICKET_FOR_LOSE);
-
-            if(BattleUI.Instance != null)
-            {
-                BattleUI.Instance.ShowDefeatPanel();
-            }
-            Debug.Log("패배... (플레이어 전멸)");
+            SetPlayerWinLose(false);
             isBattleOver = true;
 
             return true;
         }
         if (!enemyAlive)
+        {
+            SetPlayerWinLose(true);
+            isBattleOver = true;
+
+            return true;
+        }        
+
+        UserDataManager.Instance.SaveUserData();
+
+        return false;
+    }
+
+    void SetPlayerWinLose(bool isPlayerWin)
+    {
+        if(isPlayerWin)
         {
             UserDataManager.Instance.AddTickets(BattleSetting.TICKET_FOR_WIN);
             if(BattleUI.Instance != null)
@@ -566,24 +575,26 @@ public class BattleManager : MonoBehaviour
                 BattleUI.Instance.ShowVictoryPanel();
             }
             Debug.Log("승리! (적 전멸)");
-            isBattleOver = true;
-
-            return true;
+        }
+        else
+        {
+            UserDataManager.Instance.AddTickets(BattleSetting.TICKET_FOR_LOSE);
+            if(BattleUI.Instance != null)
+            {
+                BattleUI.Instance.ShowDefeatPanel();
+            }
+            Debug.Log("패배... (플레이어 전멸)");
         }
 
         if(isSimulationMode)
         {
-            battleSimulationResult.isPlayerWin = playerAlive;
+            battleSimulationResult.isPlayerWin = isPlayerWin;
         }
         else
         {
             // 시뮬레이션 모드가 아니라 Battle Scene이라면, 끝나면 시뮬레이션 결과 리셋. 
             battleSimulationResult = new BattleSimulationResult();
         }
-
-        UserDataManager.Instance.SaveUserData();
-
-        return false;
     }
 
     private bool IsValidCharacter(Character character)

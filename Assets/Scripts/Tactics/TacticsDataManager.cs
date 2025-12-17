@@ -44,6 +44,8 @@ namespace Arcana.Tactics
         /// </summary>
         private System.Collections.IEnumerator LoadAllDataAsync(string enemyName)
         {
+            Debug.Log("TacticsDataManager: 모든 데이터 비동기 로드 시작");
+            
             isDataLoaded = false;
 
             LoadSkillList();

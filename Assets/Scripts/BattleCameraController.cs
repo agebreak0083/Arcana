@@ -56,8 +56,7 @@ public class BattleCameraController : MonoBehaviour
         if (currentCharacter == null) return;
 
         // 캐릭터의 World Position 좌표
-        Vector3 characterPosition = currentCharacter.transform.position;
-        Debug.Log("characterPosition: " + characterPosition);
+        Vector3 characterPosition = currentCharacter.transform.position;        
 
         // 캐릭터의 회전 방향 적용
         Quaternion rotation = Quaternion.Euler(0, currentCharacter.transform.rotation.y, 0);    

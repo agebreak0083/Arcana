@@ -1,16 +1,21 @@
 {
-    "username": "AGEBREAK-WO2_2512161911",
+    "username": "AGEBREAK-WO2_2512162217",
     "positions": [
         {
             "position": "1",
-            "name": "도기",
+            "name": "",
+            "tactics": []
+        },
+        {
+            "position": "2",
+            "name": "양양",
             "tactics": [
                 {
                     "characterClass": "파이터",
                     "plan": [
                         {
                             "skill": "가드 슬래시",
-                            "condition1": "조건 없음",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
@@ -53,12 +58,12 @@
             ]
         },
         {
-            "position": "2",
+            "position": "3",
             "name": "",
             "tactics": []
         },
         {
-            "position": "3",
+            "position": "4",
             "name": "산화",
             "tactics": [
                 {
@@ -109,12 +114,12 @@
             ]
         },
         {
-            "position": "4",
+            "position": "5",
             "name": "",
             "tactics": []
         },
         {
-            "position": "5",
+            "position": "6",
             "name": "설지",
             "tactics": [
                 {
@@ -163,11 +168,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "position": "6",
-            "name": "",
-            "tactics": []
         }
     ]
 }
