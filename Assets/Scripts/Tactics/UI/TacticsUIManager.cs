@@ -439,13 +439,14 @@ namespace Arcana.Tactics.UI
 
         private IEnumerator OnRunBattleClickedCoroutine()
         {
+            battleSimulationResultUI.SetActive(true);            
+
             // 로컬 파일에 저장
             _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);
 
             // 시뮬레이션 모드 스타트 - 완료될 때까지 대기
             yield return StartCoroutine(BattleManager.Instance.SimulationModeStart());
             
-            battleSimulationResultUI.SetActive(true);            
             BattleSimulationResultUI battleSimulationResultUIComponent = battleSimulationResultUI.GetComponent<BattleSimulationResultUI>();
             if(battleSimulationResultUIComponent != null)
             {

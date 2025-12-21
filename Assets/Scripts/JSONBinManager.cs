@@ -22,8 +22,8 @@ public class JSONBinManager : MonoBehaviour
     public bool isInitialized { get; private set; } = false;
     
     // 캐시된 Tactics 데이터
-    private TacticsDatabase cachedTacticsDatabase = null;
-    private bool isCacheValid = false;
+    private static TacticsDatabase cachedTacticsDatabase = null;
+    private static bool isCacheValid = false;
 
     void Awake()
     {
@@ -41,6 +41,16 @@ public class JSONBinManager : MonoBehaviour
         {
             Debug.Log("JSONBinManager: JSONBin.io 초기화 완료");
         }
+        
+        // 모든 데이터를 로드 한다. 
+        StartCoroutine(LoadAllTactics((success, database) =>
+        {
+            if (success)
+            {
+                cachedTacticsDatabase = database;
+                isCacheValid = true;
+            }
+        }));
     }
 
     /// <summary>
@@ -234,14 +244,6 @@ public class JSONBinManager : MonoBehaviour
             return;
         }
 
-        // 캐시가 있으면 즉시 반환
-        if (isCacheValid && cachedTacticsDatabase != null)
-        {
-            Debug.Log("캐시된 Tactics 데이터 반환");
-            onComplete?.Invoke(true, cachedTacticsDatabase);
-            return;
-        }
-
         StartCoroutine(LoadAllTactics(onComplete));
     }
 
@@ -280,6 +282,13 @@ public class JSONBinManager : MonoBehaviour
     /// </summary>
     private IEnumerator LoadAllTactics(Action<bool, TacticsDatabase> onComplete)
     {
+        // 캐시된 데이터가 있으면 바로 반환
+        if(cachedTacticsDatabase != null)
+        {
+            onComplete?.Invoke(true, cachedTacticsDatabase);
+            yield break;
+        }
+
         string url = $"{baseUrl}/{binId}/latest";
 
         using (UnityWebRequest request = UnityWebRequest.Get(url))
@@ -345,6 +354,8 @@ public class JSONBinManager : MonoBehaviour
                     // 캐시에 저장
                     cachedTacticsDatabase = database;
                     isCacheValid = true;
+
+                    Debug.Log($"모든 Tactics 데이터 로드 완료: {database.tactics.Count}개");
                     
                     onComplete?.Invoke(true, database);
                 }
