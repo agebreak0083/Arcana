@@ -8,6 +8,7 @@ public class IntroManager : MonoBehaviour
     public TextMeshProUGUI versionText;
     public Button startButton;
     public Button gachaButton;
+    public Button towerBattleButton;
     public TMP_InputField idText; 
     
 
@@ -23,6 +24,7 @@ public class IntroManager : MonoBehaviour
 
         startButton.onClick.AddListener(OnStartButtonClicked);
         gachaButton.onClick.AddListener(OnGachaButtonClicked);
+        towerBattleButton.onClick.AddListener(OnTowerBattleButtonClicked);
     }
 
     public void SetId(string id)
@@ -57,5 +59,12 @@ public class IntroManager : MonoBehaviour
         UserDataManager.Instance.currentUserData.playerName = idText.text;
         UserDataManager.Instance.SaveUserData();
         SceneManager.LoadScene("GachaScene");
+    }
+
+    void OnTowerBattleButtonClicked()
+    {
+        UserDataManager.Instance.currentUserData.playerName = idText.text;
+        UserDataManager.Instance.SaveUserData();
+        SceneManager.LoadScene("TacticsScene");
     }
 }
