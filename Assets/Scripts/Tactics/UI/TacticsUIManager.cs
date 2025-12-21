@@ -18,6 +18,7 @@ namespace Arcana.Tactics.UI
         public int maxCost = 10;
 
         [Header("UI Containers")]
+        public GameObject tacticsUIScreen;
         public Transform characterPoolPanel;
         public Transform characterPoolContainer;
         public Transform formationGridContainer; // Should have 6 slots as children
@@ -75,8 +76,18 @@ namespace Arcana.Tactics.UI
         private List<FormationSlotUI> _formationSlots = new List<FormationSlotUI>();
         private TacticsDataManager _dataManager;
 
-        private IEnumerator Start()
+        public static TacticsUIManager Instance { get; private set; }
+
+        void Awake()
         {
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+        }
+
+        public IEnumerator Start()
+        {            
             AutoAssignReferences();
             InitializeUI();
 
@@ -85,6 +96,11 @@ namespace Arcana.Tactics.UI
             yield return new WaitUntil(() => _dataManager != null && _dataManager.isDataLoaded);
             Debug.Log("TacticsUIManager: TacticsDataManager 데이터 로딩 완료!");
 
+            LoadPlayerFormation();
+        }
+
+        public void LoadPlayerFormation()
+        {
             // availableCharacters는 TacticsDataManager에서 이미 로드됨 (LoadCharactersFromWeb에서)
             availableCharacters = _dataManager.availableCharacters;
 

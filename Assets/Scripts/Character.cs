@@ -269,7 +269,7 @@ public class Character : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning($"{characterName}: Condition1 '{action.condition1}' 조건을 만족하는 타겟이 없습니다.");
+                    Debug.Log($"{characterName}: Condition1 '{action.condition1}' 조건을 만족하는 타겟이 없습니다.");
                     return null;
                 }
             }

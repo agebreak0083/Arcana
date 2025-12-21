@@ -1,24 +1,38 @@
+using Arcana.Tactics.UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BattleMapManager : MonoBehaviour
 {
     public GameObject selectedSquadObject = null;
-    public GameObject mapObject = null;
+    public GameObject mapObject = null;    
     
     [Header("Movement Settings")]
     public float squadMoveSpeed = 5f;
     public LayerMask mapLayerMask = 1; // Default layer
     
-    private Camera mainCamera;
+    public Camera mainCamera;
+
+    public static BattleMapManager Instance { get; private set; }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        mainCamera = Camera.main;
-        if (mainCamera == null)
+        if (Instance == null)
         {
-            mainCamera = FindFirstObjectByType<Camera>();
+            Instance = this;
+        }        
+
+        // mainCamera 외에 모든 Camera를 비활성화
+        Camera[] cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
+        foreach (Camera camera in cameras)
+        {
+            if (camera != mainCamera)
+            {
+                camera.gameObject.SetActive(false);
+            }
         }
+
     }
 
     // Update is called once per frame
@@ -63,6 +77,22 @@ public class BattleMapManager : MonoBehaviour
                     Debug.Log($"Squad 이동 명령: {targetPosition}");
                 }
             }
+        }
+    }
+
+    public void HandleTowerClick()
+    {
+        // 씬이 이미 로드되어 있는지 확인
+        Scene tacticsScene = SceneManager.GetSceneByName("TacticsScene");
+        
+        if (!tacticsScene.isLoaded)
+        {
+            // Additive 모드로 씬 추가 (현재 씬 유지)
+            SceneManager.LoadSceneAsync("TacticsScene", LoadSceneMode.Additive);
+        }
+        else
+        {
+            Debug.Log("TacticsScene은 이미 로드되어 있습니다.");
         }
     }
 }

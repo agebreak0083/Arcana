@@ -1,3 +1,4 @@
+using Arcana.Tactics.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -39,11 +40,13 @@ public class IntroManager : MonoBehaviour
         {
             startButton.interactable = false;
             gachaButton.interactable = false;
+            towerBattleButton.interactable = false;
         }
         else
         {
             startButton.interactable = true;
             gachaButton.interactable = true;
+            towerBattleButton.interactable = true;
         }
     }
 
@@ -51,6 +54,8 @@ public class IntroManager : MonoBehaviour
     {
         UserDataManager.Instance.currentUserData.playerName = idText.text;
         UserDataManager.Instance.SaveUserData();
+
+        BattleSetting.gameMode = GameMode.STORY_MODE;
         SceneManager.LoadScene("StoryBoardScene");
     }
 
@@ -65,6 +70,8 @@ public class IntroManager : MonoBehaviour
     {
         UserDataManager.Instance.currentUserData.playerName = idText.text;
         UserDataManager.Instance.SaveUserData();
+
+        BattleSetting.gameMode = GameMode.TOWER_MODE;
         SceneManager.LoadScene("TacticsScene");
     }
 }

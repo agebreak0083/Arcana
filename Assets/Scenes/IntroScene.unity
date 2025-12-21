@@ -1288,7 +1288,7 @@ MonoBehaviour:
   versionText: {fileID: 1397555955}
   startButton: {fileID: 282112991}
   gachaButton: {fileID: 1515206883}
-  towerBattleButton: {fileID: 0}
+  towerBattleButton: {fileID: 215593342}
   idText: {fileID: 948814146}
 --- !u!4 &1054185346
 Transform:

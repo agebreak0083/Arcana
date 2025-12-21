@@ -449,6 +449,36 @@ public class StatBasedSelector : ITargetSelector
     }
 }
 
+/// <summary>
+/// 필터를 적용한 후 기본 선택기를 사용하는 선택기
+/// Condition1에서 필터 조건을 사용할 때 사용
+/// </summary>
+public class FilterBasedSelector : ITargetSelector
+{
+    private ITargetFilter filter;
+    private ITargetSelector baseSelector;
+
+    public FilterBasedSelector(ITargetFilter filter)
+    {
+        this.filter = filter;
+        this.baseSelector = new PositionBasedSelector();
+    }
+
+    public List<Character> Select(List<Character> candidates, Character self, SelectType selectType = SelectType.Single, int selectCount = 1)
+    {
+        // 먼저 필터 적용
+        List<Character> filtered = filter.Filter(candidates, self);
+        
+        if (filtered.Count == 0)
+        {
+            return null; // 필터 조건을 만족하지 않음
+        }
+
+        // 필터링된 리스트에서 기본 선택기로 선택
+        return baseSelector.Select(filtered, self, selectType, selectCount);
+    }
+}
+
     public class PersonCountFilter : ITargetFilter
     {
         private string target;

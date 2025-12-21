@@ -74,7 +74,8 @@ public static class TargetConditionFactory
 
         // 편성 인원 (ex. 적이 2명 이상 / 아군이 3명 이하)
         {
-            var match = Regex.Match(condition, @"(\w+)이 (\d+)명 (이상|이하)");
+            // 한글 문자를 포함한 패턴 매칭
+            var match = Regex.Match(condition, @"([가-힣]+)이 (\d+)명 (이상|이하)");
             if (match.Success)
             {
                 string target = match.Groups[1].Value;
@@ -171,6 +172,20 @@ public static class TargetConditionFactory
         if (condition.Contains("치명타율이 가장 낮은"))
         {
             return new StatBasedSelector(StatBasedSelector.StatType.CriticalRate, true);
+        }
+
+        // 편성 인원 조건 (Condition1에서도 사용 가능)
+        {
+            var match = Regex.Match(condition, @"([가-힣]+)이 (\d+)명 (이상|이하)");
+            if (match.Success)
+            {
+                // 필터를 적용한 후 기본 선택기를 사용하는 선택기 반환
+                string target = match.Groups[1].Value;
+                int count = int.Parse(match.Groups[2].Value);
+                bool isAbove = match.Groups[3].Value == "이상";
+                var filter = new PersonCountFilter(target, count, isAbove);
+                return new FilterBasedSelector(filter);
+            }
         }
 
         // TODO: 병종, 대열 등 추가 선택기 구현

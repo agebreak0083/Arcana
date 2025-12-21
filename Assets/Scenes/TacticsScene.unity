@@ -1113,63 +1113,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 222045441}
   m_CullTransparentMesh: 1
---- !u!1 &234004679
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 234004681}
-  - component: {fileID: 234004680}
-  - component: {fileID: 234004682}
-  m_Layer: 0
-  m_Name: TacticsSceneBuilder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &234004680
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 234004679}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b63fd6850ba3e1e4ca8a871b8eaa2d60, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TacticsSceneBuilder
---- !u!4 &234004681
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 234004679}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 292.5131, y: 0.00003, z: 5647.131}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &234004682
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 234004679}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8ca750f27e5dae48a9502d07f894075, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Arcana.Tactics.UI.DetailPanelBuilder
 --- !u!224 &244003086 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7045484155951908454, guid: 0e35ef3d3ea5caa408caee68cf9300ad, type: 3}
@@ -3524,6 +3467,10 @@ PrefabInstance:
     - target: {fileID: 6630389191760852560, guid: 4e67a33f3646a594e8a704b06019f80e, type: 3}
       propertyPath: m_Name
       value: TacticsUIScreen
+      objectReference: {fileID: 0}
+    - target: {fileID: 6630389191760852560, guid: 4e67a33f3646a594e8a704b06019f80e, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6670821137190765237, guid: 4e67a33f3646a594e8a704b06019f80e, type: 3}
       propertyPath: m_AnchorMax.y
@@ -6668,6 +6615,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Arcana.Tactics.TacticsManager
   availableCharacters: []
   maxCost: 6
+  tacticsUIScreen: {fileID: 1800491044}
   characterPoolPanel: {fileID: 0}
   characterPoolContainer: {fileID: 0}
   formationGridContainer: {fileID: 0}
@@ -7396,7 +7344,7 @@ GameObject:
   - component: {fileID: 1175493162}
   - component: {fileID: 1175493163}
   m_Layer: 0
-  m_Name: ServerDBManager
+  m_Name: JsonBinManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8776,6 +8724,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c595ef65fabb0564491ed5b6c4374a7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Arcana.Tactics.UI.FormationSlotUI
+--- !u!1 &1800491044 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6630389191760852560, guid: 4e67a33f3646a594e8a704b06019f80e, type: 3}
+  m_PrefabInstance: {fileID: 396032993}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1815835230
 GameObject:
   m_ObjectHideFlags: 0
@@ -9380,7 +9333,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 865883262}
-  - {fileID: 234004681}
   - {fileID: 733833610}
   - {fileID: 396032993}
   - {fileID: 981827842}

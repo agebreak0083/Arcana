@@ -7,6 +7,13 @@ using UnityEngine.Networking;
 
 namespace Arcana.Tactics.Data
 {
+
+    public enum GameMode
+    {
+        TOWER_MODE,
+        STORY_MODE,
+    }
+
     [Serializable]
     public class BattleSetting
     {
@@ -20,6 +27,8 @@ namespace Arcana.Tactics.Data
         public static int TICKET_FOR_WIN = 10;
         public static int TICKET_FOR_LOSE = 5;        
         public static float DAMAGE_MULTIPLIER = 1.0f;
+
+        public static GameMode gameMode = GameMode.STORY_MODE;
 
         [Header("내부 데이터")]
         public static string enemyTactics = ""; // 택틱스씬에서 정해진 적 택틱스 이름        

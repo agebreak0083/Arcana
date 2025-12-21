@@ -1,6 +1,6 @@
 {
-    "key": "agebreak_2512211623",
-    "username": "agebreak_2512211623",
+    "key": "agebreak_2512211825",
+    "username": "agebreak_2512211825",
     "score": 89,
     "winCount": 33,
     "loseCount": 10,
@@ -12,33 +12,33 @@
         },
         {
             "position": "2",
-            "name": "양양",
+            "name": "산화",
             "tactics": [
                 {
-                    "characterClass": "파이터",
+                    "characterClass": "헌터",
                     "plan": [
                         {
-                            "skill": "가드 슬래시",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "실드 배시",
+                            "skill": "싱글 샷",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "디펜더",
+                            "skill": "더블 샷",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "애로우 커버",
+                            "skill": "라인 샷",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "퀵 가드",
+                            "skill": "이글 아이",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "체이스",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
