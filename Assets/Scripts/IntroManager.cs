@@ -10,6 +10,7 @@ public class IntroManager : MonoBehaviour
     public Button startButton;
     public Button gachaButton;
     public Button towerBattleButton;
+    public Button battleMapButton;
     public TMP_InputField idText; 
     
 
@@ -26,6 +27,7 @@ public class IntroManager : MonoBehaviour
         startButton.onClick.AddListener(OnStartButtonClicked);
         gachaButton.onClick.AddListener(OnGachaButtonClicked);
         towerBattleButton.onClick.AddListener(OnTowerBattleButtonClicked);
+        battleMapButton.onClick.AddListener(OnBattleMapButtonClicked);
     }
 
     public void SetId(string id)
@@ -73,5 +75,13 @@ public class IntroManager : MonoBehaviour
 
         BattleSetting.gameMode = GameMode.TOWER_MODE;
         SceneManager.LoadScene("TacticsScene");
+    }
+
+    void OnBattleMapButtonClicked()
+    {
+        UserDataManager.Instance.currentUserData.playerName = idText.text;
+        UserDataManager.Instance.SaveUserData();
+
+        SceneManager.LoadScene("BattleMapScene");
     }
 }

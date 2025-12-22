@@ -340,67 +340,37 @@ namespace Arcana.Tactics
             // 서버 데이터 업데이트
             if (JSONBinManager.Instance != null && JSONBinManager.Instance.isInitialized)
             {
-                JSONBinManager.Instance.GetAllTactics((success, database) =>
+                JSONBinManager.Instance.LoadTactics(key, (success, tacticsJson) =>
                 {
-                    if (!success || database == null || database.tactics == null)
+                    if (!success || string.IsNullOrEmpty(tacticsJson))
                     {
                         Debug.LogWarning("서버 데이터 로드 실패. 로컬 데이터만 업데이트되었습니다.");
                         return;
                     }
 
-                    bool serverUpdated = false;
-                    
                     // 해당 userName의 모든 tactics 데이터 찾아서 업데이트
-                    foreach (var tactic in database.tactics)
+                    try
                     {
-                        if (string.IsNullOrEmpty(tactic.tacticsJson)) continue;
+                        TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(tacticsJson);
+                        if (tacticsData != null && !string.IsNullOrEmpty(tacticsData.key) && tacticsData.key == key)
+                        {
+                            // winCount, loseCount 업데이트
+                            tacticsData.winCount += addWin;
+                            tacticsData.loseCount += addLose;
 
-                        try
-                        {
-                            TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(tactic.tacticsJson);
-                            if (tacticsData != null && !string.IsNullOrEmpty(tacticsData.key) &&
-                                tacticsData.key == key)
-                            {
-                                // winCount, loseCount 업데이트
-                                tacticsData.winCount += addWin;
-                                tacticsData.loseCount += addLose;
-                                
-                                // Score 업데이트 (Win: +3점, Lose: -1점)
-                                tacticsData.score += (addWin * 3) - (addLose * 1);
-                                newScore = tacticsData.score;                                
-                                
-                                // 업데이트된 JSON으로 교체
-                                tactic.tacticsJson = JsonUtility.ToJson(tacticsData, true);
-                                serverUpdated = true;
-                                
-                                Debug.Log($"서버 데이터 업데이트: {key} - Win: +{addWin}, Lose: +{addLose}, Score: {tacticsData.score}");
-                            }
-                        }
-                        catch (System.Exception e)
-                        {
-                            Debug.LogWarning($"Tactics JSON 파싱 실패: {e.Message}");
-                            continue;
+                            // Score 업데이트 (Win: +3점, Lose: -1점)
+                            tacticsData.score += (addWin * 3) - (addLose * 1);
+                            newScore = tacticsData.score;                                
+
+                            // TODO : JSON 값에 업데이트 
                         }
                     }
-
-                    if (serverUpdated)
+                    catch (System.Exception e)
                     {
-                        // 서버에 저장
-                        JSONBinManager.Instance.SaveTacticsDatabase(database, (success) =>
-                        {
-                            if (success)
-                            {
-                                Debug.Log("서버에 Score 업데이트 완료");
-                            }
-                            else
-                            {
-                                Debug.LogError("서버에 Score 업데이트 실패");
-                            }
-                        });
-                    }                   
-                });
-            }
-
+                        Debug.LogWarning($"Tactics JSON 파싱 실패: {e.Message}");                        
+                    }
+                }); 
+            };
             return newScore;
         }
 

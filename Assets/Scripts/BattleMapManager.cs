@@ -81,7 +81,7 @@ public class BattleMapManager : MonoBehaviour
                 if (squad != null)
                 {
                     squad.MoveTo(targetPosition, squadMoveSpeed);
-                    Debug.Log($"Squad 이동 명령: {targetPosition}");
+                    //Debug.Log($"Squad 이동 명령: {targetPosition}");
                 }
             }
         }
@@ -167,9 +167,9 @@ public class BattleMapManager : MonoBehaviour
 
         if(currentPhase == BattleMapPhase.BATTLE_PHASE)
         {
-            //ShowTacticsScene();
-            SetPlayerWinLose(true);
-            ChangeCurrentPhase(BattleMapPhase.END_PHASE);
+            ShowTacticsScene();
+            // SetPlayerWinLose(true);
+            // ChangeCurrentPhase(BattleMapPhase.END_PHASE);
         }
         else if(currentPhase == BattleMapPhase.TOWER_PHASE)
         {

@@ -96,6 +96,7 @@ public class BattleSquad : MonoBehaviour
     /// </summary>
     void OnTriggerEnter(Collider other)
     {
+        Debug.Log($"Squad 충돌 감지: {gameObject.name} <-> {other.gameObject.name}");
         // 플레이어의 충돌만 처리 한다.
         if(!isPlayerSquad)
         {
@@ -106,11 +107,14 @@ public class BattleSquad : MonoBehaviour
         if (otherSquad != null && otherSquad != this && otherSquad.isPlayerSquad != isPlayerSquad)
         {
             Debug.Log($"Squad 충돌 감지: {gameObject.name} <-> {other.gameObject.name}");
+
+            StopMoving();
             
             // BattlePhase로 전환            
             mapManager.SetBattleSquad(this, otherSquad);
             SetTriggerEnabled(false);
             otherSquad.SetTriggerEnabled(false);
+
             mapManager.ChangeCurrentPhase(BattleMapPhase.BATTLE_PHASE);
         }
     }
@@ -118,5 +122,11 @@ public class BattleSquad : MonoBehaviour
     public void SetTriggerEnabled(bool enabled)
     {
         GetComponent<Collider>().enabled = enabled;
+    }
+
+    public void StopMoving()
+    {
+        isMoving = false;
+        currentTargetPosition = transform.position;
     }
 }
