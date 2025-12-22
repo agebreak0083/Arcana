@@ -6,7 +6,7 @@ using UnityEngine.UI;
 /// NextBattle 버튼에 연결할 스크립트
 /// 전투 종료 후 다음 전투로 진행하거나 씬을 재시작합니다.
 /// </summary>
-public class NextBattle : MonoBehaviour
+public class NextBattleButton : MonoBehaviour
 {
     private Button button;
 
@@ -28,30 +28,14 @@ public class NextBattle : MonoBehaviour
     /// </summary>
     public void OnNextBattleClicked()
     {
-        Debug.Log("NextBattle 버튼 클릭: 전투 씬 재시작");
-
-        ReturnToTactics(); 
-    }
-
-    /// <summary>
-    /// 현재 전투 씬 재시작
-    /// </summary>
-    private void RestartBattle()
-    {
-        string currentScene = SceneManager.GetActiveScene().name;
-        SceneManager.LoadScene(currentScene);
-    }
-
-    /// <summary>
-    /// 다음 전투 씬으로 이동 (구현 예정)
-    /// </summary>
-    private void LoadNextBattle()
-    {
-        // TODO: 다음 전투 씬 이름을 결정하는 로직
-        // 예: 스테이지 번호를 관리하는 GameManager에서 가져오기
-
-        // 임시로 BattleScene 재시작
-        SceneManager.LoadScene("BattleScene");
+        if(BattleMapManager.Instance != null && BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_PHASE)
+        {
+            BattleMapManager.Instance.ChangeCurrentPhase(BattleMapPhase.END_PHASE);
+        }
+        else
+        {
+            ReturnToTactics(); 
+        }
     }
 
     /// <summary>
@@ -60,7 +44,7 @@ public class NextBattle : MonoBehaviour
     public void ReturnToTitle()
     {
         Debug.Log("타이틀 화면으로 이동");
-        SceneManager.LoadScene("TitleScene"); // 타이틀 씬 이름에 맞게 수정
+        SceneManager.LoadScene("IntroScene"); 
     }
 
     /// <summary>

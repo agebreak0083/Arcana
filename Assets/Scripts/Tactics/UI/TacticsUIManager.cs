@@ -8,16 +8,18 @@ using static Arcana.Tactics.TacticsDataManager;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System;
+using Unity.VisualScripting;
 
 namespace Arcana.Tactics.UI
 {
     public class TacticsUIManager : MonoBehaviour
     {
         [Header("Data")]
-        public List<CharacterData> availableCharacters;
+        public Dictionary<string, CharacterData> availableCharacters;
         public int maxCost = 10;
 
         [Header("UI Containers")]
+        public GameObject rootObject;
         public GameObject tacticsUIScreen;
         public Transform characterPoolPanel;
         public Transform characterPoolContainer;
@@ -100,22 +102,33 @@ namespace Arcana.Tactics.UI
             LoadPlayerFormation();
         }
 
+        
+        Dictionary<string, CharacterData> _createdCharacterCards = new Dictionary<string, CharacterData>();
         public void LoadPlayerFormation()
         {
             // availableCharacters는 TacticsDataManager에서 이미 로드됨 (LoadCharactersFromWeb에서)
-            availableCharacters = _dataManager.availableCharacters;
-
-            // CharacterPool UI 초기화 (데이터 로드 완료 후)
-            if (characterPoolContainer != null && characterCardPrefab != null)
+            // List를 Dictionary로 변환 (characterName을 키로 사용)
+            availableCharacters = new Dictionary<string, CharacterData>();
+            foreach (var charData in _dataManager.availableCharacters)
             {
-                // 모든 캐릭터 카드 생성 (배치 여부는 UpdatePoolUI에서 처리)
-                foreach (var charData in availableCharacters)
-                {
-                    var go = Instantiate(characterCardPrefab, characterPoolContainer);
-                    var card = go.GetComponent<CharacterCardUI>();
-                    card.Setup(charData, this, false);
-                }
+                availableCharacters[charData.characterName] = charData;
             }
+
+            // CharacterPool UI 초기화 (데이터 로드 완료 후)            
+            // 모든 캐릭터 카드 생성 (배치 여부는 UpdatePoolUI에서 처리)
+            foreach (var charData in availableCharacters.Values)
+            {
+                // 이미 생성된 카드면 스킵
+                if(_createdCharacterCards.ContainsKey(charData.characterName))
+                {
+                    continue;
+                }
+
+                var go = Instantiate(characterCardPrefab, characterPoolContainer);
+                var card = go.GetComponent<CharacterCardUI>();
+                card.Setup(charData, this, false);
+                _createdCharacterCards[charData.characterName] = charData;
+            }            
 
             // Load formation from TacticsDataManager (씬마다 독립적인 인스턴스)
             var loadResult = _dataManager.GetPlayerFormationLoadResult();
@@ -309,6 +322,41 @@ namespace Arcana.Tactics.UI
             if (gotoGachaButton != null) gotoGachaButton.onClick.AddListener(OnGotoGachaClicked);
             if (recommendButton != null) recommendButton.onClick.AddListener(OnRecommendButtonClicked);
             if (gotoGachaPopup != null) gotoGachaPopup.GetComponentInChildren<Button>().onClick.AddListener(OnGotoGachaClicked);
+
+            // 전투 맵이라면 페이즈에 맞게 업데이트 
+            SetBattleMapPhaseUI();
+        }
+
+        void SetBattleMapPhaseUI()
+        {
+            if(BattleMapManager.Instance == null)
+            {
+                return;
+            }
+
+            if(BattleMapManager.Instance.currentPhase == BattleMapPhase.TOWER_PHASE)
+            {
+                runBattleButton.GetComponentInChildren<TextMeshProUGUI>().text = "출격";
+                runBattleButton.onClick.RemoveAllListeners();
+
+                // 람다로 UIScreen을 비활성화 
+                runBattleButton.onClick.AddListener(() => {
+                    tacticsUIScreen.SetActive(false);                 
+
+                    string squadName = "PlayerSquad_1";
+                    BattleMapManager.Instance.CreateBattleSquad(squadName);
+                });
+            }
+
+            if(BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_PHASE)
+            {
+                return;
+            }
+
+            if(BattleMapManager.Instance.currentPhase == BattleMapPhase.END_PHASE)
+            {
+                return;
+            }
         }
 
         public void OnGotoGachaClicked()
@@ -382,12 +430,12 @@ namespace Arcana.Tactics.UI
             }
             else
             {
-                targetCharacter = availableCharacters.Find(c => c.characterName == charName);
+                availableCharacters.TryGetValue(charName, out targetCharacter);
             }
 
             if (targetCharacter == null)
             {
-                Debug.LogError($"TacticsUIManager: Character with name {charName} not found! Available characters: {string.Join(", ", availableCharacters.Select(c => c.characterName))}");
+                Debug.LogError($"TacticsUIManager: Character with name {charName} not found! Available characters: {string.Join(", ", availableCharacters.Keys)}");
                 return;
             }
             _modalTargetCharId = targetCharacter.id;
@@ -426,12 +474,12 @@ namespace Arcana.Tactics.UI
             }
             else
             {
-                targetCharacter = availableCharacters.Find(c => c.characterName == charName);
+                availableCharacters.TryGetValue(charName, out targetCharacter);
             }
 
             if (targetCharacter == null)
             {
-                Debug.LogError($"TacticsUIManager: Character with name {charName} not found! Available characters: {string.Join(", ", availableCharacters.Select(c => c.characterName))}");
+                Debug.LogError($"TacticsUIManager: Character with name {charName} not found! Available characters: {string.Join(", ", availableCharacters.Keys)}");
                 return;
             }
 
@@ -526,8 +574,24 @@ namespace Arcana.Tactics.UI
                         Debug.LogWarning($"JSONBin.io 저장 실패: {message}");
                     }
 
-                    // 저장 완료 후 BattleScene으로 이동한다.                                     
-                    SceneManager.LoadScene("BattleScene");
+                    if(BattleMapManager.Instance != null && BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_PHASE)
+                    {
+                        // BattleScene을 Add 한다. 
+                        SceneManager.LoadSceneAsync("BattleScene", LoadSceneMode.Additive).completed += (operation) => {
+                            Scene battleScene = SceneManager.GetSceneByName("BattleScene");
+                            if(battleScene.isLoaded)
+                            {
+                                rootObject.SetActive(false);
+                                BattleMapManager.Instance.battleMapRootObject.SetActive(false);
+                                SceneManager.SetActiveScene(battleScene);
+                            }
+                        };
+                    }
+                    else
+                    {
+                        // 저장 완료 후 BattleScene으로 이동한다.                                     
+                        SceneManager.LoadScene("BattleScene");
+                    }
                 });
             }
             else
@@ -552,15 +616,21 @@ namespace Arcana.Tactics.UI
 
         private void UpdatePoolUI()
         {
-            if (characterPoolContainer == null) return;
+            if (characterPoolContainer == null || characterCardPrefab == null) 
+            {
+                return;
+            }
+
+        
             int i = 0;
+            var characterList = availableCharacters.Values.ToList();
             foreach (Transform child in characterPoolContainer)
             {
-                if (i >= availableCharacters.Count) break;
+                if (i >= characterList.Count) break;
                 var card = child.GetComponent<CharacterCardUI>();
                 if (card != null)
                 {
-                    var data = availableCharacters[i];
+                    var data = characterList[i];
 
                     bool isDeployed = GetSlotIndex(data) != -1;
                     bool isSelected = _selectedCharacter == data;

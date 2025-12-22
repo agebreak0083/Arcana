@@ -605,6 +605,11 @@ public class BattleManager : MonoBehaviour
             
             // 시뮬레이션 모드가 아니라 Battle Scene이라면, 끝나면 시뮬레이션 결과 리셋. 
             battleSimulationResult = new BattleSimulationResult();
+
+            if(BattleMapManager.Instance != null) 
+            {
+                BattleMapManager.Instance.SetPlayerWinLose(isPlayerWin);
+            }
         }
     }
 

@@ -14,7 +14,7 @@ public class BattleLogWindowCreator
     public static void CreateBattleLogWindow()
     {
         // Canvas 찾기 또는 생성
-        Canvas canvas = GameObject.FindObjectOfType<Canvas>();
+        Canvas canvas = Object.FindFirstObjectByType<Canvas>();
         if (canvas == null)
         {
             GameObject canvasObj = new GameObject("Canvas");
@@ -138,7 +138,7 @@ public class BattleLogWindowCreator
         logText.fontSize = 14;
         logText.color = Color.white;
         logText.alignment = TextAlignmentOptions.TopLeft;
-        logText.enableWordWrapping = true;
+        logText.textWrappingMode = TextWrappingModes.Normal;
         logText.overflowMode = TextOverflowModes.Overflow;
         logText.text = "전투 로그가 여기에 표시됩니다...";
 

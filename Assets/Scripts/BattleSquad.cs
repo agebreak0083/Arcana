@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class BattleSquad : MonoBehaviour
 {
+    public bool isPlayerSquad = false;
     private BattleMapManager mapManager;
     private bool isSelected = false;
     
@@ -10,11 +11,18 @@ public class BattleSquad : MonoBehaviour
     private float currentMoveSpeed;
     private bool isMoving = false;
     private System.Collections.IEnumerator moveCoroutine;
+    private Color originalColor;
+    public Color selectColor = Color.blue;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         mapManager = FindFirstObjectByType<BattleMapManager>();
+
+        // 머테리얼 인스턴스 생성. Renderer에 할당된 것에서 복제한다.
+        Material material = new Material(GetComponent<Renderer>().material);
+        originalColor = material.color;
+        GetComponent<Renderer>().material = material;        
     }
 
     // Update is called once per frame
@@ -30,20 +38,7 @@ public class BattleSquad : MonoBehaviour
     {
         if (mapManager != null)
         {
-            // 이전 선택 해제
-            if (mapManager.selectedSquadObject != null && mapManager.selectedSquadObject != this.gameObject)
-            {
-                BattleSquad prevSquad = mapManager.selectedSquadObject.GetComponent<BattleSquad>();
-                if (prevSquad != null)
-                {
-                    prevSquad.SetSelected(false);
-                }
-            }
-            
-            // 현재 Squad 선택
-            mapManager.selectedSquadObject = this.gameObject;
-            SetSelected(true);
-            Debug.Log($"Squad 선택: {gameObject.name}");
+            mapManager.HandleSquadClick(this);            
         }
     }
 
@@ -53,8 +48,17 @@ public class BattleSquad : MonoBehaviour
     public void SetSelected(bool selected)
     {
         isSelected = selected;
+        
         // 선택 시 시각적 피드백 (예: 하이라이트)
-        // 필요시 여기에 선택 효과 추가
+        // 선택시 빨간색으로 변경         
+        if(selected)
+        {
+            GetComponent<Renderer>().material.color = selectColor;
+        }
+        else
+        {
+            GetComponent<Renderer>().material.color = originalColor;
+        }
     }
 
     /// <summary>
@@ -92,12 +96,27 @@ public class BattleSquad : MonoBehaviour
     /// </summary>
     void OnTriggerEnter(Collider other)
     {
+        // 플레이어의 충돌만 처리 한다.
+        if(!isPlayerSquad)
+        {
+            return;
+        }
+
         BattleSquad otherSquad = other.GetComponent<BattleSquad>();
-        if (otherSquad != null && otherSquad != this)
+        if (otherSquad != null && otherSquad != this && otherSquad.isPlayerSquad != isPlayerSquad)
         {
             Debug.Log($"Squad 충돌 감지: {gameObject.name} <-> {other.gameObject.name}");
-            // TacticsScene으로 전환
-            UnityEngine.SceneManagement.SceneManager.LoadScene("TacticsScene");
+            
+            // BattlePhase로 전환            
+            mapManager.SetBattleSquad(this, otherSquad);
+            SetTriggerEnabled(false);
+            otherSquad.SetTriggerEnabled(false);
+            mapManager.ChangeCurrentPhase(BattleMapPhase.BATTLE_PHASE);
         }
+    }
+
+    public void SetTriggerEnabled(bool enabled)
+    {
+        GetComponent<Collider>().enabled = enabled;
     }
 }

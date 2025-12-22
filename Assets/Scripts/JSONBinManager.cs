@@ -290,93 +290,133 @@ public class JSONBinManager : MonoBehaviour
         }
 
         string url = $"{baseUrl}/{binId}/latest";
+        int maxRetries = 3;
+        int retryCount = 0;
+        bool success = false;
 
-        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        while (retryCount < maxRetries && !success)
         {
-            request.SetRequestHeader("X-Access-Key", accessKey);
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
+            using (UnityWebRequest request = UnityWebRequest.Get(url))
             {
-                try
+                request.SetRequestHeader("X-Access-Key", accessKey);
+                request.timeout = 30; // 타임아웃 설정
+
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
                 {
-                    string responseText = request.downloadHandler.text;
-                    
-                    TacticsDatabase database = null;
-                    
-                    // JSONBin.io v3 API 응답 파싱
-                    // 응답 형식: {"record": {...}, "metadata": {...}}
-                    // 방법 1: JSONBinResponseWrapper로 시도 (record가 객체인 경우)
                     try
                     {
-                        var wrapper = JsonUtility.FromJson<JSONBinResponseWrapper>(responseText);
-                        if (wrapper != null && wrapper.record != null && wrapper.record.tactics != null)
-                        {
-                            database = wrapper.record;
-                        }
-                    }
-                    catch (Exception e1)
-                    {
-                        // 방법 2: JSONBinResponse로 시도 (record가 문자열인 경우)
+                        string responseText = request.downloadHandler.text;
+                        
+                        TacticsDatabase database = null;
+                        
+                        // JSONBin.io v3 API 응답 파싱
+                        // 응답 형식: {"record": {...}, "metadata": {...}}
+                        // 방법 1: JSONBinResponseWrapper로 시도 (record가 객체인 경우)
                         try
                         {
-                            var response = JsonUtility.FromJson<JSONBinResponse>(responseText);
-                            if (response != null && !string.IsNullOrEmpty(response.record))
+                            var wrapper = JsonUtility.FromJson<JSONBinResponseWrapper>(responseText);
+                            if (wrapper != null && wrapper.record != null && wrapper.record.tactics != null)
                             {
-                                // record가 JSON 문자열인 경우 파싱
-                                if (response.record.Trim().StartsWith("{"))
+                                database = wrapper.record;
+                            }
+                        }
+                        catch (Exception e1)
+                        {
+                            // 방법 2: JSONBinResponse로 시도 (record가 문자열인 경우)
+                            try
+                            {
+                                var response = JsonUtility.FromJson<JSONBinResponse>(responseText);
+                                if (response != null && !string.IsNullOrEmpty(response.record))
                                 {
-                                    database = JsonUtility.FromJson<TacticsDatabase>(response.record);
+                                    // record가 JSON 문자열인 경우 파싱
+                                    if (response.record.Trim().StartsWith("{"))
+                                    {
+                                        database = JsonUtility.FromJson<TacticsDatabase>(response.record);
+                                    }
+                                }
+                            }
+                            catch (Exception e2)
+                            {
+                                // 방법 3: 직접 TacticsDatabase로 파싱 시도
+                                try
+                                {
+                                    database = JsonUtility.FromJson<TacticsDatabase>(responseText);
+                                }
+                                catch (Exception e3)
+                                {
+                                    Debug.LogError($"모든 파싱 방법 실패. e1: {e1.Message}, e2: {e2.Message}, e3: {e3.Message}");
                                 }
                             }
                         }
-                        catch (Exception e2)
+                        
+                        // 최종 체크: database가 null이거나 tactics가 null이면 빈 데이터베이스 생성
+                        if (database == null || database.tactics == null)
                         {
-                            // 방법 3: 직접 TacticsDatabase로 파싱 시도
-                            try
-                            {
-                                database = JsonUtility.FromJson<TacticsDatabase>(responseText);
-                            }
-                            catch (Exception e3)
-                            {
-                                Debug.LogError($"모든 파싱 방법 실패. e1: {e1.Message}, e2: {e2.Message}, e3: {e3.Message}");
-                            }
+                            database = new TacticsDatabase { tactics = new List<TacticsData>() };
                         }
-                    }
-                    
-                    // 최종 체크: database가 null이거나 tactics가 null이면 빈 데이터베이스 생성
-                    if (database == null || database.tactics == null)
-                    {
-                        database = new TacticsDatabase { tactics = new List<TacticsData>() };
-                    }
-                    
-                    // 캐시에 저장
-                    cachedTacticsDatabase = database;
-                    isCacheValid = true;
+                        
+                        // 캐시에 저장
+                        cachedTacticsDatabase = database;
+                        isCacheValid = true;
 
-                    Debug.Log($"모든 Tactics 데이터 로드 완료: {database.tactics.Count}개");
-                    
-                    onComplete?.Invoke(true, database);
+                        Debug.Log($"모든 Tactics 데이터 로드 완료: {database.tactics.Count}개");
+                        
+                        onComplete?.Invoke(true, database);
+                        success = true;
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError($"JSON 파싱 실패: {e.Message}\nResponse: {request.downloadHandler.text}");
+                        retryCount++;
+                        if (retryCount >= maxRetries)
+                        {
+                            // 빈 데이터베이스 생성 및 캐시
+                            var emptyDatabase = new TacticsDatabase { tactics = new List<TacticsData>() };
+                            cachedTacticsDatabase = emptyDatabase;
+                            isCacheValid = true;
+                            onComplete?.Invoke(true, emptyDatabase);
+                            success = true; // 재시도하지 않도록 설정
+                        }
+                        // retryCount < maxRetries인 경우 success는 false로 유지되어 재시도됨
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    Debug.LogError($"JSON 파싱 실패: {e.Message}\nResponse: {request.downloadHandler.text}");
+                    // PROTOCOL_ERROR 또는 네트워크 에러 체크
+                    bool isRetryableError = !string.IsNullOrEmpty(request.error) && (
+                        request.error.Contains("PROTOCOL_ERROR") || 
+                        request.error.Contains("NetworkError") ||
+                        request.error.Contains("Unable to complete SSL connection") ||
+                        request.error.Contains("ConnectionError") ||
+                        request.result == UnityWebRequest.Result.ConnectionError
+                    );
+                    
+                    if (isRetryableError && retryCount < maxRetries - 1)
+                    {
+                        retryCount++;
+                        Debug.LogWarning($"네트워크 에러 발생 (재시도 {retryCount}/{maxRetries}): {request.error}");
+                        yield return new WaitForSeconds(1f * retryCount); // 지수 백오프
+                        continue;
+                    }
+                    
+                    Debug.LogError($"데이터 로드 실패: {request.error} (HTTP {request.responseCode})");
                     // 빈 데이터베이스 생성 및 캐시
                     var emptyDatabase = new TacticsDatabase { tactics = new List<TacticsData>() };
                     cachedTacticsDatabase = emptyDatabase;
                     isCacheValid = true;
                     onComplete?.Invoke(true, emptyDatabase);
+                    break;
                 }
-            }
-            else
-            {
-                Debug.LogError($"데이터 로드 실패: {request.error} (HTTP {request.responseCode})");
-                // 빈 데이터베이스 생성 및 캐시
-                var emptyDatabase = new TacticsDatabase { tactics = new List<TacticsData>() };
-                cachedTacticsDatabase = emptyDatabase;
-                isCacheValid = true;
-                onComplete?.Invoke(true, emptyDatabase);
+                
+                // catch 블록에서 재시도가 필요한 경우 여기서 처리
+                if (!success && retryCount < maxRetries)
+                {
+                    Debug.LogWarning($"재시도 {retryCount}/{maxRetries}...");
+                    yield return new WaitForSeconds(1f * retryCount); // 지수 백오프
+                    continue;
+                }
             }
         }
     }
@@ -457,38 +497,67 @@ public class JSONBinManager : MonoBehaviour
             }
         }
 
-        using (UnityWebRequest request = new UnityWebRequest(url, "PUT"))
+        int maxRetries = 3;
+        int retryCount = 0;
+        bool success = false;
+
+        while (retryCount < maxRetries && !success)
         {
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-            request.SetRequestHeader("X-Access-Key", accessKey);
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
+            using (UnityWebRequest request = new UnityWebRequest(url, "PUT"))
             {
-                // database.tactics.count와 용량 사이즈 출력
-                Debug.Log($"데이터 저장 성공: {database.tactics.Count}개의 Tactics 데이터를 저장했습니다. 용량 사이즈: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
-                
-                // 캐시 업데이트
-                cachedTacticsDatabase = database;
-                isCacheValid = true;
-                
-                onComplete?.Invoke(true);
-            }
-            else
-            {
-                if (request.responseCode == 413)
+                request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.SetRequestHeader("X-Access-Key", accessKey);
+                request.timeout = 30; // 타임아웃 설정
+
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
                 {
-                    Debug.LogError($"데이터 저장 실패: 페이로드가 너무 큽니다 (HTTP 413). 데이터 크기: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
-                    Debug.LogError("해결 방법: 오래된 Tactics 데이터를 수동으로 삭제하거나, 데이터를 여러 bin으로 나누어 저장하세요.");
+                    // database.tactics.count와 용량 사이즈 출력
+                    Debug.Log($"데이터 저장 성공: {database.tactics.Count}개의 Tactics 데이터를 저장했습니다. 용량 사이즈: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
+                    
+                    // 캐시 업데이트
+                    cachedTacticsDatabase = database;
+                    isCacheValid = true;
+                    
+                    onComplete?.Invoke(true);
+                    success = true;
                 }
                 else
                 {
-                    Debug.LogError($"데이터 저장 실패: {request.error} (HTTP {request.responseCode})");
+                    if (request.responseCode == 413)
+                    {
+                        Debug.LogError($"데이터 저장 실패: 페이로드가 너무 큽니다 (HTTP 413). 데이터 크기: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
+                        Debug.LogError("해결 방법: 오래된 Tactics 데이터를 수동으로 삭제하거나, 데이터를 여러 bin으로 나누어 저장하세요.");
+                        onComplete?.Invoke(false);
+                        break; // 413 에러는 재시도하지 않음
+                    }
+                    else
+                    {
+                        // PROTOCOL_ERROR 또는 네트워크 에러 체크
+                        bool isRetryableError = !string.IsNullOrEmpty(request.error) && (
+                            request.error.Contains("PROTOCOL_ERROR") || 
+                            request.error.Contains("NetworkError") ||
+                            request.error.Contains("Unable to complete SSL connection") ||
+                            request.error.Contains("ConnectionError") ||
+                            request.result == UnityWebRequest.Result.ConnectionError
+                        );
+                        
+                        if (isRetryableError && retryCount < maxRetries - 1)
+                        {
+                            retryCount++;
+                            Debug.LogWarning($"저장 실패 (재시도 {retryCount}/{maxRetries}): {request.error}");
+                            yield return new WaitForSeconds(1f * retryCount); // 지수 백오프
+                            continue;
+                        }
+                        
+                        Debug.LogError($"데이터 저장 실패: {request.error} (HTTP {request.responseCode})");
+                        onComplete?.Invoke(false);
+                        break;
+                    }
                 }
-                onComplete?.Invoke(false);
             }
         }
     }

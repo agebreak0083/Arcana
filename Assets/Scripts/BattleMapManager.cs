@@ -1,17 +1,28 @@
+using System;
 using Arcana.Tactics.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+public enum BattleMapPhase
+{
+    NONE_PHASE,
+    TOWER_PHASE,
+    BATTLE_PHASE,
+    END_PHASE,
+}
+
 public class BattleMapManager : MonoBehaviour
 {
     public GameObject selectedSquadObject = null;
-    public GameObject mapObject = null;    
+    public GameObject mapObject = null;        
+    public GameObject battleMapRootObject = null;
     
     [Header("Movement Settings")]
     public float squadMoveSpeed = 5f;
     public LayerMask mapLayerMask = 1; // Default layer
     
     public Camera mainCamera;
+    public BattleMapPhase currentPhase = BattleMapPhase.NONE_PHASE;
 
     public static BattleMapManager Instance { get; private set; }
 
@@ -21,17 +32,7 @@ public class BattleMapManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-        }        
-
-        // mainCamera 외에 모든 Camera를 비활성화
-        Camera[] cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
-        foreach (Camera camera in cameras)
-        {
-            if (camera != mainCamera)
-            {
-                camera.gameObject.SetActive(false);
-            }
-        }
+        }               
 
     }
 
@@ -52,6 +53,12 @@ public class BattleMapManager : MonoBehaviour
     {
         // Squad가 선택되어 있지 않으면 무시
         if (selectedSquadObject == null)
+        {
+            return;
+        }
+
+        // TacticsScene이 Active 상태면 무시 
+        if (TacticsUIManager.Instance != null && TacticsUIManager.Instance.rootObject.activeSelf)
         {
             return;
         }
@@ -82,17 +89,143 @@ public class BattleMapManager : MonoBehaviour
 
     public void HandleTowerClick()
     {
+        ChangeCurrentPhase(BattleMapPhase.TOWER_PHASE);
+    }
+
+    public void ShowTacticsScene()
+    {
         // 씬이 이미 로드되어 있는지 확인
         Scene tacticsScene = SceneManager.GetSceneByName("TacticsScene");
         
         if (!tacticsScene.isLoaded)
         {
             // Additive 모드로 씬 추가 (현재 씬 유지)
-            SceneManager.LoadSceneAsync("TacticsScene", LoadSceneMode.Additive);
+            // 로드가 완료되면, 추가된 씬에 있는 Camera를 비활성화 
+            SceneManager.LoadSceneAsync("TacticsScene", LoadSceneMode.Additive).completed += (operation) => {
+                battleMapRootObject.SetActive(false);
+            };
         }
         else
         {
-            Debug.Log("TacticsScene은 이미 로드되어 있습니다.");
+            battleMapRootObject.SetActive(false);
+            TacticsUIManager.Instance.rootObject.SetActive(true);
+            StartCoroutine(TacticsUIManager.Instance.Start());
+        }        
+    }
+
+    public void CreateBattleSquad(string squadName)
+    {
+        
+    }
+
+    public void HandleSquadClick(BattleSquad battleSquad)
+    {
+        // Player Squad가 선택된 상태에서 Enemy Squad를 클릭하면 이동
+        if (selectedSquadObject != null && selectedSquadObject != battleSquad.gameObject)
+        {
+            BattleSquad selectedSquad = selectedSquadObject.GetComponent<BattleSquad>();
+            if (selectedSquad != null && selectedSquad.isPlayerSquad && !battleSquad.isPlayerSquad)
+            {
+                // Player Squad를 Enemy Squad 위치로 이동
+                Vector3 targetPosition = battleSquad.transform.position;
+                targetPosition.y = selectedSquad.transform.position.y; // Y축은 유지
+                
+                selectedSquad.MoveTo(targetPosition, squadMoveSpeed);
+                Debug.Log($"Player Squad 이동 명령: {selectedSquad.gameObject.name} -> {battleSquad.gameObject.name} 위치로");
+                
+                // 선택은 유지 (Player Squad가 계속 선택된 상태)
+                return;
+            }
         }
+        
+        // 일반적인 선택 로직
+        // 이전 선택 해제
+        if (selectedSquadObject != null && selectedSquadObject != battleSquad.gameObject)
+        {
+            BattleSquad prevSquad = selectedSquadObject.GetComponent<BattleSquad>();
+            if (prevSquad != null)
+            {
+                prevSquad.SetSelected(false);
+            }
+        }
+        
+        // 현재 Squad 선택
+        selectedSquadObject = battleSquad.gameObject;
+        battleSquad.SetSelected(true);
+        Debug.Log($"Squad 선택: {battleSquad.gameObject.name}");
+    }
+
+    private bool _isPlayerWin = false;
+    public void SetPlayerWinLose(bool isPlayerWin)
+    {
+        _isPlayerWin = isPlayerWin;
+    }
+
+    public void ChangeCurrentPhase(BattleMapPhase battlePhase)
+    {
+        currentPhase = battlePhase;
+
+        if(currentPhase == BattleMapPhase.BATTLE_PHASE)
+        {
+            //ShowTacticsScene();
+            SetPlayerWinLose(true);
+            ChangeCurrentPhase(BattleMapPhase.END_PHASE);
+        }
+        else if(currentPhase == BattleMapPhase.TOWER_PHASE)
+        {
+            ShowTacticsScene();
+        }
+        else if(currentPhase == BattleMapPhase.END_PHASE)
+        {
+            // BattleScene이 로드되어 있는지 확인 후 언로드
+            Scene battleScene = SceneManager.GetSceneByName("BattleScene");
+            if (battleScene.IsValid() && battleScene.isLoaded)
+            {
+                SceneManager.UnloadSceneAsync("BattleScene").completed += (operation) => {                    
+                };
+            }
+
+            // TacticsScene이 로드되어 있는지 확인 후 언로드
+            Scene tacticsScene = SceneManager.GetSceneByName("TacticsScene");
+            if (tacticsScene.IsValid() && tacticsScene.isLoaded)
+            {
+                SceneManager.UnloadSceneAsync("TacticsScene");
+            }
+
+            battleMapRootObject.SetActive(true);
+            if(_isPlayerWin)
+            {
+                if(_enemySquad != null && _enemySquad.gameObject != null)                
+                {
+                    if(_enemySquad.gameObject.CompareTag("Tower"))
+                    {
+                        // 테스트용 인트로씬으로 전환
+                        SceneManager.LoadScene("IntroScene");
+                    }
+                    else
+                    {
+                        Destroy(_enemySquad.gameObject);
+                    }
+                }
+
+                if(_playerSquad != null)
+                    _playerSquad.SetTriggerEnabled(true);
+            }
+            else
+            {
+                if(_playerSquad != null && _playerSquad.gameObject != null)
+                    Destroy(_playerSquad.gameObject);
+                if(_enemySquad != null)
+                    _enemySquad.SetTriggerEnabled(true);
+            }
+        }
+    }
+
+    private BattleSquad _playerSquad = null;
+    private BattleSquad _enemySquad = null;
+    public void SetBattleSquad(BattleSquad battleSquad, BattleSquad otherSquad)
+    {
+        _playerSquad = battleSquad;
+        _enemySquad = otherSquad;
     }
 }

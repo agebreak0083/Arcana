@@ -441,6 +441,7 @@ namespace Arcana.Tactics
             {
                 using (UnityWebRequest www = UnityWebRequest.Get(CharacterListUrl))
                 {
+                    www.timeout = 30; // 타임아웃 설정
                     yield return www.SendWebRequest();
 
                     if (www.result != UnityWebRequest.Result.Success)
@@ -701,6 +702,7 @@ namespace Arcana.Tactics
 
             using (UnityWebRequest www = UnityWebRequest.Get(ClassListUrl))
             {
+                www.timeout = 30; // 타임아웃 설정
                 yield return www.SendWebRequest();
 
                 if (www.result != UnityWebRequest.Result.Success)

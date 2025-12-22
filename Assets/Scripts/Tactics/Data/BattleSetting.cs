@@ -42,6 +42,7 @@ namespace Arcana.Tactics.Data
 
             using (UnityWebRequest request = UnityWebRequest.Get(GOOGLE_SHEET_CSV_URL))
             {
+                request.timeout = 30; // 타임아웃 설정
                 yield return request.SendWebRequest();
 
                 if (request.result == UnityWebRequest.Result.Success)
