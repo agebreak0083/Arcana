@@ -282,8 +282,8 @@ public class JSONBinManager : MonoBehaviour
     /// </summary>
     private IEnumerator LoadAllTactics(Action<bool, TacticsDatabase> onComplete)
     {
-        // 캐시된 데이터가 있으면 바로 반환
-        if(cachedTacticsDatabase != null)
+        // 캐시된 데이터가 있고 유효하면 바로 반환
+        if(cachedTacticsDatabase != null && isCacheValid)
         {
             onComplete?.Invoke(true, cachedTacticsDatabase);
             yield break;

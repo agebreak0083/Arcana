@@ -25,6 +25,7 @@ namespace Arcana.Tactics
 
         private Dictionary<string, ClassInfo> _classData = new Dictionary<string, ClassInfo>();
         private Dictionary<string, List<Skill>> _skillMap = new Dictionary<string, List<Skill>>();
+        private Dictionary<string, TacticsPlan> _recommendedTactics = new Dictionary<string, TacticsPlan>(); // 클래스별 추천 전술
         private FormationLoadResult _playerFormationLoadResult;
         private FormationLoadResult _enemyFormationLoadResult;
         private CharacterDefinition[] _allCharacterDefinitions; // 모든 캐릭터 정의 목록
@@ -49,6 +50,7 @@ namespace Arcana.Tactics
             isDataLoaded = false;
 
             LoadSkillList();
+            LoadTacticsRecommend();
 
             // Wait for characters and classes to load from Web
             yield return StartCoroutine(LoadClassesFromWeb());
@@ -890,6 +892,97 @@ namespace Arcana.Tactics
         }
 
         /// <summary>
+        /// 추천 전술 데이터 로드
+        /// </summary>
+        private void LoadTacticsRecommend()
+        {
+            _recommendedTactics.Clear();
+            TextAsset recommendAsset = Resources.Load<TextAsset>("Table/TacticsRecommend");
+            if (recommendAsset == null)
+            {
+                Debug.LogError("Failed to load TacticsRecommend.json");
+                return;
+            }
+
+            try
+            {
+                TacticsRecommendWrapper wrapper = JsonUtility.FromJson<TacticsRecommendWrapper>(recommendAsset.text);
+                if (wrapper != null && wrapper.classes != null)
+                {
+                    foreach (var classData in wrapper.classes)
+                    {
+                        if (classData.tactics != null && classData.tactics.Length > 0)
+                        {
+                            var tacticsData = classData.tactics[0]; // 첫 번째 tactics 사용
+                            if (tacticsData.plan != null && tacticsData.plan.Length > 0)
+                            {
+                                // TacticsPlan 생성 (characterId는 나중에 설정됨)
+                                var plan = new TacticsPlan("");
+                                
+                                // plan 데이터를 TacticRow로 변환
+                                for (int i = 0; i < tacticsData.plan.Length && i < TacticsDatabase.MAX_TACTICS_ROW; i++)
+                                {
+                                    var rowData = tacticsData.plan[i];
+                                    
+                                    // 스킬 타입 결정 (스킬 이름으로 찾기)
+                                    string skillType = "AP";
+                                    if (!string.IsNullOrEmpty(rowData.skill) && rowData.skill != "---")
+                                    {
+                                        // 클래스의 스킬 목록에서 찾기
+                                        var classSkills = GetClassSkills(classData.name);
+                                        var skill = classSkills.Find(s => s.name == rowData.skill);
+                                        if (skill != null)
+                                        {
+                                            skillType = skill.skillType;
+                                        }
+                                    }
+                                    
+                                    plan.rows[i] = new TacticRow(
+                                        rowData.skill ?? "---",
+                                        skillType,
+                                        rowData.condition1 ?? "조건 없음",
+                                        rowData.condition2 ?? "조건 없음"
+                                    );
+                                }
+                                
+                                _recommendedTactics[classData.name] = plan;
+                            }
+                        }
+                    }
+                    Debug.Log($"Loaded recommended tactics for {_recommendedTactics.Count} classes.");
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to load TacticsRecommend.json: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 클래스별 추천 전술 가져오기
+        /// </summary>
+        public TacticsPlan GetRecommendedTactics(string className)
+        {
+            if (_recommendedTactics.TryGetValue(className, out TacticsPlan plan))
+            {
+                // 새로운 TacticsPlan 인스턴스를 반환 (characterId는 나중에 설정됨)
+                var newPlan = new TacticsPlan("");
+                for (int i = 0; i < plan.rows.Count && i < TacticsDatabase.MAX_TACTICS_ROW; i++)
+                {
+                    var row = plan.rows[i];
+                    newPlan.rows[i] = new TacticRow(
+                        row.skillName,
+                        row.skillType,
+                        row.condition1,
+                        row.condition2
+                    );
+                }
+                return newPlan;
+            }
+            return null;
+        }
+
+        /// <summary>
         /// 클래스 정보 가져오기
         /// </summary>
         public ClassInfo GetClassInfo(string className)
@@ -1590,6 +1683,37 @@ namespace Arcana.Tactics
         public class CharacterPoolDataWrapper
         {
             public CharacterPoolData[] characters;
+        }
+
+        /// <summary>
+        /// TacticsRecommend.json 데이터 구조
+        /// </summary>
+        [System.Serializable]
+        public class TacticsRecommendWrapper
+        {
+            public TacticsRecommendClass[] classes;
+        }
+
+        [System.Serializable]
+        public class TacticsRecommendClass
+        {
+            public string name;
+            public TacticsRecommendTactics[] tactics;
+        }
+
+        [System.Serializable]
+        public class TacticsRecommendTactics
+        {
+            public string characterClass;
+            public TacticsRecommendRow[] plan;
+        }
+
+        [System.Serializable]
+        public class TacticsRecommendRow
+        {
+            public string skill;
+            public string condition1;
+            public string condition2;
         }
 
         #endregion

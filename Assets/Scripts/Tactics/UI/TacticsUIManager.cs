@@ -61,6 +61,7 @@ namespace Arcana.Tactics.UI
         [Header("Buttons")]
         public Button runBattleButton;
         public Button gotoGachaButton;
+        public Button recommendButton;
         public GameObject gotoGachaPopup;
 
         // State
@@ -237,8 +238,9 @@ namespace Arcana.Tactics.UI
                 if (detailStatSpeed == null) detailStatSpeed = FindDetailStat("Value_Speed");
             }
 
-            if (runBattleButton == null) runBattleButton = GameObject.Find("RunBattleButton").GetComponent<Button>();
-            if (gotoGachaButton == null) gotoGachaButton = GameObject.Find("GachaButton").GetComponent<Button>();
+            if (runBattleButton == null) runBattleButton = GameObject.Find("RunBattleButton")?.GetComponent<Button>();
+            if (gotoGachaButton == null) gotoGachaButton = GameObject.Find("GachaButton")?.GetComponent<Button>();
+            if (recommendButton == null) recommendButton = GameObject.Find("RecommendButton")?.GetComponent<Button>();
             if (gotoGachaPopup == null) gotoGachaPopup = GameObject.Find("GachaPopup");
             if (characterCardPrefab == null) characterCardPrefab = Resources.Load<GameObject>("Prefabs/UI/CharacterCardPrefab");
             if (tacticRowPrefab == null) tacticRowPrefab = Resources.Load<GameObject>("Prefabs/UI/TacticRowPrefab");
@@ -305,12 +307,46 @@ namespace Arcana.Tactics.UI
             if (skillModal != null) skillModal.Setup(this);
             if (runBattleButton != null) runBattleButton.onClick.AddListener(OnRunBattleClicked);
             if (gotoGachaButton != null) gotoGachaButton.onClick.AddListener(OnGotoGachaClicked);
+            if (recommendButton != null) recommendButton.onClick.AddListener(OnRecommendButtonClicked);
             if (gotoGachaPopup != null) gotoGachaPopup.GetComponentInChildren<Button>().onClick.AddListener(OnGotoGachaClicked);
         }
 
         public void OnGotoGachaClicked()
         {
             SceneManager.LoadScene("GachaScene");
+        }
+
+        /// <summary>
+        /// 추천 전술 버튼 클릭 핸들러
+        /// </summary>
+        public void OnRecommendButtonClicked()
+        {
+            if (_selectedCharacter == null)
+            {
+                ShowWarningPopup("캐릭터를 먼저 선택해주세요.");
+                return;
+            }
+
+            // 현재 선택된 캐릭터의 클래스에 맞는 추천 전술 가져오기
+            var recommendedPlan = _dataManager.GetRecommendedTactics(_selectedCharacter.characterClass);
+            if (recommendedPlan == null)
+            {
+                ShowWarningPopup($"{_selectedCharacter.characterClass} 클래스에 대한 추천 전술이 없습니다.");
+                return;
+            }
+
+            // 추천 전술을 현재 캐릭터에 적용
+            recommendedPlan.characterId = _selectedCharacter.id;
+            _codingData[_selectedCharacter.id] = recommendedPlan;
+
+            // UI 업데이트
+            UpdateCodingPanel();
+
+            // 데이터 저장
+            _dataManager.SaveTacticsToFile(_codingData); // CharacterPool.json에 저장
+            _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData); // tactics.json에 저장
+
+            Debug.Log($"추천 전술이 {_selectedCharacter.characterName}에 적용되었습니다.");
         }
 
         public void OnCharacterPoolCardClicked(CharacterData data)
