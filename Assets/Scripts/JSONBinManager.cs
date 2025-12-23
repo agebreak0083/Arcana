@@ -596,64 +596,99 @@ public class JSONBinManager : MonoBehaviour
                 Debug.Log($"JsonBinManager: [SaveAllTactics] 재시도 {retryCount}/{maxRetries}");
             }
 
-            using (UnityWebRequest request = new UnityWebRequest(url, "PUT"))
-            {
-                request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                request.downloadHandler = new DownloadHandlerBuffer();
-                request.SetRequestHeader("Content-Type", "application/json");
-                request.SetRequestHeader("X-Access-Key", accessKey);
-                request.timeout = 30; // 타임아웃 설정
+            UnityWebRequest request = new UnityWebRequest(url, "PUT");
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("X-Access-Key", accessKey);
+            request.timeout = 30; // 타임아웃 설정
 
-                Debug.Log($"JsonBinManager: [SaveAllTactics] HTTP PUT 요청 전송 (시도 {retryCount + 1}/{maxRetries})");
-                yield return request.SendWebRequest();
-                Debug.Log($"JsonBinManager: [SaveAllTactics] HTTP PUT 응답 수신 - Result: {request.result}, Code: {request.responseCode}");
-
-                if (request.result == UnityWebRequest.Result.Success)
+            Debug.Log($"JsonBinManager: [SaveAllTactics] HTTP PUT 요청 전송 (시도 {retryCount + 1}/{maxRetries})");
+            
+                using (request)
                 {
-                    // database.tactics.count와 용량 사이즈 출력
-                    Debug.Log($"JsonBinManager: [SaveAllTactics] 저장 성공 - {database.tactics.Count}개 데이터, {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
+                    // yield return은 try 블록 밖에서 실행 (C# 제약사항)
+                    // 하지만 SendWebRequest() 자체에서 예외가 발생할 수 있음
+                    // Unity의 코루틴은 yield return에서 예외를 던지지 않지만,
+                    // 네이티브 레벨에서 발생하는 예외는 이후 request 접근 시 발생할 수 있음
+                    yield return request.SendWebRequest();
                     
-                    // 캐시 업데이트
-                    cachedTacticsDatabase = database;
-                    isCacheValid = true;
-                    
-                    onComplete?.Invoke(true);
-                    success = true;
-                }
-                else
-                {
-                    if (request.responseCode == 413)
+                    // SendWebRequest() 이후 request 접근 시 예외 발생 가능 (PROTOCOL_ERROR 등)
+                    try
                     {
-                        Debug.LogError($"JsonBinManager: [SaveAllTactics] 저장 실패 - 페이로드 너무 큼 (HTTP 413). 크기: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
-                        Debug.LogError("JsonBinManager: [SaveAllTactics] 해결 방법: 오래된 Tactics 데이터를 수동으로 삭제하거나, 데이터를 여러 bin으로 나누어 저장하세요.");
-                        onComplete?.Invoke(false);
-                        break; // 413 에러는 재시도하지 않음
+                        Debug.Log($"JsonBinManager: [SaveAllTactics] HTTP PUT 응답 수신 - Result: {request.result}, Code: {request.responseCode}");
+
+                    if (request.result == UnityWebRequest.Result.Success)
+                    {
+                        // database.tactics.count와 용량 사이즈 출력
+                        Debug.Log($"JsonBinManager: [SaveAllTactics] 저장 성공 - {database.tactics.Count}개 데이터, {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
+                        
+                        // 캐시 업데이트
+                        cachedTacticsDatabase = database;
+                        isCacheValid = true;
+                        
+                        onComplete?.Invoke(true);
+                        success = true;
                     }
                     else
                     {
-                        // PROTOCOL_ERROR 또는 네트워크 에러 체크
-                        bool isRetryableError = !string.IsNullOrEmpty(request.error) && (
-                            request.error.Contains("PROTOCOL_ERROR") || 
-                            request.error.Contains("NetworkError") ||
-                            request.error.Contains("Unable to complete SSL connection") ||
-                            request.error.Contains("ConnectionError") ||
-                            request.result == UnityWebRequest.Result.ConnectionError
-                        );
-                        
-                        if (isRetryableError && retryCount < maxRetries - 1)
+                        if (request.responseCode == 413)
                         {
-                            retryCount++;
-                            Debug.LogWarning($"JsonBinManager: [SaveAllTactics] 저장 실패 (재시도 {retryCount}/{maxRetries}): {request.error}");
-                            yield return new WaitForSeconds(1f * retryCount); // 지수 백오프
-                            continue;
+                            Debug.LogError($"JsonBinManager: [SaveAllTactics] 저장 실패 - 페이로드 너무 큼 (HTTP 413). 크기: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
+                            Debug.LogError("JsonBinManager: [SaveAllTactics] 해결 방법: 오래된 Tactics 데이터를 수동으로 삭제하거나, 데이터를 여러 bin으로 나누어 저장하세요.");
+                            onComplete?.Invoke(false);
+                            break; // 413 에러는 재시도하지 않음
                         }
-                        
-                        Debug.LogError($"JsonBinManager: [SaveAllTactics] 저장 실패: {request.error} (HTTP {request.responseCode})");
-                        onComplete?.Invoke(false);
-                        break;
+                        else
+                        {
+                            // PROTOCOL_ERROR 또는 네트워크 에러 체크
+                            bool isRetryableError = !string.IsNullOrEmpty(request.error) && (
+                                request.error.Contains("PROTOCOL_ERROR") || 
+                                request.error.Contains("NetworkError") ||
+                                request.error.Contains("Unable to complete SSL connection") ||
+                                request.error.Contains("ConnectionError") ||
+                                request.result == UnityWebRequest.Result.ConnectionError
+                            );
+                            
+                            if (isRetryableError && retryCount < maxRetries - 1)
+                            {
+                                retryCount++;
+                                Debug.LogWarning($"JsonBinManager: [SaveAllTactics] 저장 실패 (재시도 {retryCount}/{maxRetries}): {request.error}");
+                                // try 블록 밖에서 재시도 처리
+                            }
+                            else
+                            {
+                                Debug.LogError($"JsonBinManager: [SaveAllTactics] 저장 실패: {request.error} (HTTP {request.responseCode})");
+                                onComplete?.Invoke(false);
+                                break;
+                            }
+                        }
                     }
                 }
-            }
+                    catch (Exception ex)
+                    {
+                        // request.result, request.error 등 접근 시 예외 발생 가능
+                        Debug.LogError($"JsonBinManager: [SaveAllTactics] 응답 처리 중 예외 발생: {ex.GetType().Name} - {ex.Message}\n{ex.StackTrace}");
+                        retryCount++;
+                        if (retryCount >= maxRetries)
+                        {
+                            Debug.LogError($"JsonBinManager: [SaveAllTactics] 최대 재시도 횟수 도달. 저장 실패 처리");
+                            onComplete?.Invoke(false);
+                            success = true; // 루프 종료를 위해
+                            break;
+                        }
+                        Debug.LogWarning($"JsonBinManager: [SaveAllTactics] 예외 발생으로 재시도 {retryCount}/{maxRetries}");
+                        // catch 블록 밖에서 재시도 처리
+                    }
+                }
+                
+                // catch 블록이나 재시도가 필요한 경우 여기서 처리
+                if (!success && retryCount < maxRetries)
+                {
+                    yield return new WaitForSeconds(1f * retryCount); // 지수 백오프
+                    continue;
+                }
+            
         }
     }
 
@@ -726,4 +761,5 @@ public class JSONBinManager : MonoBehaviour
         public string tacticsJson;
     }
 }
+
 

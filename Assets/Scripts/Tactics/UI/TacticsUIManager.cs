@@ -341,7 +341,8 @@ namespace Arcana.Tactics.UI
 
                 // 람다로 UIScreen을 비활성화 
                 runBattleButton.onClick.AddListener(() => {
-                    tacticsUIScreen.SetActive(false);                 
+                    rootObject.SetActive(false);
+                    BattleMapManager.Instance.battleMapRootObject.SetActive(true);
 
                     string squadName = "PlayerSquad_1";
                     BattleMapManager.Instance.CreateBattleSquad(squadName);
@@ -350,6 +351,9 @@ namespace Arcana.Tactics.UI
 
             if(BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_PHASE)
             {
+                runBattleButton.GetComponentInChildren<TextMeshProUGUI>().text = "전투 시작";
+                runBattleButton.onClick.RemoveAllListeners();
+                runBattleButton.onClick.AddListener(OnRunBattleClicked);
                 return;
             }
 
@@ -572,27 +576,27 @@ namespace Arcana.Tactics.UI
                     else
                     {
                         Debug.LogWarning($"JSONBin.io 저장 실패: {message}");
-                    }
-
-                    if(BattleMapManager.Instance != null && BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_PHASE)
-                    {
-                        // BattleScene을 Add 한다. 
-                        SceneManager.LoadSceneAsync("BattleScene", LoadSceneMode.Additive).completed += (operation) => {
-                            Scene battleScene = SceneManager.GetSceneByName("BattleScene");
-                            if(battleScene.isLoaded)
-                            {
-                                rootObject.SetActive(false);
-                                BattleMapManager.Instance.battleMapRootObject.SetActive(false);
-                                SceneManager.SetActiveScene(battleScene);
-                            }
-                        };
-                    }
-                    else
-                    {
-                        // 저장 완료 후 BattleScene으로 이동한다.                                     
-                        SceneManager.LoadScene("BattleScene");
-                    }
+                    }                    
                 });
+
+                if(BattleMapManager.Instance != null && BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_PHASE)
+                {
+                    // BattleMap에서는 BattleScene을 Add 한다. 
+                    SceneManager.LoadSceneAsync("BattleScene", LoadSceneMode.Additive).completed += (operation) => {
+                        Scene battleScene = SceneManager.GetSceneByName("BattleScene");
+                        if(battleScene.isLoaded)
+                        {
+                            rootObject.SetActive(false);
+                            BattleMapManager.Instance.battleMapRootObject.SetActive(false);
+                            SceneManager.SetActiveScene(battleScene);
+                        }
+                    };
+                }
+                else
+                {
+                    // 저장 완료 후 BattleScene으로 이동한다.                                     
+                    SceneManager.LoadScene("BattleScene");
+                }
             }
             else
             {

@@ -107,15 +107,24 @@ public class BattleMapManager : MonoBehaviour
         }
         else
         {
-            battleMapRootObject.SetActive(false);
             TacticsUIManager.Instance.rootObject.SetActive(true);
-            StartCoroutine(TacticsUIManager.Instance.Start());
+            TacticsUIManager.Instance.StartCoroutine(TacticsUIManager.Instance.Start());
+            battleMapRootObject.SetActive(false);
         }        
     }
 
+    private SquadSpawner _squadSpawner = null;
     public void CreateBattleSquad(string squadName)
     {
+        if(_squadSpawner == null)
+        {
+            _squadSpawner = GetComponent<SquadSpawner>();
+        }
         
+        if(_squadSpawner != null)
+        {
+            _squadSpawner.SpawnSquad(squadName);
+        }
     }
 
     public void HandleSquadClick(BattleSquad battleSquad)
