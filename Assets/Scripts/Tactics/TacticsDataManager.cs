@@ -26,6 +26,7 @@ namespace Arcana.Tactics
         private Dictionary<string, ClassInfo> _classData = new Dictionary<string, ClassInfo>();
         private Dictionary<string, List<Skill>> _skillMap = new Dictionary<string, List<Skill>>();
         private Dictionary<string, TacticsPlan> _recommendedTactics = new Dictionary<string, TacticsPlan>(); // 클래스별 추천 전술
+        private Dictionary<string, string> _squadFormationJson = new Dictionary<string, string>();  // 스쿼드 전술 JSON
         private FormationLoadResult _playerFormationLoadResult;
         private FormationLoadResult _enemyFormationLoadResult;
         private CharacterDefinition[] _allCharacterDefinitions; // 모든 캐릭터 정의 목록
@@ -1166,8 +1167,21 @@ namespace Arcana.Tactics
             {
                 Debug.LogError($"Failed to save formation: {e.Message}");
             }
-        }
+        }         
 
+        public void SaveSquadTactics(string squadName, CharacterData[] unitSlots, Dictionary<string, TacticsPlan> codingData)
+        {
+            try
+            {
+                string json = GetTacticsJson(unitSlots, codingData);
+                _squadTacticsJson[squadName] = json;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to save squad tactics: {e.Message}");
+            }
+        }       
+      
 
         /// <summary>
         /// CharacterPool에 새 캐릭터를 추가합니다 (가챠 시스템용)
@@ -1348,8 +1362,6 @@ namespace Arcana.Tactics
         /// </summary>
         public FormationLoadResult LoadFormationFromTacticsFile(bool isPlayer)
         {
-            FormationLoadResult result = isPlayer ? _playerFormationLoadResult : _enemyFormationLoadResult;
-
             try
             {
                 string json = "";
@@ -1373,15 +1385,38 @@ namespace Arcana.Tactics
                     else
                     {
                         Debug.LogWarning("tactics.json not found in PlayerPrefs or Resources");
-                        return result;
+                        return null;
                     }
 #else
                     Debug.LogWarning("tactics.json not found in PlayerPrefs");
-                    return result;
+                    return null;
 #endif
                 }
 
-                TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(json);
+                FormationLoadResult result = LoadFormationFromJson(json);                
+                if(isPlayer)
+                {
+                    _playerFormationLoadResult = result;
+                }
+                else
+                {
+                    _enemyFormationLoadResult = result;
+                }   
+                return result;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to load formation: {e.Message}");
+            }
+
+            return null;
+        }
+        private FormationLoadResult LoadFormationFromJson(string json)
+        {
+            FormationLoadResult result = new FormationLoadResult();
+            try
+            {
+               TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(json);
                 if (tacticsData == null || tacticsData.positions == null)
                 {
                     Debug.LogWarning("Failed to parse tactics.json");
@@ -1457,13 +1492,27 @@ namespace Arcana.Tactics
                 }
 
                 Debug.Log("Formation loaded successfully");
+                return result;
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"Failed to load formation: {e.Message}");
+                Debug.LogError($"Failed to load formation from json: {e.Message}");
             }
+            return null;
+        }
 
-            return result;
+        public FormationLoadResult LoadSquadTactics(string squadName)
+        {
+            try
+            {
+                string json = _squadTacticsJson[squadName];
+                return LoadFormationFromJson(json);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to load squad tactics: {e.Message}");
+            }
+            return null;
         }
 
         /// <summary>
