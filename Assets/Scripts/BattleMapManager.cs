@@ -25,6 +25,7 @@ public class BattleMapManager : MonoBehaviour
     public BattleMapPhase currentPhase = BattleMapPhase.NONE_PHASE;
 
     public static BattleMapManager Instance { get; private set; }
+    public int currentSquadIndex { get; internal set; } = 0;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -39,10 +40,41 @@ public class BattleMapManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // ESC 키 입력 감지
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            HandleEscapeKey();
+        }
+
         // 맵(Plane) 클릭 감지
         if (Input.GetMouseButtonDown(0))
         {
             HandleMapClick();
+        }
+    }
+
+    /// <summary>
+    /// ESC 키 처리 - 타이틀로 돌아가기 팝업 표시
+    /// </summary>
+    void HandleEscapeKey()
+    {
+        // TacticsScene이 Active 상태면 무시 
+        if (TacticsUIManager.Instance != null && TacticsUIManager.Instance.rootObject.activeSelf)
+        {
+            return;
+        }
+
+        // 팝업이 이미 표시되어 있는지 확인
+        if (PopupManager.Instance != null)
+        {
+            PopupManager.Instance.ShowPopup(
+                PopupManager.PopupType.Confirm,
+                "타이틀로 돌아가시겠습니까?",
+                () => {
+                    // 확인 버튼 클릭 시 IntroScene으로 이동
+                    SceneManager.LoadScene("IntroScene");
+                }
+            );
         }
     }
 

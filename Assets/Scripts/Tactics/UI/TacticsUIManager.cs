@@ -344,7 +344,10 @@ namespace Arcana.Tactics.UI
                     rootObject.SetActive(false);
                     BattleMapManager.Instance.battleMapRootObject.SetActive(true);
 
-                    string squadName = "PlayerSquad_1";
+                    string squadName = "PlayerSquad_" + BattleMapManager.Instance.currentSquadIndex;
+                    BattleMapManager.Instance.currentSquadIndex++;
+                    _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData, squadName);
+                    
                     BattleMapManager.Instance.CreateBattleSquad(squadName);
                 });
             }

@@ -21,7 +21,7 @@ public class SquadSpawner : MonoBehaviour
         
     }
 
-    int squadIndex = 0;
+    
     public void SpawnSquad(string squadName)
     {
         GameObject squad = Instantiate(squadPrefab, BattleMapManager.Instance.battleMapRootObject.transform);
@@ -32,12 +32,12 @@ public class SquadSpawner : MonoBehaviour
         spawnDirection = Quaternion.Euler(0, Random.Range(spawnAngleRange.x, spawnAngleRange.y), 0) * spawnDirection;
         squad.transform.position = spawnPoint.position + spawnDirection * spawnDistance;
         
-        squad.GetComponent<Renderer>().material.mainTexture = squadTextures[squadIndex];
-
-        squadIndex++;
+        int squadIndex = BattleMapManager.Instance.currentSquadIndex;
         if(squadIndex >= squadTextures.Count)
         {
-            squadIndex = 0;
+            squadIndex %= squadTextures.Count;
         }
+        
+        squad.GetComponent<Renderer>().material.mainTexture = squadTextures[squadIndex];        
     }
 }

@@ -1142,20 +1142,20 @@ namespace Arcana.Tactics
         /// <summary>
         /// tactics.json에 포메이션 저장 (로컬 파일만)
         /// </summary>
-        public void SaveFormationToTacticsFile(CharacterData[] unitSlots, Dictionary<string, TacticsPlan> codingData)
+        public void SaveFormationToTacticsFile(CharacterData[] unitSlots, Dictionary<string, TacticsPlan> codingData, string fileName = "tactics")
         {
             try
             {
                 string json = GetTacticsJson(unitSlots, codingData);
 
                 // 모든 플랫폼에서 PlayerPrefs 사용
-                PlayerPrefs.SetString("tactics", json);
+                PlayerPrefs.SetString(fileName, json);
                 PlayerPrefs.Save();
                 Debug.Log("Formation saved to PlayerPrefs");
 
 #if UNITY_EDITOR
                 // 에디터에서는 Resources에도 저장 (사용자 가시성)
-                string resourcesPath = System.IO.Path.Combine(Application.dataPath, "Resources/tactics.json");
+                string resourcesPath = System.IO.Path.Combine(Application.dataPath, "Resources/" + fileName + ".json");
                 System.IO.File.WriteAllText(resourcesPath, json);
                 Debug.Log($"Formation saved to {resourcesPath} (Editor only)");
 #endif
