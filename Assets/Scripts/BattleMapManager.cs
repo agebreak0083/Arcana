@@ -30,6 +30,7 @@ public class BattleMapManager : MonoBehaviour
     public int currentSquadIndex { get; internal set; } = 0;
 
     private Dictionary<string, CharacterData> _squadCharacterData = new Dictionary<string, CharacterData>();
+    public SquadInfoUI _squadInfoUI = null;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -37,8 +38,10 @@ public class BattleMapManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-        }               
-
+        }
+        
+        // SquadInfoUI 찾기
+        _squadInfoUI = FindFirstObjectByType<SquadInfoUI>(FindObjectsInactive.Include);
     }
 
     // Update is called once per frame
@@ -204,15 +207,15 @@ public class BattleMapManager : MonoBehaviour
                 // Player Squad를 Enemy Squad 위치로 이동
                 Vector3 targetPosition = battleSquad.transform.position;
                 targetPosition.y = selectedSquad.transform.position.y; // Y축은 유지
-                
+
                 selectedSquad.MoveTo(targetPosition, squadMoveSpeed);
                 Debug.Log($"Player Squad 이동 명령: {selectedSquad.gameObject.name} -> {battleSquad.gameObject.name} 위치로");
-                
+
                 // 선택은 유지 (Player Squad가 계속 선택된 상태)
                 return;
             }
         }
-        
+
         // 일반적인 선택 로직
         // 이전 선택 해제
         if (selectedSquadObject != null && selectedSquadObject != battleSquad.gameObject)
@@ -223,11 +226,42 @@ public class BattleMapManager : MonoBehaviour
                 prevSquad.SetSelected(false);
             }
         }
-        
+
         // 현재 Squad 선택
         selectedSquadObject = battleSquad.gameObject;
         battleSquad.SetSelected(true);
         Debug.Log($"Squad 선택: {battleSquad.gameObject.name}");
+
+        ShowSquadInfoUI(battleSquad);
+    }
+
+    private void ShowSquadInfoUI(BattleSquad battleSquad)
+    {
+        // SquadInfoUI에 정보 업데이트 (Player Squad만)
+        if (battleSquad.isPlayerSquad && _squadInfoUI != null)
+        {
+            string squadName = battleSquad.gameObject.name;
+
+            // TacticsDataManager에서 해당 squad의 데이터 로드
+            if (Arcana.Tactics.TacticsDataManager.Instance != null)
+            {
+                var loadResult = Arcana.Tactics.TacticsDataManager.Instance.LoadSquadTactics(squadName);
+                if (loadResult != null && loadResult.unitSlots != null)
+                {
+                    _squadInfoUI.UpdateSquadInfo(squadName, loadResult.unitSlots);
+                }
+                else
+                {
+                    // Squad 데이터가 없으면 빈 배열로 표시
+                    CharacterData[] emptySlots = new CharacterData[6];
+                    _squadInfoUI.UpdateSquadInfo(squadName, emptySlots);
+                }
+            }
+            else
+            {
+                Debug.LogWarning("TacticsDataManager.Instance가 null입니다.");
+            }
+        }
     }
 
     private bool _isPlayerWin = false;
@@ -291,6 +325,29 @@ public class BattleMapManager : MonoBehaviour
                 if(_enemySquad != null)
                     _enemySquad.SetTriggerEnabled(true);
             }
+        }
+    }
+
+    // 스쿼드를 회수 한다.
+    public void ReturnSquad(string squadName)
+    {
+        // 캐릭터들을 스쿼드 멤버에서 제거한다.
+        var loadResult = Arcana.Tactics.TacticsDataManager.Instance.LoadSquadTactics(squadName);
+        if(loadResult != null && loadResult.unitSlots != null)
+        {
+            foreach(var unitSlot in loadResult.unitSlots)
+            {
+                if(unitSlot != null)
+                {
+                    _squadCharacterData.Remove(unitSlot.characterName);
+                }
+            }
+        }
+
+        // GameObject를 제거한다.
+        if(_squadSpawner != null)
+        {
+            _squadSpawner.DestroySquad(squadName);
         }
     }
 

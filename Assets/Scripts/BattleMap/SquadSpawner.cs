@@ -40,4 +40,13 @@ public class SquadSpawner : MonoBehaviour
         
         squad.GetComponent<Renderer>().material.mainTexture = squadTextures[squadIndex];        
     }
+
+    public void DestroySquad(string squadName)
+    {
+        GameObject squad = GameObject.Find(squadName);
+        if(squad != null)
+        {
+            Destroy(squad);
+        }
+    }
 }

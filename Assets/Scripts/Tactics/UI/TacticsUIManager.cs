@@ -375,6 +375,7 @@ namespace Arcana.Tactics.UI
             if(BattleMapManager.Instance.currentPhase == BattleMapPhase.TOWER_PHASE)
             {
                 gotoGachaButton.gameObject.SetActive(false);
+                characterPoolContainer.gameObject.SetActive(true);
 
                 runBattleButton.GetComponentInChildren<TextMeshProUGUI>().text = "출격";
                 runBattleButton.onClick.RemoveAllListeners();
@@ -395,6 +396,7 @@ namespace Arcana.Tactics.UI
             if(BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_PHASE)
             {
                 gotoGachaButton.gameObject.SetActive(false);
+                characterPoolContainer.gameObject.SetActive(false);
 
                 runBattleButton.GetComponentInChildren<TextMeshProUGUI>().text = "전투 시작";
                 runBattleButton.onClick.RemoveAllListeners();
@@ -669,7 +671,6 @@ namespace Arcana.Tactics.UI
             {
                 return;
             }
-
         
             int i = 0;
             var characterList = availableCharacters.Values.ToList();

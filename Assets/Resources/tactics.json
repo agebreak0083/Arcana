@@ -1,8 +1,8 @@
 {
-    "key": "agebreak_2512251651",
-    "username": "agebreak_2512251651",
-    "score": 170,
-    "winCount": 61,
+    "key": "agebreak_2512251800",
+    "username": "agebreak_2512251800",
+    "score": 173,
+    "winCount": 62,
     "loseCount": 13,
     "positions": [
         {
@@ -12,14 +12,14 @@
         },
         {
             "position": "2",
-            "name": "도기",
+            "name": "단근",
             "tactics": [
                 {
                     "characterClass": "파이터",
                     "plan": [
                         {
                             "skill": "가드 슬래시",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
