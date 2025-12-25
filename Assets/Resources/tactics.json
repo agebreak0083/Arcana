@@ -1,8 +1,8 @@
 {
-    "key": "agebreak_2512251531",
-    "username": "agebreak_2512251531",
-    "score": 155,
-    "winCount": 56,
+    "key": "agebreak_2512251628",
+    "username": "agebreak_2512251628",
+    "score": 158,
+    "winCount": 57,
     "loseCount": 13,
     "positions": [
         {
@@ -12,7 +12,7 @@
         },
         {
             "position": "2",
-            "name": "양양",
+            "name": "방랑자",
             "tactics": [
                 {
                     "characterClass": "파이터",
@@ -68,7 +68,7 @@
         },
         {
             "position": "4",
-            "name": "치사",
+            "name": "산화",
             "tactics": [
                 {
                     "characterClass": "헌터",

@@ -72,6 +72,10 @@ namespace Arcana.Tactics
             _playerFormationLoadResult = FormationManager.LoadFormationFromTacticsFile(availableCharacters, CreateDefaultPlan);
             Debug.Log("TacticsDataManager: Player formation 로드 완료");
 
+            // CharacterPool.json에서 작전 코딩 데이터 로드 및 병합
+            LoadTacticsFromCharacterPool();
+            Debug.Log("TacticsDataManager: CharacterPool tactics 로드 완료");
+
             // Enemy formation 로드는 서버 데이터가 필요할 때만 로드
             if (isNeedServerData)
             {
@@ -910,6 +914,108 @@ namespace Arcana.Tactics
                 unitSlots = new CharacterData[6],
                 codingData = new Dictionary<string, TacticsPlan>()
             };
+        }
+
+        /// <summary>
+        /// CharacterPool.json에서 작전 코딩 데이터 로드 및 병합
+        /// </summary>
+        private void LoadTacticsFromCharacterPool()
+        {
+            try
+            {
+                // CharacterPool.json 로드
+                string poolJson = "";
+                poolJson = PlayerPrefs.GetString("CharacterPool", "");
+                if (string.IsNullOrEmpty(poolJson))
+                {
+#if UNITY_EDITOR
+                    TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
+                    if (poolAsset != null)
+                    {
+                        poolJson = poolAsset.text;
+                    }
+#endif
+                }
+
+                if (string.IsNullOrWhiteSpace(poolJson) || poolJson.Trim() == "")
+                {
+                    Debug.Log("CharacterPool.json이 비어있습니다. 작전 코딩 데이터를 로드하지 않습니다.");
+                    return;
+                }
+
+                // CharacterPoolData 배열로 파싱
+                CharacterPoolData[] poolData = JsonHelper.FromJson<CharacterPoolData>(poolJson);
+                if (poolData == null)
+                {
+                    Debug.LogWarning("CharacterPool JSON 파싱 실패");
+                    return;
+                }
+
+                // 각 캐릭터의 tactics 데이터를 로드하여 병합
+                foreach (var poolItem in poolData)
+                {
+                    if (string.IsNullOrEmpty(poolItem.Name)) continue;
+                    if (poolItem.tactics == null || poolItem.tactics.Length == 0) continue;
+
+                    // characterName으로 매칭
+                    CharacterData character = availableCharacters.Find(c => c.characterName == poolItem.Name);
+                    if (character == null)
+                    {
+                        Debug.LogWarning($"CharacterPool의 캐릭터 '{poolItem.Name}'를 availableCharacters에서 찾을 수 없습니다.");
+                        continue;
+                    }
+
+                    // tactics 데이터 로드
+                    var tacticData = poolItem.tactics[0];
+                    if (tacticData.plan != null && tacticData.plan.Length > 0)
+                    {
+                        var plan = new TacticsPlan(character.id);
+
+                        // TacticsPlan은 이미 8개의 기본 Row를 가지고 있음
+                        // 로드한 데이터로 앞부분을 채움 (최대 8개까지)
+                        for (int i = 0; i < tacticData.plan.Length && i < TacticsDatabase.MAX_TACTICS_ROW; i++)
+                        {
+                            var rowData = tacticData.plan[i];
+
+                            // Determine skill type from character's skills
+                            string skillType = "AP";
+                            var skill = character.skills.Find(s => s.name == rowData.skill);
+                            if (skill != null)
+                            {
+                                skillType = skill.skillType;
+                            }
+
+                            plan.rows[i] = new TacticRow(
+                                rowData.skill ?? "---",
+                                skillType,
+                                rowData.condition1 ?? "조건 없음",
+                                rowData.condition2 ?? "조건 없음"
+                            );
+                        }
+
+                        // _playerFormationLoadResult.codingData에 병합 (character.id를 키로 사용)
+                        // tactics.json에서 이미 로드된 데이터가 있으면 덮어쓰지 않고, 없으면 추가
+                        if (!_playerFormationLoadResult.codingData.ContainsKey(character.id))
+                        {
+                            _playerFormationLoadResult.codingData[character.id] = plan;
+                            Debug.Log($"CharacterPool에서 '{poolItem.Name}'의 작전 코딩 로드 완료");
+                        }
+                        else
+                        {
+                            // 이미 tactics.json에서 로드된 데이터가 있으면 CharacterPool 데이터로 덮어쓰기
+                            // (CharacterPool이 더 최신 데이터일 수 있음)
+                            _playerFormationLoadResult.codingData[character.id] = plan;
+                            Debug.Log($"CharacterPool에서 '{poolItem.Name}'의 작전 코딩을 덮어쓰기 완료");
+                        }
+                    }
+                }
+
+                Debug.Log($"CharacterPool에서 {poolData.Length}개 캐릭터의 작전 코딩 데이터 로드 완료");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"CharacterPool에서 작전 코딩 데이터 로드 실패: {e.Message}");
+            }
         }
 
         /// <summary>

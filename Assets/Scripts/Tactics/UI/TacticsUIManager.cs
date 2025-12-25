@@ -131,11 +131,22 @@ namespace Arcana.Tactics.UI
             }            
 
             // Load formation from TacticsDataManager (씬마다 독립적인 인스턴스)
+            
+            
             var loadResult = _dataManager.GetPlayerFormationLoadResult();
             if (loadResult != null)
             {
-                _unitSlots = loadResult.unitSlots;
-                _codingData = loadResult.codingData;
+                    if(BattleMapManager.Instance.currentPhase == BattleMapPhase.TOWER_PHASE)
+                    {
+                        // 타워 페이즈 일때는 비워둔다. 출격 버튼 클릭하면 새로운 Squad 생성
+                        _unitSlots = new CharacterData[6];
+                        _codingData = loadResult.codingData;
+                    }
+                    else
+                    {
+                        _unitSlots = loadResult.unitSlots;
+                        _codingData = loadResult.codingData;
+                    }                                    
             }
             else
             {
@@ -336,28 +347,31 @@ namespace Arcana.Tactics.UI
 
             if(BattleMapManager.Instance.currentPhase == BattleMapPhase.TOWER_PHASE)
             {
+                gotoGachaButton.gameObject.SetActive(false);
+
                 runBattleButton.GetComponentInChildren<TextMeshProUGUI>().text = "출격";
                 runBattleButton.onClick.RemoveAllListeners();
 
-                // 람다로 UIScreen을 비활성화 
+                // 출격 버튼 클릭하면 새로운 Squad 생성
                 runBattleButton.onClick.AddListener(() => {
                     rootObject.SetActive(false);
                     BattleMapManager.Instance.battleMapRootObject.SetActive(true);
 
                     string squadName = "PlayerSquad_" + BattleMapManager.Instance.currentSquadIndex;
-                    BattleMapManager.Instance.currentSquadIndex++;
-                    _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData, squadName);
+                    BattleMapManager.Instance.currentSquadIndex++;                    
+                    _dataManager.SaveSquadTactics(squadName, _unitSlots, _codingData);
                     
-                    BattleMapManager.Instance.CreateBattleSquad(squadName);
+                    BattleMapManager.Instance.CreateBattleSquad(squadName, _unitSlots);
                 });
             }
 
             if(BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_PHASE)
             {
+                gotoGachaButton.gameObject.SetActive(false);
+
                 runBattleButton.GetComponentInChildren<TextMeshProUGUI>().text = "전투 시작";
                 runBattleButton.onClick.RemoveAllListeners();
-                runBattleButton.onClick.AddListener(OnRunBattleClicked);
-                return;
+                runBattleButton.onClick.AddListener(OnRunBattleClicked);            
             }
 
             if(BattleMapManager.Instance.currentPhase == BattleMapPhase.END_PHASE)
@@ -640,6 +654,13 @@ namespace Arcana.Tactics.UI
                     var data = characterList[i];
 
                     bool isDeployed = GetSlotIndex(data) != -1;
+
+                    if(BattleMapManager.Instance != null)
+                    {
+                        // 이미 출력한 캐릭터는 숨긴다.
+                        isDeployed = isDeployed || BattleMapManager.Instance.IsSquadCharacter(data.characterName);
+                    }
+
                     bool isSelected = _selectedCharacter == data;
 
                     // 배치된 캐릭터는 숨김 (CharacterCardUI.SetDeployed에서 처리)

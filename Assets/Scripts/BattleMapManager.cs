@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Arcana.Tactics.Data;
 using Arcana.Tactics.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -26,6 +28,8 @@ public class BattleMapManager : MonoBehaviour
 
     public static BattleMapManager Instance { get; private set; }
     public int currentSquadIndex { get; internal set; } = 0;
+
+    private Dictionary<string, CharacterData> _squadCharacterData = new Dictionary<string, CharacterData>();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -146,17 +150,35 @@ public class BattleMapManager : MonoBehaviour
     }
 
     private SquadSpawner _squadSpawner = null;
-    public void CreateBattleSquad(string squadName)
+    public void CreateBattleSquad(string squadName, CharacterData[] unitSlots)
     {
         if(_squadSpawner == null)
         {
             _squadSpawner = GetComponent<SquadSpawner>();
         }
-        
-        if(_squadSpawner != null)
+
+        bool isEmpySquad = true;
+
+        // 출격한 캐릭터를 체크하기 위해 저장해 둔다. 
+        foreach(var unitSlot in unitSlots)
+        {
+            if(unitSlot != null)
+            {
+                _squadCharacterData[unitSlot.characterName] = unitSlot;
+                isEmpySquad = false;
+            }
+        }
+
+        // 슬롯에 캐릭터가 없는 경우는 스쿼드를 생성하지 않는다. 
+        if(!isEmpySquad && _squadSpawner != null)
         {
             _squadSpawner.SpawnSquad(squadName);
         }
+    }
+
+    public bool IsSquadCharacter(string characterName)
+    {
+        return _squadCharacterData.ContainsKey(characterName);
     }
 
     public void HandleSquadClick(BattleSquad battleSquad)
