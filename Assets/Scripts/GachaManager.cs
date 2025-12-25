@@ -92,7 +92,7 @@ public class GachaManager : MonoBehaviour
     private CharacterDefinition GetRandomCharacter()
     {
         // 1. 캐릭터 목록을 TacticsDataManager에서 가져온다.
-        TacticsDataManager.CharacterDefinition[] allCharacters = TacticsDataManager.Instance.GetAllCharacterDefinitions();
+        CharacterDefinition[] allCharacters = TacticsDataManager.Instance.GetAllCharacterDefinitions();
         if (allCharacters == null || allCharacters.Length == 0)
         {
             Debug.LogError("캐릭터 목록을 가져올 수 없습니다.");
@@ -100,7 +100,7 @@ public class GachaManager : MonoBehaviour
         }
 
         // 2. 캐릭터 목록에서 랜덤으로 1개를 선택한다.
-        TacticsDataManager.CharacterDefinition randomCharDef = allCharacters[UnityEngine.Random.Range(0, allCharacters.Length)];
+        CharacterDefinition randomCharDef = allCharacters[UnityEngine.Random.Range(0, allCharacters.Length)];
 
         // 3. 캐릭터를 획득한다.
         // UserDataManager에 추가

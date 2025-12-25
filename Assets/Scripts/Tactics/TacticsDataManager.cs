@@ -69,7 +69,7 @@ namespace Arcana.Tactics
             };
 
             // Player formation 로드 (로컬 파일)
-            _playerFormationLoadResult = LoadFormationFromTacticsFile(true);
+            _playerFormationLoadResult = FormationManager.LoadFormationFromTacticsFile(availableCharacters, CreateDefaultPlan);
             Debug.Log("TacticsDataManager: Player formation 로드 완료");
 
             // Enemy formation 로드는 서버 데이터가 필요할 때만 로드
@@ -112,7 +112,7 @@ namespace Arcana.Tactics
             {
                 // 서버 데이터가 필요 없으면 기본 Enemy formation 설정
                 Debug.Log("TacticsDataManager: 서버 데이터 불필요. 기본 Enemy formation 사용.");
-                _enemyFormationLoadResult = LoadFormationFromTacticsFile(false);
+                _enemyFormationLoadResult = FormationManager.LoadFormationFromTacticsFile(availableCharacters, CreateDefaultPlan);
             }
 
             isDataLoaded = true;
@@ -136,67 +136,7 @@ namespace Arcana.Tactics
         /// <param name="onComplete">완료 콜백 (랭킹, 0이면 데이터 로드 실패)</param>
         public void GetRanking(int score, System.Action<int> onComplete)
         {
-            if (JSONBinManager.Instance == null || !JSONBinManager.Instance.isInitialized)
-            {
-                Debug.LogWarning("JSONBinManager가 초기화되지 않았습니다.");
-                onComplete?.Invoke(0);
-                return;
-            }
-
-            // JSONBinManager에서 모든 Tactics 데이터 로드
-            JSONBinManager.Instance.GetAllTactics((success, database) =>
-            {
-                if (!success || database == null || database.tactics == null)
-                {
-                    Debug.LogWarning("Tactics 데이터 로드 실패");
-                    onComplete?.Invoke(0);
-                    return;
-                }
-
-                // 모든 Tactics JSON을 파싱하여 TacticsFileData로 변환
-                Dictionary<string, int> userScores = new Dictionary<string, int>();
-
-                foreach (JSONBinManager.TacticsData tactic in database.tactics)
-                {
-                    if (string.IsNullOrEmpty(tactic.tacticsJson)) continue;
-
-                    try
-                    {
-                        TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(tactic.tacticsJson);
-                        if (tacticsData != null && !string.IsNullOrEmpty(tacticsData.username))
-                        {
-                            // key 값 설정 (JSONBinManager의 key 사용)
-                            if (string.IsNullOrEmpty(tacticsData.key))
-                            {
-                                tacticsData.key = tactic.key;
-                            }
-                            
-                            userScores[tacticsData.key] = tacticsData.score;
-                            
-                        }
-                    }
-                    catch (System.Exception e)
-                    {
-                        Debug.LogWarning($"Tactics JSON 파싱 실패: {e.Message}");
-                        continue;
-                    }
-                }
-
-                // score가 높은 순서대로 정렬
-                var sortedScores = userScores.Values.OrderByDescending(x => x).ToList();
-
-                // 주어진 score보다 높은 점수를 가진 사용자 수를 세어서 랭킹 계산
-                // 예: [100, 90, 80, 70], 내 점수 85 -> 랭킹 3 (100, 90이 더 높음)
-                int ranking = sortedScores.Count(s => s > score) + 1;
-
-                // 가장 높은 score를 가진 사용자의 이름과 score 가져오기
-                string highestScoreUsername = userScores.Keys.FirstOrDefault(k => userScores[k] == sortedScores.First());
-                int highestScore = sortedScores.First();
-
-                Debug.Log($"가장 높은 score를 가진 사용자: {highestScoreUsername}, score: {highestScore}");
-
-                onComplete?.Invoke(ranking);
-            });
+            RankingManager.GetRanking(score, onComplete);
         }
 
         /// <summary>
@@ -205,123 +145,17 @@ namespace Arcana.Tactics
         /// <param name="onComplete">완료 콜백 (유저 데이터 리스트: username, score, winCount, loseCount)</param>
         public void GetAllUsersSortedByScore(System.Action<List<(string username, int score, int winCount, int loseCount)>> onComplete)
         {
-            if (JSONBinManager.Instance == null || !JSONBinManager.Instance.isInitialized)
-            {
-                Debug.LogWarning("JSONBinManager가 초기화되지 않았습니다.");
-                onComplete?.Invoke(new List<(string, int, int, int)>());
-                return;
-            }
-
-            // JSONBinManager에서 모든 Tactics 데이터 로드
-            JSONBinManager.Instance.GetAllTactics((success, database) =>
-            {
-                if (!success || database == null || database.tactics == null)
-                {
-                    Debug.LogWarning("Tactics 데이터 로드 실패");
-                    onComplete?.Invoke(new List<(string, int, int, int)>());
-                    return;
-                }
-
-                // 모든 Tactics JSON을 파싱하여 TacticsFileData로 변환
-                Dictionary<string, (int score, int winCount, int loseCount)> userData = new Dictionary<string, (int, int, int)>();
-
-                foreach (JSONBinManager.TacticsData tactic in database.tactics)
-                {
-                    if (string.IsNullOrEmpty(tactic.tacticsJson)) continue;
-
-                    try
-                    {
-                        TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(tactic.tacticsJson);                        
-                        if (tacticsData != null && !string.IsNullOrEmpty(tacticsData.username))
-                        {
-                            userData[tacticsData.username] = (tacticsData.score, tacticsData.winCount, tacticsData.loseCount);                            
-                        }
-                    }
-                    catch (System.Exception e)
-                    {
-                        Debug.LogWarning($"Tactics JSON 파싱 실패: {e.Message}");
-                        continue;
-                    }
-                }
-
-                // score가 높은 순서대로 정렬하여 리스트로 변환
-                var sortedUsers = userData
-                    .Select(kvp => (username: kvp.Key, score: kvp.Value.score, winCount: kvp.Value.winCount, loseCount: kvp.Value.loseCount))
-                    .OrderByDescending(x => x.score)
-                    .ToList();
-
-                onComplete?.Invoke(sortedUsers);
-            });
+            RankingManager.GetAllUsersSortedByScore(onComplete);
         }
 
         /// <summary>
         /// 사용자의 랭킹을 가져옵니다 (비동기)
         /// </summary>
-        /// <param name="username">랭킹을 확인할 사용자 이름</param>
+        /// <param name="key">랭킹을 확인할 사용자 key</param>
         /// <param name="onComplete">완료 콜백 (랭킹, 0이면 사용자를 찾을 수 없음)</param>
         public void GetRankingByUsername(string key, System.Action<int> onComplete)
         {
-            if (JSONBinManager.Instance == null || !JSONBinManager.Instance.isInitialized)
-            {
-                Debug.LogWarning("JSONBinManager가 초기화되지 않았습니다.");
-                onComplete?.Invoke(0);
-                return;
-            }
-
-            // JSONBinManager에서 모든 Tactics 데이터 로드
-            JSONBinManager.Instance.GetAllTactics((success, database) =>
-            {
-                if (!success || database == null || database.tactics == null)
-                {
-                    Debug.LogWarning("Tactics 데이터 로드 실패");
-                    onComplete?.Invoke(0);
-                    return;
-                }
-
-                // 모든 Tactics JSON을 파싱하여 TacticsFileData로 변환
-                Dictionary<string, int> userScores = new Dictionary<string, int>();
-
-                foreach (JSONBinManager.TacticsData tactic in database.tactics)
-                {
-                    if (string.IsNullOrEmpty(tactic.tacticsJson)) continue;
-
-                    try
-                    {
-                        TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(tactic.tacticsJson);
-                        if (tacticsData != null && !string.IsNullOrEmpty(tacticsData.username))
-                        {
-                            // key 값 설정 (JSONBinManager의 key 사용)
-                            if (string.IsNullOrEmpty(tacticsData.key))
-                            {
-                                tacticsData.key = tactic.key;
-                            }
-
-                            userScores[tacticsData.key] = tacticsData.score;                           
-                        }
-                    }
-                    catch (System.Exception e)
-                    {
-                        Debug.LogWarning($"Tactics JSON 파싱 실패: {e.Message}");
-                        continue;
-                    }
-                }
-
-                // score가 높은 순서대로 정렬
-                var sortedUsers = userScores.OrderByDescending(x => x.Value).ToList();
-
-                // 주어진 username의 순서 찾기
-                for (int i = 0; i < sortedUsers.Count; i++)
-                {
-                    if (sortedUsers[i].Key == key)
-                    {
-                        onComplete?.Invoke(i + 1); // 1부터 시작하는 랭킹
-                        return;
-                    }
-                }
-
-                // 사용자를 찾을 수 없음
-                onComplete?.Invoke(0);
-            });
+            RankingManager.GetRankingByKey(key, onComplete);
         }
 
         public int UpdateScore(string key, int addWin, int addLose)
@@ -429,7 +263,7 @@ namespace Arcana.Tactics
                     {
                         Debug.Log("Successfully loaded CharacterList from Web CSV.");
                         string csvText = www.downloadHandler.text;
-                        allCharacters = ParseCharacterCSV(csvText);
+                        allCharacters = CSVParser.ParseCharacterCSV(csvText);
                     }
                 }
             }
@@ -598,48 +432,6 @@ namespace Arcana.Tactics
             Debug.Log($"Loaded {availableCharacters.Count} characters");
         }
 
-        private CharacterDefinition[] ParseCharacterCSV(string csvText)
-        {
-            var list = new List<CharacterDefinition>();
-            string[] lines = csvText.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-
-            // Assume header is first line or check content
-            for (int i = 0; i < lines.Length; i++)
-            {
-                string line = lines[i].Trim();
-                if (string.IsNullOrEmpty(line)) continue;
-
-                // Simple comma split (assuming no commas in values)
-                string[] parts = line.Split(',');
-
-                // Skip header (Name,Portrait,Class,Cost)
-                if (parts.Length >= 4 && parts[0] == "Name" && parts[2] == "Class")
-                    continue;
-
-                if (parts.Length >= 4)
-                {
-                    CharacterDefinition def = new CharacterDefinition();
-                    def.Name = parts[0].Trim();
-                    def.Portrait = parts[1].Trim();
-                    def.Class = parts[2].Trim();
-
-                    if (int.TryParse(parts[3].Trim(), out int cost))
-                    {
-                        def.Cost = cost;
-                    }
-                    else
-                    {
-                        def.Cost = 2; // default
-                    }
-
-                    // Model 필드는 CSV에 없을 수 있으므로 기본값으로 빈 문자열
-                    def.Model = parts.Length >= 5 ? parts[4].Trim() : "";
-
-                    list.Add(def);
-                }
-            }
-            return list.ToArray();
-        }
 
         /// <summary>
         /// (Deprecated) JSON 파일에서 캐릭터 데이터 로드 - Kept for compatibility if called externally, but now just starts the coroutine
@@ -685,7 +477,7 @@ namespace Arcana.Tactics
                 {
                     Debug.Log("Successfully loaded ClassList from Web CSV.");
                     string csvText = www.downloadHandler.text;
-                    classList = ParseClassCSV(csvText);
+                    classList = CSVParser.ParseClassCSV(csvText);
 
                     if (classList != null)
                     {
@@ -700,68 +492,6 @@ namespace Arcana.Tactics
             Debug.Log($"Loaded {_classData.Count} classes.");
         }
 
-        private List<ClassInfo> ParseClassCSV(string csvText)
-        {
-            var list = new List<ClassInfo>();
-            string[] lines = csvText.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-
-            // Header: name,description,cost,model,advantage,hp,physicalAttack,physicalDefense,magicalAttack,magicalDefense,accuracy,evasion,criticalRate,guardRate,actionSpeed,actionPoint,passivePoint
-
-            for (int i = 0; i < lines.Length; i++)
-            {
-                string line = lines[i].Trim();
-                if (string.IsNullOrEmpty(line)) continue;
-
-                string[] parts = line.Split(',');
-
-                // Skip header based on content
-                if (parts.Length > 0 && parts[0] == "name") continue;
-
-                if (parts.Length >= 17) // Ensure we have enough columns
-                {
-                    try
-                    {
-                        ClassInfo info = new ClassInfo();
-                        info.name = parts[0].Trim();
-                        info.description = parts[1].Trim();
-                        info.cost = int.Parse(parts[2].Trim());
-                        info.model = parts[3].Trim();
-
-                        // Advantage (semicolon separated)
-                        string advRaw = parts[4].Trim();
-                        if (!string.IsNullOrEmpty(advRaw))
-                        {
-                            info.advantage = new List<string>(advRaw.Split(';'));
-                        }
-                        else
-                        {
-                            info.advantage = new List<string>();
-                        }
-
-                        info.stats = new ClassStats();
-                        info.stats.hp = parts[5].Trim();
-                        info.stats.physicalAttack = parts[6].Trim();
-                        info.stats.physicalDefense = parts[7].Trim();
-                        info.stats.magicalAttack = parts[8].Trim();
-                        info.stats.magicalDefense = parts[9].Trim();
-                        info.stats.accuracy = parts[10].Trim();
-                        info.stats.evasion = parts[11].Trim();
-                        info.stats.criticalRate = parts[12].Trim();
-                        info.stats.guardRate = parts[13].Trim();
-                        info.stats.actionSpeed = parts[14].Trim();
-                        info.stats.actionPoint = int.Parse(parts[15].Trim());
-                        info.stats.passivePoint = int.Parse(parts[16].Trim());
-
-                        list.Add(info);
-                    }
-                    catch (System.Exception e)
-                    {
-                        Debug.LogError($"Error parsing class CSV line: {line}. Error: {e.Message}");
-                    }
-                }
-            }
-            return list;
-        }
 
         /// <summary>
         /// (Local) JSON 파일에서 클래스 데이터 로드
@@ -1001,60 +731,8 @@ namespace Arcana.Tactics
         }
 
         #region Data Classes
-
-        [System.Serializable]
-        public class CharacterDefinition
-        {
-            public string Name;
-            public string Portrait;
-            public string Model;
-            public string Class;
-            public int Cost;
-        }
-
-        [System.Serializable]
-        public class CharacterPoolItem
-        {
-            public string Name;
-        }
-
-        // Note: CharacterPoolItem은 더 이상 사용하지 않음. CharacterPoolData를 사용합니다.
-
-        [System.Serializable]
-        public class ClassListWrapper
-        {
-            public ClassInfo[] classes;
-        }
-
-        [System.Serializable]
-        public class ClassInfo
-        {
-            public string name;
-            public string description;
-            public int cost;
-            public string model;
-            public List<string> advantage;
-            public ClassStats stats;
-        }
-
-        /// <summary>
-        /// Helper for array JSONs
-        /// </summary>
-        public static class JsonHelper
-        {
-            public static T[] FromJson<T>(string json)
-            {
-                string newJson = "{ \"array\": " + json + "}";
-                Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(newJson);
-                return wrapper.array;
-            }
-
-            [System.Serializable]
-            private class Wrapper<T>
-            {
-                public T[] array;
-            }
-        }
+        // 데이터 클래스들은 TacticsDataModels.cs로 이동되었습니다.
+        // CharacterDefinition, ClassListWrapper, ClassInfo, JsonHelper 등은 TacticsDataModels에서 사용합니다.
 
         /// <summary>
         /// Tactics 데이터를 JSON 문자열로 변환
@@ -1188,97 +866,7 @@ namespace Arcana.Tactics
         /// </summary>
         public void AddCharacterToPool(string characterName)
         {
-            try
-            {
-                // CharacterPool.json 로드
-                string poolJson = "";
-
-                // 모든 플랫폼에서 PlayerPrefs 사용
-                poolJson = PlayerPrefs.GetString("CharacterPool", "");
-                if (string.IsNullOrEmpty(poolJson))
-                {
-                    // PlayerPrefs에 없으면 Resources에서 로드 (에디터에서 주로 사용)
-#if UNITY_EDITOR
-                    TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
-                    if (poolAsset != null)
-                    {
-                        poolJson = poolAsset.text;
-                    }
-#endif
-                }
-
-                // 빈 파일이거나 유효하지 않은 JSON인 경우 빈 리스트로 시작
-                List<CharacterPoolData> poolList = new List<CharacterPoolData>();
-                
-                if (!string.IsNullOrWhiteSpace(poolJson) && poolJson.Trim() != "")
-                {
-                    try
-                    {
-                        // JSON 파싱
-                        CharacterPoolData[] poolData = JsonHelper.FromJson<CharacterPoolData>(poolJson);
-                        if (poolData != null)
-                        {
-                            poolList = new List<CharacterPoolData>(poolData);
-                        }
-                    }
-                    catch (System.Exception parseEx)
-                    {
-                        Debug.LogWarning($"CharacterPool JSON 파싱 실패: {parseEx.Message}. 빈 리스트로 시작합니다.");
-                        poolList = new List<CharacterPoolData>();
-                    }
-                }
-                else
-                {
-                    Debug.Log("CharacterPool.json이 비어있습니다. 새로 시작합니다.");
-                }
-
-                // 이미 존재하는지 확인
-                if (poolList.Any(c => c.Name == characterName))
-                {
-                    Debug.Log($"캐릭터 '{characterName}'는 이미 보유하고 있습니다.");
-                    return;
-                }
-
-                // 새 캐릭터 추가 (기본 tactics 없이 - 빈 배열로 저장)
-                var newChar = new CharacterPoolData
-                {
-                    Name = characterName,
-                    tactics = new TacticsData[0] // 빈 배열로 저장 (null이 아닌 빈 배열)
-                };
-                poolList.Add(newChar);
-
-                // JSON으로 변환
-                var wrapper = new CharacterPoolDataWrapper { characters = poolList.ToArray() };
-                string newJson = JsonUtility.ToJson(wrapper, true);
-
-                // 배열 부분만 추출
-                int startIndex = newJson.IndexOf('[');
-                int endIndex = newJson.LastIndexOf(']');
-                if (startIndex >= 0 && endIndex >= 0)
-                {
-                    newJson = newJson.Substring(startIndex, endIndex - startIndex + 1);
-                }
-
-                // 저장 - 모든 플랫폼에서 PlayerPrefs 사용
-                PlayerPrefs.SetString("CharacterPool", newJson);
-                PlayerPrefs.Save();
-                Debug.Log($"CharacterPool에 '{characterName}' 추가 완료");
-
-#if UNITY_EDITOR
-                // 에디터에서는 Resources에도 저장 (사용자 가시성)
-                string resourcesPath = System.IO.Path.Combine(Application.dataPath, "Resources/CharacterPool.json");
-                System.IO.File.WriteAllText(resourcesPath, newJson);
-                Debug.Log($"CharacterPool also saved to {resourcesPath} (Editor only)");
-#endif
-
-                // Note: ReloadCharacterPool()은 호출하지 않음
-                // 각 씬은 독립적으로 동작하며, TacticsScene으로 넘어갈 때 TacticsDataManager가 새로 생성되어
-                // LoadCharactersFromWeb()에서 최신 CharacterPool.json을 자동으로 로드함
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"CharacterPool에 캐릭터 추가 실패: {e.Message}");
-            }
+            FormationManager.AddCharacterToPool(characterName);
         }
 
         /// <summary>
@@ -1286,75 +874,7 @@ namespace Arcana.Tactics
         /// </summary>
         public void SaveTacticsToFile(Dictionary<string, TacticsPlan> codingData)
         {
-            try
-            {
-                // Build the save data structure using unified classes
-                var poolData = new List<CharacterPoolData>();
-
-                foreach (var character in availableCharacters)
-                {
-                    var saveData = new CharacterPoolData
-                    {
-                        Name = character.characterName
-                    };
-
-                    // If this character has tactics data, save it
-                    if (codingData.TryGetValue(character.id, out var plan))
-                    {
-                        var tacticRowsList = new List<TacticRowData>();
-                        foreach (var row in plan.rows)
-                        {
-                            tacticRowsList.Add(new TacticRowData
-                            {
-                                skill = row.skillName,
-                                condition1 = row.condition1,
-                                condition2 = row.condition2
-                            });
-                        }
-
-                        saveData.tactics = new TacticsData[]
-                        {
-                            new TacticsData
-                            {
-                                characterClass = character.characterClass,
-                                plan = tacticRowsList.ToArray()
-                            }
-                        };
-                    }
-
-                    poolData.Add(saveData);
-                }
-
-                // Serialize to JSON using JsonUtility
-                // Note: JsonUtility doesn't support List<T> at root level, so we need a wrapper
-                var wrapper = new CharacterPoolDataWrapper { characters = poolData.ToArray() };
-                string json = JsonUtility.ToJson(wrapper, true);
-
-                // Extract the array part (remove wrapper)
-                // This keeps the JSON format compatible with existing files
-                int startIndex = json.IndexOf('[');
-                int endIndex = json.LastIndexOf(']');
-                if (startIndex >= 0 && endIndex >= 0)
-                {
-                    json = json.Substring(startIndex, endIndex - startIndex + 1);
-                }
-
-                // 모든 플랫폼에서 PlayerPrefs 사용
-                PlayerPrefs.SetString("CharacterPool", json);
-                PlayerPrefs.Save();
-                Debug.Log("CharacterPool saved to PlayerPrefs");
-
-#if UNITY_EDITOR
-                // 에디터에서는 Resources에도 저장 (사용자 가시성)
-                string resourcesPath = System.IO.Path.Combine(Application.dataPath, "Resources/CharacterPool.json");
-                System.IO.File.WriteAllText(resourcesPath, json);
-                Debug.Log($"CharacterPool also saved to {resourcesPath} (Editor only)");
-#endif
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"Failed to save CharacterPool: {e.Message}");
-            }
+            FormationManager.SaveTacticsToFile(availableCharacters, codingData);
         }
 
         /// <summary>
@@ -1362,143 +882,16 @@ namespace Arcana.Tactics
         /// </summary>
         public FormationLoadResult LoadFormationFromTacticsFile(bool isPlayer)
         {
-            try
+            FormationLoadResult result = FormationManager.LoadFormationFromTacticsFile(availableCharacters, CreateDefaultPlan);
+            if(isPlayer)
             {
-                string json = "";
-
-                // 모든 플랫폼에서 PlayerPrefs 사용
-                json = PlayerPrefs.GetString("tactics", "");
-                if (!string.IsNullOrEmpty(json))
-                {
-                    Debug.Log("Loaded tactics.json from PlayerPrefs");
-                }
-                else
-                {
-                    // PlayerPrefs에 없으면 Resources에서 로드 (에디터에서 주로 사용)
-#if UNITY_EDITOR
-                    TextAsset tacticsAsset = Resources.Load<TextAsset>("tactics");
-                    if (tacticsAsset != null)
-                    {
-                        json = tacticsAsset.text;
-                        Debug.Log("Loaded tactics.json from Resources (no PlayerPrefs found)");
-                    }
-                    else
-                    {
-                        Debug.LogWarning("tactics.json not found in PlayerPrefs or Resources");
-                        return null;
-                    }
-#else
-                    Debug.LogWarning("tactics.json not found in PlayerPrefs");
-                    return null;
-#endif
-                }
-
-                FormationLoadResult result = LoadFormationFromJson(json);                
-                if(isPlayer)
-                {
-                    _playerFormationLoadResult = result;
-                }
-                else
-                {
-                    _enemyFormationLoadResult = result;
-                }   
-                return result;
+                _playerFormationLoadResult = result;
             }
-            catch (System.Exception e)
+            else
             {
-                Debug.LogError($"Failed to load formation: {e.Message}");
-            }
-
-            return null;
-        }
-        private FormationLoadResult LoadFormationFromJson(string json)
-        {
-            FormationLoadResult result = new FormationLoadResult();
-            try
-            {
-               TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(json);
-                if (tacticsData == null || tacticsData.positions == null)
-                {
-                    Debug.LogWarning("Failed to parse tactics.json");
-                    return result;
-                }
-
-                // Set Username and stats
-                result.username = tacticsData.username;
-                result.score = tacticsData.score;
-                result.winCount = tacticsData.winCount;
-                result.loseCount = tacticsData.loseCount;
-
-                // Load each position
-                foreach (var posData in tacticsData.positions)
-                {
-                    if (string.IsNullOrEmpty(posData.name)) continue;
-
-                    int slotIndex = int.Parse(posData.position) - 1;
-                    if (slotIndex < 0 || slotIndex >= 6) continue;
-
-                    // Find the character by name
-                    CharacterData character = availableCharacters.Find(c => c.characterName.ToLower() == posData.name.ToLower());
-                    if (character == null)
-                    {
-                        Debug.LogWarning($"Character {posData.name} not found in available characters");
-                        continue;
-                    }
-
-                    // Place character in slot
-                    result.unitSlots[slotIndex] = character;
-
-                    // Load tactics if present
-                    if (posData.tactics != null && posData.tactics.Length > 0)
-                    {
-                        var tacticData = posData.tactics[0];
-                        if (tacticData.plan != null && tacticData.plan.Length > 0)
-                        {
-                            var plan = new TacticsPlan(character.id);
-
-                            // TacticsPlan은 이미 8개의 기본 Row를 가지고 있음
-                            // 로드한 데이터로 앞부분을 채움 (최대 8개까지)
-                            for (int i = 0; i < tacticData.plan.Length && i < TacticsDatabase.MAX_TACTICS_ROW; i++)
-                            {
-                                var rowData = tacticData.plan[i];
-
-                                // Determine skill type from character's skills
-                                string skillType = "AP";
-                                var skill = character.skills.Find(s => s.name == rowData.skill);
-                                if (skill != null)
-                                {
-                                    skillType = skill.skillType;
-                                }
-
-                                plan.rows[i] = new TacticRow(
-                                    rowData.skill,
-                                    skillType,
-                                    rowData.condition1,
-                                    rowData.condition2
-                                );
-                            }
-
-                            result.codingData[character.id] = plan;
-                        }
-                    }
-                    else
-                    {
-                        // No saved tactics, create default plan
-                        if (!result.codingData.ContainsKey(character.id))
-                        {
-                            result.codingData[character.id] = CreateDefaultPlan(character);
-                        }
-                    }
-                }
-
-                Debug.Log("Formation loaded successfully");
-                return result;
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"Failed to load formation from json: {e.Message}");
-            }
-            return null;
+                _enemyFormationLoadResult = result;
+            }   
+            return result;
         }
 
         public FormationLoadResult LoadSquadTactics(string squadName)
@@ -1506,13 +899,17 @@ namespace Arcana.Tactics
             try
             {
                 string json = _squadFormationJson[squadName];
-                return LoadFormationFromJson(json);
+                return FormationManager.LoadFormationFromJson(json, availableCharacters, CreateDefaultPlan);
             }
             catch (System.Exception e)
             {
                 Debug.LogError($"Failed to load squad tactics: {e.Message}");
             }
-            return null;
+            return new FormationLoadResult
+            {
+                unitSlots = new CharacterData[6],
+                codingData = new Dictionary<string, TacticsPlan>()
+            };
         }
 
         /// <summary>
@@ -1534,77 +931,10 @@ namespace Arcana.Tactics
                 {
                     try
                     {
-                        // JSONBin.io에서 가져온 JSON 파싱
-                        TacticsFileData tacticsData = JsonUtility.FromJson<TacticsFileData>(tacticsJson);
-                        if (tacticsData == null || tacticsData.positions == null)
-                        {
-                            Debug.LogWarning("JSONBin.io 데이터 파싱 실패. 로컬 파일 사용.");
-                            _enemyFormationLoadResult = LoadFormationFromTacticsFile(false);
-                            onComplete?.Invoke(true);
-                            return;
-                        }
-
-                        // Username 설정 (tacticsJson 안에 포함된 username 사용)
-                        _enemyFormationLoadResult.username = username;
-
-                        // Load each position
-                        foreach (var posData in tacticsData.positions)
-                        {
-                            if (string.IsNullOrEmpty(posData.name)) continue;
-
-                            int slotIndex = int.Parse(posData.position) - 1;
-                            if (slotIndex < 0 || slotIndex >= 6) continue;
-
-                            // Find the character by name
-                            CharacterData character = availableCharacters.Find(c => c.characterName.ToLower() == posData.name.ToLower());
-                            if (character == null)
-                            {
-                                Debug.LogWarning($"Character {posData.name} not found in available characters");
-                                continue;
-                            }
-
-                            // Place character in slot
-                            _enemyFormationLoadResult.unitSlots[slotIndex] = character;
-
-                            // Load tactics if present
-                            if (posData.tactics != null && posData.tactics.Length > 0)
-                            {
-                                var tacticData = posData.tactics[0];
-                                if (tacticData.plan != null && tacticData.plan.Length > 0)
-                                {
-                                    var plan = new TacticsPlan(character.id);
-
-                                    for (int i = 0; i < tacticData.plan.Length && i < TacticsDatabase.MAX_TACTICS_ROW; i++)
-                                    {
-                                        var rowData = tacticData.plan[i];
-
-                                        string skillType = "AP";
-                                        var skill = character.skills.Find(s => s.name == rowData.skill);
-                                        if (skill != null)
-                                        {
-                                            skillType = skill.skillType;
-                                        }
-
-                                        plan.rows[i] = new TacticRow(
-                                            rowData.skill,
-                                            skillType,
-                                            rowData.condition1,
-                                            rowData.condition2
-                                        );
-                                    }
-
-                                    _enemyFormationLoadResult.codingData[character.id] = plan;
-                                }
-                            }
-                            else
-                            {
-                                if (!_enemyFormationLoadResult.codingData.ContainsKey(character.id))
-                                {
-                                    _enemyFormationLoadResult.codingData[character.id] = CreateDefaultPlan(character);
-                                }
-                            }
-                        }
-
+                        // FormationManager를 사용하여 JSON에서 포메이션 로드
+                        _enemyFormationLoadResult = FormationManager.LoadFormationFromJson(tacticsJson, availableCharacters, CreateDefaultPlan);
+                        _enemyFormationLoadResult.username = username; // Username 설정
+                        
                         Debug.Log($"Firebase에서 적 편성 로드 완료 (유저: {username})");
                         onComplete?.Invoke(true);
                     }
@@ -1625,117 +955,10 @@ namespace Arcana.Tactics
         }
 
 
-        /// <summary>
-        /// Tactics 파일 데이터 구조 (Save/Load 공용)
-        /// </summary>
-        [System.Serializable]
-        public class TacticsFileData
-        {
-            public string key;
-            public string username;            
-            public int score = 0;
-            public int winCount = 0;
-            public int loseCount = 0;
-            public PositionData[] positions;
-        }
-
-        [System.Serializable]
-        public class PositionData
-        {
-            public string position;
-            public string name;
-            public TacticsData[] tactics;
-        }
-
-        [System.Serializable]
-        public class TacticsData
-        {
-            public string characterClass;  // Save용 필드명
-
-            [System.NonSerialized]
-            private string _class;  // Load용 필드명 (@class)
-
-            // JSON에서 "class" 필드를 읽을 때 사용
-            public string @class
-            {
-                get => string.IsNullOrEmpty(_class) ? characterClass : _class;
-                set
-                {
-                    _class = value;
-                    characterClass = value;
-                }
-            }
-
-            public TacticRowData[] plan;
-        }
-
-        [System.Serializable]
-        public class TacticRowData
-        {
-            public string skill;
-            public string condition1;
-            public string condition2;
-        }
-
-        /// <summary>
-        /// CharacterPool 데이터 구조 (Save/Load 공용)
-        /// </summary>
-        [System.Serializable]
-        public class CharacterPoolData
-        {
-            public string Name;
-            public TacticsData[] tactics;
-        }
-
-        public class FormationLoadResult
-        {
-            public string username;
-            public int score = 0;
-            public int winCount = 0;
-            public int loseCount = 0;
-            public CharacterData[] unitSlots;
-            public Dictionary<string, TacticsPlan> codingData;
-        }
-
-        /// <summary>
-        /// JsonUtility용 Wrapper (배열 직렬화를 위해 필요)
-        /// </summary>
-        [System.Serializable]
-        public class CharacterPoolDataWrapper
-        {
-            public CharacterPoolData[] characters;
-        }
-
-        /// <summary>
-        /// TacticsRecommend.json 데이터 구조
-        /// </summary>
-        [System.Serializable]
-        public class TacticsRecommendWrapper
-        {
-            public TacticsRecommendClass[] classes;
-        }
-
-        [System.Serializable]
-        public class TacticsRecommendClass
-        {
-            public string name;
-            public TacticsRecommendTactics[] tactics;
-        }
-
-        [System.Serializable]
-        public class TacticsRecommendTactics
-        {
-            public string characterClass;
-            public TacticsRecommendRow[] plan;
-        }
-
-        [System.Serializable]
-        public class TacticsRecommendRow
-        {
-            public string skill;
-            public string condition1;
-            public string condition2;
-        }
+        // 모든 데이터 클래스들은 TacticsDataModels.cs로 이동되었습니다.
+        // TacticsFileData, PositionData, TacticsData, TacticRowData, CharacterPoolData,
+        // FormationLoadResult, CharacterPoolDataWrapper, TacticsRecommendWrapper 등은
+        // TacticsDataModels에서 사용합니다.
 
         #endregion
     }

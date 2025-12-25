@@ -26,7 +26,7 @@ public class GachaCard : MonoBehaviour
     {
 
     }
-    public void ShowCharacter(TacticsDataManager.CharacterDefinition character)
+    public void ShowCharacter(CharacterDefinition character)
     {
         if (portrait == null)
         {
