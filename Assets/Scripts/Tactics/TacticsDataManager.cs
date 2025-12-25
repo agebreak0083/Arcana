@@ -1174,7 +1174,7 @@ namespace Arcana.Tactics
             try
             {
                 string json = GetTacticsJson(unitSlots, codingData);
-                _squadTacticsJson[squadName] = json;
+                _squadFormationJson[squadName] = json;
             }
             catch (System.Exception e)
             {
@@ -1505,7 +1505,7 @@ namespace Arcana.Tactics
         {
             try
             {
-                string json = _squadTacticsJson[squadName];
+                string json = _squadFormationJson[squadName];
                 return LoadFormationFromJson(json);
             }
             catch (System.Exception e)
