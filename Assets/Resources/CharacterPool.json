@@ -1,7 +1,53 @@
 [
         {
             "Name": "치사",
-            "tactics": []
+            "tactics": [
+                {
+                    "characterClass": "헌터",
+                    "plan": [
+                        {
+                            "skill": "더블 샷",
+                            "condition1": "적이 2명 이상▲",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "싱글 샷",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "라인 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "이글 아이",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "체이스",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "Name": "앙코",
@@ -9,14 +55,6 @@
         },
         {
             "Name": "단근",
-            "tactics": []
-        },
-        {
-            "Name": "양양",
-            "tactics": []
-        },
-        {
-            "Name": "방랑자",
             "tactics": [
                 {
                     "characterClass": "파이터",
@@ -64,6 +102,14 @@
                     ]
                 }
             ]
+        },
+        {
+            "Name": "양양",
+            "tactics": []
+        },
+        {
+            "Name": "방랑자",
+            "tactics": []
         },
         {
             "Name": "도기",

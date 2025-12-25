@@ -21,6 +21,7 @@ public class GachaManager : MonoBehaviour
     public GameObject characterObtainedPopup_1;    
     public GameObject characterObtainedPopup_10;
     public Button gotoTacticsButton;
+    public Button gotoIntroButton;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -29,6 +30,7 @@ public class GachaManager : MonoBehaviour
         gacha1Button.onClick.AddListener(OnGacha1ButtonClicked);
         gacha10Button.onClick.AddListener(OnGacha10ButtonClicked);
         gotoTacticsButton.onClick.AddListener(OnGotoTacticsButtonClicked);
+        gotoIntroButton.onClick.AddListener(OnGotoIntroButtonClicked);
         UpdateTicketText();
     }
 
@@ -40,6 +42,11 @@ public class GachaManager : MonoBehaviour
     void OnGotoTacticsButtonClicked()
     {
         SceneManager.LoadScene("TacticsScene");
+    }
+
+    void OnGotoIntroButtonClicked()
+    {
+        SceneManager.LoadScene("IntroScene");
     }
 
     void UpdateTicketText()

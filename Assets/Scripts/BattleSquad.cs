@@ -115,7 +115,7 @@ public class BattleSquad : MonoBehaviour
             SetTriggerEnabled(false);
             otherSquad.SetTriggerEnabled(false);
 
-            mapManager.ChangeCurrentPhase(BattleMapPhase.BATTLE_PHASE);
+            mapManager.ChangeCurrentPhase(BattleMapPhase.BATTLE_PHASE, gameObject.name);
         }
     }
 

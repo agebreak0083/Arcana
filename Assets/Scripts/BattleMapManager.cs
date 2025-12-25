@@ -128,7 +128,7 @@ public class BattleMapManager : MonoBehaviour
         ChangeCurrentPhase(BattleMapPhase.TOWER_PHASE);
     }
 
-    public void ShowTacticsScene()
+    public void ShowTacticsScene(string squadName = null)
     {
         // 씬이 이미 로드되어 있는지 확인
         Scene tacticsScene = SceneManager.GetSceneByName("TacticsScene");
@@ -139,12 +139,24 @@ public class BattleMapManager : MonoBehaviour
             // 로드가 완료되면, 추가된 씬에 있는 Camera를 비활성화 
             SceneManager.LoadSceneAsync("TacticsScene", LoadSceneMode.Additive).completed += (operation) => {
                 battleMapRootObject.SetActive(false);
+                // 씬 로드 완료 후 squadName 전달
+                if (TacticsUIManager.Instance != null)
+                {
+                    // Start() 코루틴이 실행되기 전에 squadName을 설정
+                    TacticsUIManager.Instance.SetSquadName(squadName);
+                }
             };
         }
         else
         {
             TacticsUIManager.Instance.rootObject.SetActive(true);
-            TacticsUIManager.Instance.StartCoroutine(TacticsUIManager.Instance.Start());
+            // squadName 전달
+            if (TacticsUIManager.Instance != null)
+            {
+                TacticsUIManager.Instance.SetSquadName(squadName);
+                // 이미 로드된 경우 바로 LoadPlayerFormation 호출
+                TacticsUIManager.Instance.LoadPlayerFormation(squadName);
+            }
             battleMapRootObject.SetActive(false);
         }        
     }
@@ -224,19 +236,17 @@ public class BattleMapManager : MonoBehaviour
         _isPlayerWin = isPlayerWin;
     }
 
-    public void ChangeCurrentPhase(BattleMapPhase battlePhase)
+    public void ChangeCurrentPhase(BattleMapPhase battlePhase, string squadName = null)
     {
         currentPhase = battlePhase;
 
         if(currentPhase == BattleMapPhase.BATTLE_PHASE)
         {
-            ShowTacticsScene();
-            // SetPlayerWinLose(true);
-            // ChangeCurrentPhase(BattleMapPhase.END_PHASE);
+            ShowTacticsScene(squadName);            
         }
         else if(currentPhase == BattleMapPhase.TOWER_PHASE)
         {
-            ShowTacticsScene();
+            ShowTacticsScene(null);
         }
         else if(currentPhase == BattleMapPhase.END_PHASE)
         {

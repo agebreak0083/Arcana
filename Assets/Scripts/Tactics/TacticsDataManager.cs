@@ -857,6 +857,11 @@ namespace Arcana.Tactics
             {
                 string json = GetTacticsJson(unitSlots, codingData);
                 _squadFormationJson[squadName] = json;
+                
+                // PlayerPrefs에도 저장하여 씬이 바뀌어도 유지되도록 함
+                PlayerPrefs.SetString($"Squad_{squadName}", json);
+                PlayerPrefs.Save();
+                Debug.Log($"Squad '{squadName}'의 데이터를 메모리와 PlayerPrefs에 저장했습니다.");
             }
             catch (System.Exception e)
             {
@@ -900,6 +905,23 @@ namespace Arcana.Tactics
 
         public FormationLoadResult LoadSquadTactics(string squadName)
         {
+            // _squadFormationJson에 키가 있는지 확인
+            if (!_squadFormationJson.ContainsKey(squadName))
+            {
+                Debug.LogWarning($"Squad '{squadName}'의 데이터가 _squadFormationJson에 없습니다. PlayerPrefs에서 로드를 시도합니다.");
+                
+                // PlayerPrefs에서 로드 시도
+                string json = PlayerPrefs.GetString($"Squad_{squadName}", "");
+                if (!string.IsNullOrEmpty(json))
+                {
+                    Debug.Log($"PlayerPrefs에서 Squad '{squadName}' 데이터를 찾았습니다.");
+                    return FormationManager.LoadFormationFromJson(json, availableCharacters, CreateDefaultPlan);
+                }
+                
+                Debug.LogWarning($"Squad '{squadName}'의 데이터를 찾을 수 없습니다. null을 반환합니다.");
+                return null; // null을 반환하여 기본 포메이션 사용을 알림
+            }
+
             try
             {
                 string json = _squadFormationJson[squadName];
@@ -908,12 +930,8 @@ namespace Arcana.Tactics
             catch (System.Exception e)
             {
                 Debug.LogError($"Failed to load squad tactics: {e.Message}");
+                return null;
             }
-            return new FormationLoadResult
-            {
-                unitSlots = new CharacterData[6],
-                codingData = new Dictionary<string, TacticsPlan>()
-            };
         }
 
         /// <summary>

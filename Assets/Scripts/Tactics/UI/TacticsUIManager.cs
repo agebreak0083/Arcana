@@ -78,6 +78,7 @@ namespace Arcana.Tactics.UI
 
         private List<FormationSlotUI> _formationSlots = new List<FormationSlotUI>();
         private TacticsDataManager _dataManager;
+        private string _pendingSquadName = null; // ShowTacticsScene에서 전달된 squadName
 
         public static TacticsUIManager Instance { get; private set; }
 
@@ -87,6 +88,14 @@ namespace Arcana.Tactics.UI
             {
                 Instance = this;
             }
+        }
+
+        /// <summary>
+        /// ShowTacticsScene에서 호출하여 squadName을 설정
+        /// </summary>
+        public void SetSquadName(string squadName)
+        {
+            _pendingSquadName = squadName;
         }
 
         public IEnumerator Start()
@@ -99,12 +108,14 @@ namespace Arcana.Tactics.UI
             yield return new WaitUntil(() => _dataManager != null && _dataManager.isDataLoaded);
             Debug.Log("TacticsUIManager: TacticsDataManager 데이터 로딩 완료!");
 
-            LoadPlayerFormation();
+            // 저장된 squadName이 있으면 사용, 없으면 null
+            LoadPlayerFormation(_pendingSquadName);
+            _pendingSquadName = null; // 사용 후 초기화
         }
 
         
         Dictionary<string, CharacterData> _createdCharacterCards = new Dictionary<string, CharacterData>();
-        public void LoadPlayerFormation()
+        public void LoadPlayerFormation(string squadName = null)
         {
             // availableCharacters는 TacticsDataManager에서 이미 로드됨 (LoadCharactersFromWeb에서)
             // List를 Dictionary로 변환 (characterName을 키로 사용)
@@ -131,22 +142,41 @@ namespace Arcana.Tactics.UI
             }            
 
             // Load formation from TacticsDataManager (씬마다 독립적인 인스턴스)
+            FormationLoadResult loadResult = null;
             
-            
-            var loadResult = _dataManager.GetPlayerFormationLoadResult();
+            if (string.IsNullOrEmpty(squadName))
+            {
+                // SquadName이 null이면 기존과 같이 디폴트 Tactics를 가져옴
+                loadResult = _dataManager.GetPlayerFormationLoadResult();
+            }
+            else
+            {
+                // SquadName이 있으면, _squadFormationJson에서 해당 데이터를 가져옴
+                loadResult = _dataManager.LoadSquadTactics(squadName);
+                if (loadResult == null)
+                {
+                    Debug.LogWarning($"TacticsUIManager: Squad '{squadName}'의 데이터를 찾을 수 없습니다. 기본 포메이션을 사용합니다.");
+                    loadResult = _dataManager.GetPlayerFormationLoadResult();
+                }
+                else
+                {
+                    Debug.Log($"TacticsUIManager: Squad '{squadName}'의 데이터를 로드했습니다.");
+                }
+            }
+
             if (loadResult != null)
             {
-                    if(BattleMapManager.Instance.currentPhase == BattleMapPhase.TOWER_PHASE)
-                    {
-                        // 타워 페이즈 일때는 비워둔다. 출격 버튼 클릭하면 새로운 Squad 생성
-                        _unitSlots = new CharacterData[6];
-                        _codingData = loadResult.codingData;
-                    }
-                    else
-                    {
-                        _unitSlots = loadResult.unitSlots;
-                        _codingData = loadResult.codingData;
-                    }                                    
+                if(BattleMapManager.Instance != null && BattleMapManager.Instance.currentPhase == BattleMapPhase.TOWER_PHASE)
+                {
+                    // 타워 페이즈 일때는 비워둔다. 출격 버튼 클릭하면 새로운 Squad 생성
+                    _unitSlots = new CharacterData[6];
+                    _codingData = loadResult.codingData;
+                }
+                else
+                {
+                    _unitSlots = loadResult.unitSlots;
+                    _codingData = loadResult.codingData;
+                }                                    
             }
             else
             {
@@ -332,10 +362,7 @@ namespace Arcana.Tactics.UI
             if (runBattleButton != null) runBattleButton.onClick.AddListener(OnRunBattleClicked);
             if (gotoGachaButton != null) gotoGachaButton.onClick.AddListener(OnGotoGachaClicked);
             if (recommendButton != null) recommendButton.onClick.AddListener(OnRecommendButtonClicked);
-            if (gotoGachaPopup != null) gotoGachaPopup.GetComponentInChildren<Button>().onClick.AddListener(OnGotoGachaClicked);
-
-            // 전투 맵이라면 페이즈에 맞게 업데이트 
-            SetBattleMapPhaseUI();
+            if (gotoGachaPopup != null) gotoGachaPopup.GetComponentInChildren<Button>().onClick.AddListener(OnGotoGachaClicked);            
         }
 
         void SetBattleMapPhaseUI()
@@ -626,6 +653,7 @@ namespace Arcana.Tactics.UI
 
         private void UpdateAllUI()
         {
+            SetBattleMapPhaseUI(); // 전투 맵이라면 페이즈에 맞게 업데이트 
             UpdatePoolUI();
             UpdateFormationUI();
             UpdateDetailPanel();
