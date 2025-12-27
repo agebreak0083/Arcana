@@ -12,6 +12,7 @@ public class SquadInfoUI : MonoBehaviour
     public TextMeshProUGUI squadNameText;
     public Button tacticsButton;
     public Button returnButton;
+    public bool isPlayerSquad = false;
     
     private RectTransform _rectTransform;
     private Vector2 _originalPosition;
@@ -57,7 +58,8 @@ public class SquadInfoUI : MonoBehaviour
             // 화면 왼쪽 바깥 위치 계산 (Canvas의 너비만큼 왼쪽으로 이동)
             Canvas canvas = GetComponentInParent<Canvas>();
             float screenWidth = canvas != null ? canvas.pixelRect.width : Screen.width;
-            Vector2 startPosition = new Vector2(_originalPosition.x - screenWidth, _originalPosition.y);
+            float xPos = isPlayerSquad ? _originalPosition.x - screenWidth : _originalPosition.x + screenWidth;
+            Vector2 startPosition = new Vector2(xPos, _originalPosition.y);
             
             // 시작 위치로 설정
             _rectTransform.anchoredPosition = startPosition;

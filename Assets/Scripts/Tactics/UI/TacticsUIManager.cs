@@ -110,7 +110,13 @@ namespace Arcana.Tactics.UI
 
             // 저장된 squadName이 있으면 사용, 없으면 null
             LoadPlayerFormation(_pendingSquadName);
-            _pendingSquadName = null; // 사용 후 초기화
+            _pendingSquadName = null; // 사용 후 초기화            
+
+            // CharacterPool이 비어있으면, 가챠 팝업을 연다.
+            if (availableCharacters.Count == 0)
+            {
+                gotoGachaPopup.SetActive(true);
+            }
         }
 
         
@@ -186,12 +192,6 @@ namespace Arcana.Tactics.UI
             }
 
             UpdateAllUI();
-
-            // CharacterPool이 비어있으면, 가챠 팝업을 연다.
-            if (availableCharacters.Count == 0)
-            {
-                gotoGachaPopup.SetActive(true);
-            }
         }
 
         private void AutoAssignReferences()
@@ -363,16 +363,17 @@ namespace Arcana.Tactics.UI
             if (gotoGachaButton != null) gotoGachaButton.onClick.AddListener(OnGotoGachaClicked);
             if (recommendButton != null) recommendButton.onClick.AddListener(OnRecommendButtonClicked);
             if (gotoGachaPopup != null) gotoGachaPopup.GetComponentInChildren<Button>().onClick.AddListener(OnGotoGachaClicked);            
+
+            // BattleMapManager가 있으면, 현재 페이즈에 맞게 UI를 설정한다.
+            if(BattleMapManager.Instance != null)
+            {
+                SetBattleMapPhaseUI(BattleMapManager.Instance.currentPhase);
+            }
         }
 
-        void SetBattleMapPhaseUI()
+        public void SetBattleMapPhaseUI(BattleMapPhase battleMapPhase)
         {
-            if(BattleMapManager.Instance == null)
-            {
-                return;
-            }
-
-            if(BattleMapManager.Instance.currentPhase == BattleMapPhase.TOWER_PHASE)
+            if(battleMapPhase == BattleMapPhase.TOWER_PHASE)
             {
                 gotoGachaButton.gameObject.SetActive(false);
                 characterPoolContainer.gameObject.SetActive(true);
@@ -393,7 +394,7 @@ namespace Arcana.Tactics.UI
                 });
             }
 
-            if(BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_PHASE)
+            if(battleMapPhase == BattleMapPhase.BATTLE_PHASE)
             {
                 gotoGachaButton.gameObject.SetActive(false);
                 characterPoolContainer.gameObject.SetActive(false);
@@ -403,7 +404,7 @@ namespace Arcana.Tactics.UI
                 runBattleButton.onClick.AddListener(OnRunBattleClicked);            
             }
 
-            if(BattleMapManager.Instance.currentPhase == BattleMapPhase.END_PHASE)
+            if(battleMapPhase == BattleMapPhase.END_PHASE)
             {
                 return;
             }
@@ -601,6 +602,7 @@ namespace Arcana.Tactics.UI
             if(battleSimulationResultUIComponent != null)
             {
                 battleSimulationResultUIComponent.UpdateUI(); 
+                battleSimulationResultUIComponent.startBattleButton.onClick.RemoveAllListeners();
                 battleSimulationResultUIComponent.startBattleButton.onClick.AddListener(OnStartBattleClicked);
             }
             
@@ -655,7 +657,6 @@ namespace Arcana.Tactics.UI
 
         private void UpdateAllUI()
         {
-            SetBattleMapPhaseUI(); // 전투 맵이라면 페이즈에 맞게 업데이트 
             UpdatePoolUI();
             UpdateFormationUI();
             UpdateDetailPanel();

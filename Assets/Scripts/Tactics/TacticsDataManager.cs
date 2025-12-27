@@ -26,7 +26,7 @@ namespace Arcana.Tactics
         private Dictionary<string, ClassInfo> _classData = new Dictionary<string, ClassInfo>();
         private Dictionary<string, List<Skill>> _skillMap = new Dictionary<string, List<Skill>>();
         private Dictionary<string, TacticsPlan> _recommendedTactics = new Dictionary<string, TacticsPlan>(); // 클래스별 추천 전술
-        private Dictionary<string, string> _squadFormationJson = new Dictionary<string, string>();  // 스쿼드 전술 JSON
+        private Dictionary<string, FormationLoadResult> _squadFormationJson = new Dictionary<string, FormationLoadResult>();  // 스쿼드 전술 JSON
         private FormationLoadResult _playerFormationLoadResult;
         private FormationLoadResult _enemyFormationLoadResult;
         private CharacterDefinition[] _allCharacterDefinitions; // 모든 캐릭터 정의 목록
@@ -68,8 +68,8 @@ namespace Arcana.Tactics
                 codingData = new Dictionary<string, TacticsPlan>()
             };
 
-            // Player formation 로드 (로컬 파일)
-            _playerFormationLoadResult = FormationManager.LoadFormationFromTacticsFile(availableCharacters, CreateDefaultPlan);
+            // Player formation 로드 (로컬 파일)            
+            LoadFormationFromTacticsFile(true);
             Debug.Log("TacticsDataManager: Player formation 로드 완료");
 
             // CharacterPool.json에서 작전 코딩 데이터 로드 및 병합
@@ -856,7 +856,9 @@ namespace Arcana.Tactics
             try
             {
                 string json = GetTacticsJson(unitSlots, codingData);
-                _squadFormationJson[squadName] = json;
+                var loadResult = FormationManager.LoadFormationFromJson(json, availableCharacters, CreateDefaultPlan);
+                loadResult.username = squadName;
+                _squadFormationJson[squadName] = loadResult;
                 
                 // PlayerPrefs에도 저장하여 씬이 바뀌어도 유지되도록 함
                 PlayerPrefs.SetString($"Squad_{squadName}", json);
@@ -868,8 +870,15 @@ namespace Arcana.Tactics
                 Debug.LogError($"Failed to save squad tactics: {e.Message}");
             }
         }       
-      
 
+        public void SaveSquadTactics(string squadName, FormationLoadResult loadResult)
+        {
+            _squadFormationJson[squadName] = loadResult;
+            string json = GetTacticsJson(loadResult.unitSlots, loadResult.codingData);
+            PlayerPrefs.SetString($"Squad_{squadName}", json);
+            PlayerPrefs.Save();            
+        }
+      
         /// <summary>
         /// CharacterPool에 새 캐릭터를 추가합니다 (가챠 시스템용)
         /// </summary>
@@ -915,7 +924,11 @@ namespace Arcana.Tactics
                 if (!string.IsNullOrEmpty(json))
                 {
                     Debug.Log($"PlayerPrefs에서 Squad '{squadName}' 데이터를 찾았습니다.");
-                    return FormationManager.LoadFormationFromJson(json, availableCharacters, CreateDefaultPlan);
+                    var loadResult = FormationManager.LoadFormationFromJson(json, availableCharacters, CreateDefaultPlan);
+                    loadResult.username = squadName;
+                    _squadFormationJson[squadName] = loadResult;
+
+                    return loadResult;
                 }
                 
                 Debug.LogWarning($"Squad '{squadName}'의 데이터를 찾을 수 없습니다. null을 반환합니다.");
@@ -924,8 +937,7 @@ namespace Arcana.Tactics
 
             try
             {
-                string json = _squadFormationJson[squadName];
-                return FormationManager.LoadFormationFromJson(json, availableCharacters, CreateDefaultPlan);
+                return _squadFormationJson[squadName];                
             }
             catch (System.Exception e)
             {
@@ -1039,7 +1051,7 @@ namespace Arcana.Tactics
         /// <summary>
         /// JSONBin.io에서 랜덤 적 편성 로드
         /// </summary>
-        private void LoadEnemyFormationFromJsonBin(string enemyName, System.Action<bool> onComplete)
+        public void LoadEnemyFormationFromJsonBin(string enemyName, System.Action<bool> onComplete)
         {
             if (JSONBinManager.Instance == null)
             {
@@ -1074,6 +1086,22 @@ namespace Arcana.Tactics
                     Debug.LogWarning("Firebase에서 데이터를 가져오지 못했습니다. 로컬 파일 사용.");
                     _enemyFormationLoadResult = LoadFormationFromTacticsFile(false);
                     onComplete?.Invoke(true);
+                }
+            });
+        }
+
+        public void GetRandomEnemySquad(System.Action<FormationLoadResult> onComplete)
+        {
+            JSONBinManager.Instance.GetRandomTactics("", (success, tacticsJson, username) =>
+            {
+                if(success)
+                {
+                    // FormationManager를 사용하여 JSON에서 포메이션 로드
+                    var loadResult = FormationManager.LoadFormationFromJson(tacticsJson, availableCharacters, CreateDefaultPlan);
+                    loadResult.username = username; // Username 설정
+                    
+                    Debug.Log($"Jsonbin.io에서 적 편성 로드 완료 (유저: {username})");
+                    onComplete?.Invoke(loadResult);
                 }
             });
         }

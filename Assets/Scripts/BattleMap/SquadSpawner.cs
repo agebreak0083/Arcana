@@ -22,7 +22,7 @@ public class SquadSpawner : MonoBehaviour
     }
 
     
-    public void SpawnSquad(string squadName)
+    public BattleSquad SpawnSquad(string squadName)
     {
         GameObject squad = Instantiate(squadPrefab, BattleMapManager.Instance.battleMapRootObject.transform);
         squad.name = squadName;
@@ -39,6 +39,8 @@ public class SquadSpawner : MonoBehaviour
         }
         
         squad.GetComponent<Renderer>().material.mainTexture = squadTextures[squadIndex];        
+
+        return squad.GetComponent<BattleSquad>();
     }
 
     public void DestroySquad(string squadName)

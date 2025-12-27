@@ -1,9 +1,9 @@
 {
-    "key": "agebreak_2512251800",
-    "username": "agebreak_2512251800",
-    "score": 173,
-    "winCount": 62,
-    "loseCount": 13,
+    "key": "agebreak_2512271718",
+    "username": "agebreak_2512271718",
+    "score": 170,
+    "winCount": 64,
+    "loseCount": 22,
     "positions": [
         {
             "position": "1",
@@ -12,14 +12,14 @@
         },
         {
             "position": "2",
-            "name": "단근",
+            "name": "양양",
             "tactics": [
                 {
                     "characterClass": "파이터",
                     "plan": [
                         {
                             "skill": "가드 슬래시",
-                            "condition1": "조건 없음",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
@@ -68,89 +68,38 @@
         },
         {
             "position": "4",
-            "name": "설지",
-            "tactics": [
-                {
-                    "characterClass": "위치",
-                    "plan": [
-                        {
-                            "skill": "매직 미사일",
-                            "condition1": "적이 2명 이상▲",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "아이스 샷",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "아이스 코핀",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "매직 세이버",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "position": "5",
             "name": "",
             "tactics": []
         },
         {
-            "position": "6",
-            "name": "산화",
+            "position": "5",
+            "name": "방랑자",
             "tactics": [
                 {
-                    "characterClass": "헌터",
+                    "characterClass": "파이터",
                     "plan": [
                         {
-                            "skill": "더블 샷",
-                            "condition1": "적이 2명 이상▲",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "싱글 샷",
+                            "skill": "가드 슬래시",
                             "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "라인 샷",
+                            "skill": "실드 배시",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "이글 아이",
+                            "skill": "디펜더",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "체이스",
+                            "skill": "애로우 커버",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "퀵 가드",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
@@ -172,6 +121,11 @@
                     ]
                 }
             ]
+        },
+        {
+            "position": "6",
+            "name": "",
+            "tactics": []
         }
     ]
 }

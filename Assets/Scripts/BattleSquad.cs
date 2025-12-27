@@ -1,3 +1,5 @@
+using System;
+using Arcana.Tactics;
 using UnityEngine;
 
 public class BattleSquad : MonoBehaviour
@@ -13,6 +15,7 @@ public class BattleSquad : MonoBehaviour
     private System.Collections.IEnumerator moveCoroutine;
     private Color originalColor;
     public Color selectColor = Color.blue;
+    public FormationLoadResult _loadResult;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -23,6 +26,25 @@ public class BattleSquad : MonoBehaviour
         Material material = new Material(GetComponent<Renderer>().material);
         originalColor = material.color;
         GetComponent<Renderer>().material = material;        
+
+        // 적 Squad인 경우, Tactics 세팅 하기 
+        if(!isPlayerSquad)
+        {
+            //LoadEnemyTactics();
+        }
+    }
+
+    private void LoadEnemyTactics()
+    {
+        TacticsDataManager.Instance.GetRandomEnemySquad((loadResult) =>
+        {
+            if(loadResult != null)
+            {
+                _loadResult = loadResult;
+                gameObject.name = loadResult.username;
+                TacticsDataManager.Instance.SaveSquadTactics(gameObject.name, loadResult);
+            }
+        });
     }
 
     // Update is called once per frame

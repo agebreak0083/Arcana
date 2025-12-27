@@ -174,7 +174,7 @@ public class BattleManager : MonoBehaviour
 
         if (isPlayer)
         {
-            playerFormationLoadResult = TacticsDataManager.Instance.GetPlayerFormationLoadResult();
+            playerFormationLoadResult = TacticsDataManager.Instance.LoadFormationFromTacticsFile(true);
             formationResult = playerFormationLoadResult;
             positions = playerPositions;
         }
