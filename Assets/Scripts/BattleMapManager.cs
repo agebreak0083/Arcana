@@ -7,6 +7,7 @@ using Arcana.Tactics.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public enum BattleMapPhase
 {
@@ -14,6 +15,7 @@ public enum BattleMapPhase
     TOWER_PHASE,
     BATTLE_PHASE,
     END_PHASE,
+    BATTLE_DEFEAT,
 }
 
 public class BattleMapManager : MonoBehaviour
@@ -23,9 +25,11 @@ public class BattleMapManager : MonoBehaviour
     public GameObject battleMapRootObject = null;
     public BattleSimulationResultUI battleSimulationResultUI = null;
     public BattleManager battleManager = null;
+    public GameObject defeatPanel = null;
     
     [Header("Movement Settings")]
     public float squadMoveSpeed = 5f;
+    public float enemySquadMoveSpeed = 0.5f;
     public LayerMask mapLayerMask = 1; // Default layer
     
     public Camera mainCamera;
@@ -369,6 +373,15 @@ public class BattleMapManager : MonoBehaviour
                 if(_enemySquad != null)
                     _enemySquad.SetTriggerEnabled(true);
             }
+        }
+        else if(currentPhase == BattleMapPhase.BATTLE_DEFEAT)
+        {
+            // 패배씬 출력            
+            defeatPanel.SetActive(true);    
+            defeatPanel.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
+            defeatPanel.GetComponentInChildren<Button>().onClick.AddListener(() => {
+                SceneManager.LoadScene("IntroScene");
+            });
         }
     }
 

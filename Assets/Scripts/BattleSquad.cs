@@ -9,6 +9,7 @@ public class BattleSquad : MonoBehaviour
     private bool isSelected = false;
     
     // 이동 관련 변수
+    private GameObject targetTower;
     private Vector3 currentTargetPosition;
     private float currentMoveSpeed;
     private bool isMoving = false;
@@ -31,6 +32,8 @@ public class BattleSquad : MonoBehaviour
         if(!isPlayerSquad)
         {
             LoadEnemyTactics();
+            
+            targetTower = GameObject.Find("Tower_Player");
         }
     }
 
@@ -50,7 +53,22 @@ public class BattleSquad : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(gameObject.CompareTag("Tower"))
+        {
+            return;
+        }
+
+        if(!isPlayerSquad && targetTower != null)
+        {
+            // 코루틴 사용 안함 (active 상태에서만 이동하도록)
+            float speed = mapManager.enemySquadMoveSpeed;
+            transform.position = Vector3.MoveTowards(transform.position, targetTower.transform.position, speed * Time.deltaTime);
+            if(Vector3.Distance(transform.position, targetTower.transform.position) < 1.0f)
+            {
+                transform.position = targetTower.transform.position;
+                mapManager.ChangeCurrentPhase(BattleMapPhase.BATTLE_DEFEAT);
+            }
+        }
     }
 
     /// <summary>
