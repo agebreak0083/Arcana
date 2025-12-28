@@ -609,22 +609,23 @@ public class JSONBinManager : MonoBehaviour
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
             request.SetRequestHeader("X-Access-Key", accessKey);
-            request.timeout = 10; // 타임아웃 설정
+            request.timeout = 30; // 타임아웃 설정 (10초 -> 30초로 증가)
 
             Debug.Log($"JsonBinManager: [SaveAllTactics] HTTP PUT 요청 전송 (시도 {retryCount + 1}/{maxRetries})");
             
-                using (request)
+            using (request)
+            {
+                // yield return은 try 블록 밖에서 실행 (C# 제약사항)
+                // 하지만 SendWebRequest() 자체에서 예외가 발생할 수 있음
+                // Unity의 코루틴은 yield return에서 예외를 던지지 않지만,
+                // 네이티브 레벨에서 발생하는 예외는 이후 request 접근 시 발생할 수 있음
+                yield return request.SendWebRequest();
+                
+                // SendWebRequest() 이후 request 접근 시 예외 발생 가능 (PROTOCOL_ERROR 등)
+                try
                 {
-                    // yield return은 try 블록 밖에서 실행 (C# 제약사항)
-                    // 하지만 SendWebRequest() 자체에서 예외가 발생할 수 있음
-                    // Unity의 코루틴은 yield return에서 예외를 던지지 않지만,
-                    // 네이티브 레벨에서 발생하는 예외는 이후 request 접근 시 발생할 수 있음
-                    yield return request.SendWebRequest();
-                    
-                    // SendWebRequest() 이후 request 접근 시 예외 발생 가능 (PROTOCOL_ERROR 등)
-                    try
-                    {
-                        Debug.Log($"JsonBinManager: [SaveAllTactics] HTTP PUT 응답 수신 - Result: {request.result}, Code: {request.responseCode}");
+                    string errorMessage = request.error ?? "Unknown error";
+                    Debug.Log($"JsonBinManager: [SaveAllTactics] HTTP PUT 응답 수신 - Result: {request.result}, Code: {request.responseCode}, Error: {errorMessage}");
 
                     if (request.result == UnityWebRequest.Result.Success)
                     {
@@ -649,53 +650,54 @@ public class JSONBinManager : MonoBehaviour
                         }
                         else
                         {
-                            // PROTOCOL_ERROR 또는 네트워크 에러 체크
-                            bool isRetryableError = !string.IsNullOrEmpty(request.error) && (
-                                request.error.Contains("PROTOCOL_ERROR") || 
-                                request.error.Contains("NetworkError") ||
-                                request.error.Contains("Unable to complete SSL connection") ||
-                                request.error.Contains("ConnectionError") ||
-                                request.result == UnityWebRequest.Result.ConnectionError
-                            );
+                            // ConnectionError는 request.result로 직접 체크 (request.error가 null일 수 있음)
+                            bool isRetryableError = request.result == UnityWebRequest.Result.ConnectionError ||
+                                                   request.result == UnityWebRequest.Result.ProtocolError ||
+                                                   (!string.IsNullOrEmpty(errorMessage) && (
+                                                       errorMessage.Contains("PROTOCOL_ERROR") || 
+                                                       errorMessage.Contains("NetworkError") ||
+                                                       errorMessage.Contains("Unable to complete SSL connection") ||
+                                                       errorMessage.Contains("ConnectionError")
+                                                   ));
                             
                             if (isRetryableError && retryCount < maxRetries - 1)
                             {
                                 retryCount++;
-                                Debug.LogWarning($"JsonBinManager: [SaveAllTactics] 저장 실패 (재시도 {retryCount}/{maxRetries}): {request.error}");
+                                Debug.LogWarning($"JsonBinManager: [SaveAllTactics] 네트워크 에러 발생 (재시도 {retryCount}/{maxRetries}): Result={request.result}, Error={errorMessage}");
                                 // try 블록 밖에서 재시도 처리
                             }
                             else
                             {
-                                Debug.LogError($"JsonBinManager: [SaveAllTactics] 저장 실패: {request.error} (HTTP {request.responseCode})");
+                                Debug.LogError($"JsonBinManager: [SaveAllTactics] 저장 실패: Result={request.result}, Error={errorMessage} (HTTP {request.responseCode})");
                                 onComplete?.Invoke(false);
                                 break;
                             }
                         }
                     }
                 }
-                    catch (Exception ex)
-                    {
-                        // request.result, request.error 등 접근 시 예외 발생 가능
-                        Debug.LogError($"JsonBinManager: [SaveAllTactics] 응답 처리 중 예외 발생: {ex.GetType().Name} - {ex.Message}\n{ex.StackTrace}");
-                        retryCount++;
-                        if (retryCount >= maxRetries)
-                        {
-                            Debug.LogError($"JsonBinManager: [SaveAllTactics] 최대 재시도 횟수 도달. 저장 실패 처리");
-                            onComplete?.Invoke(false);
-                            success = true; // 루프 종료를 위해
-                            break;
-                        }
-                        Debug.LogWarning($"JsonBinManager: [SaveAllTactics] 예외 발생으로 재시도 {retryCount}/{maxRetries}");
-                        // catch 블록 밖에서 재시도 처리
-                    }
-                }
-                
-                // catch 블록이나 재시도가 필요한 경우 여기서 처리
-                if (!success && retryCount < maxRetries)
+                catch (Exception ex)
                 {
-                    yield return new WaitForSeconds(1f * retryCount); // 지수 백오프
-                    continue;
+                    // request.result, request.error 등 접근 시 예외 발생 가능
+                    Debug.LogError($"JsonBinManager: [SaveAllTactics] 응답 처리 중 예외 발생: {ex.GetType().Name} - {ex.Message}\n{ex.StackTrace}");
+                    retryCount++;
+                    if (retryCount >= maxRetries)
+                    {
+                        Debug.LogError($"JsonBinManager: [SaveAllTactics] 최대 재시도 횟수 도달. 저장 실패 처리");
+                        onComplete?.Invoke(false);
+                        success = true; // 루프 종료를 위해
+                        break;
+                    }
+                    Debug.LogWarning($"JsonBinManager: [SaveAllTactics] 예외 발생으로 재시도 {retryCount}/{maxRetries}");
+                    // catch 블록 밖에서 재시도 처리
                 }
+            }
+            
+            // catch 블록이나 재시도가 필요한 경우 여기서 처리
+            if (!success && retryCount < maxRetries)
+            {
+                yield return new WaitForSeconds(1f * retryCount); // 지수 백오프
+                continue;
+            }
             
         }
     }
