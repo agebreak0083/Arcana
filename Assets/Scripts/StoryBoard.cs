@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class StoryBoard : MonoBehaviour, IPointerClickHandler
 {
     private Image storyBoardImage;
+    public string nextSceneName;
     public Sprite[] storyBoardSprites;
     public AudioClip[] storyBoardAudioClips;
     private AudioSource audioSource;
@@ -38,7 +39,7 @@ public class StoryBoard : MonoBehaviour, IPointerClickHandler
         if (currentSpriteIndex >= storyBoardSprites.Length)
         {
             currentSpriteIndex = 0;
-            SceneManager.LoadScene("TacticsScene");
+            SceneManager.LoadScene(nextSceneName);
         }
         else
         {

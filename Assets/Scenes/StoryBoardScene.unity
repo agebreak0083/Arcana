@@ -283,6 +283,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27b02d385a395c940819a8b292639cc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StoryBoard
+  nextSceneName: BattleMapScene
   storyBoardSprites:
   - {fileID: 21300000, guid: d3bf6639945883746946758675350cf9, type: 3}
   - {fileID: 21300000, guid: 83b540e9b6583784fa2a72a0c9861554, type: 3}
