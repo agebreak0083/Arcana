@@ -101,8 +101,8 @@ public class BattleManager : MonoBehaviour
 
         // TacticsDataManager의 데이터 로딩 완료 대기 (Firebase 비동기 로딩 포함)
         Debug.Log("BattleManager: TacticsDataManager 데이터 로딩 대기 중...");
-        yield return new WaitUntil(() => Arcana.Tactics.TacticsDataManager.Instance != null &&
-                                         Arcana.Tactics.TacticsDataManager.Instance.isDataLoaded);
+        yield return new WaitUntil(() => TacticsDataManager.Instance != null &&
+                                         TacticsDataManager.Instance.isDataLoaded);
         Debug.Log("BattleManager: TacticsDataManager 데이터 로딩 완료!");
 
         // 자동 시작 하지 않을때 = 시뮬레이션 모드

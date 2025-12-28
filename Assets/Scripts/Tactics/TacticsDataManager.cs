@@ -35,8 +35,17 @@ namespace Arcana.Tactics
 
         void Awake()
         {
-            // 씬마다 독립적인 인스턴스 사용
-            Instance = this;
+            if(Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(this);
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             string enemyName = BattleManager.battleSimulationResult.enemyName;
             StartCoroutine(LoadAllDataAsync(enemyName));
         }

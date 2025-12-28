@@ -31,8 +31,16 @@ public class JSONBinManager : MonoBehaviour
 
     void Awake()
     {
-        // 씬마다 독립적인 인스턴스 사용
-        Instance = this;
+        if(Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
         
         // JSONBin.io는 별도 초기화 불필요 (항상 사용 가능)
         isInitialized = !string.IsNullOrEmpty(binId) && !string.IsNullOrEmpty(accessKey);

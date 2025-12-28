@@ -30,7 +30,7 @@ public class BattleSquad : MonoBehaviour
         // 적 Squad인 경우, Tactics 세팅 하기 
         if(!isPlayerSquad)
         {
-            //LoadEnemyTactics();
+            LoadEnemyTactics();
         }
     }
 
@@ -131,12 +131,11 @@ public class BattleSquad : MonoBehaviour
             Debug.Log($"Squad 충돌 감지: {gameObject.name} <-> {other.gameObject.name}");
 
             StopMoving();
+            SetTriggerEnabled(false);
+            otherSquad.SetTriggerEnabled(false);
             
             // BattlePhase로 전환            
             mapManager.SetBattleSquad(this, otherSquad);
-            SetTriggerEnabled(false);
-            otherSquad.SetTriggerEnabled(false);
-
             mapManager.ChangeCurrentPhase(BattleMapPhase.BATTLE_PHASE, gameObject.name);
         }
     }
