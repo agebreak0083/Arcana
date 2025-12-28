@@ -79,7 +79,8 @@ namespace Arcana.Tactics.UI
         private List<FormationSlotUI> _formationSlots = new List<FormationSlotUI>();
         private TacticsDataManager _dataManager;
         private string _pendingSquadName = null; // ShowTacticsScene에서 전달된 squadName
-
+        private string _playerSquadName = null;
+        private string _enemySquadName = null;
         public static TacticsUIManager Instance { get; private set; }
 
         void Awake()
@@ -96,6 +97,14 @@ namespace Arcana.Tactics.UI
         public void SetSquadName(string squadName)
         {
             _pendingSquadName = squadName;
+            _playerSquadName = squadName;
+        }
+
+        public void SetEnemyName(string enemyName)
+        {
+            if(enemyName == null) return;
+
+            _enemySquadName = enemyName;            
         }
 
         public IEnumerator Start()
@@ -153,7 +162,7 @@ namespace Arcana.Tactics.UI
             if (string.IsNullOrEmpty(squadName))
             {
                 // SquadName이 null이면 기존과 같이 디폴트 Tactics를 가져옴
-                loadResult = _dataManager.GetPlayerFormationLoadResult();
+                loadResult = _dataManager.GetPlayerFormationLoadResult();                
             }
             else
             {
@@ -172,6 +181,8 @@ namespace Arcana.Tactics.UI
 
             if (loadResult != null)
             {
+                _playerSquadName = loadResult.username;
+
                 if(BattleMapManager.Instance != null && BattleMapManager.Instance.currentPhase == BattleMapPhase.TOWER_PHASE)
                 {
                     // 타워 페이즈 일때는 비워둔다. 출격 버튼 클릭하면 새로운 Squad 생성
@@ -591,9 +602,11 @@ namespace Arcana.Tactics.UI
         private IEnumerator OnRunBattleClickedCoroutine()
         {
             battleSimulationResultUI.SetActive(true);            
+            Debug.Log($"TacticsUIManager: OnRunBattleClickedCoroutine - Enemy Squad: {_enemySquadName}");
 
-            // 로컬 파일에 저장
+            // 플레이어 편성은 현재 편성 저장. Enemy를 설정된 적 편성으로 설정.
             _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);
+            _dataManager.SetEnemyTactics(_enemySquadName);
 
             // 시뮬레이션 모드 스타트 - 완료될 때까지 대기
             yield return StartCoroutine(BattleManager.Instance.SimulationModeStart());
@@ -964,6 +977,7 @@ namespace Arcana.Tactics.UI
 
             _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);
         }
+
     }
 }
 

@@ -1115,6 +1115,11 @@ namespace Arcana.Tactics
             });
         }
 
+        public void SetEnemyTactics(string enemyName)
+        {
+            _enemyFormationLoadResult = LoadSquadTactics(enemyName);
+        }
+
 
         // 모든 데이터 클래스들은 TacticsDataModels.cs로 이동되었습니다.
         // TacticsFileData, PositionData, TacticsData, TacticRowData, CharacterPoolData,

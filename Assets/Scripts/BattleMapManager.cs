@@ -130,7 +130,7 @@ public class BattleMapManager : MonoBehaviour
         ChangeCurrentPhase(BattleMapPhase.TOWER_PHASE);
     }
 
-    public void ShowTacticsScene(string squadName = null)
+    public void ShowTacticsScene(string squadName, string enemyName = null)
     {
         // 씬이 이미 로드되어 있는지 확인
         Scene tacticsScene = SceneManager.GetSceneByName("TacticsScene");
@@ -146,6 +146,7 @@ public class BattleMapManager : MonoBehaviour
                 {
                     // Start() 코루틴이 실행되기 전에 squadName을 설정
                     TacticsUIManager.Instance.SetSquadName(squadName);
+                    TacticsUIManager.Instance.SetEnemyName(enemyName);
                 }
             };
         }
@@ -154,6 +155,7 @@ public class BattleMapManager : MonoBehaviour
             TacticsUIManager.Instance.rootObject.SetActive(true);
             // squadName 전달
             TacticsUIManager.Instance.SetSquadName(squadName);
+            TacticsUIManager.Instance.SetEnemyName(enemyName);
             // 이미 로드된 경우 바로 LoadPlayerFormation 호출
             TacticsUIManager.Instance.LoadPlayerFormation(squadName);
             TacticsUIManager.Instance.SetBattleMapPhaseUI(currentPhase);
@@ -270,13 +272,13 @@ public class BattleMapManager : MonoBehaviour
         _isPlayerWin = isPlayerWin;
     }
 
-    public void ChangeCurrentPhase(BattleMapPhase battlePhase, string squadName = null)
+    public void ChangeCurrentPhase(BattleMapPhase battlePhase, string squadName = null, string enemyName = null)
     {
         currentPhase = battlePhase;
 
         if(currentPhase == BattleMapPhase.BATTLE_PHASE)
         {
-            ShowTacticsScene(squadName);            
+            ShowTacticsScene(squadName, enemyName);            
         }
         else if(currentPhase == BattleMapPhase.TOWER_PHASE)
         {

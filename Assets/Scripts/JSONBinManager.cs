@@ -609,7 +609,7 @@ public class JSONBinManager : MonoBehaviour
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
             request.SetRequestHeader("X-Access-Key", accessKey);
-            request.timeout = 30; // 타임아웃 설정
+            request.timeout = 10; // 타임아웃 설정
 
             Debug.Log($"JsonBinManager: [SaveAllTactics] HTTP PUT 요청 전송 (시도 {retryCount + 1}/{maxRetries})");
             

@@ -135,8 +135,10 @@ public class BattleSquad : MonoBehaviour
             otherSquad.SetTriggerEnabled(false);
             
             // BattlePhase로 전환            
-            mapManager.SetBattleSquad(this, otherSquad);
-            mapManager.ChangeCurrentPhase(BattleMapPhase.BATTLE_PHASE, gameObject.name);
+            string playerSquadName = gameObject.name;
+            string enemySquadName = otherSquad.gameObject.name;
+            mapManager.SetBattleSquad(this, otherSquad);            
+            mapManager.ChangeCurrentPhase(BattleMapPhase.BATTLE_PHASE, playerSquadName, enemySquadName);
         }
     }
 
