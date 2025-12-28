@@ -1,9 +1,9 @@
 {
-    "key": "agebreak_2512282114",
-    "username": "agebreak_2512282114",
-    "score": 196,
-    "winCount": 75,
-    "loseCount": 29,
+    "key": "agebreak_2512282148",
+    "username": "agebreak_2512282148",
+    "score": 220,
+    "winCount": 84,
+    "loseCount": 32,
     "positions": [
         {
             "position": "1",
@@ -12,14 +12,14 @@
         },
         {
             "position": "2",
-            "name": "단근",
+            "name": "양양",
             "tactics": [
                 {
                     "characterClass": "파이터",
                     "plan": [
                         {
                             "skill": "가드 슬래시",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
@@ -63,33 +63,38 @@
         },
         {
             "position": "3",
-            "name": "방랑자",
+            "name": "",
+            "tactics": []
+        },
+        {
+            "position": "4",
+            "name": "치사",
             "tactics": [
                 {
-                    "characterClass": "파이터",
+                    "characterClass": "헌터",
                     "plan": [
                         {
-                            "skill": "가드 슬래시",
+                            "skill": "더블 샷",
+                            "condition1": "적이 2명 이상▲",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "싱글 샷",
                             "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "실드 배시",
+                            "skill": "라인 샷",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "디펜더",
+                            "skill": "이글 아이",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "애로우 커버",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "퀵 가드",
+                            "skill": "체이스",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
@@ -113,8 +118,13 @@
             ]
         },
         {
-            "position": "4",
-            "name": "설지",
+            "position": "5",
+            "name": "",
+            "tactics": []
+        },
+        {
+            "position": "6",
+            "name": "앙코",
             "tactics": [
                 {
                     "characterClass": "위치",
@@ -162,16 +172,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "position": "5",
-            "name": "",
-            "tactics": []
-        },
-        {
-            "position": "6",
-            "name": "",
-            "tactics": []
         }
     ]
 }

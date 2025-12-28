@@ -376,7 +376,7 @@ public class BattleMapManager : MonoBehaviour
         }
         else if(currentPhase == BattleMapPhase.BATTLE_DEFEAT)
         {
-            // 패배씬 출력            
+            //패배씬 출력            
             defeatPanel.SetActive(true);    
             defeatPanel.GetComponentInChildren<Button>().onClick.RemoveAllListeners();
             defeatPanel.GetComponentInChildren<Button>().onClick.AddListener(() => {

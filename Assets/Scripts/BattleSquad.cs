@@ -58,7 +58,7 @@ public class BattleSquad : MonoBehaviour
             return;
         }
 
-        if(!isPlayerSquad && targetTower != null)
+        if(!isPlayerSquad && targetTower != null && mapManager.currentPhase != BattleMapPhase.BATTLE_DEFEAT)
         {
             // 코루틴 사용 안함 (active 상태에서만 이동하도록)
             float speed = mapManager.enemySquadMoveSpeed;

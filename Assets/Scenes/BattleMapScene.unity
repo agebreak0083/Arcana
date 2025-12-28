@@ -3436,7 +3436,7 @@ MonoBehaviour:
   rootObject: {fileID: 965713472}
   enemySquadPrefab: {fileID: 7559211670367175352, guid: 6eb6b45e15f86aa4db1e7ee41ef9b71d, type: 3}
   spawnAngleRange: {x: 90, y: 180}
-  spawnInterval: 10
+  spawnInterval: 1
   spawnDistance: 2
 --- !u!1 &1560114436
 GameObject:
