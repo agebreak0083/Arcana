@@ -6,7 +6,7 @@ public class ClassManager : MonoBehaviour
 {
     private ClassCollection classCollection;
 
-    public static ClassManager Instance { get; private set; }
+    public static ClassManager Instance;
 
     void Awake()
     {

@@ -1,9 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Arcana.Tactics;
 using Arcana.Tactics.Data;
 using Arcana.Tactics.UI;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public enum BattleMapPhase
@@ -19,6 +21,8 @@ public class BattleMapManager : MonoBehaviour
     public GameObject selectedSquadObject = null;
     public GameObject mapObject = null;        
     public GameObject battleMapRootObject = null;
+    public BattleSimulationResultUI battleSimulationResultUI = null;
+    public BattleManager battleManager = null;
     
     [Header("Movement Settings")]
     public float squadMoveSpeed = 5f;
@@ -97,6 +101,18 @@ public class BattleMapManager : MonoBehaviour
 
         // TacticsScene이 Active 상태면 무시 
         if (TacticsUIManager.Instance != null && TacticsUIManager.Instance.rootObject.activeSelf)
+        {
+            return;
+        }
+
+        // UI 위에서 클릭했는지 확인 (EventSystem 사용)
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
+        // BattleSimulationResultUI가 활성화되어 있으면 무시 (추가 안전장치)
+        if (battleSimulationResultUI != null && battleSimulationResultUI.gameObject.activeSelf)
         {
             return;
         }
@@ -218,14 +234,7 @@ public class BattleMapManager : MonoBehaviour
             BattleSquad selectedSquad = selectedSquadObject.GetComponent<BattleSquad>();
             if (selectedSquad != null && selectedSquad.isPlayerSquad && !battleSquad.isPlayerSquad)
             {
-                // Player Squad를 Enemy Squad 위치로 이동
-                Vector3 targetPosition = battleSquad.transform.position;
-                targetPosition.y = selectedSquad.transform.position.y; // Y축은 유지
-
-                selectedSquad.MoveTo(targetPosition, squadMoveSpeed);
-                Debug.Log($"Player Squad 이동 명령: {selectedSquad.gameObject.name} -> {battleSquad.gameObject.name} 위치로");
-
-                // 선택은 유지 (Player Squad가 계속 선택된 상태)
+                StartCoroutine(OnEnemySquadSelected(selectedSquad, battleSquad));
                 return;
             }
         }
@@ -247,6 +256,36 @@ public class BattleMapManager : MonoBehaviour
         Debug.Log($"Squad 선택: {battleSquad.gameObject.name}");
 
         ShowSquadInfoUI(battleSquad);
+    }
+
+    private IEnumerator OnEnemySquadSelected(BattleSquad selectedSquad, BattleSquad battleSquad)
+    {
+        battleSimulationResultUI.gameObject.SetActive(true);
+        
+
+        // 플레이어 편성은 현재 편성 저장. Enemy를 설정된 적 편성으로 설정.
+        string playerSquadName = selectedSquad.gameObject.name;
+        string enemySquadName = battleSquad.gameObject.name;
+        TacticsDataManager.Instance.SetPlayerTactics(playerSquadName);
+        TacticsDataManager.Instance.SetEnemyTactics(enemySquadName);        
+
+        // 시뮬레이션 모드 스타트 - 완료될 때까지 대기        \        
+        battleManager.SetInstanceSelf(); // 임시 코드 : BattleManager의 Instance를 battleManager로 설정
+        yield return StartCoroutine(BattleManager.Instance.SimulationModeStart(playerSquadName, enemySquadName));
+
+        battleSimulationResultUI.UpdateUI();         
+        battleSimulationResultUI.startBattleButton.onClick.RemoveAllListeners();
+        battleSimulationResultUI.startBattleButton.onClick.AddListener(() => 
+        {
+            battleSimulationResultUI.gameObject.SetActive(false);
+
+            // Player Squad를 Enemy Squad 위치로 이동
+            Vector3 targetPosition = battleSquad.transform.position;
+            targetPosition.y = selectedSquad.transform.position.y; // Y축은 유지
+
+            selectedSquad.MoveTo(targetPosition, squadMoveSpeed);
+            Debug.Log($"Player Squad 이동 명령: {selectedSquad.gameObject.name} -> {battleSquad.gameObject.name} 위치로");
+        });
     }
 
     private void ShowSquadInfoUI(BattleSquad battleSquad)

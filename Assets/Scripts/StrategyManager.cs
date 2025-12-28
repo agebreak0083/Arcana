@@ -6,7 +6,7 @@ public class StrategyManager : MonoBehaviour
 {
     private StrategyCollection strategyCollection;
 
-    public static StrategyManager Instance { get; private set; }
+    public static StrategyManager Instance;
 
     void Awake()
     {

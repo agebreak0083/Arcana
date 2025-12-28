@@ -25,10 +25,10 @@ public class BattleSimulationResult
 [DefaultExecutionOrder(-50)]
 public class BattleManager : MonoBehaviour
 {
-    public bool autoStart = true;
     [HideInInspector] public bool isSimulationMode = false;
     private GameObject simulationObject;
     public BattleCameraController battleCameraController;
+    public bool isAutoStart = false;
 
 
     [Header("Positions")]
@@ -39,9 +39,6 @@ public class BattleManager : MonoBehaviour
     public GameObject hpBarPrefab; // HP 바 프리팹
     public Vector3 hpBarOffset = new Vector3(0, 1.2f, 0); // HP 바 위치 오프셋
     private HPBar hpBar; // HP 바 인스턴스
-
-    [Header("Dummy Object")]
-    public GameObject dummyObject;
 
     public List<Character> playerCharacters = new List<Character>();
     public List<Character> enemyCharacters = new List<Character>();
@@ -57,13 +54,12 @@ public class BattleManager : MonoBehaviour
     private int currentRound = 0;   // 현재 라운드
     private int currentTurn = 0;    // 현재 턴
 
-    public static BattleManager Instance { get; private set; }
+    public static BattleManager Instance;
 
     // Awake는 Manager 초기화용
     void Awake()
     {
-        // 씬마다 독립적인 인스턴스 사용
-        Instance = this;
+        Instance = this;        
 
         // StrategyManager 컴포넌트 가져오기 또는 생성
         strategyManager = GetComponent<StrategyManager>();
@@ -90,26 +86,18 @@ public class BattleManager : MonoBehaviour
     // Start는 다른 Manager들이 초기화된 후 실행
     IEnumerator Start()
     {
-        // Dummy 게임 오브젝트 클리어 
-        if (dummyObject != null)
-        {
-            Destroy(dummyObject);
-        }
-
         // BattleSetting 로드 (구글 시트에서)
-        yield return StartCoroutine(BattleSetting.LoadFromGoogleSheet());
+        yield return StartCoroutine(BattleSetting.LoadFromGoogleSheet());          
 
-        // TacticsDataManager의 데이터 로딩 완료 대기 (Firebase 비동기 로딩 포함)
-        Debug.Log("BattleManager: TacticsDataManager 데이터 로딩 대기 중...");
-        yield return new WaitUntil(() => TacticsDataManager.Instance != null &&
-                                         TacticsDataManager.Instance.isDataLoaded);
-        Debug.Log("BattleManager: TacticsDataManager 데이터 로딩 완료!");
-
-        // 자동 시작 하지 않을때 = 시뮬레이션 모드
-        if(!autoStart)
+        if(isAutoStart)
         {
-            yield break;
-        }
+            yield return StartCoroutine(BattleModeStart());
+        } 
+    }
+    
+    public IEnumerator BattleModeStart()
+    {
+        isSimulationMode = false;
 
         BattleSetting.PrintAllSettings(BattleUI.Instance.debugText);
 
@@ -130,7 +118,7 @@ public class BattleManager : MonoBehaviour
         StartCoroutine(BattleRoutine());
     }
 
-    public IEnumerator SimulationModeStart()
+    public IEnumerator SimulationModeStart(string playerSquadName = "", string enemySquadName = "")
     {
         isSimulationMode = true;
         battleSimulationResult.randomSeed = UnityEngine.Random.value;
@@ -145,9 +133,9 @@ public class BattleManager : MonoBehaviour
         simulationObject = new GameObject("SimulationObject");        
 
         // 플레이어 캐릭터 생성
-        playerCharacters = CreateCharacters(true);
+        playerCharacters = CreateCharacters(true, playerSquadName);
         // 적 캐릭터 생성
-        enemyCharacters = CreateCharacters(false);
+        enemyCharacters = CreateCharacters(false, enemySquadName);
         // 턴 리스트 초기화
         InitializeCharactersTurnList();        
 
@@ -166,7 +154,7 @@ public class BattleManager : MonoBehaviour
         yield break;
     }
 
-    private List<Character> CreateCharacters(bool isPlayer = true)
+    private List<Character> CreateCharacters(bool isPlayer = true, string squadName = "")
     {
         FormationLoadResult formationResult = null;
         List<GameObject> positions = null;
@@ -174,13 +162,27 @@ public class BattleManager : MonoBehaviour
 
         if (isPlayer)
         {
-            playerFormationLoadResult = TacticsDataManager.Instance.LoadFormationFromTacticsFile(true);
+            if(string.IsNullOrEmpty(squadName))
+            {
+                playerFormationLoadResult = TacticsDataManager.Instance.LoadFormationFromTacticsFile(true);
+            }
+            else
+            {
+                playerFormationLoadResult = TacticsDataManager.Instance.LoadSquadTactics(squadName);
+            }
             formationResult = playerFormationLoadResult;
             positions = playerPositions;
         }
         else
         {
-            enemyFormationLoadResult = TacticsDataManager.Instance.GetEnemyFormationLoadResult();
+            if(string.IsNullOrEmpty(squadName))
+            {
+                enemyFormationLoadResult = TacticsDataManager.Instance.GetEnemyFormationLoadResult();
+            }
+            else
+            {
+                enemyFormationLoadResult = TacticsDataManager.Instance.LoadSquadTactics(squadName);
+            }
             formationResult = enemyFormationLoadResult;
             positions = enemyPositions;
         }
@@ -681,6 +683,15 @@ public class BattleManager : MonoBehaviour
                 yield return StartCoroutine(character.OnAfterSkillUse(user, targets, skill, passiveSkillResult));
             }
         }
+    }
+
+    // 임시용 방어 코드. BattleMap에 시뮬을 돌리기 위한, 싱글톤 사용 회피 땜빵 코드 
+    public void SetInstanceSelf()
+    {
+        Instance = this;
+        StrategyManager.Instance = strategyManager;
+        SkillManager.Instance = skillManager;
+        ClassManager.Instance = classManager;
     }
 }
 

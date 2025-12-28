@@ -13,7 +13,7 @@ public class SkillManager : MonoBehaviour
     private Dictionary<string, List<Skill>> skillsByClass = new Dictionary<string, List<Skill>>();
     private List<Skill> allSkills = new List<Skill>();
 
-    public static SkillManager Instance { get; private set; }
+    public static SkillManager Instance;
 
     void Awake()
     {
