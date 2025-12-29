@@ -264,14 +264,15 @@ public class BattleMapManager : MonoBehaviour
 
     private IEnumerator OnEnemySquadSelected(BattleSquad selectedSquad, BattleSquad battleSquad)
     {
-        battleSimulationResultUI.gameObject.SetActive(true);
-        
-
         // 플레이어 편성은 현재 편성 저장. Enemy를 설정된 적 편성으로 설정.
         string playerSquadName = selectedSquad.gameObject.name;
         string enemySquadName = battleSquad.gameObject.name;
         TacticsDataManager.Instance.SetPlayerTactics(playerSquadName);
         TacticsDataManager.Instance.SetEnemyTactics(enemySquadName);        
+
+        // 시뮬 UI 초기화
+        battleSimulationResultUI.gameObject.SetActive(true);
+        battleSimulationResultUI.InitializeUI(playerSquadName, enemySquadName);
 
         // 시뮬레이션 모드 스타트 - 완료될 때까지 대기        \        
         battleManager.SetInstanceSelf(); // 임시 코드 : BattleManager의 Instance를 battleManager로 설정

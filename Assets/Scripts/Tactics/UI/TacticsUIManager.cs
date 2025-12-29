@@ -601,17 +601,18 @@ namespace Arcana.Tactics.UI
 
         private IEnumerator OnRunBattleClickedCoroutine()
         {
-            battleSimulationResultUI.SetActive(true);            
-            Debug.Log($"TacticsUIManager: OnRunBattleClickedCoroutine - Enemy Squad: {_enemySquadName}");
-
             // 플레이어 편성은 현재 편성 저장. Enemy를 설정된 적 편성으로 설정.
-            _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);
+            _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);            
             _dataManager.SetEnemyTactics(_enemySquadName);
 
+            // 시뮬 UI 초기화
+            BattleSimulationResultUI battleSimulationResultUIComponent = battleSimulationResultUI.GetComponent<BattleSimulationResultUI>();
+            battleSimulationResultUI.SetActive(true);                        
+            battleSimulationResultUIComponent.InitializeUI(_playerSquadName, _enemySquadName);
+            
             // 시뮬레이션 모드 스타트 - 완료될 때까지 대기
             yield return StartCoroutine(BattleManager.Instance.SimulationModeStart());
             
-            BattleSimulationResultUI battleSimulationResultUIComponent = battleSimulationResultUI.GetComponent<BattleSimulationResultUI>();
             if(battleSimulationResultUIComponent != null)
             {
                 battleSimulationResultUIComponent.UpdateUI(); 
@@ -627,19 +628,6 @@ namespace Arcana.Tactics.UI
             // JSONBin.io에 저장
             if (JSONBinManager.Instance != null && JSONBinManager.Instance.isInitialized)
             {
-                // string tacticsJson = _dataManager.GetTacticsJson(_unitSlots, _codingData);
-                // JSONBinManager.Instance.SaveTactics(tacticsJson, (success, message) =>
-                // {
-                //     if (success)
-                //     {
-                //         Debug.Log($"JSONBin.io에 Tactics 저장 완료: {message}");
-                //     }
-                //     else
-                //     {
-                //         Debug.LogWarning($"JSONBin.io 저장 실패: {message}");
-                //     }                   
-                // });                
-
                 if(BattleMapManager.Instance != null && BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_PHASE)
                 {
                     // BattleMap에서는 BattleScene을 Add 한다. 

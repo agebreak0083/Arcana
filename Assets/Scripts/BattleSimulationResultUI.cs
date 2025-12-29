@@ -36,6 +36,21 @@ public class BattleSimulationResultUI : MonoBehaviour
     {
         transform.gameObject.SetActive(false);
     }    
+
+     // 시뮬 결과가 나오기 전까지 초기화 
+    public void InitializeUI(string playerName, string enemyName)
+    {
+        battleSimulationResult = new BattleSimulationResult();
+        battleSimulationResult.playerName = playerName;
+        battleSimulationResult.enemyName = enemyName;        
+
+        UpdateBattleResult();
+        UpdateFormation();
+        UpdateHPBarUI();
+
+        startBattleButton.interactable = false;
+        closeButton.interactable = false;
+    }
     internal void UpdateUI()
     {
         battleSimulationResult = BattleManager.battleSimulationResult;
@@ -47,6 +62,9 @@ public class BattleSimulationResultUI : MonoBehaviour
         UpdateBattleResult();
         UpdateFormation();
         UpdateHPBarUI();
+
+        startBattleButton.interactable = true;
+        closeButton.interactable = true;
     }
 
     void UpdateBattleResult()
@@ -114,4 +132,6 @@ public class BattleSimulationResultUI : MonoBehaviour
         hpbar_Enemy.GetComponent<Slider>().value = (float)battleSimulationResult.enemyHP_Remaining / battleSimulationResult.enemyHP_Max;
         hpbar_Enemy.GetComponentInChildren<TextMeshProUGUI>().text = $"{battleSimulationResult.enemyHP_Remaining} / {battleSimulationResult.enemyHP_Max}";
     }
+
+   
 }
