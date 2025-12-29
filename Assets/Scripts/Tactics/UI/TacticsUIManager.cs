@@ -627,18 +627,18 @@ namespace Arcana.Tactics.UI
             // JSONBin.io에 저장
             if (JSONBinManager.Instance != null && JSONBinManager.Instance.isInitialized)
             {
-                string tacticsJson = _dataManager.GetTacticsJson(_unitSlots, _codingData);
-                JSONBinManager.Instance.SaveTactics(tacticsJson, (success, message) =>
-                {
-                    if (success)
-                    {
-                        Debug.Log($"JSONBin.io에 Tactics 저장 완료: {message}");
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"JSONBin.io 저장 실패: {message}");
-                    }                    
-                });
+                // string tacticsJson = _dataManager.GetTacticsJson(_unitSlots, _codingData);
+                // JSONBinManager.Instance.SaveTactics(tacticsJson, (success, message) =>
+                // {
+                //     if (success)
+                //     {
+                //         Debug.Log($"JSONBin.io에 Tactics 저장 완료: {message}");
+                //     }
+                //     else
+                //     {
+                //         Debug.LogWarning($"JSONBin.io 저장 실패: {message}");
+                //     }                   
+                // });                
 
                 if(BattleMapManager.Instance != null && BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_PHASE)
                 {

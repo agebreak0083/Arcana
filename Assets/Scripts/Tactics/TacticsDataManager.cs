@@ -865,6 +865,36 @@ namespace Arcana.Tactics
             }
         }         
 
+        public string LoadFormationFromTacticsFile(string fileName = "tactics")
+        {
+            return PlayerPrefs.GetString(fileName, "");
+        }
+
+        public void SavePlayerTacticsToServer(Action<bool> onComplete)
+        {
+            string tacticsJson = LoadFormationFromTacticsFile("tactics");
+            if(!string.IsNullOrEmpty(tacticsJson))
+            {
+                JSONBinManager.Instance.SaveTactics(tacticsJson, (success, message) =>
+                {
+                    if(success)
+                    {
+                        Debug.Log("BattleManager: SaveTactics - " + message);
+                        onComplete?.Invoke(success);
+                    }
+                    else
+                    {
+                        Debug.LogError("Failed to save player tactics to server");
+                        onComplete?.Invoke(false);
+                    }
+                });
+            }
+            else
+            {
+                Debug.LogError("Failed to save player tactics to server");
+            }
+        }
+
         public void SaveSquadTactics(string squadName, CharacterData[] unitSlots, Dictionary<string, TacticsPlan> codingData)
         {
             try

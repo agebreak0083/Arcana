@@ -569,31 +569,33 @@ public class BattleManager : MonoBehaviour
 
     void SetPlayerWinLose(bool isPlayerWin)
     {
-        if(isPlayerWin)
-        {
-            UserDataManager.Instance.AddTickets(BattleSetting.TICKET_FOR_WIN);
-            if(BattleUI.Instance != null)
-            {
-                BattleUI.Instance.ShowVictoryPanel();
-            }
-            Debug.Log("승리! (적 전멸)");
-        }
-        else
-        {
-            UserDataManager.Instance.AddTickets(BattleSetting.TICKET_FOR_LOSE);
-            if(BattleUI.Instance != null)
-            {
-                BattleUI.Instance.ShowDefeatPanel();
-            }
-            Debug.Log("패배... (플레이어 전멸)");
-        }
-
         if(isSimulationMode)
         {
             battleSimulationResult.isPlayerWin = isPlayerWin;
+            Debug.Log("BattleManager: SetPlayerWinLose - " + (isPlayerWin ? "승리" : "패배"));
         }
         else
         {
+            if(isPlayerWin)
+            {
+                UserDataManager.Instance.AddTickets(BattleSetting.TICKET_FOR_WIN);
+                if(BattleUI.Instance != null)
+                {
+                    BattleUI.Instance.ShowVictoryPanel();
+                }            
+
+                // 이겼을때만, 서버에 택틱스 저장 
+                TacticsDataManager.Instance.SavePlayerTacticsToServer(null);                
+            }            
+            else
+            {
+                UserDataManager.Instance.AddTickets(BattleSetting.TICKET_FOR_LOSE);
+                if(BattleUI.Instance != null)
+                {
+                    BattleUI.Instance.ShowDefeatPanel();
+                }                
+            }
+
             // 서버 스코어 업데이트 (player, enemy 모두)
             TacticsDataManager.Instance.UpdateScore(playerFormationLoadResult.username, isPlayerWin ? 1 : 0, isPlayerWin ? 0 : 1);
             TacticsDataManager.Instance.UpdateScore(enemyFormationLoadResult.username, isPlayerWin ? 0 : 1, isPlayerWin ? 1 : 0);
