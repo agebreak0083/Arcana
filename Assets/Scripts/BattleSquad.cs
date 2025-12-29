@@ -1,6 +1,7 @@
 using System;
 using Arcana.Tactics;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class BattleSquad : MonoBehaviour
 {
@@ -17,24 +18,45 @@ public class BattleSquad : MonoBehaviour
     private Color originalColor;
     public Color selectColor = Color.blue;
     public FormationLoadResult _loadResult;
+    private MaterialPropertyBlock propertyBlock;
+    private Renderer squadRenderer;
+    private NavMeshAgent navMeshAgent;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         mapManager = FindFirstObjectByType<BattleMapManager>();
 
+        // Renderer와 MaterialPropertyBlock 초기화
+        squadRenderer = GetComponent<Renderer>();
+        navMeshAgent = GetComponent<NavMeshAgent>();       
+
+        propertyBlock = new MaterialPropertyBlock();
+        
         // 머테리얼 인스턴스 생성. Renderer에 할당된 것에서 복제한다.
-        Material material = new Material(GetComponent<Renderer>().material);
-        originalColor = material.color;
-        GetComponent<Renderer>().material = material;        
+        Material material = new Material(squadRenderer.material);
+        squadRenderer.material = material;
+        
+        // 셰이더가 _Color 프로퍼티를 가지고 있는지 확인
+        if (material.HasProperty("_Color"))
+        {
+            originalColor = material.color;
+        }
+        else
+        {
+            // _Color 프로퍼티가 없으면 기본 색상(흰색) 사용
+            originalColor = Color.white;
+        }
 
         // 적 Squad인 경우, Tactics 세팅 하기 
         if(!isPlayerSquad)
         {
             LoadEnemyTactics();
             
-            targetTower = GameObject.Find("Tower_Player");
+            targetTower = GameObject.Find("Tower_Player");            
         }
+
+             
     }
 
     private void LoadEnemyTactics()
@@ -58,14 +80,39 @@ public class BattleSquad : MonoBehaviour
             return;
         }
 
+        if(navMeshAgent != null)
+        {
+            // Deactive->active 되면, 활성화가 자동으로 안되서 수동으로 활성화 한다.
+            navMeshAgent.enabled = true;
+
+            if(isPlayerSquad)
+            {
+                if(currentTargetPosition.magnitude < 0.01f)
+                {
+                    navMeshAgent.enabled = false;
+                }
+                else
+                {
+                    navMeshAgent.speed = currentMoveSpeed;
+                    navMeshAgent.SetDestination(currentTargetPosition);
+                }
+            }
+            else
+            {
+                navMeshAgent.speed = mapManager.enemySquadMoveSpeed;
+                navMeshAgent.SetDestination(targetTower.transform.position);
+            }
+        }
+
         if(!isPlayerSquad && targetTower != null && mapManager.currentPhase != BattleMapPhase.BATTLE_DEFEAT)
         {
-            // 코루틴 사용 안함 (active 상태에서만 이동하도록)
-            float speed = mapManager.enemySquadMoveSpeed;
-            transform.position = Vector3.MoveTowards(transform.position, targetTower.transform.position, speed * Time.deltaTime);
             if(Vector3.Distance(transform.position, targetTower.transform.position) < 1.0f)
             {
-                transform.position = targetTower.transform.position;
+                if(navMeshAgent != null)
+                {
+                    navMeshAgent.enabled = false;
+                }
+
                 mapManager.ChangeCurrentPhase(BattleMapPhase.BATTLE_DEFEAT);
             }
         }
@@ -90,15 +137,29 @@ public class BattleSquad : MonoBehaviour
         isSelected = selected;
         
         // 선택 시 시각적 피드백 (예: 하이라이트)
-        // 선택시 빨간색으로 변경         
-        if(selected)
+        // 선택시 색상 변경
+        if (squadRenderer == null)
         {
-            GetComponent<Renderer>().material.color = selectColor;
+            squadRenderer = GetComponent<Renderer>();
         }
-        else
+        
+        if (propertyBlock == null)
         {
-            GetComponent<Renderer>().material.color = originalColor;
+            propertyBlock = new MaterialPropertyBlock();
         }
+        
+        Material material = squadRenderer.material;
+        Color targetColor = selected ? selectColor : originalColor;
+        
+        // 셰이더가 _Color 프로퍼티를 가지고 있는지 확인
+        if (material.HasProperty("_Color"))
+        {
+            // MaterialPropertyBlock을 사용하여 색상 변경 (원본 머테리얼 수정 방지)
+            squadRenderer.GetPropertyBlock(propertyBlock);
+            propertyBlock.SetColor("_Color", targetColor);
+            squadRenderer.SetPropertyBlock(propertyBlock);
+        }
+        // _Color 프로퍼티가 없으면 색상 변경을 시도하지 않음
     }
 
     /// <summary>
@@ -108,27 +169,7 @@ public class BattleSquad : MonoBehaviour
     {
         // 목표 위치와 속도 업데이트
         currentTargetPosition = targetPosition;
-        currentMoveSpeed = speed;
-        
-        // 이미 이동 중이면 코루틴을 재시작하지 않고 목표만 변경
-        if (!isMoving)
-        {
-            isMoving = true;
-            moveCoroutine = MoveCoroutine();
-            StartCoroutine(moveCoroutine);
-        }
-    }
-
-    private System.Collections.IEnumerator MoveCoroutine()
-    {
-        while (Vector3.Distance(transform.position, currentTargetPosition) > 0.1f)
-        {
-            // 매 프레임 업데이트된 목표 위치로 이동
-            transform.position = Vector3.MoveTowards(transform.position, currentTargetPosition, currentMoveSpeed * Time.deltaTime);
-            yield return null;
-        }
-        transform.position = currentTargetPosition;
-        isMoving = false;
+        currentMoveSpeed = speed;       
     }
 
     /// <summary>

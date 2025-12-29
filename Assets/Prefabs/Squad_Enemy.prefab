@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4560489793341974569}
   - component: {fileID: 4501213835767719490}
   - component: {fileID: 8380600884056522394}
+  - component: {fileID: 3280276128518215648}
   m_Layer: 0
   m_Name: Squad_Enemy
   m_TagString: Untagged
@@ -29,7 +30,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7559211670367175352}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -5.91, y: 0.5, z: 3.85}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
@@ -157,3 +158,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleSquad
   isPlayerSquad: 0
   selectColor: {r: 1, g: 0, b: 0, a: 1}
+--- !u!195 &3280276128518215648
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7559211670367175352}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 1
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4

@@ -30,7 +30,7 @@ public class BattleMapManager : MonoBehaviour
     [Header("Movement Settings")]
     public float squadMoveSpeed = 5f;
     public float enemySquadMoveSpeed = 0.5f;
-    public LayerMask mapLayerMask = 1; // Default layer
+    public LayerMask mapLayerMask = 0; // Default layer
     
     public Camera mainCamera;
     public BattleMapPhase currentPhase = BattleMapPhase.NONE_PHASE;
@@ -128,8 +128,25 @@ public class BattleMapManager : MonoBehaviour
         // 맵 레이어와 충돌하는지 확인
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, mapLayerMask))
         {
-            // 맵 오브젝트인지 확인
-            if (mapObject != null && hit.collider.gameObject == mapObject)
+            Debug.Log($"맵 클릭 위치: {hit.point}, 충돌 오브젝트: {hit.collider.gameObject.name}");
+
+            // 맵 오브젝트 또는 그 자식 오브젝트인지 확인
+            bool isMapObject = false;
+            if (mapObject != null)
+            {
+                // 직접 mapObject인 경우
+                if (hit.collider.gameObject == mapObject)
+                {
+                    isMapObject = true;
+                }
+                // mapObject의 자식인지 확인
+                else if (hit.collider.transform.IsChildOf(mapObject.transform))
+                {
+                    isMapObject = true;
+                }
+            }
+
+            if (isMapObject)
             {
                 // 선택된 Squad를 클릭한 위치로 이동
                 Vector3 targetPosition = hit.point;
@@ -138,10 +155,18 @@ public class BattleMapManager : MonoBehaviour
                 BattleSquad squad = selectedSquadObject.GetComponent<BattleSquad>();
                 if (squad != null)
                 {
-                    squad.MoveTo(targetPosition, squadMoveSpeed);
-                    //Debug.Log($"Squad 이동 명령: {targetPosition}");
+                    squad.MoveTo(targetPosition, squadMoveSpeed);       
+                    Debug.Log($"Squad 이동 명령: {targetPosition}");
                 }
             }
+            else
+            {
+                Debug.Log($"맵 오브젝트가 아님: {hit.collider.gameObject.name}");
+            }
+        }
+        else
+        {
+            Debug.Log($"Raycast 실패: mapLayerMask와 충돌하는 오브젝트가 없습니다. mapLayerMask 값: {mapLayerMask.value}");
         }
     }
 
