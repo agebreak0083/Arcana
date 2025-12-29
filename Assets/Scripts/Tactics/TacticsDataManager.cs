@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Arcana.Tactics.Data;
 using UnityEngine.Networking;
+using System.Collections;
 
 namespace Arcana.Tactics
 {
@@ -238,7 +239,7 @@ namespace Arcana.Tactics
         /// <summary>
         /// 웹 CSV에서 캐릭터 데이터 로드 (Web Request)
         /// </summary>
-        private System.Collections.IEnumerator LoadCharactersFromWeb()
+        public IEnumerator LoadCharactersFromWeb()
         {
             availableCharacters = new List<CharacterData>();
             CharacterDefinition[] allCharacters = null;
@@ -290,6 +291,10 @@ namespace Arcana.Tactics
             // Store all character definitions for gacha system
             _allCharacterDefinitions = allCharacters;
 
+            LoadCharacterPool();
+        }
+        public void LoadCharacterPool()
+        {
             // 2. Load CharacterPool (Dynamic Data)
             string poolJson = "";
 
@@ -344,7 +349,7 @@ namespace Arcana.Tactics
             foreach (var poolItem in myPool)
             {
                 // Find matching definition
-                CharacterDefinition def = System.Array.Find(allCharacters, c => c.Name == poolItem.Name);
+                CharacterDefinition def = System.Array.Find(_allCharacterDefinitions, c => c.Name == poolItem.Name);
 
                 if (def != null)
                 {

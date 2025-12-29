@@ -20,8 +20,8 @@ public class GachaManager : MonoBehaviour
     // Character obtained popup UI (optional - can be null)
     public GameObject characterObtainedPopup_1;    
     public GameObject characterObtainedPopup_10;
-    public Button gotoTacticsButton;
-    public Button gotoIntroButton;
+    public Button CloseButton;
+    public Action<AsyncOperation> completeAction;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -29,8 +29,7 @@ public class GachaManager : MonoBehaviour
         ticketButton.onClick.AddListener(OnTicketButtonClicked);
         gacha1Button.onClick.AddListener(OnGacha1ButtonClicked);
         gacha10Button.onClick.AddListener(OnGacha10ButtonClicked);
-        gotoTacticsButton.onClick.AddListener(OnGotoTacticsButtonClicked);
-        gotoIntroButton.onClick.AddListener(OnGotoIntroButtonClicked);
+        CloseButton.onClick.AddListener(OnCloseButtonClicked);        
         UpdateTicketText();
     }
 
@@ -39,14 +38,9 @@ public class GachaManager : MonoBehaviour
     {
     }
 
-    void OnGotoTacticsButtonClicked()
+    void OnCloseButtonClicked()
     {
-        SceneManager.LoadScene("TacticsScene");
-    }
-
-    void OnGotoIntroButtonClicked()
-    {
-        SceneManager.LoadScene("IntroScene");
+        SceneManager.LoadScene("IntroScene");        
     }
 
     void UpdateTicketText()
@@ -94,6 +88,8 @@ public class GachaManager : MonoBehaviour
                 gachaCard.ShowCharacter(randomCharDef);
             }
         }
+
+        TacticsDataManager.Instance.LoadCharacterPool(); // 캐릭터풀 갱신
     }
 
     private CharacterDefinition GetRandomCharacter()
@@ -176,6 +172,8 @@ public class GachaManager : MonoBehaviour
             }
             yield return new WaitForSeconds(0.5f);
         }
+
+        TacticsDataManager.Instance.LoadCharacterPool(); // 캐릭터풀 갱신
         
         yield return null;
     }

@@ -133,7 +133,7 @@ namespace Arcana.Tactics.UI
         public void LoadPlayerFormation(string squadName = null)
         {
             // availableCharacters는 TacticsDataManager에서 이미 로드됨 (LoadCharactersFromWeb에서)
-            // List를 Dictionary로 변환 (characterName을 키로 사용)
+            // List를 Dictionary로 변환 (characterName을 키로 사용)            
             availableCharacters = new Dictionary<string, CharacterData>();
             foreach (var charData in _dataManager.availableCharacters)
             {
