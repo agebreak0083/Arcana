@@ -9,7 +9,7 @@ using static Arcana.Tactics.TacticsDataManager;
 
 public class BattleSimulationResult
 {
-    public float randomSeed = 0.0f;
+    public static int randomSeed = 0;
     public bool isPlayerWin = false;
     public FormationLoadResult playerFormationLoadResult = null;
     public FormationLoadResult enemyFormationLoadResult = null;
@@ -20,6 +20,21 @@ public class BattleSimulationResult
     public int playerHP_Remaining = 100;
     public int enemyHP_Max = 100;
     public int enemyHP_Remaining = 100;
+
+    // 랜덤 시드 값을 다음 값으로 설정한다.
+    public static void NextRandomSeed() 
+    {
+        randomSeed = UnityEngine.Random.Range(0, 1000000);
+        UnityEngine.Random.InitState(randomSeed);
+
+        Debug.LogWarning("BattleSimulationResult: NextRandomSeed - randomSeed: " + randomSeed);
+    }
+
+    // 랜덤 시드 값을 현재 값으로 설정한다.
+    public static void SetRandomSeed()
+    {
+        UnityEngine.Random.InitState(randomSeed);
+    }
 }
 
 [DefaultExecutionOrder(-50)]
@@ -111,19 +126,15 @@ public class BattleManager : MonoBehaviour
 
         // 1초 후 전투 시작
         yield return new WaitForSeconds(1f);      
-
-        UnityEngine.Random.InitState((int)(battleSimulationResult.randomSeed * 1000000));
-        Debug.Log("BattleManager: Start - randomSeed: " + battleSimulationResult.randomSeed);  
+        BattleSimulationResult.SetRandomSeed();
 
         StartCoroutine(BattleRoutine());
     }
 
     public IEnumerator SimulationModeStart(string playerSquadName = "", string enemySquadName = "")
     {
-        isSimulationMode = true;
-        battleSimulationResult.randomSeed = UnityEngine.Random.value;
-        UnityEngine.Random.InitState((int)(battleSimulationResult.randomSeed * 1000000));
-        Debug.Log("BattleManager: SimulationModeStart - randomSeed: " + battleSimulationResult.randomSeed);
+        isSimulationMode = true;      
+        BattleSimulationResult.SetRandomSeed();
 
         // 시뮬레이션 오브젝트 생성 
         if(simulationObject != null)
@@ -648,6 +659,7 @@ public class BattleManager : MonoBehaviour
             
             // 시뮬레이션 모드가 아니라 Battle Scene이라면, 끝나면 시뮬레이션 결과 리셋. 
             battleSimulationResult = new BattleSimulationResult();
+            BattleSimulationResult.NextRandomSeed();
 
             // BattleMap이라면 승패 결과를 저장한다.
             if(BattleMapManager.Instance != null) 
