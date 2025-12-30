@@ -494,6 +494,10 @@ public class JSONBinManager : MonoBehaviour
     /// </summary>
     private IEnumerator SaveAllTactics(TacticsDatabase database, Action<bool> onComplete)
     {
+        // TODO : 지금은 잠시 막아둔다. 나중에 커스텀 서버 올라오면 변경해야함 
+        onComplete?.Invoke(true);
+        yield break;
+        
         Debug.Log($"JsonBinManager: [SaveAllTactics] 시작 - {database?.tactics?.Count ?? 0}개 데이터");
         // Score 높은 순으로 최대 100개만 유지
         if (database.tactics != null && database.tactics.Count > 100)

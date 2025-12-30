@@ -12,8 +12,7 @@ public class BattleSquad : MonoBehaviour
     // 이동 관련 변수
     private GameObject targetTower;
     private Vector3 currentTargetPosition;
-    private float currentMoveSpeed;
-    private bool isMoving = false;
+    private float currentMoveSpeed;    
     private System.Collections.IEnumerator moveCoroutine;
     private Color originalColor;
     public Color selectColor = Color.blue;
@@ -213,7 +212,6 @@ public class BattleSquad : MonoBehaviour
 
     public void StopMoving()
     {
-        isMoving = false;
         currentTargetPosition = transform.position;
     }
 }

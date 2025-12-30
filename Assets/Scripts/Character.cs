@@ -115,6 +115,61 @@ public class Character : MonoBehaviour
     }
 
     // 작전에 따라 행동 결정 (코루틴으로 변경하여 스킬 애니메이션 완료 대기)
+    // 시뮬레이션 모드용 동기 버전 (WebGL 성능 최적화)
+    public StrategyAction RunActionSync()
+    {
+        if (currentStrategy == null)
+        {
+            return null;
+        }
+        if (stats.actionPoint <= 0)
+        {
+            return null;
+        }
+
+        // BuffList에서 stun이 있으면 행동 불가
+        if (buffs.Any(b => b.stat == "stun"))
+        {
+            return null;
+        }
+
+        // 우선순위가 높은 순서대로 조건을 확인하여 실행할 액션 결정
+        for (int i = 0; i < availableActions.Count; i++)
+        {
+            StrategyAction strategyAction = availableActions[i];
+            Skill skill = SkillManager.Instance.GetSkillByName(strategyAction.action);
+
+            if (skill == null)
+            {
+                continue;
+            }
+
+            List<Character> targets = GetTarget(skill, strategyAction);
+
+            // 조건에 해당하는 타겟을 찾았다.
+            if (targets != null && targets.Count > 0)
+            {
+                // 스킬 사용 전 패시브 스킬 체크 (동기 버전)
+                BattleManager.Instance.passiveSkillResult.Initialize();
+                BattleManager.Instance.OnBeforeSkillUseSync(this, targets, skill);
+
+                // 스킬 효과 즉시 적용 (yield 없음)
+                UseSkillSync(skill.id, targets);
+                
+                // AP/PP 소모
+                stats.actionPoint -= skill.costAP;
+                stats.passivePoint -= skill.costPP;
+
+                // 스킬 사용 후 패시브 스킬 체크 (동기 버전)
+                BattleManager.Instance.OnAfterSkillUseSync(this, targets, skill);
+
+                return strategyAction;
+            }
+        }
+
+        return null;
+    }
+
     public IEnumerator RunAction(System.Action<StrategyAction> onComplete)
     {
         if (currentStrategy == null)
@@ -131,10 +186,14 @@ public class Character : MonoBehaviour
         // BuffList에서 stun이 있으면 행동 불가
         if (buffs.Any(b => b.stat == "stun"))
         {
-            Debug.Log($"{characterName}이(가) 기절 상태이므로 행동할 수 없습니다.");
-            if (BattleLogManager.Instance != null)
+            // 시뮬레이션 모드에서는 Debug.Log 최소화 (WebGL 성능 최적화)
+            if (!BattleManager.Instance.isSimulationMode)
             {
-                BattleLogManager.Instance.AddLog($"  <color=#FF0000>[기절 상태이므로 행동할 수 없습니다.]</color> from {characterName}");
+                Debug.Log($"{characterName}이(가) 기절 상태이므로 행동할 수 없습니다.");
+                if (BattleLogManager.Instance != null)
+                {
+                    BattleLogManager.Instance.AddLog($"  <color=#FF0000>[기절 상태이므로 행동할 수 없습니다.]</color> from {characterName}");
+                }
             }
             onComplete?.Invoke(null);
             yield break;
@@ -148,7 +207,11 @@ public class Character : MonoBehaviour
 
             if (skill == null)
             {
-                Debug.Log($"{characterName}이(가) {strategyAction.action}을(를) 실행할 수 없습니다.");
+                // 시뮬레이션 모드에서는 Debug.Log 최소화 (WebGL 성능 최적화)
+                if (!BattleManager.Instance.isSimulationMode)
+                {
+                    Debug.Log($"{characterName}이(가) {strategyAction.action}을(를) 실행할 수 없습니다.");
+                }
                 continue;
             }
 
@@ -161,10 +224,14 @@ public class Character : MonoBehaviour
                 {
                     if(skill != null && target != null)
                     {
-                        Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다. 타겟: {target.characterName}");
+                        // 시뮬레이션 모드에서는 Debug.Log 최소화 (WebGL 성능 최적화)
+                        if (!BattleManager.Instance.isSimulationMode)
+                        {
+                            Debug.Log($"{characterName}이(가) {skill.name}을(를) 실행했습니다. 타겟: {target.characterName}");
+                        }
 
-                        // 전투 로그에 공격 기록
-                        if(BattleLogManager.Instance != null)
+                        // 전투 로그에 공격 기록 (시뮬레이션 모드에서는 건너뛰기)
+                        if(BattleLogManager.Instance != null && !BattleManager.Instance.isSimulationMode)
                         {
                             BattleLogManager.Instance.LogAttack(characterName, target.characterName, skill.name);
                         }
@@ -182,8 +249,8 @@ public class Character : MonoBehaviour
                 stats.actionPoint -= skill.costAP;
                 stats.passivePoint -= skill.costPP;
 
-                // 전투 로그에 AP/PP 소모 및 남은 포인트 기록
-                if (BattleLogManager.Instance != null)
+                // 전투 로그에 AP/PP 소모 및 남은 포인트 기록 (시뮬레이션 모드에서는 건너뛰기)
+                if (BattleLogManager.Instance != null && !BattleManager.Instance.isSimulationMode)
                 {
                     string apInfo = skill.costAP > 0 ? $"<color=#FF6B6B>AP -{skill.costAP}</color> (남은 AP: <color=#87CEEB>{stats.actionPoint}</color>)" : "";
                     string ppInfo = skill.costPP > 0 ? $"<color=#FFA500>PP -{skill.costPP}</color> (남은 PP: <color=#90EE90>{stats.passivePoint}</color>)" : "";
@@ -203,7 +270,11 @@ public class Character : MonoBehaviour
             }
         }
 
-        Debug.Log($"{characterName}이(가) 행동할 수 없습니다.");
+        // 시뮬레이션 모드에서는 Debug.Log 최소화 (WebGL 성능 최적화)
+        if (!BattleManager.Instance.isSimulationMode)
+        {
+            Debug.Log($"{characterName}이(가) 행동할 수 없습니다.");
+        }
         onComplete?.Invoke(null);
     }
 
@@ -434,6 +505,21 @@ public class Character : MonoBehaviour
     }
 
     // ========== 스킬 시스템 ==========
+
+    // 시뮬레이션 모드용 동기 버전 (WebGL 성능 최적화)
+    public void UseSkillSync(string skillId, List<Character> targets)
+    {
+        if (SkillManager.Instance == null) return;
+
+        Skill skill = SkillManager.Instance.GetSkillById(skillId);
+        if (skill == null)
+        {
+            return;
+        }
+
+        // 바로 스킬 효과 적용 (yield 없음)
+        SkillManager.Instance.ApplySkillEffects(skill, this, targets);
+    }
 
     // 스킬 사용 (ID로) - 코루틴으로 변경하여 애니메이션 완료까지 대기
     public IEnumerator UseSkill(string skillId, List<Character> targets)
@@ -769,6 +855,29 @@ public class Character : MonoBehaviour
                 renderer.materials = originalMaterials[renderer];
             }
         }
+    }
+
+    // 시뮬레이션 모드용 동기 버전 (WebGL 성능 최적화)
+    public void OnBeforeSkillUseSync(Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
+    {
+        if (stats.passivePoint <= 0)
+        {
+            return;
+        }
+
+        // 동기 버전으로 패시브 스킬 체크 (yield 없음)
+        SkillManager.Instance.CheckPassiveSkillBeforeSkillUseSync(this, user, targets, skill, result);
+    }
+
+    public void OnAfterSkillUseSync(Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
+    {
+        if(stats.passivePoint <= 0)
+        {
+            return;
+        }
+
+        // 동기 버전으로 패시브 스킬 체크 (yield 없음)
+        SkillManager.Instance.CheckPassiveSkillAfterSkillUseSync(this, user, targets, skill, result);
     }
 
     public IEnumerator OnBeforeSkillUse(Character user, List<Character> targets, Skill skill, PassiveSkillResult result)

@@ -392,7 +392,16 @@ public class BattleManager : MonoBehaviour
 
                 // 턴 실행 시도
                 bool actionExecuted = false;
-                yield return StartCoroutine(TurnRoutine(character, (result) => actionExecuted = result));
+                
+                // 시뮬레이션 모드에서는 동기적으로 처리 (WebGL 성능 최적화)
+                if (isSimulationMode)
+                {
+                    actionExecuted = TurnRoutineSync(character);
+                }
+                else
+                {
+                    yield return StartCoroutine(TurnRoutine(character, (result) => actionExecuted = result));
+                }
 
                 if (actionExecuted)
                 {
@@ -422,14 +431,40 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+    // 턴 루틴 동기 버전 (시뮬레이션 모드용, WebGL 성능 최적화)
+    private bool TurnRoutineSync(Character character)
+    {
+        currentTurn++;
+        
+        // 행동 실행 (동기 버전)
+        StrategyAction action = character.RunActionSync();
+
+        if (action != null)
+        {
+            // 턴 종료 이벤트 호출
+            OnTurnEnd(character);
+            return true;
+        }
+        else
+        {
+            // 행동하지 않음 (조건 불만족, AP 부족 등)
+            return false;
+        }
+    }
+
     // 턴 루틴 (개별 캐릭터 행동)
     private IEnumerator TurnRoutine(Character character, System.Action<bool> onResult)
     {
         currentTurn++;
-        Debug.Log($"--- {character.characterName}의 턴 (Round {currentRound} - Turn {currentTurn}) ---");
+        
+        // 시뮬레이션 모드에서는 Debug.Log 최소화 (WebGL 성능 최적화)
+        if (!isSimulationMode)
+        {
+            Debug.Log($"--- {character.characterName}의 턴 (Round {currentRound} - Turn {currentTurn}) ---");
+        }
 
         // 턴 시작 로그를 먼저 출력 (행동 전에)
-        if (BattleLogManager.Instance != null)
+        if (BattleLogManager.Instance != null && !isSimulationMode)
             BattleLogManager.Instance.LogTurnStart(character.characterName, currentRound, currentTurn);
 
         // 행동 실행 (RunAction 내부에서 조건 체크 및 애니메이션 완료까지 대기)
@@ -446,8 +481,12 @@ public class BattleManager : MonoBehaviour
             // 턴 종료 이벤트 호출
             OnTurnEnd(character);
 
-            // 행동 완료 대기 (모든 waitingCharacters가 완료될 때까지)            
-            yield return new WaitUntil(() => waitingCharacters.Count == 0);            
+            // 시뮬레이션 모드에서는 waitingCharacters 체크 건너뛰기 (WebGL 성능 최적화)
+            if (!isSimulationMode)
+            {
+                // 행동 완료 대기 (모든 waitingCharacters가 완료될 때까지)            
+                yield return new WaitUntil(() => waitingCharacters.Count == 0);
+            }
 
             onResult?.Invoke(true);
         }
@@ -663,8 +702,40 @@ public class BattleManager : MonoBehaviour
     }
 
     public PassiveSkillResult passiveSkillResult = new PassiveSkillResult();
+    // 시뮬레이션 모드용 동기 버전 (WebGL 성능 최적화)
+    public void OnBeforeSkillUseSync(Character user, List<Character> targets, Skill skill)
+    {
+        // 모든 캐릭터에게 누가 누구에게 스킬을 썼는지 알려준다 (동기 버전)
+        foreach (var character in charactersTurnList)
+        {
+            if (IsValidCharacter(character) && character.stats.passivePoint > 0)
+            {
+                character.OnBeforeSkillUseSync(user, targets, skill, passiveSkillResult);
+            }
+        }
+    }
+
+    public void OnAfterSkillUseSync(Character user, List<Character> targets, Skill skill)
+    {
+        // 모든 캐릭터에게 스킬 사용 후 이벤트를 호출한다 (동기 버전)
+        foreach (var character in charactersTurnList)
+        {
+            if (IsValidCharacter(character) && character.stats.passivePoint > 0)
+            {
+                character.OnAfterSkillUseSync(user, targets, skill, passiveSkillResult);
+            }
+        }
+    }
+
     public IEnumerator OnBeforeSkillUse(Character user, List<Character> targets, Skill skill)
     {
+        // 시뮬레이션 모드에서는 동기 버전 사용 (WebGL 성능 최적화)
+        if (isSimulationMode)
+        {
+            OnBeforeSkillUseSync(user, targets, skill);
+            yield break;
+        }
+
         // 모든 캐릭터에게 누가 누구에게 스킬을 썼는지 알려준다. 
         foreach (var character in charactersTurnList)
         {
@@ -677,6 +748,13 @@ public class BattleManager : MonoBehaviour
 
     public IEnumerator OnAfterSkillUse(Character user, List<Character> targets, Skill skill)
     {
+        // 시뮬레이션 모드에서는 동기 버전 사용 (WebGL 성능 최적화)
+        if (isSimulationMode)
+        {
+            OnAfterSkillUseSync(user, targets, skill);
+            yield break;
+        }
+
         // 모든 캐릭터에게 스킬 사용 후 이벤트를 호출한다. 
         foreach (var character in charactersTurnList)
         {

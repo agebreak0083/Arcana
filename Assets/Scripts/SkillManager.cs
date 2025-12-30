@@ -384,6 +384,82 @@ public class SkillManager : MonoBehaviour
         return info;
     }
 
+    // 시뮬레이션 모드용 동기 버전 (WebGL 성능 최적화)
+    public void CheckPassiveSkillBeforeSkillUseSync(Character actionCharacter, Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
+    {
+        bool bCheckPassiveSkill = false;
+
+        // 자신에게 세팅된 Action 순회, PP 스킬을 찾고, 조건을 체크한다. 
+        foreach (var action in actionCharacter.availableActions)
+        {
+            // action name으로 스킬 정보를 가져옴. 
+            Skill myPassiveSkill = SkillManager.Instance.GetSkillByName(action.action);
+            if (myPassiveSkill == null || myPassiveSkill.costPP <= 0)
+            {
+                continue;
+            }
+
+            // 스킬의 조건을 체크한다. 
+            // 가드 스킬
+            if(myPassiveSkill.checkPhase == "guard")
+            {
+                foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
+                {
+                    if (mySkillEffect.type == "guard")
+                    {
+                        foreach (SkillEffect effect in skill.effects)
+                        {
+                            if (effect.type == "damage")
+                            {
+                                bCheckPassiveSkill = PassiveGuard(actionCharacter, targets[0],skill, myPassiveSkill, effect, mySkillEffect, result);
+                            }
+                        }                        
+                    }
+                }
+            }
+            // 자신이 스킬을 사용 하기전
+            else if(myPassiveSkill.checkPhase == "before_skill_use_self")
+            {
+                if(user == actionCharacter)
+                {
+                    foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
+                    {
+                        if (mySkillEffect.type == "sure_hit")
+                        {
+                            result.isSureHit = true;                        
+                            bCheckPassiveSkill = true;
+                        }
+
+                    }                    
+                }
+            }            
+            // 아군이 스킬을 사용 하기전
+            else if(myPassiveSkill.checkPhase == "before_skill_use_ally")
+            {
+                if(actionCharacter != user && actionCharacter.isPlayer == user.isPlayer)
+                {
+                    foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
+                    {
+                        if (mySkillEffect.type == "buff")
+                        {
+                            user.AddBuff(mySkillEffect.stat, mySkillEffect.value, mySkillEffect.duration);
+                        }
+                        else if (mySkillEffect.type == "enchant")
+                        {
+                            result.enchantEffects.Add(mySkillEffect);                            
+                        }
+                    }
+                }
+            }
+
+            if(bCheckPassiveSkill)
+            {
+                actionCharacter.stats.passivePoint -= myPassiveSkill.costPP;
+                return;
+            }
+        }
+    }
+
     public IEnumerator CheckPassiveSkillBeforeSkillUse(Character actionCharacter, Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
     {
         bool bCheckPassiveSkill = false;
@@ -525,6 +601,54 @@ public class SkillManager : MonoBehaviour
     }
 
     
+    // 시뮬레이션 모드용 동기 버전 (WebGL 성능 최적화)
+    public void CheckPassiveSkillAfterSkillUseSync(Character actionCharacter, Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
+    {
+        bool bCheckPassiveSkill = false;    
+
+        // 자신에게 세팅된 Action 순회, PP 스킬을 찾고, 조건을 체크한다. 
+        foreach (var action in actionCharacter.availableActions)
+        {
+            // action name으로 스킬 정보를 가져옴. 
+            Skill myPassiveSkill = SkillManager.Instance.GetSkillByName(action.action);
+            if (myPassiveSkill == null || myPassiveSkill.costPP <= 0)
+            {
+                continue;
+            }
+
+            if(myPassiveSkill.checkPhase == "after_skill_use_ally")
+            {
+                if(actionCharacter == user)
+                {
+                    return;
+                }
+
+                if(myPassiveSkill.target == "chase" && targets.Count > 0 && targets[0].hp > 0 && targets[0].isPlayer != actionCharacter.isPlayer)
+                {                    
+                    bCheckPassiveSkill = true;
+                }                
+            }            
+
+            if(bCheckPassiveSkill)
+            {
+                actionCharacter.stats.passivePoint -= myPassiveSkill.costPP;
+                
+                // 시뮬레이션 모드에서는 동기 버전으로 스킬 사용
+                if (BattleManager.Instance.isSimulationMode)
+                {
+                    actionCharacter.UseSkillSync(myPassiveSkill.id, targets);
+                }
+                else
+                {
+                    // 일반 모드에서는 코루틴으로 처리 (하지만 동기 버전에서는 호출하지 않음)
+                    StartCoroutine(actionCharacter.UseSkill(myPassiveSkill.id, targets));
+                }
+
+                return;
+            }
+        }
+    }
+
     public IEnumerator CheckPassiveSkillAfterSkillUse(Character actionCharacter, Character user, List<Character> targets, Skill skill, PassiveSkillResult result)
     {
         bool bCheckPassiveSkill = false;    
