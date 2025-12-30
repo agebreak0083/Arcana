@@ -1113,8 +1113,24 @@ namespace Arcana.Tactics
                     {
                         // FormationManager를 사용하여 JSON에서 포메이션 로드
                         _enemyFormationLoadResult = FormationManager.LoadFormationFromJson(tacticsJson, availableCharacters, CreateDefaultPlan);
-                        _enemyFormationLoadResult.username = username; // Username 설정
                         
+                        if (_enemyFormationLoadResult == null)
+                        {
+                            Debug.LogError("TacticsDataManager: [LoadEnemyFormationFromJsonBin] FormationLoadResult가 null입니다!");
+                            _enemyFormationLoadResult = LoadFormationFromTacticsFile(false);
+                            onComplete?.Invoke(true);
+                            return;
+                        }
+                        
+                        if (_enemyFormationLoadResult.unitSlots == null)
+                        {
+                            Debug.LogError("TacticsDataManager: [LoadEnemyFormationFromJsonBin] unitSlots가 null입니다!");
+                            _enemyFormationLoadResult = LoadFormationFromTacticsFile(false);
+                            onComplete?.Invoke(true);
+                            return;
+                        }
+                        
+                        _enemyFormationLoadResult.username = username; // Username 설정
                         Debug.Log($"Firebase에서 적 편성 로드 완료 (유저: {username})");
                         onComplete?.Invoke(true);
                     }
@@ -1136,18 +1152,75 @@ namespace Arcana.Tactics
 
         public void GetRandomEnemySquad(System.Action<FormationLoadResult> onComplete)
         {
+            // availableCharacters가 로드되지 않았으면 대기
+            if (availableCharacters == null || availableCharacters.Count == 0)
+            {
+                StartCoroutine(WaitForCharactersAndGetRandomEnemySquad(onComplete));
+                return;
+            }
+
             JSONBinManager.Instance.GetRandomTactics("", (success, tacticsJson, username) =>
             {
-                if(success)
+                if(success && !string.IsNullOrEmpty(tacticsJson))
                 {
-                    // FormationManager를 사용하여 JSON에서 포메이션 로드
-                    var loadResult = FormationManager.LoadFormationFromJson(tacticsJson, availableCharacters, CreateDefaultPlan);
-                    loadResult.username = username; // Username 설정
-                    
-                    Debug.Log($"Jsonbin.io에서 적 편성 로드 완료 (유저: {username})");
-                    onComplete?.Invoke(loadResult);
+                    try
+                    {
+                        // FormationManager를 사용하여 JSON에서 포메이션 로드
+                        var loadResult = FormationManager.LoadFormationFromJson(tacticsJson, availableCharacters, CreateDefaultPlan);
+                        
+                        if (loadResult == null)
+                        {
+                            Debug.LogError("TacticsDataManager: [GetRandomEnemySquad] FormationLoadResult가 null입니다!");
+                            onComplete?.Invoke(null);
+                            return;
+                        }
+                        
+                        if (loadResult.unitSlots == null)
+                        {
+                            Debug.LogError("TacticsDataManager: [GetRandomEnemySquad] unitSlots가 null입니다!");
+                            onComplete?.Invoke(null);
+                            return;
+                        }
+                        
+                        loadResult.username = username; // Username 설정
+                        Debug.Log($"Jsonbin.io에서 적 편성 로드 완료 (유저: {username})");
+                        onComplete?.Invoke(loadResult);
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogError($"TacticsDataManager: [GetRandomEnemySquad] 데이터 처리 실패: {e.Message}");
+                        onComplete?.Invoke(null);
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("Jsonbin.io에서 데이터를 가져오지 못했습니다.");
+                    onComplete?.Invoke(null);
                 }
             });
+        }
+
+        private IEnumerator WaitForCharactersAndGetRandomEnemySquad(System.Action<FormationLoadResult> onComplete)
+        {
+            // availableCharacters가 로드될 때까지 대기 (최대 10초)
+            float waitTime = 0f;
+            const float maxWaitTime = 10f;
+            
+            while ((availableCharacters == null || availableCharacters.Count == 0) && waitTime < maxWaitTime)
+            {
+                yield return new WaitForSeconds(0.1f);
+                waitTime += 0.1f;
+            }
+
+            if (availableCharacters == null || availableCharacters.Count == 0)
+            {
+                Debug.LogError($"TacticsDataManager: [GetRandomEnemySquad] availableCharacters 로드 타임아웃 ({maxWaitTime}초). 로컬 파일 사용.");
+                var fallbackResult = LoadFormationFromTacticsFile(false);
+                onComplete?.Invoke(fallbackResult);
+                yield break;
+            }
+
+            GetRandomEnemySquad(onComplete);
         }
 
         public void SetEnemyTactics(string enemyName)

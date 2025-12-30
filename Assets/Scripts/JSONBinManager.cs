@@ -261,6 +261,13 @@ public class JSONBinManager : MonoBehaviour
 
             var selectedTactic = matchingTactics[0];
 
+            if (string.IsNullOrEmpty(selectedTactic.tacticsJson))
+            {
+                Debug.LogError($"JsonBinManager: [GetRandomTactics] tacticsJson이 비어있음! Key: {selectedTactic.key}, Username: {selectedTactic.username}");
+                onComplete?.Invoke(false, null, null);
+                return;
+            }
+
             Debug.Log($"JsonBinManager: [GetRandomTactics] 로드 성공: {selectedTactic.key} (유저: {selectedTactic.username})");
             onComplete?.Invoke(true, selectedTactic.tacticsJson, selectedTactic.key);
         }));
@@ -320,7 +327,7 @@ public class JSONBinManager : MonoBehaviour
         pendingCallbacks.Add(onComplete);
 
         string url = $"{baseUrl}/{binId}/latest";
-        //url = "http://138.2.124.146:8080/api/data/tactics"; // 커스텀 서버 URL로 변경 
+        url = "http://72.155.73.104:8080/api/data/tactics"; // 커스텀 서버 URL로 변경 
 
         int maxRetries = 3;
         int retryCount = 0;
@@ -338,7 +345,7 @@ public class JSONBinManager : MonoBehaviour
 
             using (UnityWebRequest request = UnityWebRequest.Get(url))
             {
-                request.SetRequestHeader("X-Access-Key", accessKey);
+                //request.SetRequestHeader("X-Access-Key", accessKey);
                 request.timeout = 30; // 타임아웃 설정
 
                 Debug.Log($"JsonBinManager: [LoadAllTactics] HTTP GET 요청 전송 (시도 {retryCount + 1}/{maxRetries})");
@@ -353,43 +360,32 @@ public class JSONBinManager : MonoBehaviour
                         
                         TacticsDatabase database = null;
                         
-                        // JSONBin.io v3 API 응답 파싱
-                        // 응답 형식: {"record": {...}, "metadata": {...}}
-                        // 방법 1: JSONBinResponseWrapper로 시도 (record가 객체인 경우)
+                        // 커스텀 서버 응답 파싱
+                        // 응답 형식: {"id": "tactics", "content": {"tactics": [...]}}
+                        // 방법 1: CustomServerResponse로 시도 (커스텀 서버 형식)
                         try
                         {
-                            var wrapper = JsonUtility.FromJson<JSONBinResponseWrapper>(responseText);
-                            if (wrapper != null && wrapper.record != null && wrapper.record.tactics != null)
+                            var customResponse = JsonUtility.FromJson<CustomServerResponse>(responseText);
+                            if (customResponse != null && customResponse.content != null && customResponse.content.tactics != null)
                             {
-                                database = wrapper.record;
+                                database = customResponse.content;
+                                Debug.Log($"JsonBinManager: [LoadAllTactics] 커스텀 서버 응답 파싱 성공 - {database.tactics.Count}개 데이터");
                             }
                         }
                         catch (Exception e1)
                         {
-                            // 방법 2: JSONBinResponse로 시도 (record가 문자열인 경우)
+                            // 방법 2: 직접 TacticsDatabase로 파싱 시도 (content 없이 직접 tactics 배열인 경우)
                             try
                             {
-                                var response = JsonUtility.FromJson<JSONBinResponse>(responseText);
-                                if (response != null && !string.IsNullOrEmpty(response.record))
+                                database = JsonUtility.FromJson<TacticsDatabase>(responseText);
+                                if (database != null && database.tactics != null)
                                 {
-                                    // record가 JSON 문자열인 경우 파싱
-                                    if (response.record.Trim().StartsWith("{"))
-                                    {
-                                        database = JsonUtility.FromJson<TacticsDatabase>(response.record);
-                                    }
+                                    Debug.Log($"JsonBinManager: [LoadAllTactics] 직접 TacticsDatabase 파싱 성공 - {database.tactics.Count}개 데이터");
                                 }
                             }
                             catch (Exception e2)
                             {
-                                // 방법 3: 직접 TacticsDatabase로 파싱 시도
-                                try
-                                {
-                                    database = JsonUtility.FromJson<TacticsDatabase>(responseText);
-                                }
-                                catch (Exception e3)
-                                {
-                                    Debug.LogError($"JsonBinManager: [LoadAllTactics] 모든 파싱 방법 실패. e1: {e1.Message}, e2: {e2.Message}, e3: {e3.Message}");
-                                }
+                                Debug.LogError($"JsonBinManager: [LoadAllTactics] 모든 파싱 방법 실패. e1: {e1.Message}, e2: {e2.Message}");
                             }
                         }
                         
@@ -494,46 +490,53 @@ public class JSONBinManager : MonoBehaviour
     /// </summary>
     private IEnumerator SaveAllTactics(TacticsDatabase database, Action<bool> onComplete)
     {
-        // TODO : 지금은 잠시 막아둔다. 나중에 커스텀 서버 올라오면 변경해야함 
-        onComplete?.Invoke(true);
-        yield break;
-        
         Debug.Log($"JsonBinManager: [SaveAllTactics] 시작 - {database?.tactics?.Count ?? 0}개 데이터");
-        // Score 높은 순으로 최대 100개만 유지
+        // 최신 100개만 유지 (timestamp 기준)
         if (database.tactics != null && database.tactics.Count > 100)
         {
-            // 각 tacticsJson을 파싱해서 score 추출
-            var tacticsWithScore = new List<(TacticsData tactic, int score)>();
+            // timestamp를 기준으로 정렬 (최신순)
+            var tacticsWithTimestamp = new List<(TacticsData tactic, DateTime timestamp)>();
             
             foreach (var tactic in database.tactics)
             {
-                int score = 0;
-                if (!string.IsNullOrEmpty(tactic.tacticsJson))
+                DateTime timestamp = DateTime.MinValue;
+                if (!string.IsNullOrEmpty(tactic.timestamp))
                 {
                     try
                     {
-                        // TacticsFileData 구조를 사용하여 score 추출
-                        var tacticsFileData = JsonUtility.FromJson<TacticsFileData>(tactic.tacticsJson);
-                        if (tacticsFileData != null)
+                        // timestamp 파싱 ("yyyy-MM-dd HH:mm:ss" 형식)
+                        if (DateTime.TryParse(tactic.timestamp, out DateTime parsedTime))
                         {
-                            score = tacticsFileData.score;
+                            timestamp = parsedTime;
+                        }
+                        else
+                        {
+                            // 파싱 실패 시 현재 시간 사용 (최신으로 처리)
+                            timestamp = DateTime.Now;
                         }
                     }
                     catch (Exception e)
                     {
-                        Debug.LogWarning($"JsonBinManager: [SaveAllTactics] Tactics JSON 파싱 실패 (score 추출): {e.Message}");
+                        Debug.LogWarning($"JsonBinManager: [SaveAllTactics] Timestamp 파싱 실패: {e.Message}, timestamp: {tactic.timestamp}");
+                        // 파싱 실패 시 현재 시간 사용
+                        timestamp = DateTime.Now;
                     }
                 }
-                tacticsWithScore.Add((tactic, score));
+                else
+                {
+                    // timestamp가 없으면 현재 시간 사용 (최신으로 처리)
+                    timestamp = DateTime.Now;
+                }
+                tacticsWithTimestamp.Add((tactic, timestamp));
             }
             
-            // Score 높은 순으로 정렬
-            tacticsWithScore.Sort((a, b) => b.score.CompareTo(a.score));
+            // Timestamp 최신순으로 정렬 (내림차순)
+            tacticsWithTimestamp.Sort((a, b) => b.timestamp.CompareTo(a.timestamp));
             
-            // 상위 100개만 유지
-            database.tactics = tacticsWithScore.Take(100).Select(x => x.tactic).ToList();
+            // 최신 100개만 유지
+            database.tactics = tacticsWithTimestamp.Take(100).Select(x => x.tactic).ToList();
             
-            Debug.Log($"JsonBinManager: [SaveAllTactics] Score 기준 상위 100개만 유지: {tacticsWithScore.Count}개 -> {database.tactics.Count}개");
+            Debug.Log($"JsonBinManager: [SaveAllTactics] 최신 100개만 유지: {tacticsWithTimestamp.Count}개 -> {database.tactics.Count}개");
         }       
 
         // 커스텀 서버에도 저장 
@@ -547,7 +550,7 @@ public class JSONBinManager : MonoBehaviour
     /// <param name="onComplete">완료 콜백</param>
     private IEnumerator SaveToCustomServer(TacticsDatabase database, Action<bool> onComplete)
     {
-        string customServerUrl = "http://138.2.124.146:8080/api/data";
+        string customServerUrl = "http://72.155.73.104:8080/api/data";
         
         // 요청 Body 생성 - content는 JSON 객체여야 함
         var requestBody = new CustomServerRequest
@@ -728,6 +731,16 @@ public class JSONBinManager : MonoBehaviour
     {
         public string id;
         public TacticsDatabase content;  // string → TacticsDatabase로 변경 (JSON 객체)
+    }
+
+    /// <summary>
+    /// 커스텀 서버 응답 구조
+    /// </summary>
+    [Serializable]
+    private class CustomServerResponse
+    {
+        public string id;
+        public TacticsDatabase content;
     }
 }
 
