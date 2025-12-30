@@ -42,6 +42,15 @@ public class BattleMapManager : MonoBehaviour
     public SquadInfoUI _playerSquadInfoUI = null;
     public SquadInfoUI _enemySquadInfoUI = null;
 
+    private bool _isPause = false;
+
+    void Awake()
+    {
+        battleSimulationResultUI.closeButton.onClick.AddListener(() => {
+            _isPause = false;
+        });
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -155,8 +164,14 @@ public class BattleMapManager : MonoBehaviour
                 BattleSquad squad = selectedSquadObject.GetComponent<BattleSquad>();
                 if (squad != null)
                 {
-                    squad.MoveTo(targetPosition, squadMoveSpeed);       
+                    squad.MoveTo(targetPosition, squadMoveSpeed);                        
                     Debug.Log($"Squad 이동 명령: {targetPosition}");
+
+                    // 선택 해제
+                    squad.SetSelected(false);
+                    selectedSquadObject = null;
+                    _playerSquadInfoUI.gameObject.SetActive(false);
+                    _enemySquadInfoUI.gameObject.SetActive(false);
                 }
             }
             else
@@ -296,6 +311,7 @@ public class BattleMapManager : MonoBehaviour
         TacticsDataManager.Instance.SetEnemyTactics(enemySquadName);        
 
         // 시뮬 UI 초기화
+        _isPause = true;
         battleSimulationResultUI.gameObject.SetActive(true);
         battleSimulationResultUI.InitializeUI(playerSquadName, enemySquadName);
 
@@ -307,6 +323,7 @@ public class BattleMapManager : MonoBehaviour
         battleSimulationResultUI.startBattleButton.onClick.RemoveAllListeners();
         battleSimulationResultUI.startBattleButton.onClick.AddListener(() => 
         {
+            _isPause = false;
             battleSimulationResultUI.gameObject.SetActive(false);
 
             // Player Squad를 Enemy Squad 위치로 이동
@@ -440,5 +457,10 @@ public class BattleMapManager : MonoBehaviour
     {
         _playerSquad = battleSquad;
         _enemySquad = otherSquad;
+    }
+
+    public bool IsPause()
+    {
+        return _isPause;
     }
 }

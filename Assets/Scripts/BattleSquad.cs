@@ -102,6 +102,11 @@ public class BattleSquad : MonoBehaviour
                 navMeshAgent.speed = mapManager.enemySquadMoveSpeed;
                 navMeshAgent.SetDestination(targetTower.transform.position);
             }
+
+            if(mapManager.IsPause())
+            {
+                navMeshAgent.speed = 0;
+            }
         }
 
         if(!isPlayerSquad && targetTower != null && mapManager.currentPhase != BattleMapPhase.BATTLE_DEFEAT)

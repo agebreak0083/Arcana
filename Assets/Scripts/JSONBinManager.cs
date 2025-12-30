@@ -292,33 +292,6 @@ public class JSONBinManager : MonoBehaviour
         cachedTacticsDatabase = null;
     }
 
-    /// <summary>
-    /// TacticsDatabase를 서버에 저장 (외부에서 호출 가능)
-    /// </summary>
-    public void SaveTacticsDatabase(TacticsDatabase database, Action<bool> onComplete = null)
-    {
-        Debug.Log($"JsonBinManager: [SaveTacticsDatabase] 호출됨 - {database?.tactics?.Count ?? 0}개 데이터");
-        if (!isInitialized)
-        {
-            Debug.LogError("JsonBinManager: [SaveTacticsDatabase] 초기화되지 않음");
-            onComplete?.Invoke(false);
-            return;
-        }
-
-        StartCoroutine(SaveAllTactics(database, (success) =>
-        {
-            if (success)
-            {
-                Debug.Log($"JsonBinManager: [SaveTacticsDatabase] 저장 완료");
-            }
-            else
-            {
-                Debug.LogError("JsonBinManager: [SaveTacticsDatabase] 저장 실패");
-            }
-            onComplete?.Invoke(success);
-        }));
-    }
-
     // ========== 내부 메서드 ==========
 
     /// <summary>
@@ -347,6 +320,8 @@ public class JSONBinManager : MonoBehaviour
         pendingCallbacks.Add(onComplete);
 
         string url = $"{baseUrl}/{binId}/latest";
+        //url = "http://138.2.124.146:8080/api/data/tactics"; // 커스텀 서버 URL로 변경 
+
         int maxRetries = 3;
         int retryCount = 0;
         bool success = false;
@@ -373,7 +348,7 @@ public class JSONBinManager : MonoBehaviour
                 if (request.result == UnityWebRequest.Result.Success)
                 {
                     try
-                    {
+                    {                        
                         string responseText = request.downloadHandler.text;
                         
                         TacticsDatabase database = null;
@@ -555,151 +530,121 @@ public class JSONBinManager : MonoBehaviour
             database.tactics = tacticsWithScore.Take(100).Select(x => x.tactic).ToList();
             
             Debug.Log($"JsonBinManager: [SaveAllTactics] Score 기준 상위 100개만 유지: {tacticsWithScore.Count}개 -> {database.tactics.Count}개");
-        }
-        
-        string url = $"{baseUrl}/{binId}";
-        string json = JsonUtility.ToJson(database);
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-        
-        // 데이터 크기 확인 (JSONBin.io Pro Plan 제한: 10MB)
-        const int maxSizeBytes = 1 * 1024 * 1024; // 9MB (안전 마진 포함)
-        int dataSize = bodyRaw.Length;
-        
-        Debug.Log($"JsonBinManager: [SaveAllTactics] 저장할 데이터 크기: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB, {dataSize} bytes)");
-        
-        // 데이터가 너무 크면 오래된 데이터 제거 (score 기준으로 이미 정렬되어 있음)
-        if (dataSize > maxSizeBytes)
-        {
-            Debug.LogWarning($"JsonBinManager: [SaveAllTactics] 데이터 크기 초과 ({dataSize / (1024f * 1024f):F2} MB > {maxSizeBytes / (1024f * 1024f):F2} MB). 낮은 score 데이터 제거");
-            
-            // Score가 낮은 것부터 제거 (이미 score 높은 순으로 정렬되어 있으므로 뒤에서부터 제거)
-            if (database.tactics != null && database.tactics.Count > 0)
-            {
-                int removedCount = 0;
-                while (dataSize > maxSizeBytes && database.tactics.Count > 0)
-                {
-                    database.tactics.RemoveAt(database.tactics.Count - 1); // 마지막 요소 제거 (낮은 score)
-                    removedCount++;
-                    
-                    // 다시 JSON 변환하여 크기 확인
-                    json = JsonUtility.ToJson(database);
-                    bodyRaw = Encoding.UTF8.GetBytes(json);
-                    dataSize = bodyRaw.Length;
-                }
-                
-                Debug.LogWarning($"JsonBinManager: [SaveAllTactics] {removedCount}개 데이터 제거 완료. 현재 크기: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
-            }
-        }
+        }       
 
-        int maxRetries = 3;
+        // 커스텀 서버에도 저장 
+        yield return StartCoroutine(SaveToCustomServer(database, onComplete));                       
+    }
+
+    /// <summary>
+    /// 커스텀 서버에 Tactics 데이터 저장
+    /// </summary>
+    /// <param name="database">저장할 database</param>
+    /// <param name="onComplete">완료 콜백</param>
+    private IEnumerator SaveToCustomServer(TacticsDatabase database, Action<bool> onComplete)
+    {
+        string customServerUrl = "http://138.2.124.146:8080/api/data";
+        
+        // 요청 Body 생성 - content는 JSON 객체여야 함
+        var requestBody = new CustomServerRequest
+        {
+            id = "tactics",
+            content = database
+        };
+        
+        string requestJson = JsonUtility.ToJson(requestBody);
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(requestJson);
+        
+        Debug.Log($"JsonBinManager: [SaveToCustomServer] 커스텀 서버 저장 시작 - URL: {customServerUrl}");
+        
+        int maxRetries = 2;
         int retryCount = 0;
         bool success = false;
-
-        Debug.Log($"JsonBinManager: [SaveAllTactics] 네트워크 요청 시작 - URL: {url}");
-
+        
         while (retryCount < maxRetries && !success)
         {
             if (retryCount > 0)
             {
-                Debug.Log($"JsonBinManager: [SaveAllTactics] 재시도 {retryCount}/{maxRetries}");
+                Debug.Log($"JsonBinManager: [SaveToCustomServer] 재시도 {retryCount}/{maxRetries}");
+                yield return new WaitForSeconds(1f * retryCount);
             }
-
-            UnityWebRequest request = new UnityWebRequest(url, "PUT");
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-            request.SetRequestHeader("X-Access-Key", accessKey);
-            request.timeout = 30; // 타임아웃 설정 (10초 -> 30초로 증가)
-
-            Debug.Log($"JsonBinManager: [SaveAllTactics] HTTP PUT 요청 전송 (시도 {retryCount + 1}/{maxRetries})");
             
-            using (request)
+            using (UnityWebRequest request = new UnityWebRequest(customServerUrl, "POST"))
             {
-                // yield return은 try 블록 밖에서 실행 (C# 제약사항)
-                // 하지만 SendWebRequest() 자체에서 예외가 발생할 수 있음
-                // Unity의 코루틴은 yield return에서 예외를 던지지 않지만,
-                // 네이티브 레벨에서 발생하는 예외는 이후 request 접근 시 발생할 수 있음
+                request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.timeout = 30;
+                
+                Debug.Log($"JsonBinManager: [SaveToCustomServer] HTTP POST 요청 전송 (시도 {retryCount + 1}/{maxRetries})");
                 yield return request.SendWebRequest();
                 
-                // SendWebRequest() 이후 request 접근 시 예외 발생 가능 (PROTOCOL_ERROR 등)
                 try
                 {
                     string errorMessage = request.error ?? "Unknown error";
-                    Debug.Log($"JsonBinManager: [SaveAllTactics] HTTP PUT 응답 수신 - Result: {request.result}, Code: {request.responseCode}, Error: {errorMessage}");
-
+                    string responseText = request.downloadHandler?.text ?? "";
+                    
+                    Debug.Log($"JsonBinManager: [SaveToCustomServer] HTTP POST 응답 수신 - Result: {request.result}, Code: {request.responseCode}, Error: {errorMessage}");
+                    
+                    // 서버 응답 본문 로그 출력 (에러 시 중요)
+                    if (!string.IsNullOrEmpty(responseText))
+                    {
+                        string responsePreview = responseText.Length > 500 ? responseText.Substring(0, 500) + "..." : responseText;
+                        Debug.Log($"JsonBinManager: [SaveToCustomServer] 서버 응답 본문: {responsePreview}");
+                    }
+                    
                     if (request.result == UnityWebRequest.Result.Success)
                     {
-                        // database.tactics.count와 용량 사이즈 출력
-                        Debug.Log($"JsonBinManager: [SaveAllTactics] 저장 성공 - {database.tactics.Count}개 데이터, {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
-                        
-                        // 캐시 업데이트
-                        cachedTacticsDatabase = database;
-                        isCacheValid = true;
-                        
-                        onComplete?.Invoke(true);
+                        Debug.Log($"JsonBinManager: [SaveToCustomServer] 커스텀 서버 저장 성공");
                         success = true;
                     }
                     else
                     {
-                        if (request.responseCode == 413)
+                        // 400 에러는 재시도하지 않음 (클라이언트 요청 형식 문제)
+                        if (request.responseCode == 400)
                         {
-                            Debug.LogError($"JsonBinManager: [SaveAllTactics] 저장 실패 - 페이로드 너무 큼 (HTTP 413). 크기: {dataSize / (1024f * 1024f):F2} MB ({dataSize / 1024f:F2} KB)");
-                            Debug.LogError("JsonBinManager: [SaveAllTactics] 해결 방법: 오래된 Tactics 데이터를 수동으로 삭제하거나, 데이터를 여러 bin으로 나누어 저장하세요.");
-                            onComplete?.Invoke(false);
-                            break; // 413 에러는 재시도하지 않음
+                            Debug.LogError($"JsonBinManager: [SaveToCustomServer] HTTP 400 Bad Request - 서버가 요청을 이해하지 못했습니다.");
+                            Debug.LogError($"JsonBinManager: [SaveToCustomServer] 전송한 JSON 형식을 확인하세요. 서버 응답: {responseText}");
+                            break; // 재시도하지 않음
+                        }
+                        
+                        bool isRetryableError = request.result == UnityWebRequest.Result.ConnectionError ||
+                                               request.result == UnityWebRequest.Result.ProtocolError ||
+                                               (!string.IsNullOrEmpty(errorMessage) && (
+                                                   errorMessage.Contains("PROTOCOL_ERROR") || 
+                                                   errorMessage.Contains("NetworkError") ||
+                                                   errorMessage.Contains("Unable to complete SSL connection") ||
+                                                   errorMessage.Contains("ConnectionError")
+                                               ));
+                        
+                        if (isRetryableError && retryCount < maxRetries - 1)
+                        {
+                            retryCount++;
+                            Debug.LogWarning($"JsonBinManager: [SaveToCustomServer] 네트워크 에러 발생 (재시도 {retryCount}/{maxRetries}): Result={request.result}, Error={errorMessage}");
+                            continue;
                         }
                         else
                         {
-                            // ConnectionError는 request.result로 직접 체크 (request.error가 null일 수 있음)
-                            bool isRetryableError = request.result == UnityWebRequest.Result.ConnectionError ||
-                                                   request.result == UnityWebRequest.Result.ProtocolError ||
-                                                   (!string.IsNullOrEmpty(errorMessage) && (
-                                                       errorMessage.Contains("PROTOCOL_ERROR") || 
-                                                       errorMessage.Contains("NetworkError") ||
-                                                       errorMessage.Contains("Unable to complete SSL connection") ||
-                                                       errorMessage.Contains("ConnectionError")
-                                                   ));
-                            
-                            if (isRetryableError && retryCount < maxRetries - 1)
-                            {
-                                retryCount++;
-                                Debug.LogWarning($"JsonBinManager: [SaveAllTactics] 네트워크 에러 발생 (재시도 {retryCount}/{maxRetries}): Result={request.result}, Error={errorMessage}");
-                                // try 블록 밖에서 재시도 처리
-                            }
-                            else
-                            {
-                                Debug.LogError($"JsonBinManager: [SaveAllTactics] 저장 실패: Result={request.result}, Error={errorMessage} (HTTP {request.responseCode})");
-                                onComplete?.Invoke(false);
-                                break;
-                            }
+                            Debug.LogWarning($"JsonBinManager: [SaveToCustomServer] 커스텀 서버 저장 실패 (무시됨): Result={request.result}, Error={errorMessage} (HTTP {request.responseCode})");
+                            // 커스텀 서버 저장 실패는 무시 (JSONBin.io 저장은 성공했으므로)
+                            break;
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    // request.result, request.error 등 접근 시 예외 발생 가능
-                    Debug.LogError($"JsonBinManager: [SaveAllTactics] 응답 처리 중 예외 발생: {ex.GetType().Name} - {ex.Message}\n{ex.StackTrace}");
+                    Debug.LogWarning($"JsonBinManager: [SaveToCustomServer] 응답 처리 중 예외 발생 (무시됨): {ex.GetType().Name} - {ex.Message}");
                     retryCount++;
                     if (retryCount >= maxRetries)
                     {
-                        Debug.LogError($"JsonBinManager: [SaveAllTactics] 최대 재시도 횟수 도달. 저장 실패 처리");
-                        onComplete?.Invoke(false);
-                        success = true; // 루프 종료를 위해
+                        Debug.LogWarning($"JsonBinManager: [SaveToCustomServer] 최대 재시도 횟수 도달. 커스텀 서버 저장 실패 (무시됨)");
                         break;
                     }
-                    Debug.LogWarning($"JsonBinManager: [SaveAllTactics] 예외 발생으로 재시도 {retryCount}/{maxRetries}");
-                    // catch 블록 밖에서 재시도 처리
                 }
             }
-            
-            // catch 블록이나 재시도가 필요한 경우 여기서 처리
-            if (!success && retryCount < maxRetries)
-            {
-                yield return new WaitForSeconds(1f * retryCount); // 지수 백오프
-                continue;
-            }
-            
         }
+
+        onComplete?.Invoke(success);
     }
 
     /// <summary>
@@ -769,6 +714,16 @@ public class JSONBinManager : MonoBehaviour
         public string username;
         public string timestamp;
         public string tacticsJson;
+    }
+
+    /// <summary>
+    /// 커스텀 서버 요청 Body 구조
+    /// </summary>
+    [Serializable]
+    private class CustomServerRequest
+    {
+        public string id;
+        public TacticsDatabase content;  // string → TacticsDatabase로 변경 (JSON 객체)
     }
 }
 
