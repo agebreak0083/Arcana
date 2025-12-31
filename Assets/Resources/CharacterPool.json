@@ -260,5 +260,45 @@
         {
             "Name": "산화",
             "tactics": []
+        },
+        {
+            "Name": "키레네",
+            "tactics": []
+        },
+        {
+            "Name": "에버나이트",
+            "tactics": []
+        },
+        {
+            "Name": "달리아",
+            "tactics": []
+        },
+        {
+            "Name": "히실렌스",
+            "tactics": []
+        },
+        {
+            "Name": "반디",
+            "tactics": []
+        },
+        {
+            "Name": "엽빛나",
+            "tactics": []
+        },
+        {
+            "Name": "다이아린",
+            "tactics": []
+        },
+        {
+            "Name": "루시아",
+            "tactics": []
+        },
+        {
+            "Name": "비비안",
+            "tactics": []
+        },
+        {
+            "Name": "이드하리",
+            "tactics": []
         }
     ]

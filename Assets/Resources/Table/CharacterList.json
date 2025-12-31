@@ -54,5 +54,75 @@
         "Model": "dogi",
         "Class": "파이터",
         "Cost": 2
+    },
+    {
+        "Name": "키레네",
+        "Portrait": "SR_Kirene",
+        "Model": "SR_kirene",
+        "Class": "헌터",
+        "Cost": 2
+    }, 
+    {
+        "Name": "에버나이트",
+        "Portrait": "SR_Evernight",
+        "Model": "SR_Evernight",
+        "Class": "위치",
+        "Cost": 2
+    },
+    {
+        "Name": "달리아",
+        "Portrait": "SR_Dahlia",
+        "Model": "SR_Dahlia",
+        "Class": "파이터",
+        "Cost": 2
+    },
+    {
+        "Name": "히실렌스",
+        "Portrait": "SR_Hysil",
+        "Model": "SR_Hysil",
+        "Class": "위치",
+        "Cost": 2
+    },
+    {
+        "Name": "반디",
+        "Portrait": "SR_Bandi",
+        "Model": "SR_Bandi",
+        "Class": "파이터",
+        "Cost": 2
+    },
+    {
+        "Name": "엽빛나",
+        "Portrait": "ZZZ_Hikari",
+        "Model": "ZZZ_Hikari",
+        "Class": "헌터",
+        "Cost": 2
+    },
+    {
+        "Name": "다이아린",
+        "Portrait": "ZZZ_Rin",
+        "Model": "ZZZ_Rin",
+        "Class": "헌터",
+        "Cost": 2
+    },
+    {
+        "Name": "이드하리",
+        "Portrait": "ZZZ_YIDHARI",
+        "Model": "ZZZ_YIDHARI",
+        "Class": "파이터",
+        "Cost": 2
+    },
+    {
+        "Name": "루시아",
+        "Portrait": "ZZZ_Lucia",
+        "Model": "ZZZ_Lucia",
+        "Class": "위치",
+        "Cost": 2
+    },
+    {
+        "Name": "비비안",
+        "Portrait": "ZZZ_Vivian",
+        "Model": "ZZZ_Vivian",
+        "Class": "위치",
+        "Cost": 2
     }
 ]

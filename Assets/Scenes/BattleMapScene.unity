@@ -156,7 +156,7 @@ MonoBehaviour:
   battleManager: {fileID: 219753843}
   defeatPanel: {fileID: 230118444}
   squadMoveSpeed: 5
-  enemySquadMoveSpeed: 0.5
+  enemySquadMoveSpeed: 0.3
   mapLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
