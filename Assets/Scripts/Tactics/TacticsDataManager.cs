@@ -873,26 +873,31 @@ namespace Arcana.Tactics
         public void SavePlayerTacticsToServer(Action<bool> onComplete)
         {
             string tacticsJson = LoadFormationFromTacticsFile("tactics");
-            if(!string.IsNullOrEmpty(tacticsJson))
-            {
-                JSONBinManager.Instance.SaveTactics(tacticsJson, (success, message) =>
-                {
-                    if(success)
-                    {
-                        Debug.Log("BattleManager: SaveTactics - " + message);
-                        onComplete?.Invoke(success);
-                    }
-                    else
-                    {
-                        Debug.LogError("Failed to save player tactics to server");
-                        onComplete?.Invoke(false);
-                    }
-                });
-            }
-            else
+            SavePlayerTacticsToServer(tacticsJson, onComplete);
+        }
+
+        public void SavePlayerTacticsToServer(string tacticsJson, Action<bool> onComplete)
+        {
+            if(string.IsNullOrEmpty(tacticsJson))
             {
                 Debug.LogError("Failed to save player tactics to server");
+                onComplete?.Invoke(false);
+                return;
             }
+
+            JSONBinManager.Instance.SaveTactics(tacticsJson, (success, message) =>
+            {
+                if(success)
+                {
+                    Debug.Log("BattleManager: SaveTactics - " + message);
+                    onComplete?.Invoke(success);
+                }
+                else
+                {
+                    Debug.LogError("Failed to save player tactics to server");
+                    onComplete?.Invoke(false);
+                }
+            });
         }
 
         public void SaveSquadTactics(string squadName, CharacterData[] unitSlots, Dictionary<string, TacticsPlan> codingData)
@@ -907,7 +912,7 @@ namespace Arcana.Tactics
                 // PlayerPrefs에도 저장하여 씬이 바뀌어도 유지되도록 함
                 PlayerPrefs.SetString($"Squad_{squadName}", json);
                 PlayerPrefs.Save();
-                Debug.Log($"Squad '{squadName}'의 데이터를 메모리와 PlayerPrefs에 저장했습니다.");
+                Debug.Log($"Squad '{squadName}'의 데이터를 메모리와 PlayerPrefs에 저장했습니다.");                
             }
             catch (System.Exception e)
             {

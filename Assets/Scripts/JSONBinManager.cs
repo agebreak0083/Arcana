@@ -423,24 +423,50 @@ public class JSONBinManager : MonoBehaviour
                 }
                 else
                 {
+                    // 에러 메시지 및 응답 본문 추출
+                    string errorMessage = request.error ?? "Unknown Error";
+                    string responseText = request.downloadHandler?.text ?? "";
+                    
+                    // 서버 응답 본문 로그 출력 (에러 시 중요)
+                    if (!string.IsNullOrEmpty(responseText))
+                    {
+                        string responsePreview = responseText.Length > 500 ? responseText.Substring(0, 500) + "..." : responseText;
+                        Debug.LogWarning($"JsonBinManager: [LoadAllTactics] 서버 응답 본문: {responsePreview}");
+                    }
+                    
                     // PROTOCOL_ERROR 또는 네트워크 에러 체크
-                    bool isRetryableError = !string.IsNullOrEmpty(request.error) && (
-                        request.error.Contains("PROTOCOL_ERROR") || 
-                        request.error.Contains("NetworkError") ||
-                        request.error.Contains("Unable to complete SSL connection") ||
-                        request.error.Contains("ConnectionError") ||
-                        request.result == UnityWebRequest.Result.ConnectionError
+                    bool isRetryableError = (
+                        request.result == UnityWebRequest.Result.ConnectionError ||
+                        request.result == UnityWebRequest.Result.ProtocolError ||
+                        (!string.IsNullOrEmpty(errorMessage) && (
+                            errorMessage.Contains("PROTOCOL_ERROR") || 
+                            errorMessage.Contains("NetworkError") ||
+                            errorMessage.Contains("Unable to complete SSL connection") ||
+                            errorMessage.Contains("ConnectionError")
+                        )) ||
+                        // HTTP 500 에러도 재시도 가능 (서버 일시적 오류)
+                        (request.responseCode >= 500 && request.responseCode < 600)
                     );
                     
                     if (isRetryableError && retryCount < maxRetries - 1)
                     {
                         retryCount++;
-                        Debug.LogWarning($"JsonBinManager: [LoadAllTactics] 네트워크 에러 발생 (재시도 {retryCount}/{maxRetries}): {request.error}");
+                        Debug.LogWarning($"JsonBinManager: [LoadAllTactics] 네트워크 에러 발생 (재시도 {retryCount}/{maxRetries}): {errorMessage} (HTTP {request.responseCode})");
                         yield return new WaitForSeconds(1f * retryCount); // 지수 백오프
                         continue;
                     }
                     
-                    Debug.LogError($"JsonBinManager: [LoadAllTactics] 데이터 로드 실패: {request.error} (HTTP {request.responseCode})");
+                    // 최종 에러 로그 (더 상세한 정보 포함)
+                    string finalErrorMessage = string.IsNullOrEmpty(errorMessage) ? "Unknown Error" : errorMessage;
+                    if (!string.IsNullOrEmpty(responseText))
+                    {
+                        Debug.LogError($"JsonBinManager: [LoadAllTactics] 데이터 로드 실패: {finalErrorMessage} (HTTP {request.responseCode})\n서버 응답: {responseText}");
+                    }
+                    else
+                    {
+                        Debug.LogError($"JsonBinManager: [LoadAllTactics] 데이터 로드 실패: {finalErrorMessage} (HTTP {request.responseCode})");
+                    }
+                    
                     // 빈 데이터베이스 생성 및 캐시
                     var emptyDatabase = new TacticsDatabase { tactics = new List<TacticsData>() };
                     cachedTacticsDatabase = emptyDatabase;

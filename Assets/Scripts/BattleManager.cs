@@ -635,7 +635,11 @@ public class BattleManager : MonoBehaviour
                 }            
 
                 // 이겼을때만, 서버에 택틱스 저장 
-                TacticsDataManager.Instance.SavePlayerTacticsToServer(null);                
+                string tacticsJson = TacticsDataManager.Instance.GetTacticsJson(playerFormationLoadResult.unitSlots, playerFormationLoadResult.codingData);
+                TacticsDataManager.Instance.SavePlayerTacticsToServer(tacticsJson, (success) =>
+                {
+                    Debug.Log("BattleManager: SavePlayerTacticsToServer - " + (success ? "Success" : "Failed"));
+                });
             }            
             else
             {

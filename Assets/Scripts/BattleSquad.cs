@@ -52,7 +52,17 @@ public class BattleSquad : MonoBehaviour
         {
             LoadEnemyTactics();
             
-            targetTower = GameObject.Find("Tower_Player");            
+            targetTower = GameObject.Find("Tower_Player");
+            
+            // NavMeshAgent 활성화 전에 위치를 NavMesh 위로 조정 (텔레포트 방지)
+            if(navMeshAgent != null)
+            {
+                NavMeshHit hit;
+                if (NavMesh.SamplePosition(transform.position, out hit, 5f, NavMesh.AllAreas))
+                {
+                    transform.position = hit.position;
+                }
+            }
         }
 
              

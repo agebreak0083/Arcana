@@ -1,6 +1,7 @@
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemySquadSpawner : MonoBehaviour
 {
@@ -20,7 +21,8 @@ public class EnemySquadSpawner : MonoBehaviour
 
     void Update()
     {
-        if(BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_DEFEAT)
+        if(BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_DEFEAT || 
+           BattleMapManager.Instance.IsPause())
         {
             return; 
         }
@@ -35,6 +37,14 @@ public class EnemySquadSpawner : MonoBehaviour
             Vector3 spawnDirection = new Vector3(1, 0, 0);
             spawnDirection = Quaternion.Euler(0, Random.Range(spawnAngleRange.x, spawnAngleRange.y), 0) * spawnDirection;
             Vector3 spawnPosition = transform.position + spawnDirection * spawnDistance;
+            
+            // NavMesh 위에 있는 위치로 조정 (NavMeshAgent 텔레포트 방지)
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(spawnPosition, out hit, 5f, NavMesh.AllAreas))
+            {
+                spawnPosition = hit.position;
+            }
+            
             enemySquad.transform.position = spawnPosition;
         }
     }

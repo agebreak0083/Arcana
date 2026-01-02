@@ -1,122 +1,25 @@
 {
-    "key": "agebreak_2512311645",
-    "username": "agebreak_2512311645",
-    "score": 399,
-    "winCount": 145,
-    "loseCount": 36,
+    "key": "agebreak_2601021440",
+    "username": "agebreak_2601021440",
+    "score": 428,
+    "winCount": 155,
+    "loseCount": 37,
     "positions": [
         {
             "position": "1",
-            "name": "다이아린",
-            "tactics": [
-                {
-                    "characterClass": "헌터",
-                    "plan": [
-                        {
-                            "skill": "싱글 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "더블 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "라인 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "이글 아이",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "체이스",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        }
-                    ]
-                }
-            ]
+            "name": "",
+            "tactics": []
         },
         {
             "position": "2",
-            "name": "엽빛나",
-            "tactics": [
-                {
-                    "characterClass": "헌터",
-                    "plan": [
-                        {
-                            "skill": "싱글 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "더블 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "라인 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "이글 아이",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "체이스",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "position": "3",
-            "name": "반디",
+            "name": "달리아",
             "tactics": [
                 {
                     "characterClass": "파이터",
                     "plan": [
                         {
                             "skill": "가드 슬래시",
-                            "condition1": "조건 없음",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
@@ -159,9 +62,60 @@
             ]
         },
         {
-            "position": "4",
+            "position": "3",
             "name": "",
             "tactics": []
+        },
+        {
+            "position": "4",
+            "name": "키레네",
+            "tactics": [
+                {
+                    "characterClass": "헌터",
+                    "plan": [
+                        {
+                            "skill": "더블 샷",
+                            "condition1": "적이 2명 이상▲",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "싱글 샷",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "라인 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "이글 아이",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "체이스",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "position": "5",
@@ -170,8 +124,54 @@
         },
         {
             "position": "6",
-            "name": "",
-            "tactics": []
+            "name": "에버나이트",
+            "tactics": [
+                {
+                    "characterClass": "위치",
+                    "plan": [
+                        {
+                            "skill": "매직 미사일",
+                            "condition1": "적이 2명 이상▲",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "아이스 샷",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "아이스 코핀",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "매직 세이버",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }
