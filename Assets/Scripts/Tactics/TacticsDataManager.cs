@@ -450,6 +450,119 @@ namespace Arcana.Tactics
             Debug.Log($"Loaded {availableCharacters.Count} characters");
         }
 
+        /// <summary>
+        /// 모든 캐릭터 정의를 CharacterData로 변환 (Enemy Squad용 - 플레이어가 가지고 있지 않은 캐릭터도 포함)
+        /// </summary>
+        private List<CharacterData> GetAllCharactersFromDefinitions()
+        {
+            List<CharacterData> allCharacters = new List<CharacterData>();
+
+            if (_allCharacterDefinitions == null || _allCharacterDefinitions.Length == 0)
+            {
+                Debug.LogWarning("TacticsDataManager: [GetAllCharactersFromDefinitions] _allCharacterDefinitions가 비어있습니다. availableCharacters 사용.");
+                return availableCharacters ?? new List<CharacterData>();
+            }
+
+            foreach (var def in _allCharacterDefinitions)
+            {
+                // 이미 availableCharacters에 있는 캐릭터는 재사용
+                CharacterData existingChar = availableCharacters?.Find(c => c.characterName == def.Name);
+                if (existingChar != null)
+                {
+                    allCharacters.Add(existingChar);
+                    continue;
+                }
+
+                // 새로운 CharacterData 생성
+                CharacterData newData = ScriptableObject.CreateInstance<CharacterData>();
+                newData.id = System.Guid.NewGuid().ToString();
+                newData.characterName = def.Name;
+                newData.characterClass = def.Class;
+                newData.cost = def.Cost;
+                newData.speed = 10;
+                newData.arcana = "None";
+                newData.description = "No description available.";
+                newData.model = def.Model ?? "";
+
+                // Load Portrait
+                string spriteName = System.IO.Path.GetFileNameWithoutExtension(def.Portrait);
+                newData.portrait = Resources.Load<Sprite>($"Portraits/{spriteName}");
+                if (newData.portrait == null)
+                {
+                    newData.portrait = Resources.Load<Sprite>(spriteName);
+                }
+                if (newData.portrait == null)
+                {
+                    Debug.LogWarning($"Portrait not found for {def.Name}: {def.Portrait}");
+                }
+
+                // Assign skills based on class
+                newData.skills = new List<Skill>();
+
+                // Find matching key in skill map
+                string matchedKey = null;
+                foreach (var key in _skillMap.Keys)
+                {
+                    if (key.Contains(def.Class))
+                    {
+                        matchedKey = key;
+                        break;
+                    }
+                }
+
+                if (matchedKey != null && _skillMap.TryGetValue(matchedKey, out var classSkills))
+                {
+                    foreach (var s in classSkills)
+                    {
+                        newData.skills.Add(new Skill
+                        {
+                            id = s.id,
+                            name = s.name,
+                            type = s.type,
+                            description = s.description,
+                            target = s.target,
+                            costAP = s.costAP,
+                            costPP = s.costPP,
+                            damageType = s.damageType ?? "",
+                            power = s.power,
+                            hitCount = s.hitCount,
+                            accuracyRate = s.accuracyRate,
+                            buttonType = s.buttonType ?? "",
+                            animation = s.animation ?? "",
+                            triggerTiming = s.triggerTiming ?? "",
+                            triggerCondition = s.triggerCondition ?? "",
+                            effects = s.effects != null ? new List<SkillEffect>(s.effects) : new List<SkillEffect>(),
+                            traits = s.traits != null ? new List<string>(s.traits) : new List<string>()
+                        });
+                    }
+                }
+                else
+                {
+                    // Fallback if no skills found
+                    newData.skills.Add(new Skill { 
+                        id = "attack_default",
+                        name = "Attack", 
+                        type = "active", 
+                        costAP = 1,
+                        effects = new List<SkillEffect>(),
+                        traits = new List<string>()
+                    });
+                    newData.skills.Add(new Skill { 
+                        id = "guard_default",
+                        name = "Guard", 
+                        type = "passive", 
+                        costPP = 1,
+                        effects = new List<SkillEffect>(),
+                        traits = new List<string>()
+                    });
+                }
+
+                allCharacters.Add(newData);
+            }
+
+            Debug.Log($"TacticsDataManager: [GetAllCharactersFromDefinitions] {allCharacters.Count}개 캐릭터 생성 완료");
+            return allCharacters;
+        }
 
         /// <summary>
         /// (Deprecated) JSON 파일에서 캐릭터 데이터 로드 - Kept for compatibility if called externally, but now just starts the coroutine
@@ -1164,14 +1277,24 @@ namespace Arcana.Tactics
                 return;
             }
 
+            // _allCharacterDefinitions가 로드되지 않았으면 대기
+            if (_allCharacterDefinitions == null || _allCharacterDefinitions.Length == 0)
+            {
+                StartCoroutine(WaitForAllCharactersAndGetRandomEnemySquad(onComplete));
+                return;
+            }
+
             JSONBinManager.Instance.GetRandomTactics("", (success, tacticsJson, username) =>
             {
                 if(success && !string.IsNullOrEmpty(tacticsJson))
                 {
                     try
                     {
+                        // Enemy Squad는 모든 캐릭터 정의를 사용 (플레이어가 가지고 있지 않은 캐릭터도 포함)
+                        List<CharacterData> allCharacters = GetAllCharactersFromDefinitions();
+                        
                         // FormationManager를 사용하여 JSON에서 포메이션 로드
-                        var loadResult = FormationManager.LoadFormationFromJson(tacticsJson, availableCharacters, CreateDefaultPlan);
+                        var loadResult = FormationManager.LoadFormationFromJson(tacticsJson, allCharacters, CreateDefaultPlan);
                         
                         if (loadResult == null)
                         {
@@ -1222,6 +1345,29 @@ namespace Arcana.Tactics
                 Debug.LogError($"TacticsDataManager: [GetRandomEnemySquad] availableCharacters 로드 타임아웃 ({maxWaitTime}초). 로컬 파일 사용.");
                 var fallbackResult = LoadFormationFromTacticsFile(false);
                 onComplete?.Invoke(fallbackResult);
+                yield break;
+            }
+
+            GetRandomEnemySquad(onComplete);
+        }
+
+        private IEnumerator WaitForAllCharactersAndGetRandomEnemySquad(System.Action<FormationLoadResult> onComplete)
+        {
+            // _allCharacterDefinitions가 로드될 때까지 대기 (최대 10초)
+            float waitTime = 0f;
+            const float maxWaitTime = 10f;
+            
+            while ((_allCharacterDefinitions == null || _allCharacterDefinitions.Length == 0) && waitTime < maxWaitTime)
+            {
+                yield return new WaitForSeconds(0.1f);
+                waitTime += 0.1f;
+            }
+
+            if (_allCharacterDefinitions == null || _allCharacterDefinitions.Length == 0)
+            {
+                Debug.LogError($"TacticsDataManager: [GetRandomEnemySquad] _allCharacterDefinitions 로드 타임아웃 ({maxWaitTime}초). availableCharacters 사용.");
+                // Fallback to availableCharacters
+                GetRandomEnemySquad(onComplete);
                 yield break;
             }
 

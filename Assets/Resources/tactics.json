@@ -1,8 +1,8 @@
 {
-    "key": "agebreak_2601021440",
-    "username": "agebreak_2601021440",
-    "score": 428,
-    "winCount": 155,
+    "key": "agebreak_2601021506",
+    "username": "agebreak_2601021506",
+    "score": 440,
+    "winCount": 159,
     "loseCount": 37,
     "positions": [
         {
@@ -12,63 +12,7 @@
         },
         {
             "position": "2",
-            "name": "달리아",
-            "tactics": [
-                {
-                    "characterClass": "파이터",
-                    "plan": [
-                        {
-                            "skill": "가드 슬래시",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "실드 배시",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "디펜더",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "애로우 커버",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "퀵 가드",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "position": "3",
-            "name": "",
-            "tactics": []
-        },
-        {
-            "position": "4",
-            "name": "키레네",
+            "name": "다이아린",
             "tactics": [
                 {
                     "characterClass": "헌터",
@@ -118,13 +62,69 @@
             ]
         },
         {
+            "position": "3",
+            "name": "",
+            "tactics": []
+        },
+        {
+            "position": "4",
+            "name": "반디",
+            "tactics": [
+                {
+                    "characterClass": "파이터",
+                    "plan": [
+                        {
+                            "skill": "가드 슬래시",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "실드 배시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "디펜더",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "애로우 커버",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "퀵 가드",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "position": "5",
             "name": "",
             "tactics": []
         },
         {
             "position": "6",
-            "name": "에버나이트",
+            "name": "비비안",
             "tactics": [
                 {
                     "characterClass": "위치",
