@@ -28,6 +28,9 @@ public class IntroManager : MonoBehaviour
         gachaButton.onClick.AddListener(OnGachaButtonClicked);
         towerBattleButton.onClick.AddListener(OnTowerBattleButtonClicked);
         battleMapButton.onClick.AddListener(OnBattleMapButtonClicked);
+
+        // 아이리스의 Welcome Message 표시
+        IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.WELCOME_MESSAGE);
     }
 
     public void SetId(string id)

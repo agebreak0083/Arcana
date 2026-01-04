@@ -12,9 +12,9 @@ using UnityEngine.Networking;
 public class AIAdvisorIRIS : MonoBehaviour
 {
     [Header("OpenAI API Settings")]
-    [SerializeField] private string apiKey = "";
-    [SerializeField] private string assistantId = "";
-    [SerializeField] private string threadId = "";
+    private string apiKey = "";
+    private string assistantId = "";
+    private string threadId = "";
     
     [System.Serializable]
     private class OpenAIConfig

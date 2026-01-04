@@ -107,3 +107,6 @@ Desktop.ini
 ![Aa]ssets/google-services.json.meta
 Assets/Scripts/Tactics/UI/TacticsUIManager.cs
 
+# OpenAI API Configuration (contains sensitive keys)
+Assets/Scripts/openai_config.json
+Assets/Scripts/openai_config.json.meta
