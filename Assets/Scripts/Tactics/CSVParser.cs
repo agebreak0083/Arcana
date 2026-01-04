@@ -49,6 +49,9 @@ namespace Arcana.Tactics
                     // Model 필드는 CSV에 없을 수 있으므로 기본값으로 빈 문자열
                     def.Model = parts.Length >= 5 ? parts[4].Trim() : "";
 
+                    // Voice_Skill 필드는 CSV에 없을 수 있으므로 기본값으로 빈 문자열
+                    def.Voice_Skill = parts.Length >= 6 ? parts[5].Trim() : "";
+
                     list.Add(def);
                 }
             }

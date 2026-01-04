@@ -232,6 +232,19 @@ namespace Arcana.Tactics
         }
 
         /// <summary>
+        /// 캐릭터 이름으로 CharacterDefinition을 찾습니다
+        /// </summary>
+        public CharacterDefinition GetCharacterDefinitionByName(string characterName)
+        {
+            if (_allCharacterDefinitions == null || _allCharacterDefinitions.Length == 0)
+            {
+                return null;
+            }
+
+            return System.Array.Find(_allCharacterDefinitions, c => c.Name == characterName);
+        }
+
+        /// <summary>
         /// JSON 파일에서 캐릭터 데이터 로드
         /// </summary>
         private const string CharacterListUrl = "";// "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeCHZPMcs6QJuZeS7k2MosrZrhChNL5FrRH3ePRd5fQx-O-nSUmR4VwZI6VGhHg65tFcWMmIr2tBha/pub?gid=0&single=true&output=csv";

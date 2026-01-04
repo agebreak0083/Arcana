@@ -17,6 +17,7 @@ namespace Arcana.Tactics
         public string Model;
         public string Class;
         public int Cost;
+        public string Voice_Skill;
     }
 
     [System.Serializable]

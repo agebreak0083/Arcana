@@ -18,7 +18,7 @@ public class JSONBinManager : MonoBehaviour
     [SerializeField] private string binId = "69363c8eae596e708f8a838f";
     [SerializeField] private string accessKey = "$2a$10$sXEbuoWJjS8yOOTbWOJqhev4XtCLCNUqJurky/QhQqFu1ZRBLYRu6";
     
-    private string baseUrl = "https://api.jsonbin.io/v3/b";
+    private string baseUrl = "https://arcana.koreacentral.cloudapp.azure.com/api";
     public bool isInitialized { get; private set; } = false;
     
     // 캐시된 Tactics 데이터
@@ -326,8 +326,7 @@ public class JSONBinManager : MonoBehaviour
         isLoadingInProgress = true;
         pendingCallbacks.Add(onComplete);
 
-        string url = $"{baseUrl}/{binId}/latest";
-        url = "http://72.155.73.104:8080/api/data/tactics"; // 커스텀 서버 URL로 변경 
+        string url = $"{baseUrl}/data/tactics";        
 
         int maxRetries = 3;
         int retryCount = 0;
@@ -576,7 +575,7 @@ public class JSONBinManager : MonoBehaviour
     /// <param name="onComplete">완료 콜백</param>
     private IEnumerator SaveToCustomServer(TacticsDatabase database, Action<bool> onComplete)
     {
-        string customServerUrl = "http://72.155.73.104:8080/api/data";
+        string customServerUrl = baseUrl + "/data/tactics";
         
         // 요청 Body 생성 - content는 JSON 객체여야 함
         var requestBody = new CustomServerRequest

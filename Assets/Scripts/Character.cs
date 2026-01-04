@@ -33,6 +33,9 @@ public class Character : MonoBehaviour
     public float hitEffectDuration = 0.2f; // 피격 반짝임 효과 지속 시간
     public Material hitEffectMaterial; // 피격 반짝임 효과 머티리얼
 
+    [Header("Audio")]
+    private AudioSource audioSource; // 오디오 재생용 AudioSource
+
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -45,6 +48,14 @@ public class Character : MonoBehaviour
         {
             Debug.LogError("HitEffect Material을 찾을 수 없습니다.");
         }
+
+        // AudioSource 컴포넌트 추가 또는 가져오기
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+        audioSource.playOnAwake = false;
     }
 
     void OnDestroy()
@@ -517,6 +528,12 @@ public class Character : MonoBehaviour
             return;
         }
 
+        // Voice_Skill 오디오 재생 (시뮬레이션 모드에서는 재생하지 않음)
+        if (!BattleManager.Instance.isSimulationMode)
+        {
+            PlayVoiceSkillAudio();
+        }
+
         // 바로 스킬 효과 적용 (yield 없음)
         SkillManager.Instance.ApplySkillEffects(skill, this, targets);
     }
@@ -611,6 +628,9 @@ public class Character : MonoBehaviour
             {
                 Debug.LogWarning($"{characterName}: 애니메이션 상태 '{skill.animation}'를 찾을 수 없습니다. Animator Controller에 해당 상태가 있는지 확인하세요.");
             }
+
+            // Voice_Skill 오디오 재생
+            PlayVoiceSkillAudio();
 
             // 스킬 효과 적용
             float effectTime = 0.5f;
@@ -961,6 +981,44 @@ public class Character : MonoBehaviour
     {
         float baseStat = stats.GetMagicalDefenseValue();
         return CalculateBuffValue("magical_defense", baseStat);
+    }
+
+    /// <summary>
+    /// Voice_Skill 오디오 재생
+    /// </summary>
+    private void PlayVoiceSkillAudio()
+    {
+        if (TacticsDataManager.Instance == null)
+        {
+            return;
+        }
+
+        // CharacterDefinition에서 Voice_Skill 가져오기
+        CharacterDefinition charDef = TacticsDataManager.Instance.GetCharacterDefinitionByName(characterName);
+        if (charDef == null || string.IsNullOrEmpty(charDef.Voice_Skill))
+        {
+            return;
+        }
+
+        // 오디오 파일 경로: Assets/Resources/Audio/Voice/{Voice_Skill}.wav
+        string audioPath = $"Audio/Voice/{charDef.Voice_Skill}";
+        AudioClip audioClip = Resources.Load<AudioClip>(audioPath);
+
+        if (audioClip == null)
+        {
+            Debug.LogWarning($"{characterName}: Voice_Skill 오디오 파일을 찾을 수 없습니다. 경로: {audioPath}");
+            return;
+        }
+
+        if (audioSource != null)
+        {
+            audioSource.clip = audioClip;
+            audioSource.Play();
+        }
+        else
+        {
+            Debug.LogWarning($"{characterName}: AudioSource 컴포넌트를 찾을 수 없습니다.");
+        }
     }
 }
 
