@@ -1,0 +1,5 @@
+{
+  "apiKey": "YOUR_OPENAI_API_KEY_HERE",
+  "assistantId": "YOUR_ASSISTANT_ID_HERE",
+  "threadId": "YOUR_THREAD_ID_HERE"
+}
