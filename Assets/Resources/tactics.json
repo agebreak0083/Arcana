@@ -1,8 +1,8 @@
 {
-    "key": "agebreak_2601041814",
-    "username": "agebreak_2601041814",
-    "score": 451,
-    "winCount": 163,
+    "key": "agebreak_2601041828",
+    "username": "agebreak_2601041828",
+    "score": 463,
+    "winCount": 167,
     "loseCount": 38,
     "positions": [
         {
@@ -19,7 +19,7 @@
                     "plan": [
                         {
                             "skill": "가드 슬래시",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {

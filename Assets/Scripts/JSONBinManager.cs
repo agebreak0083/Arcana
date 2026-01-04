@@ -575,7 +575,7 @@ public class JSONBinManager : MonoBehaviour
     /// <param name="onComplete">완료 콜백</param>
     private IEnumerator SaveToCustomServer(TacticsDatabase database, Action<bool> onComplete)
     {
-        string customServerUrl = baseUrl + "/data/tactics";
+        string customServerUrl = baseUrl + "/data";
         
         // 요청 Body 생성 - content는 JSON 객체여야 함
         var requestBody = new CustomServerRequest
@@ -601,8 +601,10 @@ public class JSONBinManager : MonoBehaviour
                 yield return new WaitForSeconds(1f * retryCount);
             }
             
-            using (UnityWebRequest request = new UnityWebRequest(customServerUrl, "POST"))
+            // UnityWebRequest.Post를 사용하여 POST 요청 생성
+            using (UnityWebRequest request = UnityWebRequest.PostWwwForm(customServerUrl, ""))
             {
+                // POST 요청의 body를 설정
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Content-Type", "application/json");
@@ -632,11 +634,17 @@ public class JSONBinManager : MonoBehaviour
                     }
                     else
                     {
-                        // 400 에러는 재시도하지 않음 (클라이언트 요청 형식 문제)
+                        // 400, 405 에러는 재시도하지 않음 (클라이언트 요청 형식 문제 또는 서버가 메서드를 허용하지 않음)
                         if (request.responseCode == 400)
                         {
                             Debug.LogError($"JsonBinManager: [SaveToCustomServer] HTTP 400 Bad Request - 서버가 요청을 이해하지 못했습니다.");
                             Debug.LogError($"JsonBinManager: [SaveToCustomServer] 전송한 JSON 형식을 확인하세요. 서버 응답: {responseText}");
+                            break; // 재시도하지 않음
+                        }
+                        else if (request.responseCode == 405)
+                        {
+                            Debug.LogError($"JsonBinManager: [SaveToCustomServer] HTTP 405 Method Not Allowed - 서버가 POST 메서드를 허용하지 않습니다.");
+                            Debug.LogError($"JsonBinManager: [SaveToCustomServer] 서버 URL 또는 메서드를 확인하세요. URL: {customServerUrl}, 서버 응답: {responseText}");
                             break; // 재시도하지 않음
                         }
                         
