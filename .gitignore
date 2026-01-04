@@ -110,3 +110,5 @@ Assets/Scripts/Tactics/UI/TacticsUIManager.cs
 # OpenAI API Configuration (contains sensitive keys)
 Assets/Scripts/openai_config.json
 Assets/Scripts/openai_config.json.meta
+Assets/Resources/openai_config.json
+Assets/Resources/openai_config.json.meta

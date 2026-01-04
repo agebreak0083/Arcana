@@ -39,17 +39,18 @@ public class AIAdvisorIRIS : MonoBehaviour
     
     /// <summary>
     /// openai_config.json 파일에서 설정을 로드
+    /// 웹 빌드와 에디터 모두 지원: Resources 폴더 사용
     /// </summary>
     private void LoadConfigFromFile()
     {
         try
         {
-            // Assets/Scripts/openai_config.json 경로
-            string configPath = Path.Combine(Application.dataPath, "Scripts", ConfigFileName);
+            // 방법 1: Resources 폴더에서 로드 (웹 빌드 지원)
+            TextAsset configAsset = Resources.Load<TextAsset>("openai_config");
             
-            if (File.Exists(configPath))
+            if (configAsset != null)
             {
-                string jsonContent = File.ReadAllText(configPath, Encoding.UTF8);
+                string jsonContent = configAsset.text;
                 OpenAIConfig config = JsonUtility.FromJson<OpenAIConfig>(jsonContent);
                 
                 if (config != null)
@@ -58,21 +59,54 @@ public class AIAdvisorIRIS : MonoBehaviour
                     {
                         apiKey = config.apiKey;
                     }
-                    if (!string.IsNullOrEmpty(config.assistantId))
+                    if (!string.IsNullOrEmpty(config.assistantId) && config.assistantId != "YOUR_ASSISTANT_ID_HERE")
                     {
                         assistantId = config.assistantId;
                     }
-                    if (!string.IsNullOrEmpty(config.threadId))
+                    if (!string.IsNullOrEmpty(config.threadId) && config.threadId != "YOUR_THREAD_ID_HERE")
                     {
                         threadId = config.threadId;
                     }
                     
-                    Debug.Log("AIAdvisorIRIS: 설정 파일에서 API 키를 로드했습니다.");
+                    Debug.Log("AIAdvisorIRIS: Resources 폴더에서 설정 파일을 로드했습니다.");
                 }
             }
             else
             {
-                Debug.LogWarning($"AIAdvisorIRIS: {configPath} 파일을 찾을 수 없습니다. Inspector에서 설정하거나 openai_config.example.json을 복사하여 openai_config.json을 생성하세요.");
+                // 방법 2: 에디터에서만 작동하는 파일 시스템 경로 (폴백)
+                #if UNITY_EDITOR
+                string configPath = Path.Combine(Application.dataPath, "Scripts", ConfigFileName);
+                
+                if (File.Exists(configPath))
+                {
+                    string jsonContent = File.ReadAllText(configPath, Encoding.UTF8);
+                    OpenAIConfig config = JsonUtility.FromJson<OpenAIConfig>(jsonContent);
+                    
+                    if (config != null)
+                    {
+                        if (!string.IsNullOrEmpty(config.apiKey) && config.apiKey != "YOUR_OPENAI_API_KEY_HERE")
+                        {
+                            apiKey = config.apiKey;
+                        }
+                        if (!string.IsNullOrEmpty(config.assistantId) && config.assistantId != "YOUR_ASSISTANT_ID_HERE")
+                        {
+                            assistantId = config.assistantId;
+                        }
+                        if (!string.IsNullOrEmpty(config.threadId) && config.threadId != "YOUR_THREAD_ID_HERE")
+                        {
+                            threadId = config.threadId;
+                        }
+                        
+                        Debug.Log("AIAdvisorIRIS: Scripts 폴더에서 설정 파일을 로드했습니다.");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"AIAdvisorIRIS: Resources/openai_config.json 또는 {configPath} 파일을 찾을 수 없습니다.");
+                }
+                #else
+                Debug.LogWarning("AIAdvisorIRIS: Resources/openai_config.json 파일을 찾을 수 없습니다.");
+                #endif
             }
         }
         catch (Exception e)
@@ -83,7 +117,7 @@ public class AIAdvisorIRIS : MonoBehaviour
         // API 키가 여전히 비어있으면 경고
         if (string.IsNullOrEmpty(apiKey))
         {
-            Debug.LogWarning("AIAdvisorIRIS: API 키가 설정되지 않았습니다. Inspector에서 설정하거나 openai_config.json 파일을 생성하세요.");
+            Debug.LogWarning("AIAdvisorIRIS: API 키가 설정되지 않았습니다. Resources/openai_config.json 파일을 확인하세요.");
         }
     }
     
