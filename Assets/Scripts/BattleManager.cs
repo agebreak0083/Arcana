@@ -631,8 +631,11 @@ public class BattleManager : MonoBehaviour
                 UserDataManager.Instance.AddTickets(BattleSetting.TICKET_FOR_WIN);
                 if(BattleUI.Instance != null)
                 {
-                    BattleUI.Instance.ShowVictoryPanel();
+                    BattleUI.Instance.ShowVictoryPanel();                    
                 }            
+
+                // 아이리스 메세지 출력 
+                IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.BATTLE_RESULT_VICTORY);
 
                 // 이겼을때만, 서버에 택틱스 저장 
                 string tacticsJson = TacticsDataManager.Instance.GetTacticsJson(playerFormationLoadResult.unitSlots, playerFormationLoadResult.codingData);
@@ -647,7 +650,10 @@ public class BattleManager : MonoBehaviour
                 if(BattleUI.Instance != null)
                 {
                     BattleUI.Instance.ShowDefeatPanel();
-                }                
+                }
+
+                // 아이리스 메세지 출력 
+                IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.BATTLE_RESULT_DEFEAT);
             }
 
             // 서버 스코어 업데이트 (player, enemy 모두)

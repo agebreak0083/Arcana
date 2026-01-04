@@ -664,9 +664,6 @@ namespace Arcana.Tactics.UI
             UpdateCodingPanel();
             UpdateCostDisplay();
             UpdateUserData();
-
-            // 아이리스의 Make Tactics Message 표시
-            IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.MAKE_TACTICS_MESSAGE);
         }
 
 

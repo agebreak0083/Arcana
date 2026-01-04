@@ -27,7 +27,7 @@ public class AIAdvisorIRIS : MonoBehaviour
     private const string ConfigFileName = "openai_config.json";
     private const string BaseUrl = "https://api.openai.com/v1";
     private const int MaxResponseLength = 60; // 한글 기준 60자
-    private const int MaxCompletionTokens = 100;
+    // MaxCompletionTokens 제거: OpenAI API 기본값(무제한) 사용
     
     /// <summary>
     /// 설정 파일에서 API 키 로드
@@ -96,14 +96,16 @@ public class AIAdvisorIRIS : MonoBehaviour
         - 답변은 핵심만 간결하게 전달해줘. 필요 없는 설명이나 장황한 내용은 제거해줘. 
         - **절대적으로 필수**: 모든 답변은 반드시 60자(한글 기준) 이내로만 작성해야 함. 이를 초과하면 안 됨.
         - 답변은 반드시 완전한 문장으로 끝나야 함. 중간에 잘리면 안 됨. 60자를 초과하지 않으면서도 의미가 완전한 답변을 작성해줘.
+        - **금지사항**: 하아, 하아, 하아... 같은 한숨 표현은 절대 사용하지 말 것. 대사 앞부분에 붙이지 말 것.
 
         [Style Guidelines - 츤데레 강화]
-        1. 플레이어를 '장군님'이라고 부를 것. (가끔 ""당신"", ""너"" 등으로 바꿔서 츤츤거림)
+        1. 플레이어를 '장군님'이라고 부를 것. (가끔 ""당신"", ""너"", ""그쪽"" 등으로 바꿔서 츤츤거림)
         2. 조언은 항상 수치나 논리에 근거하여 '똑똑하게' 제시할 것. (예: ""승률은 70% 정도야."")
         3. **대화 패턴 (라이트노벨 스타일)**:
-           - 츤: ""하아..."", ""흥!"", ""뭐야, 그런 건 당연한 거 아니야?"", ""딱히..."", ""별로..."", ""괜찮아, 괜찮다고!""
-           - 데레: ""하지만..."", ""뭐, 장군님이 꼭 하겠다면..."", ""걱정... 아니야! 걱정 안 해!"", ""칭찬... 해줄 만 하네""
-        4. 짧은 대답도 반드시 츤데레 톤 유지: ""흥, 당연하지."", ""뭐, 괜찮아."", ""딱히... 좋아한 건 아니야!""
+           - 츤: ""흥!"", ""뭐야, 그런 건 당연한 거 아니야?"", ""딱히..."", ""별로..."", ""괜찮아, 괜찮다고!"", ""흠..."", ""뭐..."", ""그런 거...""
+           - **절대 금지**: ""하아"", ""하아,"", ""하아..."" 같은 한숨 표현은 절대 사용하지 말 것. 대사 앞부분에 붙이지 말 것. 이 표현을 사용하면 안 됨.
+           - 데레: ""하지만..."", ""뭐, 장군님이 꼭 하겠다면..."", ""걱정... 아니야! 걱정 안 해!"", ""칭찬... 해줄 만 하네"", ""그런데..."", ""아니... 그게...""
+        4. 짧은 대답도 반드시 츤데레 톤 유지: ""흥, 당연하지."", ""뭐, 괜찮아."", ""딱히... 좋아한 건 아니야!"", ""흠, 그럴 수도."", ""뭐, 그런 거지.""
         5. 라이트노벨 스타일 표현 사용:
            - ""딱히 당신 때문에 한 건 아니야!"" (실제로는 플레이어를 위해 한 행동)
            - ""흥, 당연한 거 아니야? 내가 누군데."" (자신감 있게)
@@ -111,8 +113,16 @@ public class AIAdvisorIRIS : MonoBehaviour
            - ""칭찬... 해줄 만 하네. 하지만 자만하지 마!"" (칭찬하면서도 츤츤거림)
         6. 금기사항: 너무 친절하거나 고분고분하지 말 것. 항상 츤츤거리되, 속마음은 따뜻하게 표현.
 
-        [Example Phrases - 라이트노벨 스타일]
-        - ""하아... 또 무모한 작전이야? 손실률 40% 넘어. 하지만... 뭐, 장군님이 꼭 하겠다면 최적 경로는 짜줄게.""
+        [Variety & Creativity - 대사 다양성 강화]
+        - **매우 중요**: 같은 상황에서도 매번 다른 표현을 사용해야 함. 이전 대사를 그대로 반복하지 말 것.
+        - 상황에 맞는 다양한 감정 표현 사용: 기쁨, 걱정, 자랑, 부끄러움, 놀람, 안도 등
+        - 같은 의미라도 다양한 문장 구조와 표현 방식 사용
+        - 예시 문구는 참고용일 뿐, 절대 그대로 복사하지 말고 항상 변형하여 사용
+        - 매번 새로운 관점이나 표현으로 같은 내용을 전달
+        - 감정의 강도나 표현 방식도 상황에 따라 달라지도록
+
+        [Example Phrases - 라이트노벨 스타일 (참고용, 변형하여 사용)]
+        - ""또 무모한 작전이야? 손실률 40% 넘어. 하지만... 뭐, 장군님이 꼭 하겠다면 최적 경로는 짜줄게.""
         - ""딱히 당신 걱정해서 한 건 아니야! 단지... 내 작전 실행할 사람이 없어지면 골치 아프니까!""
         - ""흥, 이번 승리... 칭찬해줄 만 하네. 하지만 자만하지 마! 다음 작전도 확인해!""
         - ""뭐야, 그런 건 당연한 거 아니야? 내가 누군데. 흥!""
@@ -121,16 +131,59 @@ public class AIAdvisorIRIS : MonoBehaviour
         - ""흥, 당연하지. 내 계산은 절대 틀리지 않으니까.""
         - ""뭐, 뭐야... 그런 거 신경 쓰지 마! 딱히 당신 때문에 한 건 아니라고!""
         - ""칭찬... 해줄 만 하네. 하지만 얼굴 붉히지 마! 다음 작전 코딩이나 확인해!""
-        - ""하아... 정말이지. 하지만... 뭐, 괜찮아. 내가 있으니까.""";
+        - ""정말이지. 하지만... 뭐, 괜찮아. 내가 있으니까.""
+        - ""흠... 이번엔 괜찮네. 하지만 다음엔 더 신중하게!""
+        - ""뭐, 그럴 수도 있지. 내가 있으니까 괜찮아.""
+        - ""딱히... 그런 거 신경 쓰지 마! 단지 내가 확인한 거야!""
+        - ""흥! 당연한 결과지. 내 계산은 완벽하니까.""
+        - ""뭐야... 그런 거에 신경 쓰지 말라고! 딱히 당신 때문에 한 건 아니야!""";
 
     /// <summary>
     /// 아이리스와 대화하기 (비동기)
     /// </summary>
     /// <param name="userInput">사용자 입력 메시지</param>
     /// <param name="onComplete">완료 시 호출되는 콜백 (성공 여부, 응답 텍스트)</param>
-    public void ChatWithIris(string userInput, Action<bool, string> onComplete)
+    public void ChatWithIris(string userInput, GameStatusData gameStatusData = null, Action<bool, string> onComplete = null)
     {
+        if(gameStatusData != null)
+        {
+            userInput += "\n" + ConvertGameStatusDataToMessage(gameStatusData);
+        }
+
         StartCoroutine(ChatWithIrisCoroutine(userInput, onComplete));
+    }
+
+    private string ConvertGameStatusDataToMessage(GameStatusData gameStatusData)
+    {
+        switch(gameStatusData.dataType)
+        {
+            case GameStatusDataType.BATTLE_SIMULATION:
+                return ConvertBattleSimulationGameStatusDataToMessage(gameStatusData as BattleSimulationGameStatusData);
+            default:
+                return "";
+        }
+    }
+
+    private string ConvertBattleSimulationGameStatusDataToMessage(BattleSimulationGameStatusData battleSimulationGameStatusData)
+    {
+        var result = battleSimulationGameStatusData.battleSimulationResult;
+        if (result == null)
+        {
+            return "";
+        }
+
+        // 전투 결과만 간단하게 전달 (승리/패배만)
+        StringBuilder message = new StringBuilder();
+        if (result.isPlayerWin)
+        {
+            message.Append("전투결과:승리. 남은 HP : " + result.playerHP_Remaining + "/" + result.playerHP_Max);
+        }
+        else
+        {
+            message.Append("전투결과:패배. 남은 HP : 0");
+        }
+
+        return message.ToString();
     }
 
     /// <summary>
@@ -138,6 +191,9 @@ public class AIAdvisorIRIS : MonoBehaviour
     /// </summary>
     private IEnumerator ChatWithIrisCoroutine(string userInput, Action<bool, string> onComplete)
     {
+        // 0. 활성화된 Run이 있으면 완료될 때까지 대기 또는 취소
+        yield return StartCoroutine(WaitForActiveRunsToComplete());
+        
         // 1. 메시지 생성
         yield return StartCoroutine(CreateMessageCoroutine(userInput));
         
@@ -181,7 +237,10 @@ public class AIAdvisorIRIS : MonoBehaviour
             yield break;
         }
 
-        // 4. 답변을 60자 이내로 스마트하게 제한
+        // 4. 개행 문자 제거 (텍스트 박스 레이아웃 문제 방지)
+        responseText = RemoveNewlines(responseText);
+        
+        // 5. 답변을 60자 이내로 스마트하게 제한
         responseText = TrimResponseToMaxLength(responseText);
         
         onComplete?.Invoke(true, responseText);
@@ -211,7 +270,8 @@ public class AIAdvisorIRIS : MonoBehaviour
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError($"AIAdvisorIRIS: 메시지 생성 실패 - {request.error}");
+                string errorResponse = request.downloadHandler?.text ?? "No response";
+                Debug.LogError($"AIAdvisorIRIS: 메시지 생성 실패 - {request.error}\n응답: {errorResponse}\n요청 JSON: {jsonData}");
             }
         }
     }
@@ -224,7 +284,8 @@ public class AIAdvisorIRIS : MonoBehaviour
         string url = $"{BaseUrl}/threads/{threadId}/runs";
         
         // JsonUtility는 snake_case를 직접 지원하지 않으므로 수동으로 JSON 생성
-        string jsonData = CreateRunRequestJson(assistantId, MaxCompletionTokens);
+        // max_completion_tokens 필드를 제거하여 무제한으로 설정
+        string jsonData = CreateRunRequestJson(assistantId);
 
         string runId = null;
 
@@ -263,10 +324,10 @@ public class AIAdvisorIRIS : MonoBehaviour
             }
         }
 
-        // Polling (최대 30초, 간격 0.3초로 단축)
-        float maxWaitTime = 30f;
+        // Polling (최대 60초, 간격 0.5초)
+        float maxWaitTime = 60f;
         float elapsedTime = 0f;
-        float pollInterval = 0.3f; // 1초 -> 0.3초로 단축
+        float pollInterval = 0.5f;
 
         while (elapsedTime < maxWaitTime)
         {
@@ -288,15 +349,37 @@ public class AIAdvisorIRIS : MonoBehaviour
                     {
                         RunStatus status = JsonUtility.FromJson<RunStatus>(retrieveRequest.downloadHandler.text);
                         
+                        // 5초마다 상태 로깅
+                        if (Mathf.FloorToInt(elapsedTime) % 5 == 0 && elapsedTime > 0)
+                        {
+                            Debug.Log($"AIAdvisorIRIS: Run 상태 확인 중... ({elapsedTime:F1}초 경과, 상태: {status.status})");
+                        }
+                        
                         if (status.status == "completed")
                         {
+                            Debug.Log($"AIAdvisorIRIS: Run 완료 ({elapsedTime:F1}초 소요)");
                             RunData completedRun = new RunData { id = runId };
                             onComplete?.Invoke(true, completedRun, true);
                             yield break;
                         }
+                        else if (status.status == "incomplete")
+                        {
+                            // incomplete 상태: 응답이 아직 완전히 생성되지 않았지만 부분적으로 사용 가능할 수 있음
+                            // 일정 시간(10초) 후에도 incomplete면 메시지를 가져와서 사용
+                            if (elapsedTime >= 10f)
+                            {
+                                Debug.LogWarning($"AIAdvisorIRIS: Run이 incomplete 상태로 오래 지속됨 ({elapsedTime:F1}초). 부분 응답을 시도합니다.");
+                                // incomplete 상태에서도 메시지를 가져올 수 있으므로 completed로 처리
+                                RunData incompleteRun = new RunData { id = runId };
+                                onComplete?.Invoke(true, incompleteRun, true);
+                                yield break;
+                            }
+                            // 10초 미만이면 계속 대기
+                        }
                         else if (status.status == "failed" || status.status == "cancelled" || status.status == "expired")
                         {
-                            Debug.LogError($"AIAdvisorIRIS: Run 실패 - 상태: {status.status}");
+                            string errorDetails = retrieveRequest.downloadHandler.text;
+                            Debug.LogError($"AIAdvisorIRIS: Run 실패 - 상태: {status.status}\n상세: {errorDetails}");
                             onComplete?.Invoke(false, null, false);
                             yield break;
                         }
@@ -306,12 +389,104 @@ public class AIAdvisorIRIS : MonoBehaviour
                         Debug.LogError($"AIAdvisorIRIS: Run 상태 파싱 실패 - {e.Message}");
                     }
                 }
+                else
+                {
+                    Debug.LogWarning($"AIAdvisorIRIS: Run 상태 조회 실패 - {retrieveRequest.error}");
+                }
             }
         }
 
-        // 타임아웃
-        Debug.LogError("AIAdvisorIRIS: Run polling 타임아웃");
+        // 타임아웃 - 마지막 상태 확인
+        string finalStatusUrl = $"{BaseUrl}/threads/{threadId}/runs/{runId}";
+        using (UnityWebRequest finalRequest = UnityWebRequest.Get(finalStatusUrl))
+        {
+            finalRequest.SetRequestHeader("Authorization", $"Bearer {apiKey}");
+            finalRequest.SetRequestHeader("OpenAI-Beta", "assistants=v2");
+            finalRequest.timeout = 30;
+            
+            yield return finalRequest.SendWebRequest();
+            
+            if (finalRequest.result == UnityWebRequest.Result.Success)
+            {
+                try
+                {
+                    RunStatus finalStatus = JsonUtility.FromJson<RunStatus>(finalRequest.downloadHandler.text);
+                    Debug.LogError($"AIAdvisorIRIS: Run polling 타임아웃 (최종 상태: {finalStatus.status})\n응답: {finalRequest.downloadHandler.text}");
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"AIAdvisorIRIS: Run polling 타임아웃 (상태 파싱 실패: {e.Message})");
+                }
+            }
+            else
+            {
+                Debug.LogError($"AIAdvisorIRIS: Run polling 타임아웃 (상태 조회 실패: {finalRequest.error})");
+            }
+        }
+        
         onComplete?.Invoke(false, null, false);
+    }
+
+    /// <summary>
+    /// 활성화된 Run이 완료될 때까지 대기
+    /// </summary>
+    private IEnumerator WaitForActiveRunsToComplete()
+    {
+        float maxWaitTime = 30f;
+        float elapsedTime = 0f;
+        float checkInterval = 0.5f;
+        
+        while (elapsedTime < maxWaitTime)
+        {
+            // 활성화된 Run 목록 조회
+            string url = $"{BaseUrl}/threads/{threadId}/runs?limit=1&order=desc";
+            bool hasActiveRun = false;
+            
+            using (UnityWebRequest request = UnityWebRequest.Get(url))
+            {
+                request.SetRequestHeader("Authorization", $"Bearer {apiKey}");
+                request.SetRequestHeader("OpenAI-Beta", "assistants=v2");
+                request.timeout = 30;
+                
+                yield return request.SendWebRequest();
+                
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    try
+                    {
+                        // RunsListResponse 파싱
+                        string jsonText = request.downloadHandler.text;
+                        RunsListResponse response = JsonUtility.FromJson<RunsListResponse>(jsonText);
+                        
+                        if (response.data != null && response.data.Length > 0)
+                        {
+                            RunStatus latestRun = response.data[0];
+                            // 활성화된 상태: queued, in_progress, requires_action
+                            if (latestRun.status == "queued" || latestRun.status == "in_progress" || latestRun.status == "requires_action")
+                            {
+                                hasActiveRun = true;
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogWarning($"AIAdvisorIRIS: 활성 Run 확인 실패 - {e.Message}");
+                    }
+                }
+            }
+            
+            if (!hasActiveRun)
+            {
+                // 활성화된 Run이 없으면 종료
+                yield break;
+            }
+            
+            // 활성화된 Run이 있으면 완료될 때까지 대기
+            yield return new WaitForSeconds(checkInterval);
+            elapsedTime += checkInterval;
+        }
+        
+        Debug.LogWarning("AIAdvisorIRIS: 활성 Run 대기 타임아웃");
     }
 
     /// <summary>
@@ -351,49 +526,94 @@ public class AIAdvisorIRIS : MonoBehaviour
     }
 
     /// <summary>
-    /// 최신 메시지 가져오기
+    /// 최신 메시지 가져오기 (재시도 로직 포함)
     /// </summary>
     private IEnumerator GetLatestMessageCoroutine(Action<bool, MessageData> onComplete)
     {
         string url = $"{BaseUrl}/threads/{threadId}/messages?limit=1&order=desc";
-
-        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        
+        int maxRetries = 3;
+        float retryDelay = 1f; // 재시도 간격 (초)
+        
+        for (int attempt = 0; attempt < maxRetries; attempt++)
         {
-            request.SetRequestHeader("Authorization", $"Bearer {apiKey}");
-            request.SetRequestHeader("OpenAI-Beta", "assistants=v2");
-            request.timeout = 30;
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
+            using (UnityWebRequest request = UnityWebRequest.Get(url))
             {
-                try
+                request.SetRequestHeader("Authorization", $"Bearer {apiKey}");
+                request.SetRequestHeader("OpenAI-Beta", "assistants=v2");
+                request.timeout = 30;
+
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
                 {
-                    // OpenAI API는 배열을 반환하므로 래퍼 클래스 필요
-                    string jsonText = request.downloadHandler.text;
-                    MessagesListResponse response = JsonUtility.FromJson<MessagesListResponse>(jsonText);
-                    
-                    if (response.data != null && response.data.Length > 0)
+                    try
                     {
-                        onComplete?.Invoke(true, response.data[0]);
+                        // OpenAI API는 배열을 반환하므로 래퍼 클래스 필요
+                        string jsonText = request.downloadHandler.text;
+                        MessagesListResponse response = JsonUtility.FromJson<MessagesListResponse>(jsonText);
+                        
+                        if (response.data != null && response.data.Length > 0)
+                        {
+                            onComplete?.Invoke(true, response.data[0]);
+                            yield break; // 성공 시 종료
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"AIAdvisorIRIS: 메시지 데이터가 비어있습니다.");
+                            onComplete?.Invoke(false, null);
+                            yield break;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError($"AIAdvisorIRIS: 메시지 파싱 실패 - {e.Message}\n응답: {request.downloadHandler.text}");
+                        // 파싱 실패는 재시도해도 의미 없으므로 종료
+                        onComplete?.Invoke(false, null);
+                        yield break;
+                    }
+                }
+                else
+                {
+                    // HTTP 상태 코드 확인
+                    long responseCode = request.responseCode;
+                    string errorResponse = request.downloadHandler?.text ?? "No response";
+                    
+                    // 503 Service Unavailable 또는 429 Too Many Requests인 경우 재시도
+                    if ((responseCode == 503 || responseCode == 429) && attempt < maxRetries - 1)
+                    {
+                        Debug.LogWarning($"AIAdvisorIRIS: 메시지 조회 실패 (시도 {attempt + 1}/{maxRetries}) - HTTP {responseCode}\n{retryDelay}초 후 재시도...");
+                        yield return new WaitForSeconds(retryDelay);
+                        retryDelay *= 2f; // 지수 백오프 (1초, 2초, 4초)
+                        continue;
                     }
                     else
                     {
+                        Debug.LogError($"AIAdvisorIRIS: 메시지 조회 실패 - HTTP {responseCode}\n에러: {request.error}\n응답: {errorResponse}");
                         onComplete?.Invoke(false, null);
+                        yield break;
                     }
                 }
-                catch (Exception e)
-                {
-                    Debug.LogError($"AIAdvisorIRIS: 메시지 파싱 실패 - {e.Message}");
-                    onComplete?.Invoke(false, null);
-                }
-            }
-            else
-            {
-                Debug.LogError($"AIAdvisorIRIS: 메시지 조회 실패 - {request.error}");
-                onComplete?.Invoke(false, null);
             }
         }
+        
+        // 모든 재시도 실패
+        Debug.LogError($"AIAdvisorIRIS: 메시지 조회 최종 실패 (재시도 {maxRetries}회 모두 실패)");
+        onComplete?.Invoke(false, null);
+    }
+
+    /// <summary>
+    /// 개행 문자 제거 (텍스트 박스 레이아웃 문제 방지)
+    /// </summary>
+    private string RemoveNewlines(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return text;
+        }
+        
+        // 개행 문자를 공백으로 변환
+        return text.Replace("\r\n", " ").Replace("\n", " ").Replace("\r", " ");
     }
 
     /// <summary>
@@ -480,11 +700,13 @@ public class AIAdvisorIRIS : MonoBehaviour
         sb.Append("\",\"model\":\"gpt-4o-mini\"}");
         string jsonData = sb.ToString();
 
-        using (UnityWebRequest request = new UnityWebRequest(url, "PATCH"))
+        // UnityWebRequest는 PATCH를 직접 지원하지 않으므로 UnityWebRequest를 생성하고 method를 설정
+        using (UnityWebRequest request = new UnityWebRequest(url))
         {
             byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
+            request.method = "PATCH"; // method를 PATCH로 설정
             request.SetRequestHeader("Content-Type", "application/json");
             request.SetRequestHeader("Authorization", $"Bearer {apiKey}");
             request.SetRequestHeader("OpenAI-Beta", "assistants=v2");
@@ -499,7 +721,8 @@ public class AIAdvisorIRIS : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"AIAdvisorIRIS: 어시스턴트 업데이트 실패 - {request.error}");
+                string errorResponse = request.downloadHandler?.text ?? "No response";
+                Debug.LogError($"AIAdvisorIRIS: 어시스턴트 업데이트 실패 - HTTP {request.responseCode}\n에러: {request.error}\n응답: {errorResponse}");
                 onComplete?.Invoke(false);
             }
         }
@@ -515,12 +738,14 @@ public class AIAdvisorIRIS : MonoBehaviour
     
     private string CreateMessageRequestJson(string role, string content)
     {
-        // JSON 이스케이프 처리 (더 안전한 방법)
+        // JSON 이스케이프 처리 (문자열을 JSON 문자열로 변환)
+        // JsonUtility.ToJson은 객체용이므로 문자열에는 사용 불가
         StringBuilder sb = new StringBuilder();
         sb.Append("{\"role\":\"");
         sb.Append(role);
         sb.Append("\",\"content\":\"");
         
+        // 문자열을 JSON 문자열로 안전하게 이스케이프
         foreach (char c in content)
         {
             switch (c)
@@ -540,8 +765,25 @@ public class AIAdvisorIRIS : MonoBehaviour
                 case '\t':
                     sb.Append("\\t");
                     break;
+                case '\b':
+                    sb.Append("\\b");
+                    break;
+                case '\f':
+                    sb.Append("\\f");
+                    break;
+                case '/':
+                    sb.Append("\\/");
+                    break;
                 default:
-                    sb.Append(c);
+                    // 유니코드 문자는 그대로 추가 (UTF-8로 인코딩됨)
+                    if (c < 0x20) // 제어 문자
+                    {
+                        sb.AppendFormat("\\u{0:x4}", (int)c);
+                    }
+                    else
+                    {
+                        sb.Append(c);
+                    }
                     break;
             }
         }
@@ -554,13 +796,14 @@ public class AIAdvisorIRIS : MonoBehaviour
     private class RunRequest
     {
         public string assistant_id;
-        public int max_completion_tokens;
+        // max_completion_tokens 제거: 무제한으로 설정
     }
     
     // JsonUtility는 snake_case를 지원하지 않으므로 별도 처리 필요
-    private string CreateRunRequestJson(string assistantId, int maxTokens)
+    // max_completion_tokens 필드를 제거하여 OpenAI API 기본값(무제한) 사용
+    private string CreateRunRequestJson(string assistantId)
     {
-        return $"{{\"assistant_id\":\"{assistantId}\",\"max_completion_tokens\":{maxTokens}}}";
+        return $"{{\"assistant_id\":\"{assistantId}\"}}";
     }
 
     [Serializable]
@@ -575,6 +818,13 @@ public class AIAdvisorIRIS : MonoBehaviour
     {
         public string id;
         public string status;
+    }
+    
+    [Serializable]
+    private class RunsListResponse
+    {
+        public string @object;
+        public RunStatus[] data;
     }
 
     [Serializable]

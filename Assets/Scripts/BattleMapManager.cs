@@ -221,7 +221,7 @@ public class BattleMapManager : MonoBehaviour
             TacticsUIManager.Instance.SetBattleMapPhaseUI(currentPhase);
             
             battleMapRootObject.SetActive(false);
-        }        
+        }              
     }
 
     private SquadSpawner _squadSpawner = null;
@@ -368,6 +368,9 @@ public class BattleMapManager : MonoBehaviour
         }
         else if(currentPhase == BattleMapPhase.TOWER_PHASE)
         {
+            // 아이리스의 Make Tactics Message 표시
+            IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.MAKE_TACTICS_MESSAGE);
+            
             ShowTacticsScene(null);
         }
         else if(currentPhase == BattleMapPhase.END_PHASE)

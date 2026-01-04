@@ -65,6 +65,9 @@ public class BattleSimulationResultUI : MonoBehaviour
 
         startBattleButton.interactable = true;
         closeButton.interactable = true;
+
+        // 아이리스에게 게임 상황 데이터 전달
+        IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.BATTLE_SIMULATION_RESULT, new BattleSimulationGameStatusData(battleSimulationResult));
     }
 
     void UpdateBattleResult()

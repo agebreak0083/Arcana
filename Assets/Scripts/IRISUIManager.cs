@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -5,8 +6,31 @@ using UnityEngine.UI;
 // 아이리스에게 게임 상황을 전달하는 메세지 정의
 public class MessageToIRIS
 {
+    public static string IRIS_STYLE = "[츤데레, 여고생스러운 말투. 츤츤거리면서도 속마음은 따뜻하게 표현.플레이어를 사랑하고 있음.AI같지 않은 자연스러운 말투.] [금지사항: 말투앞에 하아, 하아, 하아...]";
     public static string WELCOME_MESSAGE = "[게임 상황] 게임을 처음 접속하는 유저에게 보여주는 메세지. 아이리스 소개.";
     public static string MAKE_TACTICS_MESSAGE = "[게임 상황] 작전 코딩 화면 진입 시 보여주는 메세지. 작전 코딩 화면 설명. 하나의 훌륭한 당신의 작전 코딩이 승리를 가져온다.";
+    public static string BATTLE_SIMULATION_RESULT = "[게임 상황] 전투 예측 결과 UI 화면. 실제 전투가 아니라, 전투 결과 예측임. 승리했으면 기뻐하면서도 츤츤거리고, 패배했으면 걱정하면서도 츤츤거려! 감정을 솔직하게 표현해줘!";
+    public static string BATTLE_RESULT_VICTORY = "[게임 상황] 전투 결과 승리 시 보여주는 메세지. 승리했으면 기뻐하면서도 츤츤거리고, 패배했으면 걱정하면서도 츤츤거려! 감정을 솔직하게 표현해줘!";
+    public static string BATTLE_RESULT_DEFEAT = "[게임 상황] 전투 결과 패배 시 보여주는 메세지. 패배했으면 걱정하면서도 츤츤거려! 감정을 솔직하게 표현해줘!";
+}
+
+public enum GameStatusDataType
+{
+    BATTLE_SIMULATION,
+}
+public class GameStatusData
+{
+    public GameStatusDataType dataType;    
+}
+
+public class BattleSimulationGameStatusData : GameStatusData
+{
+    public BattleSimulationResult battleSimulationResult;
+    public BattleSimulationGameStatusData(BattleSimulationResult battleSimulationResult)
+    {
+        dataType = GameStatusDataType.BATTLE_SIMULATION;
+        this.battleSimulationResult = battleSimulationResult;
+    }    
 }
 
 public class IRISUIManager : MonoBehaviour
@@ -37,8 +61,13 @@ public class IRISUIManager : MonoBehaviour
         messageButton.onClick.AddListener(HideIrisUI);
     }
 
-    public void ShowIrisUI(string message)
-    {
+    public void ShowIrisUI( string message, GameStatusData gameStatusData = null)
+    { 
+        Debug.Log($"ShowIrisUI: {message}");
+
+        // 0. 이전 HideIrisUI Invoke 취소 (중요: 새로운 호출 시 이전 타이머 제거)
+        CancelInvoke("HideIrisUI");
+
         // 1. 먼저 Canvas를 활성화
         irisCanvas.gameObject.SetActive(true);
         
@@ -52,7 +81,8 @@ public class IRISUIManager : MonoBehaviour
         loadingCoroutine = StartCoroutine(LoadingAnimationCoroutine());
 
         // 4. AI 응답 요청
-        aiAdvisorIRIS.ChatWithIris(message, (success, response) =>
+        message = MessageToIRIS.IRIS_STYLE + message;
+        aiAdvisorIRIS.ChatWithIris(message, gameStatusData, (success, response) =>
         {
             // 5. 로딩 애니메이션 중지
             if (loadingCoroutine != null)
@@ -106,6 +136,6 @@ public class IRISUIManager : MonoBehaviour
             loadingCoroutine = null;
         }
         
-        irisCanvas.gameObject.SetActive(false);
+        irisCanvas.gameObject.SetActive(false); 
     }    
 }
