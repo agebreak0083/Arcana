@@ -269,10 +269,14 @@ public class BattleManager : MonoBehaviour
                     character.ApplyClassStatsToCharacter();
 
                     // 작전 설정
-                    if (formationResult.codingData.TryGetValue(characterData.id, out var plan))
+                    if (formationResult.codingData.TryGetValue(characterData.characterName, out var plan))
                     {
                         Strategy strategy = StrategyManager.Instance.CreateStrategy(plan);
                         character.SetStrategy(strategy);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"{characterData.characterName}의 작전을 codingData에서 찾을 수 없습니다. (사용 가능한 키: {string.Join(", ", formationResult.codingData.Keys)})");
                     }
 
                     createdCharacters.Add(character);                        
@@ -450,6 +454,7 @@ public class BattleManager : MonoBehaviour
         else
         {
             // 행동하지 않음 (조건 불만족, AP 부족 등)
+            Debug.Log($"{character.characterName}이(가) 행동할 수 없습니다.");
             return false;
         }
     }
@@ -495,6 +500,7 @@ public class BattleManager : MonoBehaviour
         else
         {
             // 행동하지 않음 (조건 불만족, AP 부족 등)
+            Debug.Log($"{character.characterName}이(가) 행동할 수 없습니다.");
             onResult?.Invoke(false);
         }
     }
@@ -601,9 +607,7 @@ public class BattleManager : MonoBehaviour
             isBattleOver = true;
 
             return true;
-        }        
-
-        UserDataManager.Instance.SaveUserData();
+        }                
 
         return false;
     }

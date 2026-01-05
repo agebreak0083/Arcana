@@ -368,7 +368,6 @@ namespace Arcana.Tactics
                 {
                     // 5. Create CharacterData
                     CharacterData newData = ScriptableObject.CreateInstance<CharacterData>();
-                    newData.id = System.Guid.NewGuid().ToString();
                     newData.characterName = def.Name;
                     newData.characterClass = def.Class;
 
@@ -485,7 +484,6 @@ namespace Arcana.Tactics
 
                 // 새로운 CharacterData 생성
                 CharacterData newData = ScriptableObject.CreateInstance<CharacterData>();
-                newData.id = System.Guid.NewGuid().ToString();
                 newData.characterName = def.Name;
                 newData.characterClass = def.Class;
                 newData.cost = def.Cost;
@@ -912,7 +910,7 @@ namespace Arcana.Tactics
                     posData.name = character.characterName;
 
                     // If this character has tactics data, add it
-                    if (codingData.TryGetValue(character.id, out var plan))
+                    if (codingData.TryGetValue(character.characterName, out var plan))
                     {
                         var tacticRowsList = new List<TacticRowData>();
                         foreach (var row in plan.rows)

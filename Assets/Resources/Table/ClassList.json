@@ -26,7 +26,7 @@
       "description": "명중에 특화된 성능.비행 특효로 그리폰 나이트에게 강하고 필중 공격 스킬이 있어 회피가 높은 시프에게 강하다.",
       "advantage": [
         "시프",
-        "그리폰 나이트"
+        "그리폰나이트"
       ],
       "stats": {
         "hp": "D",
@@ -47,8 +47,7 @@
       "name": "위치",
       "description": "마법 공격이 뛰어난 성능, 마법 공격 부여 스킬을 지녔다.마법 방어가 낮은 호플리타이에게 강하고 마법 방어가 높은 화이트 나이트에게 약하다",
       "advantage": [
-        "파이터",
-        "호플리타이"
+        "파이터"        
       ],
       "stats": {
         "hp": "E",
@@ -83,6 +82,27 @@
         "criticalRate": "C",
         "guardRate": "C",
         "actionSpeed": "C",
+        "actionPoint": 2,
+        "passivePoint": 2
+      }
+    },
+    {
+      "name": "그리폰나이트",
+      "description": "회피가 높고 공격과 마법 방어가 모두 뛰어난 성능.나이트에게 강하고 헌터에게 약하다.",
+      "advantage": [
+        "나이트"        
+      ],
+      "stats": {
+        "hp": "D",
+        "physicalAttack": "B",
+        "physicalDefense": "D",
+        "magicalAttack": "E",
+        "magicalDefense": "B",
+        "accuracy": "D",
+        "evasion": "S",
+        "criticalRate": "D",
+        "guardRate": "F",
+        "actionSpeed": "D",
         "actionPoint": 2,
         "passivePoint": 2
       }

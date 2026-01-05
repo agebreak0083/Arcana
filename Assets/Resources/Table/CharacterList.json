@@ -67,7 +67,7 @@
         "Name": "키레네",
         "Portrait": "SR_Kirene",
         "Model": "SR_kirene",
-        "Class": "헌터",
+        "Class": "그리폰나이트",
         "Cost": 2,
         "Voice_Skill": ""
     }, 
@@ -83,7 +83,7 @@
         "Name": "달리아",
         "Portrait": "SR_Dahlia",
         "Model": "SR_Dahlia",
-        "Class": "파이터",
+        "Class": "나이트",
         "Cost": 2,
         "Voice_Skill": "Dhalia_Skill"
     },
@@ -91,7 +91,7 @@
         "Name": "히실렌스",
         "Portrait": "SR_Hysil",
         "Model": "SR_Hysil",
-        "Class": "위치",
+        "Class": "그리폰나이트",
         "Cost": 2,
         "Voice_Skill": ""
     },
@@ -107,7 +107,7 @@
         "Name": "엽빛나",
         "Portrait": "ZZZ_Hikari",
         "Model": "ZZZ_Hikari",
-        "Class": "헌터",
+        "Class": "그리폰나이트",
         "Cost": 2,
         "Voice_Skill": ""
     },

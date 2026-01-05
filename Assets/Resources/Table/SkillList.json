@@ -1439,19 +1439,22 @@
       "animation": "Skill_1"
     }
   ],
-  "그리폰 나이트 / 그리폰 룰러": [
+  "그리폰나이트 / 그리폰 룰러": [
     {
       "name": "하이 스윙",
       "type": "active",
       "description": "적 한 열에게 공격한다.대상이 기마 계열의 경우,이 공격은 가드 불가.대상이 기마 계열의 경우,위력+50",
-      "target": "row_enemy",
+      "target": "column_enemy",
       "costAP": 1,
       "costPP": 0,
       "effects": [
         {
           "type": "damage",
           "value": 100,
-          "damageType": "physical"
+          "damageType": "physical",
+          "disableGuard_Class": "Knight",
+          "addDamage_Class": "Knight",
+          "addDamageValue": 50
         }
       ],
       "traits": [

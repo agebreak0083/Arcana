@@ -131,6 +131,7 @@ public class Character : MonoBehaviour
     {
         if (currentStrategy == null)
         {
+            Debug.LogWarning($"{characterName}의 작전을 찾을 수 없습니다.");
             return null;
         }
         if (stats.actionPoint <= 0)
@@ -141,6 +142,7 @@ public class Character : MonoBehaviour
         // BuffList에서 stun이 있으면 행동 불가
         if (buffs.Any(b => b.stat == "stun"))
         {
+            Debug.Log($"{characterName}이(가) 기절 상태이므로 행동할 수 없습니다.");
             return null;
         }
 
@@ -152,6 +154,7 @@ public class Character : MonoBehaviour
 
             if (skill == null)
             {
+                Debug.LogWarning($"{characterName}이(가) {strategyAction.action}을(를) 실행할 수 없습니다.");
                 continue;
             }
 
@@ -185,6 +188,7 @@ public class Character : MonoBehaviour
     {
         if (currentStrategy == null)
         {
+            Debug.LogWarning($"{characterName}의 작전을 찾을 수 없습니다.");
             onComplete?.Invoke(null);
             yield break;
         }

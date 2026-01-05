@@ -1,28 +1,166 @@
 {
-    "key": "agebreak_2601051719",
-    "username": "agebreak_2601051719",
-    "score": 496,
+    "key": "agebreak_2601051832",
+    "username": "agebreak_2601051832",
+    "score": 495,
     "winCount": 178,
-    "loseCount": 38,
+    "loseCount": 39,
     "positions": [
         {
             "position": "1",
-            "name": "",
-            "tactics": []
+            "name": "달리아",
+            "tactics": [
+                {
+                    "characterClass": "나이트",
+                    "plan": [
+                        {
+                            "skill": "와일드 러시",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "전후열에 선 [적/아군]"
+                        },
+                        {
+                            "skill": "어설트 랜스",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "파일 스러스트",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "퀵 가드",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "캐벌리 엘",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "position": "2",
             "name": "히실렌스",
-            "tactics": []
+            "tactics": [
+                {
+                    "characterClass": "그리폰나이트",
+                    "plan": [
+                        {
+                            "skill": "하이 스윙",
+                            "condition1": "기마 계열 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "하이 스윙",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "하이 스윙",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "하이 스윙",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "position": "3",
-            "name": "",
-            "tactics": []
+            "name": "엽빛나",
+            "tactics": [
+                {
+                    "characterClass": "그리폰나이트",
+                    "plan": [
+                        {
+                            "skill": "하이 스윙",
+                            "condition1": "기마 계열 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "하이 스윙",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "하이 스윙",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "하이 스윙",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "하이 스윙",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "position": "4",
-            "name": "엽빛나",
+            "name": "",
             "tactics": []
         },
         {

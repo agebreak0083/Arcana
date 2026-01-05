@@ -7,7 +7,6 @@ namespace Arcana.Tactics.Data
     [CreateAssetMenu(fileName = "NewCharacter", menuName = "Arcana/Character Data")]
     public class CharacterData : ScriptableObject
     {
-        public string id;
         public string characterName;
         public string characterClass;
         public int cost;

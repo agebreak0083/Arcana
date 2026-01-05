@@ -220,7 +220,7 @@ public class SkillManager : MonoBehaviour
                     for (int i = 0; i < hitCount; i++)
                     {
                         bool isCritical;
-                        float damage = CalculateDamage(effect.value, user, target, effect.damageType, result, out isCritical);
+                        float damage = CalculateDamage(effect.value, user, target, effect.damageType, result, effect, out isCritical);
                         target.TakeDamage(damage, isCritical);
                     }
                     
@@ -344,7 +344,7 @@ public class SkillManager : MonoBehaviour
     public float advantageDamageMultiplier = 2.0f; // 상성 우위 데미지 배율
 
     // 데미지 계산
-    private float CalculateDamage(float skillPower, Character user, Character target, string damageType, PassiveSkillResult result, out bool isCritical)
+    private float CalculateDamage(float skillPower, Character user, Character target, string damageType, PassiveSkillResult result, SkillEffect effect, out bool isCritical)
     {
         isCritical = false;
 
@@ -408,8 +408,24 @@ public class SkillManager : MonoBehaviour
             }
         }
 
-        // 가드 효과 적용
-        if(result.isGuard)
+        // 가드 효과 적용 (특정 클래스에 대해 가드 불가능한 경우 무시)
+        bool shouldDisableGuard = false;
+        if (effect != null && !string.IsNullOrEmpty(effect.disableGuard_Class))
+        {
+            // disableGuard_Class와 target의 클래스가 일치하는지 확인
+            // "Knight" 또는 "나이트" 모두 체크
+            string targetClassName = target.className;
+            if (effect.disableGuard_Class == "Knight" && (targetClassName == "나이트" || targetClassName == "Knight"))
+            {
+                shouldDisableGuard = true;
+            }
+            else if (effect.disableGuard_Class == targetClassName)
+            {
+                shouldDisableGuard = true;
+            }
+        }
+
+        if(result.isGuard && !shouldDisableGuard)
         {
             switch(result.guardLevel)
             {
@@ -428,6 +444,41 @@ public class SkillManager : MonoBehaviour
             }
 
             result.isGuard = false;
+        }
+        else if (result.isGuard && shouldDisableGuard)
+        {
+            // 가드가 무시됨
+            result.isGuard = false;
+            if (BattleLogManager.Instance != null)
+            {
+                BattleLogManager.Instance.AddLog($"  <color=#FF6B6B>[가드 무시!]</color> {target.characterName}의 가드가 무시되었습니다.");
+            }
+        }
+
+        // 특정 클래스에 대한 추가 데미지 적용
+        if (effect != null && !string.IsNullOrEmpty(effect.addDamage_Class) && effect.addDamageValue > 0)
+        {
+            // addDamage_Class와 target의 클래스가 일치하는지 확인
+            string targetClassName = target.className;
+            bool shouldAddDamage = false;
+            
+            if (effect.addDamage_Class == "Knight" && (targetClassName == "나이트" || targetClassName == "Knight"))
+            {
+                shouldAddDamage = true;
+            }
+            else if (effect.addDamage_Class == targetClassName)
+            {
+                shouldAddDamage = true;
+            }
+
+            if (shouldAddDamage)
+            {
+                finalDamage += effect.addDamageValue;
+                if (BattleLogManager.Instance != null)
+                {
+                    BattleLogManager.Instance.AddLog($"  <color=#FFD700>[클래스 특수 데미지!]</color> {target.characterName}에게 추가 데미지 +{effect.addDamageValue}");
+                }
+            }
         }
 
         // 최종 데미지 반올림, 최소 1 보장
