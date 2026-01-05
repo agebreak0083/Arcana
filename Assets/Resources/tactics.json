@@ -1,8 +1,8 @@
 {
-    "key": "agebreak_2601052103",
-    "username": "agebreak_2601052103",
-    "score": 520,
-    "winCount": 187,
+    "key": "agebreak_2601052109",
+    "username": "agebreak_2601052109",
+    "score": 523,
+    "winCount": 188,
     "loseCount": 41,
     "positions": [
         {
@@ -28,7 +28,7 @@
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "하이 스윙",
+                            "skill": "---",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
@@ -130,12 +130,12 @@
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "하이 스윙",
+                            "skill": "---",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "하이 스윙",
+                            "skill": "---",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
