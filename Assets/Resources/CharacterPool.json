@@ -57,7 +57,7 @@
                     "plan": [
                         {
                             "skill": "가드 슬래시",
-                            "condition1": "조건 없음",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {

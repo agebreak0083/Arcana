@@ -27,7 +27,6 @@ public class SkillEffect
 [Serializable]
 public class Skill
 {
-    public string id;                // 고유 ID
     public string name;              // 스킬 이름
     public string type;              // "active", "passive"
     public string damageType;        // "physical", "magical", ""

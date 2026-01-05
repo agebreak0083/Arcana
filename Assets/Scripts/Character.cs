@@ -165,7 +165,7 @@ public class Character : MonoBehaviour
                 BattleManager.Instance.OnBeforeSkillUseSync(this, targets, skill);
 
                 // 스킬 효과 즉시 적용 (yield 없음)
-                UseSkillSync(skill.id, targets);
+                UseSkillSync(skill.name, targets);
                 
                 // AP/PP 소모
                 stats.actionPoint -= skill.costAP;
@@ -254,7 +254,7 @@ public class Character : MonoBehaviour
                 yield return StartCoroutine(BattleManager.Instance.OnBeforeSkillUse(this, targets, skill));
 
                 // 모든 타겟에 대해 스킬 사용                 
-                yield return StartCoroutine(UseSkill(skill.id, targets));
+                yield return StartCoroutine(UseSkill(skill.name, targets));
                 
                 // AP/PP 소모
                 stats.actionPoint -= skill.costAP;
@@ -518,11 +518,11 @@ public class Character : MonoBehaviour
     // ========== 스킬 시스템 ==========
 
     // 시뮬레이션 모드용 동기 버전 (WebGL 성능 최적화)
-    public void UseSkillSync(string skillId, List<Character> targets)
+    public void UseSkillSync(string skillName, List<Character> targets)
     {
         if (SkillManager.Instance == null) return;
 
-        Skill skill = SkillManager.Instance.GetSkillById(skillId);
+        Skill skill = SkillManager.Instance.GetSkillByName(skillName);
         if (skill == null)
         {
             return;
@@ -538,15 +538,15 @@ public class Character : MonoBehaviour
         SkillManager.Instance.ApplySkillEffects(skill, this, targets);
     }
 
-    // 스킬 사용 (ID로) - 코루틴으로 변경하여 애니메이션 완료까지 대기
-    public IEnumerator UseSkill(string skillId, List<Character> targets)
+    // 스킬 사용 (이름으로) - 코루틴으로 변경하여 애니메이션 완료까지 대기
+    public IEnumerator UseSkill(string skillName, List<Character> targets)
     {
         if (SkillManager.Instance == null) yield break;
 
-        Skill skill = SkillManager.Instance.GetSkillById(skillId);
+        Skill skill = SkillManager.Instance.GetSkillByName(skillName);
         if (skill == null)
         {
-            Debug.LogWarning($"스킬 ID '{skillId}'를 찾을 수 없습니다.");
+            Debug.LogWarning($"스킬 이름 '{skillName}'를 찾을 수 없습니다.");
             yield break;
         }        
 

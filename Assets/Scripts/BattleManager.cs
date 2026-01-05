@@ -227,56 +227,55 @@ public class BattleManager : MonoBehaviour
 
                     Character character = null;
 
-                        if(isSimulationMode)
-                        {
-                            character = simulationObject.AddComponent<Character>();
-                        }
-                        else                                                   
-                        {
-                            GameObject prefab = Resources.Load<GameObject>(modelPath);
-                            if(prefab == null)
-                            {
-                                Debug.LogError($"Failed to load model from Resources: {modelPath}");
-                                continue;
-                            }
-
-                            GameObject charObj = Instantiate(prefab);
-
-                            // 위치 설정
-                            if (i < positions.Count && positions[i] != null)
-                            {
-                                charObj.transform.position = positions[i].transform.position;
-                                charObj.transform.rotation = positions[i].transform.rotation * Quaternion.Euler(0, 90, 0);
-                            }
-
-                            character = charObj.AddComponent<Character>();
-                        }
-
-                        // 캐릭터 클래스를 생성한다.                             
-                        character.characterName = characterData.characterName;
-                        character.className = characterData.characterClass;
-                        character.position = i + 1;
-                        character.hpBarPrefab = hpBarPrefab;
-                        character.hpBarOffset = hpBarOffset;                        
-                        character.isPlayer = isPlayer;
-
-                        if(positions != null && i < positions.Count && positions[i] != null)
-                        {
-                            character.originalPosition = positions[i].transform.position;
-                        }                        
-
-                        // 클래스 스탯 적용
-                        character.ApplyClassStatsToCharacter();
-
-                        // 작전 설정
-                        if (formationResult.codingData.TryGetValue(characterData.id, out var plan))
-                        {
-                            Strategy strategy = StrategyManager.Instance.CreateStrategy(plan);
-                            character.SetStrategy(strategy);
-                        }
-
-                        createdCharacters.Add(character);                        
+                    if(isSimulationMode)
+                    {
+                        character = simulationObject.AddComponent<Character>();
                     }
+                    else                                                   
+                    {
+                        GameObject prefab = Resources.Load<GameObject>(modelPath);
+                        if(prefab == null)
+                        {
+                            Debug.LogError($"Failed to load model from Resources: {modelPath}");
+                            continue;
+                        }
+
+                        GameObject charObj = Instantiate(prefab);
+
+                        // 위치 설정
+                        if (i < positions.Count && positions[i] != null)
+                        {
+                            charObj.transform.position = positions[i].transform.position;
+                            charObj.transform.rotation = positions[i].transform.rotation * Quaternion.Euler(0, 90, 0);
+                        }
+
+                        character = charObj.AddComponent<Character>();
+                    }
+
+                    // 캐릭터 클래스를 생성한다.                             
+                    character.characterName = characterData.characterName;
+                    character.className = characterData.characterClass;
+                    character.position = i + 1;
+                    character.hpBarPrefab = hpBarPrefab;
+                    character.hpBarOffset = hpBarOffset;                        
+                    character.isPlayer = isPlayer;
+
+                    if(positions != null && i < positions.Count && positions[i] != null)
+                    {
+                        character.originalPosition = positions[i].transform.position;
+                    }                        
+
+                    // 클래스 스탯 적용
+                    character.ApplyClassStatsToCharacter();
+
+                    // 작전 설정
+                    if (formationResult.codingData.TryGetValue(characterData.id, out var plan))
+                    {
+                        Strategy strategy = StrategyManager.Instance.CreateStrategy(plan);
+                        character.SetStrategy(strategy);
+                    }
+
+                    createdCharacters.Add(character);                        
                 }
             }
         }

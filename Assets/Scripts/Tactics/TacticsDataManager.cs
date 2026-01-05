@@ -413,7 +413,6 @@ namespace Arcana.Tactics
                         {
                             newData.skills.Add(new Skill
                             {
-                                id = s.id,
                                 name = s.name,
                                 type = s.type,
                                 description = s.description,
@@ -438,7 +437,6 @@ namespace Arcana.Tactics
                     {
                         // Fallback if no skills found
                         newData.skills.Add(new Skill { 
-                            id = "attack_default",
                             name = "Attack", 
                             type = "active", 
                             costAP = 1,
@@ -446,7 +444,6 @@ namespace Arcana.Tactics
                             traits = new List<string>()
                         });
                         newData.skills.Add(new Skill { 
-                            id = "guard_default",
                             name = "Guard", 
                             type = "passive", 
                             costPP = 1,
@@ -529,7 +526,6 @@ namespace Arcana.Tactics
                     {
                         newData.skills.Add(new Skill
                         {
-                            id = s.id,
                             name = s.name,
                             type = s.type,
                             description = s.description,
@@ -553,7 +549,6 @@ namespace Arcana.Tactics
                 {
                     // Fallback if no skills found
                     newData.skills.Add(new Skill { 
-                        id = "attack_default",
                         name = "Attack", 
                         type = "active", 
                         costAP = 1,
@@ -561,7 +556,6 @@ namespace Arcana.Tactics
                         traits = new List<string>()
                     });
                     newData.skills.Add(new Skill { 
-                        id = "guard_default",
                         name = "Guard", 
                         type = "passive", 
                         costPP = 1,

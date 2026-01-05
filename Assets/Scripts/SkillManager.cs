@@ -117,12 +117,6 @@ public class SkillManager : MonoBehaviour
         return skills;
     }
 
-    // ID로 스킬 가져오기
-    public Skill GetSkillById(string id)
-    {
-        return allSkills.Find(s => s.id == id);
-    }
-
     // 이름으로 스킬 가져오기
     public Skill GetSkillByName(string name)
     {
@@ -636,12 +630,12 @@ public class SkillManager : MonoBehaviour
                 // 시뮬레이션 모드에서는 동기 버전으로 스킬 사용
                 if (BattleManager.Instance.isSimulationMode)
                 {
-                    actionCharacter.UseSkillSync(myPassiveSkill.id, targets);
+                    actionCharacter.UseSkillSync(myPassiveSkill.name, targets);
                 }
                 else
                 {
                     // 일반 모드에서는 코루틴으로 처리 (하지만 동기 버전에서는 호출하지 않음)
-                    StartCoroutine(actionCharacter.UseSkill(myPassiveSkill.id, targets));
+                    StartCoroutine(actionCharacter.UseSkill(myPassiveSkill.name, targets));
                 }
 
                 return;
@@ -690,7 +684,7 @@ public class SkillManager : MonoBehaviour
                 }
 
                 // UseSkill은 코루틴이므로 yield return으로 완료까지 대기
-                yield return StartCoroutine(actionCharacter.UseSkill(myPassiveSkill.id, targets));
+                yield return StartCoroutine(actionCharacter.UseSkill(myPassiveSkill.name, targets));
 
                 yield break;
             }
