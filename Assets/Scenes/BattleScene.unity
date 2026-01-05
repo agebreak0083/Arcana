@@ -5683,6 +5683,7 @@ MonoBehaviour:
   - {fileID: 1996535180}
   - {fileID: 2068643480}
   - {fileID: 1079163781}
+  flyUnitHeight: 1
   hpBarPrefab: {fileID: 8822170745769691185, guid: 3c929d473c2cae64b9c6f75ba2af8176, type: 3}
   hpBarOffset: {x: 0, y: 1.5, z: 0}
   playerCharacters: []

@@ -13,6 +13,11 @@ public class DamageText : MonoBehaviour
     public float lifetime = 1.5f;
     public float moveUpDistance = 1f;
 
+    public float normalFontSize = 36f;
+    public float criticalFontSize = 48f;
+    public Color normalColor = new Color(1f, 1f, 1f, 1f);
+    public Color criticalColor = new Color(1f, 0.2f, 0.2f, 1f);
+
     private TextMeshProUGUI textMesh;
     private Color originalColor;
     private Vector3 startPosition;
@@ -65,15 +70,15 @@ public class DamageText : MonoBehaviour
         if (isCritical)
         {
             // 크리티컬: 빨간색, 더 큰 폰트
-            textMesh.color = new Color(1f, 0.2f, 0.2f, 1f);
-            textMesh.fontSize = 48;
+            textMesh.color = criticalColor;
+            textMesh.fontSize = criticalFontSize;
             textMesh.fontStyle = FontStyles.Bold;
         }
         else
         {
             // 일반: 흰색
-            textMesh.color = new Color(1f, 1f, 1f, 1f);
-            textMesh.fontSize = 36;
+            textMesh.color = normalColor;
+            textMesh.fontSize = normalFontSize;
             textMesh.fontStyle = FontStyles.Normal;
         }
 

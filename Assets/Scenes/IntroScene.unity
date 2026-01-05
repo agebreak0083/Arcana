@@ -2957,10 +2957,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 821945566169031716, guid: 375d4a2525a115640b889312494aaa31, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5996850249619971427, guid: 375d4a2525a115640b889312494aaa31, type: 3}
       propertyPath: m_Name
       value: IRISUIManager

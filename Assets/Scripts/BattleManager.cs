@@ -49,6 +49,7 @@ public class BattleManager : MonoBehaviour
     [Header("Positions")]
     public List<GameObject> playerPositions;
     public List<GameObject> enemyPositions;
+    public float flyUnitHeight = 2.5f; // 비행 유닛의 높이이
 
     [Header("UI Prefabs")]
     public GameObject hpBarPrefab; // HP 바 프리팹
@@ -216,15 +217,6 @@ public class BattleManager : MonoBehaviour
                         modelPath += characterData.model;
                     }
 
-                    if (modelPath.StartsWith("Assets/Resources/"))
-                    {
-                        modelPath = modelPath.Substring("Assets/Resources/".Length);
-                    }
-                    if (modelPath.EndsWith(".prefab"))
-                    {
-                        modelPath = modelPath.Substring(0, modelPath.Length - ".prefab".Length);
-                    }
-
                     Character character = null;
 
                     if(isSimulationMode)
@@ -247,6 +239,13 @@ public class BattleManager : MonoBehaviour
                         {
                             charObj.transform.position = positions[i].transform.position;
                             charObj.transform.rotation = positions[i].transform.rotation * Quaternion.Euler(0, 90, 0);
+
+                            // 공중 유닛 높이 처리
+                            if(characterData.characterClass == "그리폰나이트")
+                            {
+                                charObj.transform.position += new Vector3(0, flyUnitHeight, 0);
+                            }
+                            
                         }
 
                         character = charObj.AddComponent<Character>();
@@ -630,7 +629,10 @@ public class BattleManager : MonoBehaviour
                 }            
 
                 // 아이리스 메세지 출력 
-                IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.BATTLE_RESULT_VICTORY);
+                if(IRISUIManager.Instance != null)
+                {
+                    IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.BATTLE_RESULT_VICTORY);
+                }
 
                 // 이겼을때만, 서버에 택틱스 저장 
                 string tacticsJson = TacticsDataManager.Instance.GetTacticsJson(playerFormationLoadResult.unitSlots, playerFormationLoadResult.codingData);
