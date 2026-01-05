@@ -784,10 +784,10 @@ public class Character : MonoBehaviour
         buffs.Remove(buff);
 
         // 전투 로그에 버프/디버프 제거 기록
-        if (BattleLogManager.Instance != null)
-        {
-            BattleLogManager.Instance.AddLog($"  <color=#FF0000>[{buff.stat} {buff.value}% 버프/디버프 제거!]</color> from {characterName}");
-        }
+        // if (BattleLogManager.Instance != null)
+        // {
+        //     BattleLogManager.Instance.AddLog($"  <color=#FF0000>[{buff.stat} {buff.value}% 버프/디버프 제거!]</color> from {characterName}");
+        // }
     }
     public void RemoveAllBuffs()
     {

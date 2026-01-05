@@ -896,7 +896,7 @@
         }
       ],
       "traits": [],
-      "animation": "Skill_1"
+      "animation": "SkillKnight_1"
     },
     {
       "name": "파일 스러스트",
@@ -919,7 +919,7 @@
         }
       ],
       "traits": [],
-      "animation": "Skill_1"
+      "animation": "SkillKnight_1"
     },
     {
       "name": "퀵 가드",
@@ -937,7 +937,7 @@
         }
       ],
       "traits": [],
-      "animation": "Skill_1"
+      "animation": "Guard"
     },
     {
       "name": "캐벌리 엘",
@@ -946,18 +946,19 @@
       "target": "ally",
       "costAP": 0,
       "costPP": 1,
+      "checkPhase": "before_skill_use_self",
       "effects": [
         {
           "type": "buff",
           "damageType": "physical",
-          "target": "column_ally",
+          "target": "column_ally_Knight",
           "stat": "physical_attack",
           "value": 20,
           "duration": 1
         }
       ],
       "traits": [],
-      "animation": "Skill_1"
+      "animation": "Guard"
     }
   ],
   "화이트 나이트 / 세인트 나이트": [

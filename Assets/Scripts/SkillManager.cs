@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Arcana.Tactics;
 using Arcana.Tactics.Data;
@@ -245,22 +246,55 @@ public class SkillManager : MonoBehaviour
                 break;
 
             case "buff":
-                Character buffTarget = null;
                 if (effect.target == "self")
                 {
-                    buffTarget = user;
+                    user.AddBuff(effect.stat, effect.value, effect.duration);
+                    if (BattleLogManager.Instance != null)
+                    {
+                        BattleLogManager.Instance.AddLog($" {user.characterName} → <color=#00FF00>[{effect.stat} +{effect.value}% 버프 적용!]</color> (지속: {effect.duration}턴)");
+                    }
                 }
                 else if (effect.target == "ally")
                 {
                     // TODO : 아군 버프 적용
                 }
-
-                buffTarget.AddBuff(effect.stat, effect.value, effect.duration);
-
-                // 전투 로그에 버프 기록
-                if (BattleLogManager.Instance != null)
+                else if (effect.target == "column_ally_Knight")
                 {
-                    BattleLogManager.Instance.AddLog($" {buffTarget.characterName} → <color=#00FF00>[{effect.stat} +{effect.value}% 버프 적용!]</color> (지속: {effect.duration}턴)");
+                    Debug.Log($"[패시브 스킬] column_ally_Knight 버프 처리 시작 - 사용자: {user.characterName}, 위치: {user.position}");
+                    
+                    // 같은 대열(전열 또는 후열)에 있는 나이트에게 버프 적용
+                    List<Character> allies = user.isPlayer ? BattleManager.Instance.playerCharacters : BattleManager.Instance.enemyCharacters;
+                    
+                    // 사용자가 전열(1,2,3)에 있으면 전열의 동료들, 후열(4,5,6)에 있으면 후열의 동료들
+                    bool isFrontRow = user.position <= 3;                    
+                    
+                    // 같은 대열에 있는 아군 중에서 나이트만 필터링
+                    List<Character> knightsInRow = allies.Where(c => 
+                        c != null && 
+                        c.hp > 0 && 
+                        ((isFrontRow && c.position <= 3) || (!isFrontRow && c.position > 3)) &&
+                        c.className == "나이트"
+                    ).ToList();
+                    
+                    foreach (var knight in knightsInRow)
+                    {
+                        Debug.Log($"[캐벌리 엘] 나이트 발견: {knight.characterName}, 위치: {knight.position}, 클래스: {knight.className}");
+                    }
+                    
+                    // 같은 대열에 나이트가 있을 때만 버프 적용
+                    if (knightsInRow.Count > 0)
+                    {
+                        Debug.Log($"[캐벌리 엘] 버프 적용 시작 - {knightsInRow.Count}명의 나이트에게 적용");
+                        foreach (var knight in knightsInRow)
+                        {
+                            knight.AddBuff(effect.stat, effect.value, effect.duration);
+                            Debug.Log($"[캐벌리 엘] 버프 적용 완료: {knight.characterName}에게 {effect.stat} +{effect.value}% (지속: {effect.duration}턴)");
+                            if (BattleLogManager.Instance != null)
+                            {
+                                BattleLogManager.Instance.AddLog($" {knight.characterName} → <color=#00FF00>[{effect.stat} +{effect.value}% 버프 적용!]</color> (지속: {effect.duration}턴)");
+                            }
+                        }
+                    }                    
                 }
                 break;
             case "stun":
@@ -450,7 +484,7 @@ public class SkillManager : MonoBehaviour
             {
                 continue;
             }
-
+            
             // 스킬의 조건을 체크한다. 
             // 가드 스킬
             if(myPassiveSkill.checkPhase == "guard")
@@ -472,18 +506,29 @@ public class SkillManager : MonoBehaviour
             // 자신이 스킬을 사용 하기전
             else if(myPassiveSkill.checkPhase == "before_skill_use_self")
             {
+                Debug.Log($"[패시브 스킬 체크] {actionCharacter.characterName}의 패시브 스킬 '{myPassiveSkill.name}' 체크 중... (checkPhase: {myPassiveSkill.checkPhase}, user: {user?.characterName}, actionCharacter: {actionCharacter.characterName})");
+                
                 if(user == actionCharacter)
                 {
+                    Debug.Log($"[패시브 스킬 체크] 조건 만족: user {user?.characterName} == actionCharacter {actionCharacter.characterName}");
+                    
                     foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
                     {
+                        Debug.Log($"[패시브 스킬 체크] 효과 타입: {mySkillEffect.type}, target: {mySkillEffect.target}");
+                        
                         if (mySkillEffect.type == "sure_hit")
                         {
                             result.isSureHit = true;                        
+                            bCheckPassiveSkill = true;                         
+                        }
+                        else if (mySkillEffect.type == "buff")
+                        {
+                            // buff 효과는 ApplyEffect를 통해 처리 (column_ally_Knight 등 특수 타겟 처리)                            
+                            ApplyEffect(mySkillEffect, actionCharacter, actionCharacter, skill);
                             bCheckPassiveSkill = true;
                         }
-
                     }                    
-                }
+                }                
             }            
             // 아군이 스킬을 사용 하기전
             else if(myPassiveSkill.checkPhase == "before_skill_use_ally")
@@ -506,6 +551,7 @@ public class SkillManager : MonoBehaviour
 
             if(bCheckPassiveSkill)
             {
+                Debug.Log($"[패시브 스킬 체크] 패시브 스킬 '{myPassiveSkill.name}' 발동! PP {myPassiveSkill.costPP} 소모 (남은 PP: {actionCharacter.stats.passivePoint - myPassiveSkill.costPP})");
                 actionCharacter.stats.passivePoint -= myPassiveSkill.costPP;
                 return;
             }
@@ -516,6 +562,8 @@ public class SkillManager : MonoBehaviour
     {
         bool bCheckPassiveSkill = false;
 
+        Debug.Log($"[패시브 스킬 체크 시작] {actionCharacter.characterName}의 availableActions 수: {actionCharacter.availableActions.Count}");
+
         // 자신에게 세팅된 Action 순회, PP 스킬을 찾고, 조건을 체크한다. 
         foreach (var action in actionCharacter.availableActions)
         {
@@ -525,6 +573,8 @@ public class SkillManager : MonoBehaviour
             {
                 continue;
             }
+            
+            Debug.Log($"[패시브 스킬 체크] 스킬 '{myPassiveSkill.name}' 발견 (type: {myPassiveSkill.type}, checkPhase: {myPassiveSkill.checkPhase}, costPP: {myPassiveSkill.costPP})");
 
             // 스킬의 조건을 체크한다. 
             // 가드 스킬
@@ -547,17 +597,34 @@ public class SkillManager : MonoBehaviour
             // 자신이 스킬을 사용 하기전
             else if(myPassiveSkill.checkPhase == "before_skill_use_self")
             {
+                Debug.Log($"[패시브 스킬 체크] {actionCharacter.characterName}의 패시브 스킬 '{myPassiveSkill.name}' 체크 중... (checkPhase: {myPassiveSkill.checkPhase}, user: {user?.characterName}, actionCharacter: {actionCharacter.characterName})");
+                
                 if(user == actionCharacter)
                 {
+                    Debug.Log($"[패시브 스킬 체크] 조건 만족: user == actionCharacter");
+                    
                     foreach (SkillEffect mySkillEffect in myPassiveSkill.effects)
                     {
+                        Debug.Log($"[패시브 스킬 체크] 효과 타입: {mySkillEffect.type}, target: {mySkillEffect.target}");
+                        
                         if (mySkillEffect.type == "sure_hit")
                         {
                             result.isSureHit = true;                        
                             bCheckPassiveSkill = true;
+                            Debug.Log($"[패시브 스킬 체크] sure_hit 효과 적용됨");
                         }
-
+                        else if (mySkillEffect.type == "buff")
+                        {
+                            // buff 효과는 ApplyEffect를 통해 처리 (column_ally_Knight 등 특수 타겟 처리)
+                            Debug.Log($"[패시브 스킬 체크] buff 효과 발견, ApplyEffect 호출 예정");
+                            ApplyEffect(mySkillEffect, actionCharacter, actionCharacter, skill);
+                            bCheckPassiveSkill = true;
+                        }
                     }                    
+                }
+                else
+                {
+                    Debug.Log($"[패시브 스킬 체크] 조건 불만족: user({user?.characterName}) != actionCharacter({actionCharacter.characterName})");
                 }
             }            
             // 아군이 스킬을 사용 하기전
@@ -726,10 +793,11 @@ public class SkillManager : MonoBehaviour
                 {                    
                     bCheckPassiveSkill = true;
                 }                
-            }            
+            }
 
             if(bCheckPassiveSkill)
             {
+                Debug.Log($"[패시브 스킬 체크] 패시브 스킬 '{myPassiveSkill.name}' 발동! PP {myPassiveSkill.costPP} 소모 (남은 PP: {actionCharacter.stats.passivePoint - myPassiveSkill.costPP})");
                 actionCharacter.stats.passivePoint -= myPassiveSkill.costPP;
                 
                 // UI에 스킬 이름 표시

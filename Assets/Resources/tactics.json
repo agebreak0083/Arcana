@@ -1,8 +1,8 @@
 {
-    "key": "agebreak_2601051558",
-    "username": "agebreak_2601051558",
-    "score": 487,
-    "winCount": 175,
+    "key": "agebreak_2601051702",
+    "username": "agebreak_2601051702",
+    "score": 493,
+    "winCount": 177,
     "loseCount": 38,
     "positions": [
         {
@@ -12,18 +12,18 @@
         },
         {
             "position": "2",
-            "name": "반디",
+            "name": "이드하리",
             "tactics": [
                 {
                     "characterClass": "나이트",
                     "plan": [
                         {
-                            "skill": "파일 스러스트",
+                            "skill": "와일드 러시",
                             "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "전후열에 선 [적/아군]"
                         },
                         {
-                            "skill": "파일 스러스트",
+                            "skill": "어설트 랜스",
                             "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
@@ -63,38 +63,33 @@
         },
         {
             "position": "3",
-            "name": "",
-            "tactics": []
-        },
-        {
-            "position": "4",
-            "name": "다이아린",
+            "name": "반디",
             "tactics": [
                 {
-                    "characterClass": "헌터",
+                    "characterClass": "나이트",
                     "plan": [
                         {
-                            "skill": "더블 샷",
-                            "condition1": "적이 2명 이상▲",
-                            "condition2": "조건 없음"
+                            "skill": "와일드 러시",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "전후열에 선 [적/아군]"
                         },
                         {
-                            "skill": "싱글 샷",
+                            "skill": "어설트 랜스",
                             "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "라인 샷",
+                            "skill": "파일 스러스트",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "이글 아이",
+                            "skill": "퀵 가드",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "체이스",
+                            "skill": "캐벌리 엘",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
@@ -118,12 +113,7 @@
             ]
         },
         {
-            "position": "5",
-            "name": "",
-            "tactics": []
-        },
-        {
-            "position": "6",
+            "position": "4",
             "name": "비비안",
             "tactics": [
                 {
@@ -172,6 +162,16 @@
                     ]
                 }
             ]
+        },
+        {
+            "position": "5",
+            "name": "",
+            "tactics": []
+        },
+        {
+            "position": "6",
+            "name": "",
+            "tactics": []
         }
     ]
 }

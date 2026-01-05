@@ -26,12 +26,12 @@
                     "characterClass": "나이트",
                     "plan": [
                         {
-                            "skill": "파일 스러스트",
+                            "skill": "와일드 러시",
                             "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "전후열에 선 [적/아군]"
                         },
                         {
-                            "skill": "파일 스러스트",
+                            "skill": "어설트 랜스",
                             "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
@@ -71,53 +71,7 @@
         },
         {
             "Name": "다이아린",
-            "tactics": [
-                {
-                    "characterClass": "헌터",
-                    "plan": [
-                        {
-                            "skill": "더블 샷",
-                            "condition1": "적이 2명 이상▲",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "싱글 샷",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "라인 샷",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "이글 아이",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "체이스",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        }
-                    ]
-                }
-            ]
+            "tactics": []
         },
         {
             "Name": "비비안",
@@ -147,6 +101,146 @@
                         },
                         {
                             "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Name": "앙코",
+            "tactics": []
+        },
+        {
+            "Name": "달리아",
+            "tactics": []
+        },
+        {
+            "Name": "산화",
+            "tactics": []
+        },
+        {
+            "Name": "히실렌스",
+            "tactics": []
+        },
+        {
+            "Name": "엽빛나",
+            "tactics": []
+        },
+        {
+            "Name": "반디",
+            "tactics": []
+        },
+        {
+            "Name": "다이아린",
+            "tactics": []
+        },
+        {
+            "Name": "비비안",
+            "tactics": [
+                {
+                    "characterClass": "위치",
+                    "plan": [
+                        {
+                            "skill": "아이스 샷",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "매직 미사일",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "아이스 코핀",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "매직 세이버",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Name": "도기",
+            "tactics": []
+        },
+        {
+            "Name": "에버나이트",
+            "tactics": []
+        },
+        {
+            "Name": "설지",
+            "tactics": []
+        },
+        {
+            "Name": "이드하리",
+            "tactics": [
+                {
+                    "characterClass": "나이트",
+                    "plan": [
+                        {
+                            "skill": "와일드 러시",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "전후열에 선 [적/아군]"
+                        },
+                        {
+                            "skill": "어설트 랜스",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "파일 스러스트",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "퀵 가드",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "캐벌리 엘",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
