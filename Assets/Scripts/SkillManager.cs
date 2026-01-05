@@ -220,8 +220,9 @@ public class SkillManager : MonoBehaviour
                     for (int i = 0; i < hitCount; i++)
                     {
                         bool isCritical;
-                        float damage = CalculateDamage(effect.value, user, target, effect.damageType, result, effect, out isCritical);
-                        target.TakeDamage(damage, isCritical);
+                        bool isMiss;
+                        float damage = CalculateDamage(effect.value, user, target, effect.damageType, result, effect, out isCritical, out isMiss);
+                        target.TakeDamage(damage, isCritical, isMiss);
                     }
                     
                     // 전투 로그에 다단히트 정보 기록
@@ -377,9 +378,10 @@ public class SkillManager : MonoBehaviour
     public float advantageDamageMultiplier = 2.0f; // 상성 우위 데미지 배율
 
     // 데미지 계산
-    private float CalculateDamage(float skillPower, Character user, Character target, string damageType, PassiveSkillResult result, SkillEffect effect, out bool isCritical)
+    private float CalculateDamage(float skillPower, Character user, Character target, string damageType, PassiveSkillResult result, SkillEffect effect, out bool isCritical, out bool isMiss)
     {
         isCritical = false;
+        isMiss = false;
 
         // addDamage_HPValue가 있는지 확인 (사용자 HP의 퍼센트만큼 데미지)
         bool hasHPBasedDamage = effect != null && effect.addDamage_HPValue > 0;
@@ -549,6 +551,26 @@ public class SkillManager : MonoBehaviour
                     BattleLogManager.Instance.AddLog($"  <color=#FFD700>[클래스 특수 데미지!]</color> {target.characterName}에게 추가 데미지 +{effect.addDamageValue}");
                 }
             }
+        }
+
+        // 5. 명중/회피 체크
+        float userAccuracy = user.stats.GetAccuracyValue();
+        float targetEvasion = target.stats.GetEvasionValue();
+        
+        // 실제 명중 확률 = 명중률 - 회피율 (최소 0%, 최대 100%)
+        float hitChance = Mathf.Clamp(userAccuracy - targetEvasion, 0f, 100f);
+        
+        // 명중 체크
+        float randomValue = UnityEngine.Random.Range(0f, 100f);
+        if (randomValue >= hitChance)
+        {
+            // 회피 성공
+            isMiss = true;
+            if (BattleLogManager.Instance != null)
+            {
+                BattleLogManager.Instance.AddLog($"  <color=#00FF00>[회피 성공!]</color> {target.characterName}이(가) 공격을 회피했습니다.");
+            }
+            return 0f; // 데미지 0
         }
 
         // 최종 데미지 반올림, 최소 1 보장

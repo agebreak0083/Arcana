@@ -423,8 +423,26 @@ public class Character : MonoBehaviour
     }
 
     // HP 변경
-    public void TakeDamage(float damage, bool isCritical = false)
+    public void TakeDamage(float damage, bool isCritical = false, bool isMiss = false)
     {
+        // 회피 성공 시 처리
+        if (isMiss)
+        {
+            // 데미지 텍스트 표시 (MISS)
+            if (BattleUI.Instance != null)
+            {
+                Vector3 damageTextPosition = transform.position + Vector3.up * 1f;
+                BattleUI.Instance.ShowDamageText(0, damageTextPosition, false, true);
+            }
+            
+            // BattleManager에 액션 완료 알림
+            if (BattleManager.Instance != null)
+            {
+                BattleManager.Instance.OnCharacterActionFinished(this);
+            }
+            return;
+        }
+
         if(damage <= 0)
         {
             // BattleManager에 액션 완료 알림
@@ -469,7 +487,7 @@ public class Character : MonoBehaviour
         {
             // 캐릭터 머리 위 위치 계산 (약간 위로)
             Vector3 damageTextPosition = transform.position + Vector3.up * 1f;
-            BattleUI.Instance.ShowDamageText(Mathf.RoundToInt(damage), damageTextPosition, isCritical);
+            BattleUI.Instance.ShowDamageText(Mathf.RoundToInt(damage), damageTextPosition, isCritical, false);
         }
 
         // 전투 로그에 데미지 기록

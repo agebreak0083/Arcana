@@ -247,7 +247,7 @@ public class BattleUI : MonoBehaviour
     /// <param name="damage">데미지 양</param>
     /// <param name="worldPosition">월드 좌표 (캐릭터 위치)</param>
     /// <param name="isCritical">크리티컬 여부</param>
-    public void ShowDamageText(int damage, Vector3 worldPosition, bool isCritical = false)
+    public void ShowDamageText(int damage, Vector3 worldPosition, bool isCritical = false, bool isMiss = false)
     {
         if (damageTextPrefab == null)
         {
@@ -293,7 +293,7 @@ public class BattleUI : MonoBehaviour
         DamageText damageText = damageTextObj.GetComponent<DamageText>();
         if (damageText != null)
         {
-            damageText.Setup(damage, isCritical);
+            damageText.Setup(damage, isCritical, isMiss);
         }
     }
 }

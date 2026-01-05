@@ -31,7 +31,8 @@ public class ClassStats
             case "C": return 3;
             case "D": return 2;
             case "E": return 1;
-            default: return 3; // 기본값 C
+            case "F": return 0;
+            default: return 0; // 기본값 0
         }
     }
 
@@ -42,7 +43,7 @@ public class ClassStats
     public float GetMagicalAttackValue() => 40f + GetStatValue(magicalAttack) * 10f;    // 마법공격: 50~100
     public float GetMagicalDefenseValue() => GetStatValue(magicalDefense) * 5f;   // 마법방어: 5~30
     public float GetAccuracyValue() => 80f + GetStatValue(accuracy) * 3f;         // 명중: 83~98%
-    public float GetEvasionValue() => GetStatValue(evasion) * 3f;                 // 회피: 3~18%
+    public float GetEvasionValue() => GetStatValue(evasion) * 6f;                 // 회피: 6~36%
     public float GetCriticalRateValue() => GetStatValue(criticalRate) * 2f;       // 치명타: 2~12%
     public float GetGuardRateValue() => GetStatValue(guardRate) * 5f;             // 가드: 5~30%
     public float GetActionSpeedValue() => 50f + GetStatValue(actionSpeed) * 10f;  // 행동속도: 60~110
