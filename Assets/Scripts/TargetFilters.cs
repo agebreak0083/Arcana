@@ -174,6 +174,42 @@ public class FormationFilter : ITargetFilter
     }
 }
 
+/// <summary>
+/// 전후열에 선 필터 (같은 열에 전열과 후열 캐릭터가 모두 있는 경우)
+/// 예: position 1(전열)과 4(후열)이 같은 열, position 2(전열)과 5(후열)이 같은 열, position 3(전열)과 6(후열)이 같은 열
+/// </summary>
+public class FrontBackRowFilter : ITargetFilter
+{
+    public List<Character> Filter(List<Character> candidates, Character self)
+    {
+        List<Character> filtered = new List<Character>();
+        
+        // 각 열(column)별로 확인
+        // 열 1: position 1(전열)과 4(후열)
+        // 열 2: position 2(전열)과 5(후열)
+        // 열 3: position 3(전열)과 6(후열)
+        for (int col = 1; col <= 3; col++)
+        {
+            int frontPos = col;      // 전열: 1, 2, 3
+            int backPos = col + 3;    // 후열: 4, 5, 6
+            
+            // 같은 열에 전열과 후열 캐릭터가 모두 있는지 확인
+            bool hasFront = candidates.Any(c => c.position == frontPos && c.hp > 0);
+            bool hasBack = candidates.Any(c => c.position == backPos && c.hp > 0);
+            
+            // 둘 다 있으면 해당 열의 모든 캐릭터를 필터링 결과에 추가
+            if (hasFront && hasBack)
+            {
+                Debug.Log($"FrontBackRowFilter: 열 {col}에 전열과 후열 캐릭터가 모두 있습니다.");
+                
+                filtered.AddRange(candidates.Where(c => c.position == frontPos || c.position == backPos));
+            }
+        }
+        
+        return filtered;
+    }
+}
+
 // ==================================================================================
 // Condition1 Selectors (선택)
 // ==================================================================================

@@ -63,6 +63,11 @@ public static class TargetConditionFactory
         }
 
         // 대열 필터
+        // 전후열에 선 필터 (같은 열에 전열과 후열 캐릭터가 모두 있는 경우)
+        if (condition.Contains("전후열에 선"))
+        {
+            return new FrontBackRowFilter();
+        }
         if (condition.Contains("전열"))
         {
             return new FormationFilter(true);
