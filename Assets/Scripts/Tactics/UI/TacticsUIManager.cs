@@ -446,8 +446,8 @@ namespace Arcana.Tactics.UI
             }
 
             // 추천 전술을 현재 캐릭터에 적용
-            recommendedPlan.characterId = _selectedCharacter.id;
-            _codingData[_selectedCharacter.id] = recommendedPlan;
+            recommendedPlan.characterId = _selectedCharacter.characterName;
+            _codingData[_selectedCharacter.characterName] = recommendedPlan;
 
             // UI 업데이트
             UpdateCodingPanel();
@@ -500,7 +500,7 @@ namespace Arcana.Tactics.UI
                 Debug.LogError($"TacticsUIManager: Character with name {charName} not found! Available characters: {string.Join(", ", availableCharacters.Keys)}");
                 return;
             }
-            _modalTargetCharId = targetCharacter.id;
+            _modalTargetCharId = targetCharacter.characterName;
             _modalTargetRowIndex = rowIndex;
             _modalTargetConditionNum = conditionNum;
             conditionModal.Open();
@@ -545,7 +545,7 @@ namespace Arcana.Tactics.UI
                 return;
             }
 
-            _modalTargetCharId = targetCharacter.id;
+            _modalTargetCharId = targetCharacter.characterName;
 
             if (skillModal == null)
             {
@@ -825,10 +825,10 @@ namespace Arcana.Tactics.UI
             // 저장된 plan이 그보다 적은 경우, 나머지는 기본 prefab으로 생성됩니다.
 
             // Tactics 데이터가 없으면 기본 plan 생성
-            if (!_codingData.TryGetValue(_selectedCharacter.id, out var plan))
+            if (!_codingData.TryGetValue(_selectedCharacter.characterName, out var plan))
             {
                 plan = _dataManager.CreateDefaultPlan(_selectedCharacter);
-                _codingData[_selectedCharacter.id] = plan;
+                _codingData[_selectedCharacter.characterName] = plan;
             }
 
             int maxTacticsRow = TacticsDatabase.MAX_TACTICS_ROW;
@@ -904,9 +904,9 @@ namespace Arcana.Tactics.UI
             _unitSlots[slotIndex] = charData;
 
             // Initialize coding data if needed
-            if (!_codingData.ContainsKey(charData.id))
+            if (!_codingData.ContainsKey(charData.characterName))
             {
-                _codingData[charData.id] = _dataManager.CreateDefaultPlan(charData);
+                _codingData[charData.characterName] = _dataManager.CreateDefaultPlan(charData);
             }
 
             _selectedCharacter = charData;

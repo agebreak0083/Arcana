@@ -51,7 +51,7 @@ namespace Arcana.Tactics
                     posData.name = character.characterName;
 
                     // If this character has tactics data, add it
-                    if (codingData.TryGetValue(character.id, out var plan))
+                    if (codingData.TryGetValue(character.characterName, out var plan))
                     {
                         var tacticRowsList = new List<TacticRowData>();
                         foreach (var row in plan.rows)
@@ -175,7 +175,7 @@ namespace Arcana.Tactics
                         var tacticData = posData.tactics[0];
                         if (tacticData.plan != null && tacticData.plan.Length > 0)
                         {
-                            var plan = new TacticsPlan(character.id);
+                            var plan = new TacticsPlan(character.characterName);
 
                             // TacticsPlan은 이미 8개의 기본 Row를 가지고 있음
                             // 로드한 데이터로 앞부분을 채움 (최대 8개까지)
@@ -199,15 +199,15 @@ namespace Arcana.Tactics
                                 );
                             }
 
-                            result.codingData[character.id] = plan;
+                            result.codingData[character.characterName] = plan;
                         }
                     }
                     else
                     {
                         // No saved tactics, create default plan
-                        if (!result.codingData.ContainsKey(character.id))
+                        if (!result.codingData.ContainsKey(character.characterName))
                         {
-                            result.codingData[character.id] = createDefaultPlan(character);
+                            result.codingData[character.characterName] = createDefaultPlan(character);
                         }
                     }
                 }
@@ -298,7 +298,7 @@ namespace Arcana.Tactics
                     };
 
                     // If this character has tactics data, save it
-                    if (codingData.TryGetValue(character.id, out var plan))
+                    if (codingData.TryGetValue(character.characterName, out var plan))
                     {
                         var tacticRowsList = new List<TacticRowData>();
                         foreach (var row in plan.rows)

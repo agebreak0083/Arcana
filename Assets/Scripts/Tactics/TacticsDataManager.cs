@@ -855,7 +855,7 @@ namespace Arcana.Tactics
         /// </summary>
         public TacticsPlan CreateDefaultPlan(CharacterData data)
         {
-            var plan = new TacticsPlan(data.id);
+            var plan = new TacticsPlan(data.characterName);
 
             // TacticsPlan은 이미 8개의 기본 Row를 가지고 있음
             // 캐릭터의 스킬로 앞부분을 채움
@@ -1168,7 +1168,7 @@ namespace Arcana.Tactics
                     var tacticData = poolItem.tactics[0];
                     if (tacticData.plan != null && tacticData.plan.Length > 0)
                     {
-                        var plan = new TacticsPlan(character.id);
+                        var plan = new TacticsPlan(character.characterName);
 
                         // TacticsPlan은 이미 8개의 기본 Row를 가지고 있음
                         // 로드한 데이터로 앞부분을 채움 (최대 8개까지)
@@ -1192,18 +1192,18 @@ namespace Arcana.Tactics
                             );
                         }
 
-                        // _playerFormationLoadResult.codingData에 병합 (character.id를 키로 사용)
+                        // _playerFormationLoadResult.codingData에 병합 (characterName을 키로 사용)
                         // tactics.json에서 이미 로드된 데이터가 있으면 덮어쓰지 않고, 없으면 추가
-                        if (!_playerFormationLoadResult.codingData.ContainsKey(character.id))
+                        if (!_playerFormationLoadResult.codingData.ContainsKey(character.characterName))
                         {
-                            _playerFormationLoadResult.codingData[character.id] = plan;
+                            _playerFormationLoadResult.codingData[character.characterName] = plan;
                             Debug.Log($"CharacterPool에서 '{poolItem.Name}'의 작전 코딩 로드 완료");
                         }
                         else
                         {
                             // 이미 tactics.json에서 로드된 데이터가 있으면 CharacterPool 데이터로 덮어쓰기
                             // (CharacterPool이 더 최신 데이터일 수 있음)
-                            _playerFormationLoadResult.codingData[character.id] = plan;
+                            _playerFormationLoadResult.codingData[character.characterName] = plan;
                             Debug.Log($"CharacterPool에서 '{poolItem.Name}'의 작전 코딩을 덮어쓰기 완료");
                         }
                     }
