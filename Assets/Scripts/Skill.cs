@@ -23,6 +23,7 @@ public class SkillEffect
     public string disableGuard_Class; // 특정 클래스에 대해 가드 불가 (예: "Knight", "나이트")
     public string addDamage_Class;    // 특정 클래스에 대해 추가 데미지 (예: "Knight", "나이트")
     public float addDamageValue;      // 추가 데미지 값
+    public float addDamage_HPValue;   // 사용자 현재 HP의 퍼센트만큼 추가 데미지 (예: 50 = HP의 50%)
 }
 
 /// <summary>

@@ -193,6 +193,12 @@ public static class TargetConditionFactory
             }
         }
 
+        // 기마 계열 우선 선택
+        if (condition.Contains("기마 계열"))
+        {
+            return new CavalryClassSelector();
+        }
+
         // TODO: 병종, 대열 등 추가 선택기 구현
 
         Debug.LogWarning($"[TargetConditionFactory] 미구현 Condition1: {condition}");

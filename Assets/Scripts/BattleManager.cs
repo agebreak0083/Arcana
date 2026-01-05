@@ -301,15 +301,46 @@ public class BattleManager : MonoBehaviour
         }
 
         // speed가 높은 순으로 정렬 (null 체크 포함)
+        ReorderCharactersBySpeed();
+    }
+
+    // 행동 속도 순으로 캐릭터 재정렬 (버프 반영)
+    private void ReorderCharactersBySpeed()
+    {
         if (charactersTurnList.Count > 0)
         {
             charactersTurnList.Sort((a, b) =>
             {
                 if (a == null || a.stats == null) return 1;
                 if (b == null || b.stats == null) return -1;
-                return b.stats.GetActionSpeedValue().CompareTo(a.stats.GetActionSpeedValue());
+                
+                // 버프가 적용된 행동 속도 계산
+                float speedA = GetCharacterActionSpeedWithBuffs(a);
+                float speedB = GetCharacterActionSpeedWithBuffs(b);
+                
+                return speedB.CompareTo(speedA); // 높은 순으로 정렬
             });
         }
+    }
+
+    // 버프가 적용된 행동 속도 계산
+    private float GetCharacterActionSpeedWithBuffs(Character character)
+    {
+        if (character == null || character.stats == null) return 0f;
+        
+        float baseSpeed = character.stats.GetActionSpeedValue();
+        
+        // action_speed 버프 적용 (고정 수치로 더하기)
+        float speedBonus = 0f;
+        foreach (var buff in character.buffs)
+        {
+            if (buff.stat == "action_speed")
+            {
+                speedBonus += buff.value; // 고정 수치로 더하기
+            }
+        }
+        
+        return baseSpeed + speedBonus;
     }
 
     public void OnCharacterActionFinished(Character character)
@@ -428,6 +459,9 @@ public class BattleManager : MonoBehaviour
                 Debug.Log($"라운드 {currentRound} 종료: 더 이상 행동 가능한 캐릭터가 없습니다.");
             }
         }
+
+        // 라운드 종료 시 행동 속도 순으로 재정렬 (버프로 인한 속도 변화 반영)
+        ReorderCharactersBySpeed();
 
         if(!isSimulationMode)
         {

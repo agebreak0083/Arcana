@@ -1,9 +1,9 @@
 {
-    "key": "agebreak_2601052021",
-    "username": "agebreak_2601052021",
-    "score": 507,
-    "winCount": 182,
-    "loseCount": 39,
+    "key": "agebreak_2601052103",
+    "username": "agebreak_2601052103",
+    "score": 520,
+    "winCount": 187,
+    "loseCount": 41,
     "positions": [
         {
             "position": "1",
@@ -13,17 +13,17 @@
                     "characterClass": "그리폰나이트",
                     "plan": [
                         {
+                            "skill": "페이탈 폴",
+                            "condition1": "기마 계열 [적/아군] 우선",
+                            "condition2": "전후열에 선 [적/아군]"
+                        },
+                        {
                             "skill": "하이 스윙",
                             "condition1": "기마 계열 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "하이 스윙",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "하이 스윙",
+                            "skill": "페더링",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
@@ -115,17 +115,17 @@
                     "characterClass": "그리폰나이트",
                     "plan": [
                         {
+                            "skill": "페이탈 폴",
+                            "condition1": "기마 계열 [적/아군] 우선",
+                            "condition2": "전후열에 선 [적/아군]"
+                        },
+                        {
                             "skill": "하이 스윙",
                             "condition1": "기마 계열 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "하이 스윙",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "하이 스윙",
+                            "skill": "페더링",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },

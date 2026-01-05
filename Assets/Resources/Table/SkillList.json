@@ -1463,17 +1463,18 @@
       "animation": "Skill_1"
     },
     {
-      "name": "페이タル 폴",
+      "name": "페이탈 폴",
       "type": "active",
       "description": "적 전후열에게 관통하는 공격을 한다.대상에게 자신의 HP50%만큼의 대미지를 준다.(이 공격은 치명타불가)",
-      "target": "column_enemy",
+      "target": "row_enemy",
       "costAP": 2,
       "costPP": 0,
       "effects": [
         {
           "type": "damage",
-          "value": 100,
-          "damageType": "physical"
+          "value": 0,
+          "damageType": "physical",
+          "addDamage_HPValue": 50
         }
       ],
       "traits": [
@@ -1482,24 +1483,25 @@
       "animation": "Skill_1"
     },
     {
-      "name": "에리얼 스마이트",
-      "type": "active",
-      "description": "적 한 열에게 공격한다.대상이 기마 계열의 경우,이 공격은 가드 불가.대상이 HP100%의 경우,AP-1",
-      "target": "row_enemy",
-      "costAP": 2,
-      "costPP": 0,
+      "name": "페더링",
+      "type": "passive",
+      "description": "자신이 액티브 스킬로 공격하기 전에 발동. 같은 열에 있는 아군의 행동 속도 +15",
+      "target": "column_ally",
+      "costAP": 0,
+      "costPP": 1,
+      "checkPhase": "before_skill_use_self",
       "effects": [
         {
-          "type": "damage",
-          "value": 100,
-          "damageType": "physical"
+          "type": "buff",
+          "target": "column_ally",
+          "stat": "action_speed",
+          "value": 15,
+          "duration": 1
         }
       ],
-      "traits": [
-        "ranged"
-      ],
+      "traits": [],
       "animation": "Skill_1"
-    }
+    }        
   ],
   "엘프 펜서": [
     {

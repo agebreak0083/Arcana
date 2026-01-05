@@ -258,6 +258,39 @@ public class SkillManager : MonoBehaviour
                 {
                     // TODO : 아군 버프 적용
                 }
+                else if (effect.target == "column_ally")
+                {
+                    Debug.Log($"[패시브 스킬] column_ally 버프 처리 시작 - 사용자: {user.characterName}, 위치: {user.position}");
+                    
+                    // 같은 대열(전열 또는 후열)에 있는 아군에게 버프 적용
+                    // 전열: position 1, 2, 3
+                    // 후열: position 4, 5, 6
+                    List<Character> allies = user.isPlayer ? BattleManager.Instance.playerCharacters : BattleManager.Instance.enemyCharacters;
+                    
+                    // 사용자가 전열(1,2,3)에 있으면 전열의 동료들, 후열(4,5,6)에 있으면 후열의 동료들
+                    bool isFrontRow = user.position <= 3;
+                    
+                    // 같은 대열에 있는 아군 필터링 (자신 포함)
+                    List<Character> alliesInRow = allies.Where(c => 
+                        c != null && 
+                        c.hp > 0 && 
+                        ((isFrontRow && c.position <= 3) || (!isFrontRow && c.position > 3))
+                    ).ToList();
+                    
+                    if (alliesInRow.Count > 0)
+                    {
+                        Debug.Log($"[페더링] 같은 대열의 아군 {alliesInRow.Count}명에게 버프 적용");
+                        foreach (var ally in alliesInRow)
+                        {
+                            ally.AddBuff(effect.stat, effect.value, effect.duration);
+                            Debug.Log($"[페더링] 버프 적용 완료: {ally.characterName}에게 {effect.stat} +{effect.value} (지속: {effect.duration}턴)");
+                            if (BattleLogManager.Instance != null)
+                            {
+                                BattleLogManager.Instance.AddLog($" {ally.characterName} → <color=#00FF00>[{effect.stat} +{effect.value} 버프 적용!]</color> (지속: {effect.duration}턴)");
+                            }
+                        }
+                    }
+                }
                 else if (effect.target == "column_ally_Knight")
                 {
                     Debug.Log($"[패시브 스킬] column_ally_Knight 버프 처리 시작 - 사용자: {user.characterName}, 위치: {user.position}");
@@ -348,36 +381,69 @@ public class SkillManager : MonoBehaviour
     {
         isCritical = false;
 
-        // 스킬 위력이 0이면 데미지도 0 (버프/디버프 스킬 등)
-        if (skillPower <= 0) return 0.0f;
+        // addDamage_HPValue가 있는지 확인 (사용자 HP의 퍼센트만큼 데미지)
+        bool hasHPBasedDamage = effect != null && effect.addDamage_HPValue > 0;
 
-        // 1. 공격력 및 방어력 계산
-        float physicalAttackValue = 0f;
-        float physicalDefenseValue = 0f;
-        float magicalAttackValue = 0f;
-        float magicalDefenseValue = 0f;
-        if(damageType == "physical")
+        // 스킬 위력이 0이고 HP 기반 데미지도 없으면 데미지 0 (버프/디버프 스킬 등)
+        if (skillPower <= 0 && !hasHPBasedDamage) return 0.0f;
+
+        float finalDamage = 0f;
+
+        // HP 기반 데미지가 있으면 우선 적용
+        if (hasHPBasedDamage)
         {
-            physicalAttackValue = user.GetPhysicalAttackValue();
-            physicalDefenseValue = target.GetPhysicalDefenseValue();                
-            magicalAttackValue = 0f + result.GetEnchantMagicalAttackValue();
-
-            Debug.Log($"physicalAttackValue: {physicalAttackValue}, physicalDefenseValue: {physicalDefenseValue}, magicalAttackValue: {magicalAttackValue}");
+            // 사용자의 현재 HP의 퍼센트만큼 데미지
+            float hpBasedDamage = user.hp * (effect.addDamage_HPValue / 100f);
+            finalDamage = hpBasedDamage;
+            
+            if (BattleLogManager.Instance != null)
+            {
+                BattleLogManager.Instance.AddLog($"  <color=#FF6B6B>[HP 기반 데미지!]</color> {user.characterName}의 HP {effect.addDamage_HPValue}% ({hpBasedDamage:F0})");
+            }
         }
-        else if(damageType == "magical")
+
+        // 기본 데미지 계산 (skillPower > 0일 때만)
+        if (skillPower > 0)
         {
-            magicalAttackValue = user.GetMagicalAttackValue();
-            magicalDefenseValue = target.GetMagicalDefenseValue();                
-            physicalAttackValue = 0f + result.GetEnchantPhysicalAttackValue();
+            // 1. 공격력 및 방어력 계산
+            float physicalAttackValue = 0f;
+            float physicalDefenseValue = 0f;
+            float magicalAttackValue = 0f;
+            float magicalDefenseValue = 0f;
+            if(damageType == "physical")
+            {
+                physicalAttackValue = user.GetPhysicalAttackValue();
+                physicalDefenseValue = target.GetPhysicalDefenseValue();                
+                magicalAttackValue = 0f + result.GetEnchantMagicalAttackValue();
+
+                Debug.Log($"physicalAttackValue: {physicalAttackValue}, physicalDefenseValue: {physicalDefenseValue}, magicalAttackValue: {magicalAttackValue}");
+            }
+            else if(damageType == "magical")
+            {
+                magicalAttackValue = user.GetMagicalAttackValue();
+                magicalDefenseValue = target.GetMagicalDefenseValue();                
+                physicalAttackValue = 0f + result.GetEnchantPhysicalAttackValue();
+            }
+            
+            // 2. 기본 데미지 공식: (공격력 - 방어력) x (위력/100)        
+            float physcalBaseDamage = Mathf.Max(0f, physicalAttackValue - physicalDefenseValue) * skillPower / 100f;
+            float magicalBaseDamage = Mathf.Max(0f, magicalAttackValue - magicalDefenseValue) * skillPower / 100f;
+
+            Debug.Log($"physcalBaseDamage: {physcalBaseDamage}, magicalBaseDamage: {magicalBaseDamage}");
+
+            float baseDamage = (physcalBaseDamage + magicalBaseDamage) * BattleSetting.DAMAGE_MULTIPLIER;
+            
+            // HP 기반 데미지가 있으면 더하고, 없으면 기본 데미지 사용
+            if (hasHPBasedDamage)
+            {
+                finalDamage += baseDamage;
+            }
+            else
+            {
+                finalDamage = baseDamage;
+            }
         }
-        
-        // 2. 기본 데미지 공식: (공격력 - 방어력) x (위력/100)        
-        float physcalBaseDamage = Mathf.Max(0f, physicalAttackValue - physicalDefenseValue) * skillPower / 100f;
-        float magicalBaseDamage = Mathf.Max(0f, magicalAttackValue - magicalDefenseValue) * skillPower / 100f;
 
-        Debug.Log($"physcalBaseDamage: {physcalBaseDamage}, magicalBaseDamage: {magicalBaseDamage}");
-
-        float finalDamage = (physcalBaseDamage + magicalBaseDamage) * BattleSetting.DAMAGE_MULTIPLIER;
         finalDamage = Mathf.Max(1f, finalDamage); // 최소 대미지 1 보장
 
         Debug.Log($"finalDamage: {finalDamage}");
@@ -394,17 +460,21 @@ public class SkillManager : MonoBehaviour
         }
 
         // 4. 치명타 계산
-        // 캐릭터의 치명타율 스탯 사용
-        float currentCriticalRate = user.stats.GetCriticalRateValue();
-
-        if (UnityEngine.Random.Range(0f, 100f) < currentCriticalRate)
+        // HP 기반 데미지가 있으면 치명타 불가 (description에 "치명타불가" 명시)
+        if (!hasHPBasedDamage)
         {
-            isCritical = true;
-            finalDamage *= criticalDamageMultiplier;
+            // 캐릭터의 치명타율 스탯 사용
+            float currentCriticalRate = user.stats.GetCriticalRateValue();
 
-            if (BattleLogManager.Instance != null)
+            if (UnityEngine.Random.Range(0f, 100f) < currentCriticalRate)
             {
-                BattleLogManager.Instance.AddLog($"  <color=#FF4500>[치명타!]</color> 데미지 {criticalDamageMultiplier}배 적용");
+                isCritical = true;
+                finalDamage *= criticalDamageMultiplier;
+
+                if (BattleLogManager.Instance != null)
+                {
+                    BattleLogManager.Instance.AddLog($"  <color=#FF4500>[치명타!]</color> 데미지 {criticalDamageMultiplier}배 적용");
+                }
             }
         }
 

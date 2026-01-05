@@ -552,3 +552,38 @@ public class FilterBasedSelector : ITargetSelector
             return new List<Character>();
         }
     }
+
+/// <summary>
+/// 기마 계열 우선 선택기
+/// 기마 계열(현재는 "나이트" 클래스) 캐릭터를 우선 선택하고, 없으면 일반 선택기 사용
+/// </summary>
+public class CavalryClassSelector : ITargetSelector
+{
+    private ITargetSelector baseSelector;
+
+    public CavalryClassSelector()
+    {
+        this.baseSelector = new PositionBasedSelector();
+    }
+
+    public List<Character> Select(List<Character> candidates, Character self, SelectType selectType = SelectType.Single, int selectCount = 1)
+    {
+        if (candidates.Count == 0) return null;
+
+        // 기마 계열 캐릭터 필터링 (현재는 "나이트" 클래스만)
+        List<Character> cavalryCharacters = candidates.Where(c => 
+            c != null && 
+            c.hp > 0 && 
+            (c.className == "나이트" || c.className == "Knight")
+        ).ToList();
+
+        // 기마 계열 캐릭터가 있으면 우선 선택
+        if (cavalryCharacters.Count > 0)
+        {
+            return baseSelector.Select(cavalryCharacters, self, selectType, selectCount);
+        }
+
+        // 기마 계열 캐릭터가 없으면 일반 선택기 사용
+        return baseSelector.Select(candidates, self, selectType, selectCount);
+    }
+}
