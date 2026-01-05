@@ -1,8 +1,8 @@
 {
-    "key": "agebreak_2601051128",
-    "username": "agebreak_2601051128",
-    "score": 466,
-    "winCount": 168,
+    "key": "agebreak_2601051518",
+    "username": "agebreak_2601051518",
+    "score": 475,
+    "winCount": 171,
     "loseCount": 38,
     "positions": [
         {
@@ -12,33 +12,33 @@
         },
         {
             "position": "2",
-            "name": "달리아",
+            "name": "반디",
             "tactics": [
                 {
-                    "characterClass": "파이터",
+                    "characterClass": "나이트",
                     "plan": [
                         {
-                            "skill": "가드 슬래시",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "실드 배시",
+                            "skill": "어설트 랜스",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "디펜더",
+                            "skill": "와일드 러시",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "애로우 커버",
+                            "skill": "파일 스러스트",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
                             "skill": "퀵 가드",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "캐벌리 엘",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
@@ -68,33 +68,33 @@
         },
         {
             "position": "4",
-            "name": "히실렌스",
+            "name": "다이아린",
             "tactics": [
                 {
-                    "characterClass": "위치",
+                    "characterClass": "헌터",
                     "plan": [
                         {
-                            "skill": "매직 미사일",
+                            "skill": "더블 샷",
                             "condition1": "적이 2명 이상▲",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "아이스 샷",
+                            "skill": "싱글 샷",
                             "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "아이스 코핀",
+                            "skill": "라인 샷",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "매직 세이버",
+                            "skill": "이글 아이",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "---",
+                            "skill": "체이스",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
@@ -124,33 +124,33 @@
         },
         {
             "position": "6",
-            "name": "엽빛나",
+            "name": "비비안",
             "tactics": [
                 {
-                    "characterClass": "헌터",
+                    "characterClass": "위치",
                     "plan": [
                         {
-                            "skill": "더블 샷",
+                            "skill": "매직 미사일",
                             "condition1": "적이 2명 이상▲",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "싱글 샷",
+                            "skill": "아이스 샷",
                             "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "라인 샷",
+                            "skill": "아이스 코핀",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "이글 아이",
+                            "skill": "매직 세이버",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "체이스",
+                            "skill": "---",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },

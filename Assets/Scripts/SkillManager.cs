@@ -156,12 +156,47 @@ public class SkillManager : MonoBehaviour
     {
         if (skill == null || user == null) return;
 
+        // 타겟의 초기 HP 저장 (on_kill 체크용)
+        Dictionary<Character, float> initialHP = new Dictionary<Character, float>();
+        foreach (var target in targets)
+        {
+            if (target != null)
+            {
+                initialHP[target] = target.hp;
+            }
+        }
+
         // 각 효과 적용
         foreach (SkillEffect effect in skill.effects)
         {
+            // on_kill 효과는 데미지 적용 후에 처리
+            if (effect.type == "on_kill")
+            {
+                continue;
+            }
+
             foreach(var target in targets)
             {
                 ApplyEffect(effect, user, target, skill);
+            }
+        }
+
+        // on_kill 효과 처리 (데미지 적용 후 타겟이 죽었는지 체크)
+        foreach (SkillEffect effect in skill.effects)
+        {
+            if (effect.type == "on_kill")
+            {
+                foreach(var target in targets)
+                {
+                    if (target != null && initialHP.ContainsKey(target))
+                    {
+                        // 타겟이 죽었는지 체크 (HP <= 0)
+                        if (target.hp <= 0)
+                        {
+                            ApplyEffect(effect, user, target, skill);
+                        }
+                    }
+                }
             }
         }
     }
@@ -236,6 +271,17 @@ public class SkillManager : MonoBehaviour
                     if (BattleLogManager.Instance != null)
                     {
                         BattleLogManager.Instance.AddLog($" {user.characterName} → <color=#00FF00>[PP +{effect.value} 회복!]</color>");
+                    }
+                }
+                break;
+
+            case "on_kill":
+                if (effect.stat == "get_ap")
+                {
+                    user.RestoreAP((int)effect.value);
+                    if (BattleLogManager.Instance != null)
+                    {
+                        BattleLogManager.Instance.AddLog($" {user.characterName} → <color=#00FF00>[AP +{effect.value} 회복!]</color> (대상을 쓰러뜨림)");
                     }
                 }
                 break;

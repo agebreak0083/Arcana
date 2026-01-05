@@ -99,7 +99,7 @@
         "Name": "반디",
         "Portrait": "SR_Bandi",
         "Model": "SR_Bandi",
-        "Class": "파이터",
+        "Class": "나이트",
         "Cost": 2,
         "Voice_Skill": ""
     },
@@ -123,7 +123,7 @@
         "Name": "이드하리",
         "Portrait": "ZZZ_YIDHARI",
         "Model": "ZZZ_YIDHARI",
-        "Class": "파이터",
+        "Class": "나이트",
         "Cost": 2,
         "Voice_Skill": ""
     },

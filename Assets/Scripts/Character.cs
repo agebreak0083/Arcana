@@ -742,6 +742,16 @@ public class Character : MonoBehaviour
         }
     }
 
+    // AP 회복
+    public void RestoreAP(int amount)
+    {
+        if (stats != null)
+        {
+            stats.actionPoint += amount;
+            // 최대치 제한 로직이 필요하다면 추가
+        }
+    }
+
     // AP/PP 회복 (라운드 시작 시 호출)
     public void RestoreAPPP()
     {
