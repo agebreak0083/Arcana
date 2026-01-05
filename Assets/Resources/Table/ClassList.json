@@ -3,8 +3,6 @@
     {
       "name": "파이터",
       "description": "물리 방어가 뛰어난 성능.원거리 물리 공격을 막아 주는 스킬로 헌터에게 강하고.중갑갑 특효인 워리어,마법 공격인 위저드에게 약하다",
-      "cost": 1,
-      "model": "Misaki_sum_humanoid",
       "advantage": [
         "헌터"        
       ],
@@ -26,8 +24,6 @@
     {
       "name": "헌터",
       "description": "명중에 특화된 성능.비행 특효로 그리폰 나이트에게 강하고 필중 공격 스킬이 있어 회피가 높은 시프에게 강하다.",
-      "cost": 1,
-      "model": "Utc_sum_humanoid",
       "advantage": [
         "시프",
         "그리폰 나이트"
@@ -50,8 +46,6 @@
     {
       "name": "위치",
       "description": "마법 공격이 뛰어난 성능, 마법 공격 부여 스킬을 지녔다.마법 방어가 낮은 호플리타이에게 강하고 마법 방어가 높은 화이트 나이트에게 약하다",
-      "cost": 1,
-      "model": "Yuko_sum_humanoid",
       "advantage": [
         "파이터",
         "호플리타이"
@@ -69,6 +63,27 @@
         "actionSpeed": "E",
         "actionPoint": 2,
         "passivePoint": 3
+      }
+    },
+    {
+      "name": "나이트",
+      "description": "공격과 방어가 모두 뛰어난 성능. 보형 특효로 파이터에게 강하고, 그리폰 나이트에게 약하다",
+      "advantage": [
+        "파이터"        
+      ],
+      "stats": {
+        "hp": "C",
+        "physicalAttack": "B",
+        "physicalDefense": "B",
+        "magicalAttack": "D",
+        "magicalDefense": "C",
+        "accuracy": "E",
+        "evasion": "F",
+        "criticalRate": "C",
+        "guardRate": "C",
+        "actionSpeed": "C",
+        "actionPoint": 2,
+        "passivePoint": 2
       }
     }
   ]

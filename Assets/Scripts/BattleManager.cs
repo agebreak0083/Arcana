@@ -209,31 +209,23 @@ public class BattleManager : MonoBehaviour
                 {
                     Debug.Log($"Character Data: {characterData.characterClass}");
 
-                    // ClassInfo에서 모델 경로 가져오기
-                    var classInfo = Arcana.Tactics.TacticsDataManager.Instance.GetClassInfo(characterData.characterClass);
-                    if (classInfo != null && !string.IsNullOrEmpty(classInfo.model))
+                    // 모델 경로 처리 (... -> Models/...)
+                    string modelPath = "Models/";
+                    if (!string.IsNullOrEmpty(characterData.model))
                     {
-                        // 모델 경로 처리 (... -> Models/...)
-                        string modelPath = "Models/";
-                        if (string.IsNullOrEmpty(characterData.model))
-                        {
-                            modelPath += classInfo.model;
-                        }
-                        else
-                        {
-                            modelPath += characterData.model;
-                        }
+                        modelPath += characterData.model;
+                    }
 
-                        if (modelPath.StartsWith("Assets/Resources/"))
-                        {
-                            modelPath = modelPath.Substring("Assets/Resources/".Length);
-                        }
-                        if (modelPath.EndsWith(".prefab"))
-                        {
-                            modelPath = modelPath.Substring(0, modelPath.Length - ".prefab".Length);
-                        }
+                    if (modelPath.StartsWith("Assets/Resources/"))
+                    {
+                        modelPath = modelPath.Substring("Assets/Resources/".Length);
+                    }
+                    if (modelPath.EndsWith(".prefab"))
+                    {
+                        modelPath = modelPath.Substring(0, modelPath.Length - ".prefab".Length);
+                    }
 
-                        Character character = null;
+                    Character character = null;
 
                         if(isSimulationMode)
                         {

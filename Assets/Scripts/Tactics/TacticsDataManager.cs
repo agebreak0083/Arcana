@@ -377,7 +377,7 @@ namespace Arcana.Tactics
                     newData.speed = 10;
                     newData.arcana = "None";
                     newData.description = "No description available.";
-                    newData.model = def.Model ?? ""; // Model 필드 설정
+                    newData.model = def.Model ?? "";
 
                     // Load Portrait
                     string spriteName = System.IO.Path.GetFileNameWithoutExtension(def.Portrait);

@@ -37,8 +37,6 @@ namespace Arcana.Tactics
     {
         public string name;
         public string description;
-        public int cost;
-        public string model;
         public List<string> advantage;
         public ClassStats stats;
     }

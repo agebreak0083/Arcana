@@ -66,7 +66,7 @@ namespace Arcana.Tactics
             var list = new List<ClassInfo>();
             string[] lines = csvText.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 
-            // Header: name,description,cost,model,advantage,hp,physicalAttack,physicalDefense,magicalAttack,magicalDefense,accuracy,evasion,criticalRate,guardRate,actionSpeed,actionPoint,passivePoint
+            // Header: name,description,advantage,hp,physicalAttack,physicalDefense,magicalAttack,magicalDefense,accuracy,evasion,criticalRate,guardRate,actionSpeed,actionPoint,passivePoint
 
             for (int i = 0; i < lines.Length; i++)
             {
@@ -78,18 +78,16 @@ namespace Arcana.Tactics
                 // Skip header based on content
                 if (parts.Length > 0 && parts[0] == "name") continue;
 
-                if (parts.Length >= 17) // Ensure we have enough columns
+                if (parts.Length >= 15) // Ensure we have enough columns
                 {
                     try
                     {
                         ClassInfo info = new ClassInfo();
                         info.name = parts[0].Trim();
                         info.description = parts[1].Trim();
-                        info.cost = int.Parse(parts[2].Trim());
-                        info.model = parts[3].Trim();
 
                         // Advantage (semicolon separated)
-                        string advRaw = parts[4].Trim();
+                        string advRaw = parts[2].Trim();
                         if (!string.IsNullOrEmpty(advRaw))
                         {
                             info.advantage = new List<string>(advRaw.Split(';'));
@@ -100,18 +98,18 @@ namespace Arcana.Tactics
                         }
 
                         info.stats = new ClassStats();
-                        info.stats.hp = parts[5].Trim();
-                        info.stats.physicalAttack = parts[6].Trim();
-                        info.stats.physicalDefense = parts[7].Trim();
-                        info.stats.magicalAttack = parts[8].Trim();
-                        info.stats.magicalDefense = parts[9].Trim();
-                        info.stats.accuracy = parts[10].Trim();
-                        info.stats.evasion = parts[11].Trim();
-                        info.stats.criticalRate = parts[12].Trim();
-                        info.stats.guardRate = parts[13].Trim();
-                        info.stats.actionSpeed = parts[14].Trim();
-                        info.stats.actionPoint = int.Parse(parts[15].Trim());
-                        info.stats.passivePoint = int.Parse(parts[16].Trim());
+                        info.stats.hp = parts[3].Trim();
+                        info.stats.physicalAttack = parts[4].Trim();
+                        info.stats.physicalDefense = parts[5].Trim();
+                        info.stats.magicalAttack = parts[6].Trim();
+                        info.stats.magicalDefense = parts[7].Trim();
+                        info.stats.accuracy = parts[8].Trim();
+                        info.stats.evasion = parts[9].Trim();
+                        info.stats.criticalRate = parts[10].Trim();
+                        info.stats.guardRate = parts[11].Trim();
+                        info.stats.actionSpeed = parts[12].Trim();
+                        info.stats.actionPoint = int.Parse(parts[13].Trim());
+                        info.stats.passivePoint = int.Parse(parts[14].Trim());
 
                         list.Add(info);
                     }

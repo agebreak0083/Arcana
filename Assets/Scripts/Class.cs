@@ -75,7 +75,6 @@ public class CharacterClass
 {
     public string name;                 // 직업 이름
     public string description;          // 직업 설명
-    public int cost;                    // 코스트
     public List<string> advantage;      // 유리한 상성 직업 목록
     public ClassStats stats;            // 스테이터스
 }
