@@ -213,9 +213,21 @@ public class SkillManager : MonoBehaviour
             case "damage":
                 if (target != null)
                 {
-                    bool isCritical;
-                    float damage = CalculateDamage(effect.value, user, target, effect.damageType, result, out isCritical);
-                    target.TakeDamage(damage, isCritical);
+                    // hitCount가 있으면 해당 횟수만큼 데미지를 입힌다
+                    int hitCount = effect.hitCount > 0 ? effect.hitCount : 1;
+                    
+                    for (int i = 0; i < hitCount; i++)
+                    {
+                        bool isCritical;
+                        float damage = CalculateDamage(effect.value, user, target, effect.damageType, result, out isCritical);
+                        target.TakeDamage(damage, isCritical);
+                    }
+                    
+                    // 전투 로그에 다단히트 정보 기록
+                    if (BattleLogManager.Instance != null && hitCount > 1)
+                    {
+                        BattleLogManager.Instance.AddLog($" <color=#FFD700>[{hitCount}히트 공격!]</color>");
+                    }
                 }
                 break;
 

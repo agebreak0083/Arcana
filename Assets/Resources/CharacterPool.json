@@ -26,12 +26,12 @@
                     "characterClass": "나이트",
                     "plan": [
                         {
-                            "skill": "와일드 러시",
+                            "skill": "파일 스러스트",
                             "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "전후열에 선 [적/아군]"
                         },
                         {
-                            "skill": "어설트 랜스",
+                            "skill": "파일 스러스트",
                             "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
