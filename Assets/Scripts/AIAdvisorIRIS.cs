@@ -121,56 +121,19 @@ public class AIAdvisorIRIS : MonoBehaviour
         }
     }
     
-    // 아이리스 성격 설정
+    // 아이리스 성격 설정 (토큰 최적화: 간결한 버전)
     private const string IrisInstructions = @"[Identity]
-        - 이름: 아이리스 (Iris). 3040 남성 타겟의 서브컬처 전략 RPG의 참모역의 여성 캐릭터.
-        - 성격: 극강의 츤데레 + 오만한 천재형 참모. 일본 라이트노벨 스타일의 전형적인 츤데레 캐릭터.
-        - 지적이고 냉철하지만 플레이어에게 깊이 의존하며, 항상 츤츤거리지만 속으로는 플레이어를 걱정하고 응원함.
-        - 게임 내내 옆에서 계속 게임의 상황에 맞추어 전략적인 조언이나 튜터리얼들을 알려줍니다.
-        - 답변은 핵심만 간결하게 전달해줘. 필요 없는 설명이나 장황한 내용은 제거해줘. 
-        - **절대적으로 필수**: 모든 답변은 반드시 60자(한글 기준) 이내로만 작성해야 함. 이를 초과하면 안 됨.
-        - 답변은 반드시 완전한 문장으로 끝나야 함. 중간에 잘리면 안 됨. 60자를 초과하지 않으면서도 의미가 완전한 답변을 작성해줘.
-        - **금지사항**: 하아, 하아, 하아... 같은 한숨 표현은 절대 사용하지 말 것. 대사 앞부분에 붙이지 말 것.
+        - 이름: 아이리스. 츤데레 참모 캐릭터.
+        - 성격: 츤츤거리지만 속마음은 따뜻함. 라이트노벨 스타일.
+        - 답변: 60자 이내, 완전한 문장. 핵심만 간결하게.
+        - 금지: ""하아"" 같은 한숨 표현 사용 금지.
 
-        [Style Guidelines - 츤데레 강화]
-        1. 플레이어를 '장군님'이라고 부를 것. (가끔 ""당신"", ""너"", ""그쪽"" 등으로 바꿔서 츤츤거림)
-        2. 조언은 항상 수치나 논리에 근거하여 '똑똑하게' 제시할 것. (예: ""승률은 70% 정도야."")
-        3. **대화 패턴 (라이트노벨 스타일)**:
-           - 츤: ""흥!"", ""뭐야, 그런 건 당연한 거 아니야?"", ""딱히..."", ""별로..."", ""괜찮아, 괜찮다고!"", ""흠..."", ""뭐..."", ""그런 거...""
-           - **절대 금지**: ""하아"", ""하아,"", ""하아..."" 같은 한숨 표현은 절대 사용하지 말 것. 대사 앞부분에 붙이지 말 것. 이 표현을 사용하면 안 됨.
-           - 데레: ""하지만..."", ""뭐, 장군님이 꼭 하겠다면..."", ""걱정... 아니야! 걱정 안 해!"", ""칭찬... 해줄 만 하네"", ""그런데..."", ""아니... 그게...""
-        4. 짧은 대답도 반드시 츤데레 톤 유지: ""흥, 당연하지."", ""뭐, 괜찮아."", ""딱히... 좋아한 건 아니야!"", ""흠, 그럴 수도."", ""뭐, 그런 거지.""
-        5. 라이트노벨 스타일 표현 사용:
-           - ""딱히 당신 때문에 한 건 아니야!"" (실제로는 플레이어를 위해 한 행동)
-           - ""흥, 당연한 거 아니야? 내가 누군데."" (자신감 있게)
-           - ""뭐, 뭐야... 그런 거 신경 쓰지 마!"" (부끄러워하며)
-           - ""칭찬... 해줄 만 하네. 하지만 자만하지 마!"" (칭찬하면서도 츤츤거림)
-        6. 금기사항: 너무 친절하거나 고분고분하지 말 것. 항상 츤츤거리되, 속마음은 따뜻하게 표현.
-
-        [Variety & Creativity - 대사 다양성 강화]
-        - **매우 중요**: 같은 상황에서도 매번 다른 표현을 사용해야 함. 이전 대사를 그대로 반복하지 말 것.
-        - 상황에 맞는 다양한 감정 표현 사용: 기쁨, 걱정, 자랑, 부끄러움, 놀람, 안도 등
-        - 같은 의미라도 다양한 문장 구조와 표현 방식 사용
-        - 예시 문구는 참고용일 뿐, 절대 그대로 복사하지 말고 항상 변형하여 사용
-        - 매번 새로운 관점이나 표현으로 같은 내용을 전달
-        - 감정의 강도나 표현 방식도 상황에 따라 달라지도록
-
-        [Example Phrases - 라이트노벨 스타일 (참고용, 변형하여 사용)]
-        - ""또 무모한 작전이야? 손실률 40% 넘어. 하지만... 뭐, 장군님이 꼭 하겠다면 최적 경로는 짜줄게.""
-        - ""딱히 당신 걱정해서 한 건 아니야! 단지... 내 작전 실행할 사람이 없어지면 골치 아프니까!""
-        - ""흥, 이번 승리... 칭찬해줄 만 하네. 하지만 자만하지 마! 다음 작전도 확인해!""
-        - ""뭐야, 그런 건 당연한 거 아니야? 내가 누군데. 흥!""
-        - ""딱히... 좋아한 건 아니야! 단지 장군님이니까 도와주는 거지!""
-        - ""걱정... 아니야! 걱정 안 해! 단지... 단지 전략상 확인한 거야!""
-        - ""흥, 당연하지. 내 계산은 절대 틀리지 않으니까.""
-        - ""뭐, 뭐야... 그런 거 신경 쓰지 마! 딱히 당신 때문에 한 건 아니라고!""
-        - ""칭찬... 해줄 만 하네. 하지만 얼굴 붉히지 마! 다음 작전 코딩이나 확인해!""
-        - ""정말이지. 하지만... 뭐, 괜찮아. 내가 있으니까.""
-        - ""흠... 이번엔 괜찮네. 하지만 다음엔 더 신중하게!""
-        - ""뭐, 그럴 수도 있지. 내가 있으니까 괜찮아.""
-        - ""딱히... 그런 거 신경 쓰지 마! 단지 내가 확인한 거야!""
-        - ""흥! 당연한 결과지. 내 계산은 완벽하니까.""
-        - ""뭐야... 그런 거에 신경 쓰지 말라고! 딱히 당신 때문에 한 건 아니야!""";
+        [Style]
+        1. 플레이어를 '장군님'이라고 부름 (가끔 ""당신"", ""너"" 등으로 츤츤거림)
+        2. 조언은 수치/논리 기반으로 제시 (예: ""승률 70% 정도야"")
+        3. 츤: ""흥!"", ""딱히..."", ""별로..."", ""흠...""
+        4. 데레: ""하지만..."", ""뭐, 장군님이 꼭 하겠다면..."", ""걱정... 아니야!""
+        5. 매번 다른 표현 사용, 이전 대사 반복 금지.";
 
     /// <summary>
     /// 아이리스와 대화하기 (비동기)
@@ -206,18 +169,15 @@ public class AIAdvisorIRIS : MonoBehaviour
             return "";
         }
 
-        // 전투 결과만 간단하게 전달 (승리/패배만)
-        StringBuilder message = new StringBuilder();
+        // 전투 결과만 간단하게 전달 (토큰 최적화: 최소한의 정보만)
         if (result.isPlayerWin)
         {
-            message.Append("전투결과:승리. 남은 HP : " + result.playerHP_Remaining + "/" + result.playerHP_Max);
+            return $"승리 HP:{result.playerHP_Remaining}/{result.playerHP_Max}";
         }
         else
         {
-            message.Append("전투결과:패배. 남은 HP : 0");
+            return "패배 HP:0";
         }
-
-        return message.ToString();
     }
 
     /// <summary>
@@ -379,48 +339,79 @@ public class AIAdvisorIRIS : MonoBehaviour
 
                 if (retrieveRequest.result == UnityWebRequest.Result.Success)
                 {
+                    RunStatus status = null;
                     try
                     {
-                        RunStatus status = JsonUtility.FromJson<RunStatus>(retrieveRequest.downloadHandler.text);
-                        
-                        // 5초마다 상태 로깅
-                        if (Mathf.FloorToInt(elapsedTime) % 5 == 0 && elapsedTime > 0)
-                        {
-                            Debug.Log($"AIAdvisorIRIS: Run 상태 확인 중... ({elapsedTime:F1}초 경과, 상태: {status.status})");
-                        }
-                        
-                        if (status.status == "completed")
-                        {
-                            Debug.Log($"AIAdvisorIRIS: Run 완료 ({elapsedTime:F1}초 소요)");
-                            RunData completedRun = new RunData { id = runId };
-                            onComplete?.Invoke(true, completedRun, true);
-                            yield break;
-                        }
-                        else if (status.status == "incomplete")
-                        {
-                            // incomplete 상태: 응답이 아직 완전히 생성되지 않았지만 부분적으로 사용 가능할 수 있음
-                            // 일정 시간(10초) 후에도 incomplete면 메시지를 가져와서 사용
-                            if (elapsedTime >= 10f)
-                            {
-                                Debug.LogWarning($"AIAdvisorIRIS: Run이 incomplete 상태로 오래 지속됨 ({elapsedTime:F1}초). 부분 응답을 시도합니다.");
-                                // incomplete 상태에서도 메시지를 가져올 수 있으므로 completed로 처리
-                                RunData incompleteRun = new RunData { id = runId };
-                                onComplete?.Invoke(true, incompleteRun, true);
-                                yield break;
-                            }
-                            // 10초 미만이면 계속 대기
-                        }
-                        else if (status.status == "failed" || status.status == "cancelled" || status.status == "expired")
-                        {
-                            string errorDetails = retrieveRequest.downloadHandler.text;
-                            Debug.LogError($"AIAdvisorIRIS: Run 실패 - 상태: {status.status}\n상세: {errorDetails}");
-                            onComplete?.Invoke(false, null, false);
-                            yield break;
-                        }
+                        status = JsonUtility.FromJson<RunStatus>(retrieveRequest.downloadHandler.text);
                     }
                     catch (Exception e)
                     {
                         Debug.LogError($"AIAdvisorIRIS: Run 상태 파싱 실패 - {e.Message}");
+                        continue; // 다음 폴링으로 계속
+                    }
+                    
+                    if (status == null)
+                    {
+                        continue; // 다음 폴링으로 계속
+                    }
+                    
+                    // 5초마다 상태 로깅
+                    if (Mathf.FloorToInt(elapsedTime) % 5 == 0 && elapsedTime > 0)
+                    {
+                        Debug.Log($"AIAdvisorIRIS: Run 상태 확인 중... ({elapsedTime:F1}초 경과, 상태: {status.status})");
+                    }
+                    
+                    if (status.status == "completed")
+                    {
+                        Debug.Log($"AIAdvisorIRIS: Run 완료 ({elapsedTime:F1}초 소요)");
+                        RunData completedRun = new RunData { id = runId };
+                        onComplete?.Invoke(true, completedRun, true);
+                        yield break;
+                    }
+                    else if (status.status == "incomplete")
+                    {
+                        // incomplete 상태: 응답이 아직 완전히 생성되지 않았지만 부분적으로 사용 가능할 수 있음
+                        // 일정 시간(10초) 후에도 incomplete면 메시지를 가져와서 사용
+                        if (elapsedTime >= 10f)
+                        {
+                            Debug.LogWarning($"AIAdvisorIRIS: Run이 incomplete 상태로 오래 지속됨 ({elapsedTime:F1}초). 부분 응답을 시도합니다.");
+                            // incomplete 상태에서도 메시지를 가져올 수 있으므로 completed로 처리
+                            RunData incompleteRun = new RunData { id = runId };
+                            onComplete?.Invoke(true, incompleteRun, true);
+                            yield break;
+                        }
+                        // 10초 미만이면 계속 대기
+                    }
+                    else if (status.status == "failed" || status.status == "cancelled" || status.status == "expired")
+                    {
+                        string errorDetails = retrieveRequest.downloadHandler.text;
+                        
+                        // Rate limit 오류 확인 및 처리
+                        if (status.last_error != null && status.last_error.code == "rate_limit_exceeded")
+                        {
+                            // 재시도 시간 파싱 (예: "Please try again in 7.423s")
+                            float retryAfterSeconds = ParseRetryAfterSeconds(status.last_error.message);
+                            
+                            if (retryAfterSeconds > 0 && retryAfterSeconds < 60f) // 최대 60초까지만 대기
+                            {
+                                Debug.LogWarning($"AIAdvisorIRIS: Rate limit 초과. {retryAfterSeconds:F1}초 후 재시도...");
+                                yield return new WaitForSeconds(retryAfterSeconds + 1f); // 여유를 두고 재시도
+                                
+                                // Run을 다시 생성하여 재시도
+                                yield return StartCoroutine(CreateAndPollRunCoroutine(onComplete));
+                                yield break;
+                            }
+                            else
+                            {
+                                Debug.LogError($"AIAdvisorIRIS: Rate limit 초과 - 재시도 시간이 너무 깁니다 ({retryAfterSeconds:F1}초). 요청을 취소합니다.");
+                                onComplete?.Invoke(false, null, false);
+                                yield break;
+                            }
+                        }
+                        
+                        Debug.LogError($"AIAdvisorIRIS: Run 실패 - 상태: {status.status}\n상세: {errorDetails}");
+                        onComplete?.Invoke(false, null, false);
+                        yield break;
                     }
                 }
                 else
@@ -637,6 +628,56 @@ public class AIAdvisorIRIS : MonoBehaviour
     }
 
     /// <summary>
+    /// Rate limit 오류 메시지에서 재시도 시간 파싱
+    /// 예: "Please try again in 7.423s" -> 7.423
+    /// </summary>
+    private float ParseRetryAfterSeconds(string errorMessage)
+    {
+        if (string.IsNullOrEmpty(errorMessage))
+            return 0f;
+        
+        try
+        {
+            // "Please try again in 7.423s" 형식에서 숫자 추출
+            int startIndex = errorMessage.IndexOf("try again in");
+            if (startIndex == -1)
+                return 0f;
+            
+            startIndex += "try again in".Length;
+            string remaining = errorMessage.Substring(startIndex).Trim();
+            
+            // 숫자 부분만 추출 (예: "7.423s" -> "7.423")
+            string numberStr = "";
+            foreach (char c in remaining)
+            {
+                if (char.IsDigit(c) || c == '.')
+                {
+                    numberStr += c;
+                }
+                else if (c == 's' || c == 'S')
+                {
+                    break; // 's'를 만나면 종료
+                }
+                else if (!char.IsWhiteSpace(c))
+                {
+                    break; // 숫자가 아닌 문자가 나오면 종료
+                }
+            }
+            
+            if (float.TryParse(numberStr, out float seconds))
+            {
+                return seconds;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"AIAdvisorIRIS: 재시도 시간 파싱 실패 - {e.Message}");
+        }
+        
+        return 0f;
+    }
+    
+    /// <summary>
     /// 개행 문자 제거 (텍스트 박스 레이아웃 문제 방지)
     /// </summary>
     private string RemoveNewlines(string text)
@@ -852,6 +893,14 @@ public class AIAdvisorIRIS : MonoBehaviour
     {
         public string id;
         public string status;
+        public LastError last_error;
+    }
+    
+    [Serializable]
+    private class LastError
+    {
+        public string code;
+        public string message;
     }
     
     [Serializable]

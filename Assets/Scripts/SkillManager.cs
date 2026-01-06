@@ -554,23 +554,35 @@ public class SkillManager : MonoBehaviour
         }
 
         // 5. 명중/회피 체크
-        float userAccuracy = user.stats.GetAccuracyValue();
-        float targetEvasion = target.stats.GetEvasionValue();
-        
-        // 실제 명중 확률 = 명중률 - 회피율 (최소 0%, 최대 100%)
-        float hitChance = Mathf.Clamp(userAccuracy - targetEvasion, 0f, 100f);
-        
-        // 명중 체크
-        float randomValue = UnityEngine.Random.Range(0f, 100f);
-        if (randomValue >= hitChance)
+        // sure_hit 효과가 있으면 명중/회피 체크를 건너뛰고 무조건 명중
+        if (result != null && result.isSureHit)
         {
-            // 회피 성공
-            isMiss = true;
             if (BattleLogManager.Instance != null)
             {
-                BattleLogManager.Instance.AddLog($"  <color=#00FF00>[회피 성공!]</color> {target.characterName}이(가) 공격을 회피했습니다.");
+                BattleLogManager.Instance.AddLog($"  <color=#FFD700>[필중!]</color> {user.characterName}의 공격이 무조건 명중합니다.");
             }
-            return 0f; // 데미지 0
+            isMiss = false;
+        }
+        else
+        {
+            float userAccuracy = user.stats.GetAccuracyValue();
+            float targetEvasion = target.stats.GetEvasionValue();
+            
+            // 실제 명중 확률 = 명중률 - 회피율 (최소 0%, 최대 100%)
+            float hitChance = Mathf.Clamp(userAccuracy - targetEvasion, 0f, 100f);
+            
+            // 명중 체크
+            float randomValue = UnityEngine.Random.Range(0f, 100f);
+            if (randomValue >= hitChance)
+            {
+                // 회피 성공
+                isMiss = true;
+                if (BattleLogManager.Instance != null)
+                {
+                    BattleLogManager.Instance.AddLog($"  <color=#00FF00>[회피 성공!]</color> {target.characterName}이(가) 공격을 회피했습니다.");
+                }
+                return 0f; // 데미지 0
+            }
         }
 
         // 최종 데미지 반올림, 최소 1 보장

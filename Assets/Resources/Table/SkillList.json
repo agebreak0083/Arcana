@@ -667,7 +667,8 @@
       "checkPhase": "before_skill_use_self",
       "effects": [
         {
-          "type": "sure_hit"
+          "type": "sure_hit",
+          "target": "self"
         }
       ],
       "traits": [],
