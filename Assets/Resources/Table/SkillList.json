@@ -888,7 +888,8 @@
         {
           "type": "damage",
           "value": 80,
-          "damageType": "physical"
+          "damageType": "physical",
+          "target": "row_enemy"
         },
         {
           "type": "status",

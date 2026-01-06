@@ -245,8 +245,7 @@ public class CharacterCardPrefabCreator : MonoBehaviour
         costTMP.fontStyle = FontStyles.Bold;
         costTMP.color = Color.white;
         costTMP.alignment = TextAlignmentOptions.TopLeft;
-        if (fontAsset != null) costTMP.font = fontAsset;
-        slotUI.charCostText = costTMP;
+        if (fontAsset != null) costTMP.font = fontAsset;        
 
         // InfoOverlay
         GameObject infoOverlay = new GameObject("InfoOverlay");

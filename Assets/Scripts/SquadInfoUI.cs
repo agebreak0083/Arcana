@@ -31,12 +31,11 @@ public class SquadInfoUI : MonoBehaviour
             _originalPosition = _rectTransform.anchoredPosition;
             _isInitialized = true;
         }
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        for(int i = 0; i < formationSlots.Length; i++)
+        {
+            formationSlots[i].Setup(null, i, false);
+        }
     }
 
     public void UpdateSquadInfo(string squadName, CharacterData[] unitSlots)

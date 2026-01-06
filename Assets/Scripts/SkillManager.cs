@@ -705,7 +705,7 @@ public class SkillManager : MonoBehaviour
     {
         bool bCheckPassiveSkill = false;
 
-        Debug.Log($"[패시브 스킬 체크 시작] {actionCharacter.characterName}의 availableActions 수: {actionCharacter.availableActions.Count}");
+        //Debug.Log($"[패시브 스킬 체크 시작] {actionCharacter.characterName}의 availableActions 수: {actionCharacter.availableActions.Count}");
 
         // 자신에게 세팅된 Action 순회, PP 스킬을 찾고, 조건을 체크한다. 
         foreach (var action in actionCharacter.availableActions)

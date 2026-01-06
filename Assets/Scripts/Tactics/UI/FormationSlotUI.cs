@@ -18,25 +18,26 @@ namespace Arcana.Tactics.UI
 
         [Header("Filled State UI")]
         public Image characterPortrait;
-        public TextMeshProUGUI charNameText;
-        public TextMeshProUGUI charCostText;
+        public TextMeshProUGUI charNameText;        
+        public TextMeshProUGUI charClassText;
         public GameObject activeHighlight; // Shows when this slot is currently being edited/selected
 
         private TacticsUIManager _manager;
         private CharacterData _currentCharacter;
         private DraggableItem _draggable;
 
-        public void Setup(TacticsUIManager manager, int index)
+        public void Setup(TacticsUIManager manager, int index, bool draggable = true)
         {
             _manager = manager;
             slotIndex = index;
 
-            _draggable = GetComponent<DraggableItem>();
-            if (_draggable == null) _draggable = gameObject.AddComponent<DraggableItem>();
-            _draggable.data = slotIndex;
-            _draggable.dragImageSource = characterPortrait;
-
-            //Debug.Log($"[FormationSlotUI] Setup slot {index} - DraggableItem: {_draggable != null}, dragImageSource: {characterPortrait != null}");
+            if(draggable)
+            {
+                _draggable = GetComponent<DraggableItem>();
+                if (_draggable == null) _draggable = gameObject.AddComponent<DraggableItem>();
+                _draggable.data = slotIndex;
+                _draggable.dragImageSource = characterPortrait;
+            }
 
             UpdateState(null);
         }
@@ -59,8 +60,8 @@ namespace Arcana.Tactics.UI
                 filledStateObject.SetActive(true);
 
                 if (character.portrait != null) characterPortrait.sprite = character.portrait;
-                charNameText.text = character.characterName.Split(' ')[0];
-                charCostText.text = $"{character.cost}C";
+                charNameText.text = character.characterName.Split(' ')[0];                
+                charClassText.text = character.characterClass; 
             }
 
             if (_draggable != null)
