@@ -17,6 +17,14 @@ public class SquadInfoUI : MonoBehaviour
     private RectTransform _rectTransform;
     private Vector2 _originalPosition;
     private bool _isInitialized = false;
+
+    void Awake()
+    {
+        for(int i = 0; i < formationSlots.Length; i++)
+        {
+            formationSlots[i].Setup(null, i, false);
+        }
+    }
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -30,11 +38,6 @@ public class SquadInfoUI : MonoBehaviour
         {
             _originalPosition = _rectTransform.anchoredPosition;
             _isInitialized = true;
-        }
-
-        for(int i = 0; i < formationSlots.Length; i++)
-        {
-            formationSlots[i].Setup(null, i, false);
         }
     }
 

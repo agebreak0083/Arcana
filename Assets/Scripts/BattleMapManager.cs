@@ -337,8 +337,7 @@ public class BattleMapManager : MonoBehaviour
 
     private void ShowSquadInfoUI(BattleSquad battleSquad)
     {
-        SquadInfoUI squadInfoUI = battleSquad.isPlayerSquad ? _playerSquadInfoUI : _enemySquadInfoUI;
-        squadInfoUI.gameObject.SetActive(true);
+        SquadInfoUI squadInfoUI = battleSquad.isPlayerSquad ? _playerSquadInfoUI : _enemySquadInfoUI;        
 
         // SquadInfoUI에 정보 업데이트 
         if (squadInfoUI != null)
@@ -347,8 +346,13 @@ public class BattleMapManager : MonoBehaviour
 
             if (battleSquad._loadResult != null && battleSquad._loadResult.unitSlots != null)
             {
+                squadInfoUI.gameObject.SetActive(true);
                 squadInfoUI.UpdateSquadInfo(squadName, battleSquad._loadResult.unitSlots);
             }
+            else
+            {
+                Debug.LogWarning($"SquadInfoUI 업데이트 실패: {squadName}");                
+            }            
         }
     }
 
@@ -370,7 +374,7 @@ public class BattleMapManager : MonoBehaviour
         {
             // 아이리스의 Make Tactics Message 표시
             IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.MAKE_TACTICS_MESSAGE);
-            
+
             ShowTacticsScene(null);
         }
         else if(currentPhase == BattleMapPhase.END_PHASE)
