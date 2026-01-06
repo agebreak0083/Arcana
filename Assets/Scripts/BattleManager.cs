@@ -377,15 +377,15 @@ public class BattleManager : MonoBehaviour
         currentTurn = 0;
         Debug.Log($"=== 라운드 {currentRound} 시작 ===");
 
-        // 최대 라운드 초과 체크
-        if (currentRound > BattleSetting.MAX_ROUNDS)
-        {
-            Debug.Log($"패배... (최대 라운드 {BattleSetting.MAX_ROUNDS} 초과)");
-            SetPlayerWinLose(false);
+        // // 최대 라운드 초과 체크
+        // if (currentRound > BattleSetting.MAX_ROUNDS)
+        // {
+        //     Debug.Log($"패배... (최대 라운드 {BattleSetting.MAX_ROUNDS} 초과)");
+        //     SetPlayerWinLose(false);
             
-            isBattleOver = true;
-            yield break;
-        }
+        //     isBattleOver = true;
+        //     yield break;
+        // }
 
         if (BattleLogManager.Instance != null)
             BattleLogManager.Instance.LogRoundStart(currentRound);

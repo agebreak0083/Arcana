@@ -1462,7 +1462,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Skill_1"
+      "animation": "SkillGriffon_1"
     },
     {
       "name": "페이탈 폴",
@@ -1482,7 +1482,7 @@
       "traits": [
         "ranged"
       ],
-      "animation": "Skill_1"
+      "animation": "SkillGriffon_1"
     },
     {
       "name": "페더링",
