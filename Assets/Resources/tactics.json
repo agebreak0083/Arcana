@@ -1,18 +1,13 @@
 {
-    "key": "agebreak_2601081412",
-    "username": "agebreak_2601081412",
-    "score": 570,
-    "winCount": 207,
+    "key": "agebreak_2601081618",
+    "username": "agebreak_2601081618",
+    "score": 594,
+    "winCount": 215,
     "loseCount": 51,
     "positions": [
         {
             "position": "1",
-            "name": "",
-            "tactics": []
-        },
-        {
-            "position": "2",
-            "name": "달리아",
+            "name": "반디",
             "tactics": [
                 {
                     "characterClass": "나이트",
@@ -62,8 +57,13 @@
             ]
         },
         {
+            "position": "2",
+            "name": "",
+            "tactics": []
+        },
+        {
             "position": "3",
-            "name": "반디",
+            "name": "달리아",
             "tactics": [
                 {
                     "characterClass": "나이트",
@@ -165,7 +165,7 @@
         },
         {
             "position": "5",
-            "name": "다이아린",
+            "name": "산화",
             "tactics": [
                 {
                     "characterClass": "헌터",

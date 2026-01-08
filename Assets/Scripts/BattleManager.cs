@@ -789,6 +789,12 @@ public class BattleManager : MonoBehaviour
             yield break;
         }
 
+        // 스킬 사용자와 타겟만 보이도록 반투명 처리
+        if (CharacterTransparencyManager.Instance != null)
+        {
+            CharacterTransparencyManager.Instance.SetFocusedCharacters(user, targets);
+        }
+
         // 모든 캐릭터에게 누가 누구에게 스킬을 썼는지 알려준다. 
         foreach (var character in charactersTurnList)
         {
@@ -808,6 +814,20 @@ public class BattleManager : MonoBehaviour
             yield break;
         }
 
+        // 패시브 스킬을 사용할 캐릭터들을 먼저 찾아서 불투명하게 유지
+        List<Character> passiveSkillUsers = new List<Character>();
+        foreach (var character in charactersTurnList)
+        {
+            if (IsValidCharacter(character) && WillUsePassiveSkill(character, user, targets, skill))
+            {
+                passiveSkillUsers.Add(character);
+                if (CharacterTransparencyManager.Instance != null)
+                {
+                    CharacterTransparencyManager.Instance.AddFocusedCharacter(character);
+                }
+            }
+        }
+
         // 모든 캐릭터에게 스킬 사용 후 이벤트를 호출한다. 
         foreach (var character in charactersTurnList)
         {
@@ -816,6 +836,46 @@ public class BattleManager : MonoBehaviour
                 yield return StartCoroutine(character.OnAfterSkillUse(user, targets, skill, passiveSkillResult));
             }
         }
+        
+        // 스킬 사용 완료 후 모든 캐릭터를 원래대로 복원
+        if (CharacterTransparencyManager.Instance != null)
+        {
+            CharacterTransparencyManager.Instance.ClearFocus();
+        }
+    }
+    
+    /// <summary>
+    /// 캐릭터가 패시브 스킬을 사용할지 미리 체크
+    /// </summary>
+    private bool WillUsePassiveSkill(Character actionCharacter, Character user, List<Character> targets, Skill skill)
+    {
+        if (actionCharacter == null || actionCharacter.stats == null || actionCharacter.stats.passivePoint <= 0)
+            return false;
+        
+        if (actionCharacter == user)
+            return false;
+        
+        // 자신에게 세팅된 Action 순회, PP 스킬을 찾고, 조건을 체크한다.
+        foreach (var action in actionCharacter.availableActions)
+        {
+            Skill myPassiveSkill = SkillManager.Instance.GetSkillByName(action.action);
+            if (myPassiveSkill == null || myPassiveSkill.costPP <= 0)
+                continue;
+            
+            if (myPassiveSkill.checkPhase == "after_skill_use_ally")
+            {
+                if (myPassiveSkill.target == "chase" && targets.Count > 0 && targets[0].hp > 0 && targets[0].isPlayer != actionCharacter.isPlayer)
+                {
+                    // PP가 충분한지 체크
+                    if (actionCharacter.stats.passivePoint >= myPassiveSkill.costPP)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
     }
 
     // 임시용 방어 코드. BattleMap에 시뮬을 돌리기 위한, 싱글톤 사용 회피 땜빵 코드 
