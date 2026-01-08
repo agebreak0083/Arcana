@@ -11,8 +11,7 @@ public class BattleSquad : MonoBehaviour
     
     // 이동 관련 변수
     private GameObject targetTower;
-    private Vector3 currentTargetPosition;
-    private float currentMoveSpeed;    
+    private Vector3 currentTargetPosition;    
     private System.Collections.IEnumerator moveCoroutine;
     private Color originalColor;
     public Color selectColor = Color.blue;
@@ -101,20 +100,15 @@ public class BattleSquad : MonoBehaviour
                     navMeshAgent.enabled = false;
                 }
                 else
-                {
-                    navMeshAgent.speed = currentMoveSpeed;
+                {                    
+                    navMeshAgent.speed = mapManager.GetSquadMoveSpeed();                    
                     navMeshAgent.SetDestination(currentTargetPosition);
                 }
             }
             else
             {
-                navMeshAgent.speed = mapManager.enemySquadMoveSpeed;
+                navMeshAgent.speed = mapManager.GetEnemySquadMoveSpeed();
                 navMeshAgent.SetDestination(targetTower.transform.position);
-            }
-
-            if(mapManager.IsPause())
-            {
-                navMeshAgent.speed = 0;
             }
         }
 
@@ -179,11 +173,11 @@ public class BattleSquad : MonoBehaviour
     /// <summary>
     /// 목표 위치로 이동 (중간에 목표 위치 변경 가능)
     /// </summary>
-    public void MoveTo(Vector3 targetPosition, float speed)
+    /// <param name="targetPosition">목표 위치</param>
+    public void MoveTo(Vector3 targetPosition)
     {
-        // 목표 위치와 속도 업데이트
-        currentTargetPosition = targetPosition;
-        currentMoveSpeed = speed;       
+        // 목표 위치와 원본 속도 저장
+        currentTargetPosition = targetPosition;        
     }
 
     /// <summary>

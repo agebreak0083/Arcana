@@ -82,7 +82,8 @@ public class UserDataManager : MonoBehaviour
             {
                 bgmVolume = 0.7f,
                 sfxVolume = 0.8f,
-                language = "Korean"
+                language = "Korean",
+                battleMap2xSpeed = false
             },
             lastSaveTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
         };
@@ -211,4 +212,5 @@ public class GameSettings
     public float bgmVolume;
     public float sfxVolume;
     public string language;
+    public bool battleMap2xSpeed = false; // BattleMap 2배속 설정
 }

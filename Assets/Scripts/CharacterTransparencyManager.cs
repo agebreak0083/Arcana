@@ -10,7 +10,6 @@ using UnityEngine;
 public class CharacterTransparencyManager : MonoBehaviour
 {
     [Header("셰이더 설정")]
-    [SerializeField] private string opaqueShaderName = "MMD4Mecanim/MMDLit-Edge";
     [SerializeField] private string transparentShaderName = "MMD4Mecanim/MMDLit-Transparent";
     
     [Header("투명도 설정")]

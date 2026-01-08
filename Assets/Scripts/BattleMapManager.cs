@@ -22,7 +22,8 @@ public enum BattleMapPhase
 public enum BattleMapPauseType
 {
     PAUSE, 
-    PLAY     
+    PLAY     ,
+    PLAY_2X,
 }
 
 public class BattleMapManager : MonoBehaviour
@@ -34,6 +35,7 @@ public class BattleMapManager : MonoBehaviour
     public BattleManager battleManager = null;
     public GameObject defeatPanel = null;
     public Button pauseButton = null;
+    public Button play2xButton = null;
     
     [Header("Movement Settings")]
     public float squadMoveSpeed = 5f;
@@ -52,6 +54,8 @@ public class BattleMapManager : MonoBehaviour
     
     private BattleMapPauseType _pauseType = BattleMapPauseType.PAUSE; // 기본 상태: PAUSE
     private TextMeshProUGUI pauseButtonText = null;
+    private bool is2xSpeed = false; // 2배속 상태
+    private Image play2xButtonImage = null; // 2배속 버튼 이미지 (체크 표시용)
 
     void Awake()
     {
@@ -61,6 +65,9 @@ public class BattleMapManager : MonoBehaviour
         
         // Pause 버튼 초기화
         InitializePauseButton();
+        
+        // 2배속 버튼 초기화
+        InitializePlay2xButton();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -73,6 +80,9 @@ public class BattleMapManager : MonoBehaviour
         
         // 초기 상태 적용
         UpdatePauseButtonUI();
+        
+        // 2배속 상태 적용
+        ApplyPlay2xSpeedState();
     }
 
     // Update is called once per frame
@@ -197,7 +207,7 @@ public class BattleMapManager : MonoBehaviour
                 BattleSquad squad = selectedSquadObject.GetComponent<BattleSquad>();
                 if (squad != null)
                 {
-                    squad.MoveTo(targetPosition, squadMoveSpeed);                        
+                    squad.MoveTo(targetPosition);                        
                     Debug.Log($"Squad 이동 명령: {targetPosition}");
 
                     // 선택 해제
@@ -363,7 +373,7 @@ public class BattleMapManager : MonoBehaviour
             Vector3 targetPosition = battleSquad.transform.position;
             targetPosition.y = selectedSquad.transform.position.y; // Y축은 유지
 
-            selectedSquad.MoveTo(targetPosition, squadMoveSpeed);
+            selectedSquad.MoveTo(targetPosition);
             Debug.Log($"Player Squad 이동 명령: {selectedSquad.gameObject.name} -> {battleSquad.gameObject.name} 위치로");
         });
     }
@@ -547,6 +557,10 @@ public class BattleMapManager : MonoBehaviour
         }
         
         UpdatePauseButtonUI();
+        
+        // Pause 상태 변경 시 Time.timeScale도 업데이트
+        ApplyPlay2xSpeedState();
+        
         Debug.Log($"BattleMapManager: Pause 상태 전환 -> {_pauseType}");
     }
     
@@ -570,4 +584,87 @@ public class BattleMapManager : MonoBehaviour
             }
         }
     }
+    
+    /// <summary>
+    /// 2배속 버튼 초기화
+    /// </summary>
+    private void InitializePlay2xButton()
+    {
+        if (play2xButton == null)
+        {
+            Debug.LogWarning("BattleMapManager: play2xButton이 할당되지 않았습니다.");
+            return;
+        }
+        
+        // 버튼 클릭 이벤트 등록
+        play2xButton.onClick.RemoveAllListeners();
+        play2xButton.onClick.AddListener(TogglePlay2xSpeed);
+        
+        // 버튼의 Image 컴포넌트 가져오기 (체크 표시용)
+        play2xButtonImage = play2xButton.GetComponent<Image>();
+        
+        // UserDataManager에서 저장된 상태 로드
+        if (UserDataManager.Instance != null && UserDataManager.Instance.currentUserData != null)
+        {
+            is2xSpeed = UserDataManager.Instance.currentUserData.gameSettings.battleMap2xSpeed;
+        }
+    }
+    
+    /// <summary>
+    /// 2배속 토글
+    /// </summary>
+    private void TogglePlay2xSpeed()
+    {
+        is2xSpeed = !is2xSpeed;
+        
+        // UserDataManager에 저장
+        if (UserDataManager.Instance != null && UserDataManager.Instance.currentUserData != null)
+        {
+            UserDataManager.Instance.currentUserData.gameSettings.battleMap2xSpeed = is2xSpeed;
+            UserDataManager.Instance.SaveUserData();
+        }
+        
+        // 상태 적용
+        ApplyPlay2xSpeedState();
+        
+        Debug.Log($"BattleMapManager: 2배속 토글 -> {(is2xSpeed ? "2x" : "1x")}");
+    }
+    
+    /// <summary>
+    /// 2배속 상태 적용
+    /// </summary>
+    private void ApplyPlay2xSpeedState()
+    {
+        // 버튼 시각적 피드백 (체크 표시)
+        if (play2xButtonImage != null)
+        {
+            // 체크되어 있으면 색상 변경 (또는 체크마크 표시)
+            play2xButtonImage.color = is2xSpeed ? new Color(1f, 0.8f, 0.2f, 1f) : Color.white;
+        }
+    }
+    
+    /// <summary>
+    /// Squad 이동 속도 반환 (2배속 적용)
+    /// </summary>
+    public float GetSquadMoveSpeed()
+    {
+        if (_pauseType == BattleMapPauseType.PAUSE)
+        {
+            return 0f; // PAUSE 상태면 속도 0
+        }
+        return is2xSpeed ? squadMoveSpeed * 2f : squadMoveSpeed;
+    }
+    
+    /// <summary>
+    /// 적 Squad 이동 속도 반환 (2배속 적용)
+    /// </summary>
+    public float GetEnemySquadMoveSpeed()
+    {
+        if (_pauseType == BattleMapPauseType.PAUSE)
+        {
+            return 0f; // PAUSE 상태면 속도 0
+        }
+        return is2xSpeed ? enemySquadMoveSpeed * 2f : enemySquadMoveSpeed;
+    }
+    
 }
