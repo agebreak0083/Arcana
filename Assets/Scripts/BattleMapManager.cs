@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public enum BattleMapPhase
 {
@@ -18,6 +19,12 @@ public enum BattleMapPhase
     BATTLE_DEFEAT,
 }
 
+public enum BattleMapPauseType
+{
+    PAUSE, 
+    PLAY     
+}
+
 public class BattleMapManager : MonoBehaviour
 {
     public GameObject selectedSquadObject = null;
@@ -26,6 +33,7 @@ public class BattleMapManager : MonoBehaviour
     public BattleSimulationResultUI battleSimulationResultUI = null;
     public BattleManager battleManager = null;
     public GameObject defeatPanel = null;
+    public Button pauseButton = null;
     
     [Header("Movement Settings")]
     public float squadMoveSpeed = 5f;
@@ -41,14 +49,18 @@ public class BattleMapManager : MonoBehaviour
     private Dictionary<string, CharacterData> _squadCharacterData = new Dictionary<string, CharacterData>();
     public SquadInfoUI _playerSquadInfoUI = null;
     public SquadInfoUI _enemySquadInfoUI = null;
-
-    private bool _isPause = false;
+    
+    private BattleMapPauseType _pauseType = BattleMapPauseType.PAUSE; // 기본 상태: PAUSE
+    private TextMeshProUGUI pauseButtonText = null;
 
     void Awake()
     {
         battleSimulationResultUI.closeButton.onClick.AddListener(() => {
-            _isPause = false;
+            
         });
+        
+        // Pause 버튼 초기화
+        InitializePauseButton();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -57,7 +69,10 @@ public class BattleMapManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-        }        
+        }
+        
+        // 초기 상태 적용
+        UpdatePauseButtonUI();
     }
 
     // Update is called once per frame
@@ -67,6 +82,24 @@ public class BattleMapManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             HandleEscapeKey();
+        }
+        
+        // 스페이스바로 Pause/Play 전환
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            // TacticsScene이 Active 상태면 무시
+            if (TacticsUIManager.Instance != null && TacticsUIManager.Instance.rootObject.activeSelf)
+            {
+                return;
+            }
+            
+            // BattleSimulationResultUI가 활성화되어 있으면 무시
+            if (battleSimulationResultUI != null && battleSimulationResultUI.gameObject.activeSelf)
+            {
+                return;
+            }
+            
+            TogglePause();
         }
 
         // 맵(Plane) 클릭 감지
@@ -311,7 +344,7 @@ public class BattleMapManager : MonoBehaviour
         TacticsDataManager.Instance.SetEnemyTactics(enemySquadName);        
 
         // 시뮬 UI 초기화
-        _isPause = true;
+        _pauseType = BattleMapPauseType.PAUSE;
         battleSimulationResultUI.gameObject.SetActive(true);
         battleSimulationResultUI.InitializeUI(playerSquadName, enemySquadName);
 
@@ -323,7 +356,7 @@ public class BattleMapManager : MonoBehaviour
         battleSimulationResultUI.startBattleButton.onClick.RemoveAllListeners();
         battleSimulationResultUI.startBattleButton.onClick.AddListener(() => 
         {
-            _isPause = false;
+            _pauseType = BattleMapPauseType.PLAY;
             battleSimulationResultUI.gameObject.SetActive(false);
 
             // Player Squad를 Enemy Squad 위치로 이동
@@ -468,6 +501,73 @@ public class BattleMapManager : MonoBehaviour
 
     public bool IsPause()
     {
-        return _isPause;
+        return _pauseType == BattleMapPauseType.PAUSE;
+    }
+    
+    /// <summary>
+    /// Pause 버튼 초기화
+    /// </summary>
+    private void InitializePauseButton()
+    {
+        if (pauseButton == null)
+        {
+            Debug.LogWarning("BattleMapManager: pauseButton이 할당되지 않았습니다.");
+            return;
+        }
+        
+        // 버튼 클릭 이벤트 등록
+        pauseButton.onClick.RemoveAllListeners();
+        pauseButton.onClick.AddListener(TogglePause);
+        
+        // 버튼의 텍스트 컴포넌트 찾기
+        pauseButtonText = pauseButton.GetComponentInChildren<TextMeshProUGUI>();
+        if (pauseButtonText == null)
+        {
+            // TextMeshProUGUI가 없으면 일반 Text 컴포넌트 찾기
+            Text textComponent = pauseButton.GetComponentInChildren<Text>();
+            if (textComponent != null)
+            {
+                Debug.LogWarning("BattleMapManager: pauseButton에 TextMeshProUGUI가 없고 Text 컴포넌트를 사용합니다. TextMeshProUGUI를 사용하는 것을 권장합니다.");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Pause/Play 상태 전환
+    /// </summary>
+    private void TogglePause()
+    {
+        if (_pauseType == BattleMapPauseType.PAUSE)
+        {
+            _pauseType = BattleMapPauseType.PLAY;
+        }
+        else
+        {
+            _pauseType = BattleMapPauseType.PAUSE;
+        }
+        
+        UpdatePauseButtonUI();
+        Debug.Log($"BattleMapManager: Pause 상태 전환 -> {_pauseType}");
+    }
+    
+    /// <summary>
+    /// Pause 버튼 UI 업데이트
+    /// </summary>
+    private void UpdatePauseButtonUI()
+    {
+        if (pauseButtonText != null)
+        {
+            // PAUSE 상태일 때는 "PLAY" 표시, PLAY 상태일 때는 "PAUSE" 표시
+            pauseButtonText.text = _pauseType == BattleMapPauseType.PAUSE ? "PLAY" : "PAUSE";
+        }
+        else
+        {
+            // TextMeshProUGUI가 없으면 일반 Text 컴포넌트 시도
+            Text textComponent = pauseButton.GetComponentInChildren<Text>();
+            if (textComponent != null)
+            {
+                textComponent.text = _pauseType == BattleMapPauseType.PAUSE ? "PLAY" : "PAUSE";
+            }
+        }
     }
 }
