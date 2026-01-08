@@ -24,24 +24,95 @@ public class AIAdvisorIRIS : MonoBehaviour
         public string threadId;
     }
     
-    private const string ConfigFileName = "openai_config.json";
+    private const string ConfigServerUrl = "https://arcana.koreacentral.cloudapp.azure.com/api/data/openai_config";
     private const string BaseUrl = "https://api.openai.com/v1";
     private const int MaxResponseLength = 60; // 한글 기준 60자
     // MaxCompletionTokens 제거: OpenAI API 기본값(무제한) 사용
     
     /// <summary>
-    /// 설정 파일에서 API 키 로드
+    /// 서버에서 API 키 로드
     /// </summary>
     void Awake()
     {
-        LoadConfigFromFile();
+        StartCoroutine(LoadConfigFromServer());
     }
     
     /// <summary>
-    /// openai_config.json 파일에서 설정을 로드
-    /// 웹 빌드와 에디터 모두 지원: Resources 폴더 사용
+    /// 서버에서 OpenAI Config를 로드
     /// </summary>
-    private void LoadConfigFromFile()
+    private IEnumerator LoadConfigFromServer()
+    {
+        string url = ConfigServerUrl;
+        
+        Debug.Log($"AIAdvisorIRIS: 서버에서 설정 로드 시작 - URL: {url}");
+        
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            request.timeout = 30;
+            
+            yield return request.SendWebRequest();
+            
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                try
+                {
+                    string responseText = request.downloadHandler.text;
+                    Debug.Log($"AIAdvisorIRIS: 서버 응답 수신 성공");
+                    
+                    // 서버 응답 형식: {"id": "openai_config", "content": {...}}
+                    ServerConfigResponse serverResponse = JsonUtility.FromJson<ServerConfigResponse>(responseText);
+                    
+                    if (serverResponse != null && serverResponse.content != null)
+                    {
+                        OpenAIConfig config = serverResponse.content;
+                        
+                        if (!string.IsNullOrEmpty(config.apiKey) && config.apiKey != "YOUR_OPENAI_API_KEY_HERE")
+                        {
+                            apiKey = config.apiKey;
+                        }
+                        if (!string.IsNullOrEmpty(config.assistantId) && config.assistantId != "YOUR_ASSISTANT_ID_HERE")
+                        {
+                            assistantId = config.assistantId;
+                        }
+                        if (!string.IsNullOrEmpty(config.threadId) && config.threadId != "YOUR_THREAD_ID_HERE")
+                        {
+                            threadId = config.threadId;
+                        }
+                        
+                        Debug.Log("AIAdvisorIRIS: 서버에서 설정을 성공적으로 로드했습니다.");
+                    }
+                    else
+                    {
+                        Debug.LogError("AIAdvisorIRIS: 서버 응답 파싱 실패 - content가 null입니다.");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"AIAdvisorIRIS: 서버 응답 파싱 실패 - {e.Message}\n응답: {request.downloadHandler.text}");
+                }
+            }
+            else
+            {
+                string errorMessage = request.error ?? "Unknown Error";
+                Debug.LogError($"AIAdvisorIRIS: 서버에서 설정 로드 실패 - {errorMessage} (HTTP {request.responseCode})");
+                
+                // 폴백: 로컬 파일에서 로드 시도
+                Debug.LogWarning("AIAdvisorIRIS: 서버 로드 실패, 로컬 파일에서 로드 시도...");
+                LoadConfigFromFileFallback();
+            }
+        }
+        
+        // API 키가 여전히 비어있으면 경고
+        if (string.IsNullOrEmpty(apiKey))
+        {
+            Debug.LogWarning("AIAdvisorIRIS: API 키가 설정되지 않았습니다. 서버 설정을 확인하세요.");
+        }
+    }
+    
+    /// <summary>
+    /// 폴백: 로컬 파일에서 설정 로드 (서버 실패 시)
+    /// </summary>
+    private void LoadConfigFromFileFallback()
     {
         try
         {
@@ -68,14 +139,14 @@ public class AIAdvisorIRIS : MonoBehaviour
                         threadId = config.threadId;
                     }
                     
-                    Debug.Log("AIAdvisorIRIS: Resources 폴더에서 설정 파일을 로드했습니다.");
+                    Debug.Log("AIAdvisorIRIS: Resources 폴더에서 설정 파일을 로드했습니다 (폴백).");
                 }
             }
             else
             {
                 // 방법 2: 에디터에서만 작동하는 파일 시스템 경로 (폴백)
                 #if UNITY_EDITOR
-                string configPath = Path.Combine(Application.dataPath, "Scripts", ConfigFileName);
+                string configPath = Path.Combine(Application.dataPath, "Resources", "openai_config.json");
                 
                 if (File.Exists(configPath))
                 {
@@ -97,27 +168,15 @@ public class AIAdvisorIRIS : MonoBehaviour
                             threadId = config.threadId;
                         }
                         
-                        Debug.Log("AIAdvisorIRIS: Scripts 폴더에서 설정 파일을 로드했습니다.");
+                        Debug.Log("AIAdvisorIRIS: 로컬 파일에서 설정 파일을 로드했습니다 (폴백).");
                     }
                 }
-                else
-                {
-                    Debug.LogWarning($"AIAdvisorIRIS: Resources/openai_config.json 또는 {configPath} 파일을 찾을 수 없습니다.");
-                }
-                #else
-                Debug.LogWarning("AIAdvisorIRIS: Resources/openai_config.json 파일을 찾을 수 없습니다.");
                 #endif
             }
         }
         catch (Exception e)
         {
-            Debug.LogError($"AIAdvisorIRIS: 설정 파일 로드 실패 - {e.Message}");
-        }
-        
-        // API 키가 여전히 비어있으면 경고
-        if (string.IsNullOrEmpty(apiKey))
-        {
-            Debug.LogWarning("AIAdvisorIRIS: API 키가 설정되지 않았습니다. Resources/openai_config.json 파일을 확인하세요.");
+            Debug.LogError($"AIAdvisorIRIS: 폴백 설정 파일 로드 실패 - {e.Message}");
         }
     }
     
@@ -943,5 +1002,15 @@ public class AIAdvisorIRIS : MonoBehaviour
     {
         public string instructions;
         public string model;
+    }
+    
+    /// <summary>
+    /// 서버 응답 형식: {"id": "openai_config", "content": {...}}
+    /// </summary>
+    [Serializable]
+    private class ServerConfigResponse
+    {
+        public string id;
+        public OpenAIConfig content;
     }
 }

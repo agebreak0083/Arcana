@@ -2,21 +2,54 @@ from ast import main
 import time
 import json
 import os
+import requests
 from openai import OpenAI
 
-# 1. 설정 파일에서 API 키 로드
+# 서버 설정
+CONFIG_SERVER_URL = "https://arcana.koreacentral.cloudapp.azure.com/api/data/openai_config"
+
+# 1. 서버에서 API 키 로드
 def load_config():
-    """openai_config.json 파일에서 설정을 로드"""
+    """서버에서 OpenAI Config를 로드"""
+    try:
+        print(f"서버에서 설정 로드 중... URL: {CONFIG_SERVER_URL}")
+        response = requests.get(CONFIG_SERVER_URL, timeout=30)
+        
+        if response.status_code == 200:
+            server_response = response.json()
+            
+            # 서버 응답 형식: {"id": "openai_config", "content": {...}}
+            if server_response and "content" in server_response:
+                config = server_response["content"]
+                print("✓ 서버에서 설정을 성공적으로 로드했습니다.")
+                return config
+            else:
+                raise ValueError("서버 응답에 'content' 필드가 없습니다.")
+        else:
+            raise Exception(f"서버 응답 오류: HTTP {response.status_code}")
+            
+    except requests.exceptions.RequestException as e:
+        print(f"서버 연결 실패: {e}")
+        print("폴백: 로컬 파일에서 로드 시도...")
+        return load_config_from_file()
+    except Exception as e:
+        print(f"서버에서 설정 로드 실패: {e}")
+        print("폴백: 로컬 파일에서 로드 시도...")
+        return load_config_from_file()
+
+def load_config_from_file():
+    """폴백: 로컬 파일에서 설정 로드"""
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path = os.path.join(script_dir, "..", "openai_config.json")
+    config_path = os.path.join(script_dir, "..", "..", "Resources", "openai_config.json")
     
     try:
         with open(config_path, 'r', encoding='utf-8') as f:
             config = json.load(f)
+        print(f"✓ 로컬 파일에서 설정을 로드했습니다: {config_path}")
         return config
     except FileNotFoundError:
         print(f"오류: {config_path} 파일을 찾을 수 없습니다.")
-        print("openai_config.example.json을 복사하여 openai_config.json을 생성하고 API 키를 입력하세요.")
+        print("서버 설정 또는 로컬 파일을 확인하세요.")
         raise
     except json.JSONDecodeError:
         print(f"오류: {config_path} 파일의 JSON 형식이 올바르지 않습니다.")
