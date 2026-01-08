@@ -83,18 +83,18 @@ public class AIAdvisorIRIS : MonoBehaviour
                     }
                     else
                     {
-                        Debug.LogError("AIAdvisorIRIS: 서버 응답 파싱 실패 - content가 null입니다.");
+                        Debug.LogWarning("AIAdvisorIRIS: 서버 응답 파싱 실패 - content가 null입니다.");
                     }
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"AIAdvisorIRIS: 서버 응답 파싱 실패 - {e.Message}\n응답: {request.downloadHandler.text}");
+                    Debug.LogWarning($"AIAdvisorIRIS: 서버 응답 파싱 실패 - {e.Message}\n응답: {request.downloadHandler.text}");
                 }
             }
             else
             {
                 string errorMessage = request.error ?? "Unknown Error";
-                Debug.LogError($"AIAdvisorIRIS: 서버에서 설정 로드 실패 - {errorMessage} (HTTP {request.responseCode})");
+                Debug.LogWarning($"AIAdvisorIRIS: 서버에서 설정 로드 실패 - {errorMessage} (HTTP {request.responseCode})");
                 
                 // 폴백: 로컬 파일에서 로드 시도
                 Debug.LogWarning("AIAdvisorIRIS: 서버 로드 실패, 로컬 파일에서 로드 시도...");
@@ -176,7 +176,7 @@ public class AIAdvisorIRIS : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError($"AIAdvisorIRIS: 폴백 설정 파일 로드 실패 - {e.Message}");
+            Debug.LogWarning($"AIAdvisorIRIS: 폴백 설정 파일 로드 실패 - {e.Message}");
         }
     }
     
@@ -324,7 +324,7 @@ public class AIAdvisorIRIS : MonoBehaviour
             if (request.result != UnityWebRequest.Result.Success)
             {
                 string errorResponse = request.downloadHandler?.text ?? "No response";
-                Debug.LogError($"AIAdvisorIRIS: 메시지 생성 실패 - {request.error}\n응답: {errorResponse}\n요청 JSON: {jsonData}");
+                Debug.LogWarning($"AIAdvisorIRIS: 메시지 생성 실패 - {request.error}\n응답: {errorResponse}\n요청 JSON: {jsonData}");
             }
         }
     }
@@ -364,14 +364,14 @@ public class AIAdvisorIRIS : MonoBehaviour
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"AIAdvisorIRIS: Run 데이터 파싱 실패 - {e.Message}");
+                    Debug.LogWarning($"AIAdvisorIRIS: Run 데이터 파싱 실패 - {e.Message}");
                     onComplete?.Invoke(false, null, false);
                     yield break;
                 }
             }
             else
             {
-                Debug.LogError($"AIAdvisorIRIS: Run 생성 실패 - {createRequest.error}");
+                Debug.LogWarning($"AIAdvisorIRIS: Run 생성 실패 - {createRequest.error}");
                 onComplete?.Invoke(false, null, false);
                 yield break;
             }
@@ -405,7 +405,7 @@ public class AIAdvisorIRIS : MonoBehaviour
                     }
                     catch (Exception e)
                     {
-                        Debug.LogError($"AIAdvisorIRIS: Run 상태 파싱 실패 - {e.Message}");
+                        Debug.LogWarning($"AIAdvisorIRIS: Run 상태 파싱 실패 - {e.Message}");
                         continue; // 다음 폴링으로 계속
                     }
                     
@@ -462,13 +462,13 @@ public class AIAdvisorIRIS : MonoBehaviour
                             }
                             else
                             {
-                                Debug.LogError($"AIAdvisorIRIS: Rate limit 초과 - 재시도 시간이 너무 깁니다 ({retryAfterSeconds:F1}초). 요청을 취소합니다.");
+                                Debug.LogWarning($"AIAdvisorIRIS: Rate limit 초과 - 재시도 시간이 너무 깁니다 ({retryAfterSeconds:F1}초). 요청을 취소합니다.");
                                 onComplete?.Invoke(false, null, false);
                                 yield break;
                             }
                         }
                         
-                        Debug.LogError($"AIAdvisorIRIS: Run 실패 - 상태: {status.status}\n상세: {errorDetails}");
+                        Debug.LogWarning($"AIAdvisorIRIS: Run 실패 - 상태: {status.status}\n상세: {errorDetails}");
                         onComplete?.Invoke(false, null, false);
                         yield break;
                     }
@@ -495,16 +495,16 @@ public class AIAdvisorIRIS : MonoBehaviour
                 try
                 {
                     RunStatus finalStatus = JsonUtility.FromJson<RunStatus>(finalRequest.downloadHandler.text);
-                    Debug.LogError($"AIAdvisorIRIS: Run polling 타임아웃 (최종 상태: {finalStatus.status})\n응답: {finalRequest.downloadHandler.text}");
+                    Debug.LogWarning($"AIAdvisorIRIS: Run polling 타임아웃 (최종 상태: {finalStatus.status})\n응답: {finalRequest.downloadHandler.text}");
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"AIAdvisorIRIS: Run polling 타임아웃 (상태 파싱 실패: {e.Message})");
+                    Debug.LogWarning($"AIAdvisorIRIS: Run polling 타임아웃 (상태 파싱 실패: {e.Message})");
                 }
             }
             else
             {
-                Debug.LogError($"AIAdvisorIRIS: Run polling 타임아웃 (상태 조회 실패: {finalRequest.error})");
+                Debug.LogWarning($"AIAdvisorIRIS: Run polling 타임아웃 (상태 조회 실패: {finalRequest.error})");
             }
         }
         
@@ -597,13 +597,13 @@ public class AIAdvisorIRIS : MonoBehaviour
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"AIAdvisorIRIS: Run 상태 파싱 실패 - {e.Message}");
+                    Debug.LogWarning($"AIAdvisorIRIS: Run 상태 파싱 실패 - {e.Message}");
                     onComplete?.Invoke(false, null);
                 }
             }
             else
             {
-                Debug.LogError($"AIAdvisorIRIS: Run 상태 조회 실패 - {request.error}");
+                Debug.LogWarning($"AIAdvisorIRIS: Run 상태 조회 실패 - {request.error}");
                 onComplete?.Invoke(false, null);
             }
         }
@@ -651,7 +651,7 @@ public class AIAdvisorIRIS : MonoBehaviour
                     }
                     catch (Exception e)
                     {
-                        Debug.LogError($"AIAdvisorIRIS: 메시지 파싱 실패 - {e.Message}\n응답: {request.downloadHandler.text}");
+                        Debug.LogWarning($"AIAdvisorIRIS: 메시지 파싱 실패 - {e.Message}\n응답: {request.downloadHandler.text}");
                         // 파싱 실패는 재시도해도 의미 없으므로 종료
                         onComplete?.Invoke(false, null);
                         yield break;
@@ -673,7 +673,7 @@ public class AIAdvisorIRIS : MonoBehaviour
                     }
                     else
                     {
-                        Debug.LogError($"AIAdvisorIRIS: 메시지 조회 실패 - HTTP {responseCode}\n에러: {request.error}\n응답: {errorResponse}");
+                        Debug.LogWarning($"AIAdvisorIRIS: 메시지 조회 실패 - HTTP {responseCode}\n에러: {request.error}\n응답: {errorResponse}");
                         onComplete?.Invoke(false, null);
                         yield break;
                     }
@@ -682,7 +682,7 @@ public class AIAdvisorIRIS : MonoBehaviour
         }
         
         // 모든 재시도 실패
-        Debug.LogError($"AIAdvisorIRIS: 메시지 조회 최종 실패 (재시도 {maxRetries}회 모두 실패)");
+        Debug.LogWarning($"AIAdvisorIRIS: 메시지 조회 최종 실패 (재시도 {maxRetries}회 모두 실패)");
         onComplete?.Invoke(false, null);
     }
 
@@ -856,7 +856,7 @@ public class AIAdvisorIRIS : MonoBehaviour
             else
             {
                 string errorResponse = request.downloadHandler?.text ?? "No response";
-                Debug.LogError($"AIAdvisorIRIS: 어시스턴트 업데이트 실패 - HTTP {request.responseCode}\n에러: {request.error}\n응답: {errorResponse}");
+                Debug.LogWarning($"AIAdvisorIRIS: 어시스턴트 업데이트 실패 - HTTP {request.responseCode}\n에러: {request.error}\n응답: {errorResponse}");
                 onComplete?.Invoke(false);
             }
         }
