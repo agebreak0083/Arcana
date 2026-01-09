@@ -19,7 +19,7 @@ public class IntroManager : MonoBehaviour
     {
         if(versionText != null)
         {
-            versionText.text = "v.23";
+            versionText.text = "v.24";
         }
 
         SetId(UserDataManager.Instance.currentUserData.playerName);
