@@ -9,6 +9,7 @@ public class BattleUI : MonoBehaviour
     public TextMeshProUGUI roundTurnText;   // 상단 라운드/턴 텍스트
     public TextMeshProUGUI skillNameText;   // 하단 스킬 이름 텍스트
     public GameObject highSpeedBtn; // 2배속 버튼 
+    public Button cameraModeButton; // 카메라 모드 버튼
 
     public GameObject victoryPanelPrefab;
     public GameObject defeatPanelPrefab;
@@ -26,6 +27,10 @@ public class BattleUI : MonoBehaviour
     private Button highSpeedButton;
     private TextMeshProUGUI highSpeedButtonText;
     private Image highSpeedButtonImage;
+
+    private CameraMode currentCameraMode = CameraMode.Shoulder;
+    
+    private TextMeshProUGUI cameraModeButtonText;
 
     private const string HIGH_SPEED_PREF_KEY = "BattleHighSpeed";
 
@@ -53,6 +58,9 @@ public class BattleUI : MonoBehaviour
 
         // 2배속 버튼 초기화
         InitializeHighSpeedButton();
+
+        // 카메라 모드 버튼 초기화
+        InitializeCameraModeButton();
 
         UpdateRoundTurnText(1, 1);        
     }
@@ -158,6 +166,62 @@ public class BattleUI : MonoBehaviour
         if (highSpeedButtonImage != null)
         {
             highSpeedButtonImage.color = isHighSpeed ? new Color(1f, 0.8f, 0.2f, 1f) : Color.white;
+        }
+    }
+
+    /// <summary>
+    /// 카메라 모드 버튼 초기화
+    /// </summary>
+    private void InitializeCameraModeButton()
+    {
+        // Text 컴포넌트 가져오기 (자식에서 찾기)
+        cameraModeButtonText = cameraModeButton.GetComponentInChildren<TextMeshProUGUI>();
+
+        // 버튼 클릭 이벤트 등록
+        cameraModeButton.onClick.RemoveAllListeners();
+        cameraModeButton.onClick.AddListener(ToggleCameraMode);
+
+        // 초기 상태 적용 (기본값: Shoulder 모드)
+        currentCameraMode = CameraMode.Shoulder;
+        ApplyCameraModeState();        
+    }
+
+    /// <summary>
+    /// 카메라 모드 토글
+    /// </summary>
+    public void ToggleCameraMode()
+    {
+        // Shoulder <-> FixedPosition 전환
+        currentCameraMode = (currentCameraMode == CameraMode.Shoulder) 
+            ? CameraMode.FixedPosition 
+            : CameraMode.Shoulder;
+
+        // 상태 적용
+        ApplyCameraModeState();
+
+        Debug.Log($"BattleUI: Camera mode toggled to {currentCameraMode}");
+    }
+
+    /// <summary>
+    /// 카메라 모드 상태 적용
+    /// </summary>
+    private void ApplyCameraModeState()
+    {
+        // BattleCameraController 찾기
+        BattleCameraController cameraController = FindFirstObjectByType<BattleCameraController>();
+        if (cameraController != null)
+        {
+            cameraController.SetCameraMode(currentCameraMode);
+        }
+        else
+        {
+            Debug.LogWarning("BattleUI: BattleCameraController not found!");
+        }
+
+        // 버튼 텍스트 변경
+        if (cameraModeButtonText != null)
+        {
+            cameraModeButtonText.text = (currentCameraMode == CameraMode.Shoulder) ? "CAM 1" : "CAM 2";
         }
     }
 

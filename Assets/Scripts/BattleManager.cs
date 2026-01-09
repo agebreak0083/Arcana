@@ -129,6 +129,9 @@ public class BattleManager : MonoBehaviour
         yield return new WaitForSeconds(1f);      
         BattleSimulationResult.SetRandomSeed();
 
+        // BGM 재생 
+        BGMPlayer.Instance.PlayBattleBGM();
+
         StartCoroutine(BattleRoutine());
     }
 
@@ -707,6 +710,9 @@ public class BattleManager : MonoBehaviour
             {
                 BattleMapManager.Instance.SetPlayerWinLose(isPlayerWin);
             }
+
+            // BGM 전환
+            BGMPlayer.Instance.PlayMainBGM();
         }
     }
 
