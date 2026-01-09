@@ -23,6 +23,9 @@ public class GachaManager : MonoBehaviour
     public Button CloseButton;
     public Action<AsyncOperation> completeAction;
 
+    // 가챠 진행 중 플래그
+    private bool isGachaInProgress = false;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -50,6 +53,14 @@ public class GachaManager : MonoBehaviour
         ticketButton.GetComponentInChildren<TextMeshProUGUI>().text = $"티켓 : {ticketCount}";
     }
 
+    void SetGachaButtonsActive(bool active)
+    {
+        gacha1Button.gameObject.SetActive(active);
+        gacha10Button.gameObject.SetActive(active);
+        ticketButton.gameObject.SetActive(active);
+        CloseButton.gameObject.SetActive(active);
+    }
+
     void OnTicketButtonClicked()
     {
         // userdata 에서 티켓 개수를 증가시킨다.
@@ -59,6 +70,12 @@ public class GachaManager : MonoBehaviour
 
     void OnGacha1ButtonClicked()
     {
+        // 가챠 진행 중이면 무시
+        if (isGachaInProgress)
+        {
+            return;
+        }
+
         if (UserDataManager.Instance.currentUserData.tickets < 1)
         {
             Debug.Log("티켓이 부족합니다.");
@@ -71,6 +88,10 @@ public class GachaManager : MonoBehaviour
             Debug.LogError("TacticsDataManager가 아직 로드되지 않았습니다.");
             return;
         }
+
+        // 가챠 진행 시작 - 버튼 비활성화
+        isGachaInProgress = true;
+        SetGachaButtonsActive(false);
 
         // userdata 에서 티켓 개수를 감소시킨다.
         UserDataManager.Instance.SpendTickets(1);
@@ -90,6 +111,9 @@ public class GachaManager : MonoBehaviour
         }
 
         TacticsDataManager.Instance.LoadCharacterPool(); // 캐릭터풀 갱신
+
+        // 카드 연출 완료 후 버튼 활성화 (0.5초 대기)
+        StartCoroutine(EnableButtonsAfterGacha1Animation());
     }
 
     private CharacterDefinition GetRandomCharacter()
@@ -117,6 +141,12 @@ public class GachaManager : MonoBehaviour
 
     void OnGacha10ButtonClicked()
     {
+        // 가챠 진행 중이면 무시
+        if (isGachaInProgress)
+        {
+            return;
+        }
+
         if (UserDataManager.Instance.currentUserData.tickets < 10)
         {
             Debug.Log("티켓이 부족합니다.");
@@ -129,6 +159,10 @@ public class GachaManager : MonoBehaviour
             Debug.LogError("TacticsDataManager가 아직 로드되지 않았습니다.");
             return;
         }
+
+        // 가챠 진행 시작 - 버튼 비활성화
+        isGachaInProgress = true;
+        SetGachaButtonsActive(false);
 
         // userdata 에서 티켓 개수를 감소시킨다.
         UserDataManager.Instance.SpendTickets(10);
@@ -175,6 +209,21 @@ public class GachaManager : MonoBehaviour
 
         TacticsDataManager.Instance.LoadCharacterPool(); // 캐릭터풀 갱신
         
-        yield return null;
+        // 모든 카드 연출 완료 후 버튼 활성화 (마지막 카드 연출 완료 대기)
+        yield return new WaitForSeconds(0.5f);
+        
+        // 가챠 진행 완료 - 버튼 활성화
+        isGachaInProgress = false;
+        SetGachaButtonsActive(true);
+    }
+
+    IEnumerator EnableButtonsAfterGacha1Animation()
+    {
+        // 카드 연출 완료 대기 (0.5초)
+        yield return new WaitForSeconds(0.5f);
+        
+        // 가챠 진행 완료 - 버튼 활성화
+        isGachaInProgress = false;
+        SetGachaButtonsActive(true);
     }
 }

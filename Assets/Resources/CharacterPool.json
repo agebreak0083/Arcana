@@ -768,5 +768,25 @@
                     ]
                 }
             ]
+        },
+        {
+            "Name": "루시아",
+            "tactics": []
+        },
+        {
+            "Name": "키레네",
+            "tactics": []
+        },
+        {
+            "Name": "치사",
+            "tactics": []
+        },
+        {
+            "Name": "양양",
+            "tactics": []
+        },
+        {
+            "Name": "단근",
+            "tactics": []
         }
     ]
