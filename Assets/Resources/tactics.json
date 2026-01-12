@@ -1,13 +1,13 @@
 {
-    "key": "agebreak_2601121043",
-    "username": "agebreak_2601121043",
-    "score": 632,
-    "winCount": 228,
-    "loseCount": 52,
+    "key": "agebreak_2601121539",
+    "username": "agebreak_2601121539",
+    "score": 640,
+    "winCount": 231,
+    "loseCount": 53,
     "positions": [
         {
             "position": "1",
-            "name": "반디",
+            "name": "달리아",
             "tactics": [
                 {
                     "characterClass": "나이트",
@@ -63,7 +63,7 @@
         },
         {
             "position": "3",
-            "name": "달리아",
+            "name": "반디",
             "tactics": [
                 {
                     "characterClass": "나이트",
@@ -165,33 +165,33 @@
         },
         {
             "position": "5",
-            "name": "다이아린",
+            "name": "엽빛나",
             "tactics": [
                 {
-                    "characterClass": "헌터",
+                    "characterClass": "그리폰나이트",
                     "plan": [
                         {
-                            "skill": "더블 샷",
-                            "condition1": "적이 2명 이상▲",
+                            "skill": "페이탈 폴",
+                            "condition1": "기마 계열 [적/아군] 우선",
+                            "condition2": "전후열에 선 [적/아군]"
+                        },
+                        {
+                            "skill": "하이 스윙",
+                            "condition1": "기마 계열 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "싱글 샷",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "라인 샷",
+                            "skill": "페더링",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "이글 아이",
+                            "skill": "---",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "체이스",
+                            "skill": "---",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
@@ -216,7 +216,7 @@
         },
         {
             "position": "6",
-            "name": "엽빛나",
+            "name": "키레네",
             "tactics": [
                 {
                     "characterClass": "그리폰나이트",

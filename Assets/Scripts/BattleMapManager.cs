@@ -36,6 +36,9 @@ public class BattleMapManager : MonoBehaviour
     public GameObject defeatPanel = null;
     public Button pauseButton = null;
     public Button play2xButton = null;
+
+    public GameObject fxDestroyEffectPrefab = null;
+    public GameObject fxClickEffectPrefab = null;
     
     [Header("Movement Settings")]
     public float squadMoveSpeed = 5f;
@@ -52,7 +55,7 @@ public class BattleMapManager : MonoBehaviour
     public SquadInfoUI _playerSquadInfoUI = null;
     public SquadInfoUI _enemySquadInfoUI = null;
     
-    private BattleMapPauseType _pauseType = BattleMapPauseType.PAUSE; // 기본 상태: PAUSE
+    private BattleMapPauseType _pauseType = BattleMapPauseType.PLAY; // 기본 상태: PLAY
     private TextMeshProUGUI pauseButtonText = null;
     private bool is2xSpeed = false; // 2배속 상태
     private Image play2xButtonImage = null; // 2배속 버튼 이미지 (체크 표시용)
@@ -203,6 +206,26 @@ public class BattleMapManager : MonoBehaviour
                 // 선택된 Squad를 클릭한 위치로 이동
                 Vector3 targetPosition = hit.point;
                 targetPosition.y = selectedSquadObject.transform.position.y; // Y축은 유지
+                
+                // 클릭 위치에 FX 재생
+                if (fxClickEffectPrefab != null)
+                {
+                    Vector3 fxPosition = hit.point;
+                    GameObject fxInstance = Instantiate(fxClickEffectPrefab, fxPosition, Quaternion.identity);
+                    fxInstance.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+                    
+                    // ParticleSystem이 있는 경우 자동으로 파괴되도록 설정
+                    ParticleSystem ps = fxInstance.GetComponent<ParticleSystem>();
+                    if (ps != null && ps.main.duration > 0)
+                    {
+                        Destroy(fxInstance, ps.main.duration + ps.main.startLifetime.constantMax);
+                    }
+                    else
+                    {
+                        // ParticleSystem이 없거나 duration이 0인 경우 기본 시간 후 파괴
+                        Destroy(fxInstance, 2f);
+                    }
+                }
                 
                 BattleSquad squad = selectedSquadObject.GetComponent<BattleSquad>();
                 if (squad != null)
@@ -449,6 +472,8 @@ public class BattleMapManager : MonoBehaviour
                     }
                     else
                     {
+                        // 적 부대 Destroy 시 FX 재생
+                        PlayDestroyEffect(_enemySquad.transform.position);
                         Destroy(_enemySquad.gameObject);
                     }
                 }
@@ -459,8 +484,13 @@ public class BattleMapManager : MonoBehaviour
             else // 플레이어 패배 
             {
                 // 플레이어 스쿼드를 회수한다.
-                ReturnSquad(_playerSquad.gameObject.name);
-                Destroy(_playerSquad.gameObject);
+                if(_playerSquad != null && _playerSquad.gameObject != null)
+                {
+                    // 아군 부대 Destroy 시 FX 재생
+                    PlayDestroyEffect(_playerSquad.transform.position);
+                    ReturnSquad(_playerSquad.gameObject.name);
+                    Destroy(_playerSquad.gameObject);
+                }
                 HandleSquadClick(null);
 
                 if(_enemySquad != null)
@@ -665,6 +695,30 @@ public class BattleMapManager : MonoBehaviour
             return 0f; // PAUSE 상태면 속도 0
         }
         return is2xSpeed ? enemySquadMoveSpeed * 2f : enemySquadMoveSpeed;
+    }
+    
+    /// <summary>
+    /// 부대 Destroy 시 FX 재생
+    /// </summary>
+    private void PlayDestroyEffect(Vector3 position)
+    {
+        if (fxDestroyEffectPrefab != null)
+        {
+            GameObject fxInstance = Instantiate(fxDestroyEffectPrefab, position, Quaternion.identity);
+            fxInstance.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+            
+            // ParticleSystem이 있는 경우 자동으로 파괴되도록 설정
+            ParticleSystem ps = fxInstance.GetComponent<ParticleSystem>();
+            if (ps != null && ps.main.duration > 0)
+            {
+                Destroy(fxInstance, ps.main.duration + ps.main.startLifetime.constantMax);
+            }
+            else
+            {
+                // ParticleSystem이 없거나 duration이 0인 경우 기본 시간 후 파괴
+                Destroy(fxInstance, 2f);
+            }
+        }
     }
     
 }

@@ -775,7 +775,53 @@
         },
         {
             "Name": "키레네",
-            "tactics": []
+            "tactics": [
+                {
+                    "characterClass": "그리폰나이트",
+                    "plan": [
+                        {
+                            "skill": "페이탈 폴",
+                            "condition1": "기마 계열 [적/아군] 우선",
+                            "condition2": "전후열에 선 [적/아군]"
+                        },
+                        {
+                            "skill": "하이 스윙",
+                            "condition1": "기마 계열 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "페더링",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "Name": "치사",
