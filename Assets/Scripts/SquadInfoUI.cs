@@ -74,7 +74,7 @@ public class SquadInfoUI : MonoBehaviour
 
     void OnTacticsButtonClicked()
     {
-        
+        BattleMapManager.Instance.ShowSquadTacticsUI(squadNameText.text);
     }
 
     void OnReturnButtonClicked()

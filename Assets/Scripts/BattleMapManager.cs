@@ -14,6 +14,7 @@ public enum BattleMapPhase
 {
     NONE_PHASE,
     TOWER_PHASE,
+    TACTICS_PHASE,
     BATTLE_PHASE,
     END_PHASE,
     BATTLE_DEFEAT,
@@ -273,6 +274,7 @@ public class BattleMapManager : MonoBehaviour
                     // Start() 코루틴이 실행되기 전에 squadName을 설정
                     TacticsUIManager.Instance.SetSquadName(squadName);
                     TacticsUIManager.Instance.SetEnemyName(enemyName);
+                    TacticsUIManager.Instance.SetBattleMapPhaseUI(currentPhase);
                 }
             };
         }
@@ -530,6 +532,14 @@ public class BattleMapManager : MonoBehaviour
             _squadSpawner.DestroySquad(squadName);
         }
     }
+
+    // 스쿼드의 Tactics UI 씬을 표시한다. 
+    public void ShowSquadTacticsUI(string squadName)
+    {
+        currentPhase = BattleMapPhase.TACTICS_PHASE;
+        ShowTacticsScene(squadName);
+    }
+
 
     private BattleSquad _playerSquad = null;
     private BattleSquad _enemySquad = null;

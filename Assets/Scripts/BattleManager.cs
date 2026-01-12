@@ -197,7 +197,13 @@ public class BattleManager : MonoBehaviour
             else
             {
                 enemyFormationLoadResult = TacticsDataManager.Instance.LoadSquadTactics(squadName);
+
+                if(enemyFormationLoadResult == null)
+                {
+                    enemyFormationLoadResult = TacticsDataManager.Instance.GetEnemyFormationLoadResult();
+                }
             }
+
             formationResult = enemyFormationLoadResult;
             positions = enemyPositions;
         }

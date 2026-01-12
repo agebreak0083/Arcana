@@ -885,10 +885,6 @@ namespace Arcana.Tactics
 
             if (UserDataManager.Instance != null && UserDataManager.Instance.currentUserData != null)
             {
-                score = UserDataManager.Instance.currentUserData.score;
-                winCount = UserDataManager.Instance.currentUserData.winCount;
-                loseCount = UserDataManager.Instance.currentUserData.loseCount;            
-                
                 // username : playername_날짜시간
                 username = UserDataManager.Instance.currentUserData.playerName + "_" + DateTime.Now.ToString("yyMMddHHmm");
 

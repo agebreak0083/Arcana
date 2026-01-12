@@ -401,10 +401,30 @@ namespace Arcana.Tactics.UI
 
                     string squadName = "PlayerSquad_" + BattleMapManager.Instance.currentSquadIndex;
                     BattleMapManager.Instance.currentSquadIndex++;                    
-                    _dataManager.SaveSquadTactics(squadName, _unitSlots, _codingData);
+                    _dataManager.SaveSquadTactics(squadName, _unitSlots, _codingData);                    
+                    
+                    // 임시로 전술 데이터를 서버에 저장
+                    string tacticsJson = TacticsDataManager.Instance.GetTacticsJson(_unitSlots, _codingData);
+                    TacticsDataManager.Instance.SavePlayerTacticsToServer(tacticsJson, (success) =>
+                    {
+                        Debug.Log("BattleManager: SavePlayerTacticsToServer - " + (success ? "Success" : "Failed"));
+                    });
                     
                     BattleMapManager.Instance.CreateBattleSquad(squadName, _unitSlots);
                 });
+            }
+
+            if(battleMapPhase == BattleMapPhase.TACTICS_PHASE)
+            {
+                gotoGachaButton.gameObject.SetActive(false);
+                characterPoolContainer.gameObject.SetActive(false);
+
+                runBattleButton.GetComponentInChildren<TextMeshProUGUI>().text = "세팅 완료";
+                runBattleButton.onClick.RemoveAllListeners();
+                runBattleButton.onClick.AddListener(() => {
+                    rootObject.SetActive(false);
+                    BattleMapManager.Instance.battleMapRootObject.SetActive(true);
+                });            
             }
 
             if(battleMapPhase == BattleMapPhase.BATTLE_PHASE)

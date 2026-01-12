@@ -523,7 +523,7 @@ public class JSONBinManager : MonoBehaviour
             var tacticsWithTimestamp = new List<(TacticsData tactic, DateTime timestamp)>();
             
             foreach (var tactic in database.tactics)
-            {
+            {                
                 DateTime timestamp = DateTime.MinValue;
                 if (!string.IsNullOrEmpty(tactic.timestamp))
                 {
@@ -551,7 +551,8 @@ public class JSONBinManager : MonoBehaviour
                 {
                     // timestamp가 없으면 현재 시간 사용 (최신으로 처리)
                     timestamp = DateTime.Now;
-                }
+                }                
+
                 tacticsWithTimestamp.Add((tactic, timestamp));
             }
             
