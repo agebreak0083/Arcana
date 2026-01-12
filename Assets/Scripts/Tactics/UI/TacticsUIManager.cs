@@ -27,6 +27,8 @@ namespace Arcana.Tactics.UI
         public Transform codingListContainer;
         public GameObject warningPopup;
         public GameObject battleSimulationResultUI;
+        public GameObject skillInfoPanel; // SkillInfoPanel 활성화 시 스킬 정보 표시
+        public TextMeshProUGUI skillInfoText; // 스킬 정보 표시
 
         [Header("UI Prefabs")]
         public GameObject characterCardPrefab;
@@ -519,6 +521,59 @@ namespace Arcana.Tactics.UI
                 _dataManager.SaveFormationToTacticsFile(_unitSlots, _codingData);
             }
             conditionModal.Close();
+        }
+
+        /// <summary>
+        /// 스킬 이름에 마우스 호버 시 호출 (TacticRowUI에서)
+        /// </summary>
+        public void OnSkillNameHover(string skillName, string skillType)
+        {
+            if (skillInfoPanel == null || skillInfoText == null)
+            {
+                Debug.LogWarning("TacticsUIManager: skillInfoPanel or skillInfoText is not assigned!");
+                return;
+            }
+
+            // 스킬 정보 가져오기
+            Skill skill = null;
+            if (SkillManager.Instance != null)
+            {
+                skill = SkillManager.Instance.GetSkillByName(skillName);
+            }
+
+            if (skill == null)
+            {
+                skillInfoPanel.SetActive(false);
+                return;
+            }
+
+            // 스킬 타입에 따라 색상 결정 (Active = Orange, Passive = Sky)
+            string colorTag = "";
+            if (skillType == "AP" || skill.type == "active")
+            {
+                colorTag = "<color=#FFA500>"; // Orange
+            }
+            else
+            {
+                colorTag = "<color=#87CEEB>"; // Sky Blue
+            }
+
+            // 스킬 정보 텍스트 구성: "(색상)스킬이름" + "\n" + "스킬 Desc"
+            string skillInfo = colorTag + skill.name + "</color>" + "\n" + skill.description;
+
+            skillInfoText.text = skillInfo;
+            skillInfoPanel.SetActive(true);
+        }
+
+        /// <summary>
+        /// 스킬 이름에서 마우스가 벗어날 때 호출 (TacticRowUI에서)
+        /// </summary>
+        public void OnSkillNameHoverExit()
+        {
+            if (skillInfoPanel != null)
+            {
+                skillInfoPanel.SetActive(false);
+            }
         }
 
         /// <summary>

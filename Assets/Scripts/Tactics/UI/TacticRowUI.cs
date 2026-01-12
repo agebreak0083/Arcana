@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 using Arcana.Tactics.Data;
 
@@ -19,17 +20,22 @@ namespace Arcana.Tactics.UI
         private TacticsUIManager _manager;
         private int _rowIndex;
         private string _charName;
+        private TacticRow _rowData;
 
         public void Setup(TacticsUIManager manager, string charName, int rowIndex, TacticRow rowData)
         {
             _manager = manager;
             _charName = charName;
             _rowIndex = rowIndex;
+            _rowData = rowData;
 
             indexText.text = (rowIndex + 1).ToString();
             skillNameBtn.GetComponentInChildren<TextMeshProUGUI>().text = rowData == null ? "---" : rowData.skillName;
             skillNameBtn.onClick.RemoveAllListeners();
             skillNameBtn.onClick.AddListener(() => _manager.OnSkillNameClicked(_charName, _rowIndex));
+
+            // 마우스 호버 이벤트 설정
+            SetupHoverEvents();
 
             if (rowData == null)
             {
@@ -80,6 +86,44 @@ namespace Arcana.Tactics.UI
 
             condition2Btn.onClick.RemoveAllListeners();
             condition2Btn.onClick.AddListener(() => _manager.OnConditionClicked(_charName, _rowIndex, 2));
+        }
+
+        private void SetupHoverEvents()
+        {
+            // EventTrigger 컴포넌트 가져오기 또는 추가
+            EventTrigger trigger = skillNameBtn.gameObject.GetComponent<EventTrigger>();
+            if (trigger == null)
+            {
+                trigger = skillNameBtn.gameObject.AddComponent<EventTrigger>();
+            }
+
+            // 기존 이벤트 제거 (중복 방지)
+            trigger.triggers.Clear();
+
+            // PointerEnter 이벤트
+            EventTrigger.Entry enterEntry = new EventTrigger.Entry();
+            enterEntry.eventID = EventTriggerType.PointerEnter;
+            enterEntry.callback.AddListener((data) => { OnSkillNameHoverEnter(); });
+            trigger.triggers.Add(enterEntry);
+
+            // PointerExit 이벤트
+            EventTrigger.Entry exitEntry = new EventTrigger.Entry();
+            exitEntry.eventID = EventTriggerType.PointerExit;
+            exitEntry.callback.AddListener((data) => { OnSkillNameHoverExit(); });
+            trigger.triggers.Add(exitEntry);
+        }
+
+        private void OnSkillNameHoverEnter()
+        {
+            if (_rowData != null && !string.IsNullOrEmpty(_rowData.skillName) && _rowData.skillName != "---")
+            {
+                _manager.OnSkillNameHover(_rowData.skillName, _rowData.skillType);
+            }
+        }
+
+        private void OnSkillNameHoverExit()
+        {
+            _manager.OnSkillNameHoverExit();
         }
     }
 }
