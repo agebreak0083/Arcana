@@ -5,7 +5,7 @@
         "Model": "rover",
         "Class": "파이터",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Rover_FuXuan_Skill"
     },
     {
         "Name": "산화",
@@ -13,7 +13,7 @@
         "Model": "sanhwa",
         "Class": "헌터",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Sanhwa_Aglaea_Skill"
     },
     {
         "Name": "치사",
@@ -21,7 +21,7 @@
         "Model": "chisa",
         "Class": "헌터",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Chisa_Hanya_Skill"
     },        
     {
         "Name": "단근",
@@ -29,7 +29,7 @@
         "Model": "dangun",
         "Class": "파이터",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Danjin_Xueyi_Skill"
     },
     {
         "Name": "앙코",
@@ -37,7 +37,7 @@
         "Model": "anko",
         "Class": "위치",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Encore_Tribbie_Skill"
     },
     {
         "Name": "양양",
@@ -45,7 +45,7 @@
         "Model": "Yangyang",
         "Class": "파이터",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Yangyang_Fugue_Skill"
     },
     {
         "Name": "설지",
@@ -53,7 +53,7 @@
         "Model": "sulhi",
         "Class": "위치",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Sulji_RuanMei_Skill"
     },
     {
         "Name": "도기",
@@ -61,7 +61,7 @@
         "Model": "dogi",
         "Class": "파이터",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Dogi_Castorice_Skill"
     },
     {
         "Name": "키레네",
@@ -69,7 +69,7 @@
         "Model": "SR_kirene",
         "Class": "그리폰나이트",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Kirene_Cyrene_Skill"
     }, 
     {
         "Name": "에버나이트",
@@ -77,7 +77,7 @@
         "Model": "SR_Evernight",
         "Class": "위치",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Evernight_Skill"
     },
     {
         "Name": "달리아",
@@ -93,7 +93,7 @@
         "Model": "SR_Hysil",
         "Class": "그리폰나이트",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Hysil_Hysilens_Skill"
     },
     {
         "Name": "반디",
@@ -101,7 +101,7 @@
         "Model": "SR_Bandi",
         "Class": "나이트",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Bandi_Firefly_Skill"
     },
     {
         "Name": "엽빛나",
@@ -109,7 +109,7 @@
         "Model": "ZZZ_Hikari",
         "Class": "그리폰나이트",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Hikari_Sushang_Skill"
     },
     {
         "Name": "다이아린",
@@ -117,7 +117,7 @@
         "Model": "ZZZ_Rin",
         "Class": "헌터",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Rin_Guinaifen_Skill"
     },
     {
         "Name": "이드하리",
@@ -125,7 +125,7 @@
         "Model": "ZZZ_YIDHARI",
         "Class": "나이트",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Yidhari_Himeko_Skill"
     },
     {
         "Name": "루시아",
@@ -133,7 +133,7 @@
         "Model": "ZZZ_Lucia",
         "Class": "위치",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Lucia_Cerydra_Skill"
     },
     {
         "Name": "비비안",
@@ -141,6 +141,6 @@
         "Model": "ZZZ_Vivian",
         "Class": "위치",
         "Cost": 2,
-        "Voice_Skill": ""
+        "Voice_Skill": "Vivian_BlackSwan_Skill"
     }
 ]
