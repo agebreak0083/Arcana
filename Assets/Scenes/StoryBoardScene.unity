@@ -491,6 +491,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!328 &554520149 stripped
+VideoPlayer:
+  m_CorrespondingSourceObject: {fileID: 894009925598253389, guid: cc943b71bfdfd084bbeffc8167b90a28, type: 3}
+  m_PrefabInstance: {fileID: 1803614826}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &802687202
 GameObject:
   m_ObjectHideFlags: 0
@@ -721,6 +726,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27606182554b08840804121b73ad53b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  videoPlayer: {fileID: 554520149}
   skipButton: {fileID: 1880168398}
   nextSceneName: BattleMapScene
 --- !u!4 &1612634063
@@ -748,7 +754,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 151767564086076965, guid: cc943b71bfdfd084bbeffc8167b90a28, type: 3}
       propertyPath: m_Name
-      value: VictoryPanel
+      value: VideoPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 894009925598253389, guid: cc943b71bfdfd084bbeffc8167b90a28, type: 3}
+      propertyPath: m_Looping
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3790843207535494508, guid: cc943b71bfdfd084bbeffc8167b90a28, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
