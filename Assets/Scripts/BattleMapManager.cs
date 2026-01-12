@@ -436,7 +436,15 @@ public class BattleMapManager : MonoBehaviour
 
         if(currentPhase == BattleMapPhase.BATTLE_PHASE)
         {
-            ShowTacticsScene(squadName, enemyName);            
+            // Tactics Scene을 로드하지 않고, 바로 BattleScene을 로드한다.
+            SceneManager.LoadSceneAsync("BattleScene", LoadSceneMode.Additive).completed += (operation) => {
+                Scene battleScene = SceneManager.GetSceneByName("BattleScene");
+                if(battleScene.isLoaded)
+                {
+                    battleMapRootObject.SetActive(false);
+                    SceneManager.SetActiveScene(battleScene);
+                }
+            };
         }
         else if(currentPhase == BattleMapPhase.TOWER_PHASE)
         {

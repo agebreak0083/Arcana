@@ -700,35 +700,24 @@ namespace Arcana.Tactics.UI
 
         private void OnStartBattleClicked()
         {
-            // JSONBin.io에 저장
-            if (JSONBinManager.Instance != null && JSONBinManager.Instance.isInitialized)
+            if(BattleMapManager.Instance != null && BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_PHASE)
             {
-                if(BattleMapManager.Instance != null && BattleMapManager.Instance.currentPhase == BattleMapPhase.BATTLE_PHASE)
-                {
-                    // BattleMap에서는 BattleScene을 Add 한다. 
-                    SceneManager.LoadSceneAsync("BattleScene", LoadSceneMode.Additive).completed += (operation) => {
-                        Scene battleScene = SceneManager.GetSceneByName("BattleScene");
-                        if(battleScene.isLoaded)
-                        {
-                            rootObject.SetActive(false);
-                            BattleMapManager.Instance.battleMapRootObject.SetActive(false);
-                            SceneManager.SetActiveScene(battleScene);
-                        }
-                    };
-                }
-                else
-                {
-                    // 저장 완료 후 BattleScene으로 이동한다.                                     
-                    SceneManager.LoadScene("BattleScene");
-                }
+                // BattleMap에서는 BattleScene을 Add 한다. 
+                SceneManager.LoadSceneAsync("BattleScene", LoadSceneMode.Additive).completed += (operation) => {
+                    Scene battleScene = SceneManager.GetSceneByName("BattleScene");
+                    if(battleScene.isLoaded)
+                    {
+                        rootObject.SetActive(false);
+                        BattleMapManager.Instance.battleMapRootObject.SetActive(false);
+                        SceneManager.SetActiveScene(battleScene);
+                    }
+                };
             }
             else
             {
-                Debug.LogWarning("JSONBin.io가 초기화되지 않았습니다. 로컬 파일만 저장됩니다.");
-
-                // BattleScene으로 이동한다.                 
+                // 저장 완료 후 BattleScene으로 이동한다.                                     
                 SceneManager.LoadScene("BattleScene");
-            }   
+            }
         }
 
         private void UpdateAllUI()
