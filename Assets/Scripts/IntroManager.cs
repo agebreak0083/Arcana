@@ -29,8 +29,8 @@ public class IntroManager : MonoBehaviour
         towerBattleButton.onClick.AddListener(OnTowerBattleButtonClicked);
         battleMapButton.onClick.AddListener(OnBattleMapButtonClicked);
 
-        // 아이리스의 Welcome Message 표시
-        IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.WELCOME_MESSAGE);
+        // 아리엘의 Welcome Message 표시
+        IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.WELCOME_MESSAGE, new WelcomeGameStatusData());
     }
 
     public void SetId(string id)

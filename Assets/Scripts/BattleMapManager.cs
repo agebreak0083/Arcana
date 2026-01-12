@@ -415,8 +415,8 @@ public class BattleMapManager : MonoBehaviour
         }
         else if(currentPhase == BattleMapPhase.TOWER_PHASE)
         {
-            // 아이리스의 Make Tactics Message 표시
-            IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.MAKE_TACTICS_MESSAGE);
+            // 아리엘의 Make Tactics Message 표시
+            IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.MAKE_TACTICS_MESSAGE, new TacticsGameStatusData());
 
             ShowTacticsScene(null);
         }

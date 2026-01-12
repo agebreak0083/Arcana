@@ -665,7 +665,7 @@ public class BattleManager : MonoBehaviour
                     BattleUI.Instance.ShowVictoryPanel();                    
                 }            
 
-                // 아이리스 메세지 출력 
+                // 아리엘 메세지 출력 
                 if(IRISUIManager.Instance != null)
                 {
                     IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.BATTLE_RESULT_VICTORY);
@@ -686,7 +686,7 @@ public class BattleManager : MonoBehaviour
                     BattleUI.Instance.ShowDefeatPanel();
                 }
 
-                // 아이리스 메세지 출력 
+                // 아리엘 메세지 출력 
                 IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.BATTLE_RESULT_DEFEAT);
             }
 

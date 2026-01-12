@@ -3,11 +3,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// 아이리스에게 게임 상황을 전달하는 메세지 정의
+// 아리엘에게 게임 상황을 전달하는 메세지 정의
 public class MessageToIRIS
 {
     public static string IRIS_STYLE = "[츤데레 말투. 속마음은 따뜻함. 금지:하아]";
-    public static string WELCOME_MESSAGE = "[상황] 처음 접속. 아이리스 소개.";
+    public static string WELCOME_MESSAGE = "[상황] 처음 접속. 아리엘 소개.";
     public static string MAKE_TACTICS_MESSAGE = "[상황] 작전 코딩 화면. 작전 설명.";
     public static string BATTLE_SIMULATION_RESULT = "[상황] 전투 예측 결과. 승리면 기뻐하며 츤츤, 패배면 걱정하며 츤츤.";
     public static string BATTLE_RESULT_VICTORY = "[상황] 전투 승리. 기뻐하며 츤츤.";
@@ -17,6 +17,8 @@ public class MessageToIRIS
 public enum GameStatusDataType
 {
     BATTLE_SIMULATION,
+    WELCOME_MESSAGE,
+    TACTICS_MESSAGE,
 }
 public class GameStatusData
 {
@@ -31,6 +33,22 @@ public class BattleSimulationGameStatusData : GameStatusData
         dataType = GameStatusDataType.BATTLE_SIMULATION;
         this.battleSimulationResult = battleSimulationResult;
     }    
+}
+
+public class WelcomeGameStatusData : GameStatusData
+{
+    public WelcomeGameStatusData()
+    {
+        dataType = GameStatusDataType.WELCOME_MESSAGE;
+    }
+}
+
+public class TacticsGameStatusData : GameStatusData
+{
+    public TacticsGameStatusData()
+    {
+        dataType = GameStatusDataType.TACTICS_MESSAGE;
+    }
 }
 
 public class IRISUIManager : MonoBehaviour
@@ -95,7 +113,7 @@ public class IRISUIManager : MonoBehaviour
             {
                 // 6. 응답이 오면 텍스트 표시
                 irisMessageText.text = response;
-                Debug.Log($"아이리스: {response}");
+                Debug.Log($"아리엘: {response}");
             }
             else
             {
@@ -103,7 +121,7 @@ public class IRISUIManager : MonoBehaviour
                 irisMessageText.text = response;
             }
 
-            // displayTime 후에 아이리스 UI 비활성화 (클릭하면 취소됨)
+            // displayTime 후에 아리엘 UI 비활성화 (클릭하면 취소됨)
             CancelInvoke("HideIrisUI"); // 기존 Invoke 취소
             Invoke("HideIrisUI", displayTime);  
         });
