@@ -582,7 +582,7 @@ public class JSONBinManager : MonoBehaviour
         {
             id = "tactics",
             content = database
-        };
+        };        
         
         string requestJson = JsonUtility.ToJson(requestBody);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(requestJson);

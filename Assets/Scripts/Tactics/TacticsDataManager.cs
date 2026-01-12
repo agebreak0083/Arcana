@@ -1025,6 +1025,9 @@ namespace Arcana.Tactics
                 string json = GetTacticsJson(unitSlots, codingData);
                 var loadResult = FormationManager.LoadFormationFromJson(json, availableCharacters, CreateDefaultPlan);
                 loadResult.username = squadName;
+                loadResult.score = 0; 
+                loadResult.winCount = 0;
+                loadResult.loseCount = 0;
                 _squadFormationJson[squadName] = loadResult;
                 
                 // PlayerPrefs에도 저장하여 씬이 바뀌어도 유지되도록 함
