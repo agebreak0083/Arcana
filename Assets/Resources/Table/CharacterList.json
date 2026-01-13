@@ -149,6 +149,6 @@
         "Model": "Boss_CH",
         "Class": "로드",
         "Cost": 3,
-        "Voice_Skill": "Vivian_BlackSwan_Skill"
+        "Voice_Skill": "Boss_CH_Skill"
     }
 ]

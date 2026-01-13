@@ -1,13 +1,13 @@
 {
-    "key": "agebreak_2601131902",
-    "username": "agebreak_2601131902",
+    "key": "agebreak_2601131911",
+    "username": "agebreak_2601131911",
     "score": 0,
     "winCount": 0,
     "loseCount": 0,
     "positions": [
         {
             "position": "1",
-            "name": "달리아",
+            "name": "반디",
             "tactics": [
                 {
                     "characterClass": "나이트",
@@ -109,7 +109,7 @@
         },
         {
             "position": "3",
-            "name": "반디",
+            "name": "달리아",
             "tactics": [
                 {
                     "characterClass": "나이트",
