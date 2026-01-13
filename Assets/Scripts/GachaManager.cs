@@ -126,10 +126,18 @@ public class GachaManager : MonoBehaviour
             return null;
         }
 
-        // 2. 캐릭터 목록에서 랜덤으로 1개를 선택한다.
-        CharacterDefinition randomCharDef = allCharacters[UnityEngine.Random.Range(0, allCharacters.Length)];
+        // 2. Cost가 3인 캐릭터를 제외한 목록을 필터링한다.
+        CharacterDefinition[] filteredCharacters = allCharacters.Where(c => c.Cost != 3).ToArray();
+        if (filteredCharacters == null || filteredCharacters.Length == 0)
+        {
+            Debug.LogError("Cost가 3이 아닌 캐릭터가 없습니다.");
+            return null;
+        }
 
-        // 3. 캐릭터를 획득한다.
+        // 3. 필터링된 캐릭터 목록에서 랜덤으로 1개를 선택한다.
+        CharacterDefinition randomCharDef = filteredCharacters[UnityEngine.Random.Range(0, filteredCharacters.Length)];
+
+        // 4. 캐릭터를 획득한다.
         // UserDataManager에 추가
         UserDataManager.Instance.AddCharacter(randomCharDef.Name);
 

@@ -159,26 +159,57 @@ public class SkillManager : MonoBehaviour
 
         // 타겟의 초기 HP 저장 (on_kill 체크용)
         Dictionary<Character, float> initialHP = new Dictionary<Character, float>();
+        // 타겟의 명중 여부 저장 (on_hit 체크용)
+        Dictionary<Character, bool> hitStatus = new Dictionary<Character, bool>();
+        
         foreach (var target in targets)
         {
             if (target != null)
             {
                 initialHP[target] = target.hp;
+                hitStatus[target] = false; // 초기값: 명중하지 않음
             }
         }
 
         // 각 효과 적용
         foreach (SkillEffect effect in skill.effects)
         {
-            // on_kill 효과는 데미지 적용 후에 처리
-            if (effect.type == "on_kill")
+            // on_kill, on_hit 효과는 나중에 처리
+            if (effect.type == "on_kill" || effect.type == "on_hit")
             {
                 continue;
             }
 
             foreach(var target in targets)
             {
-                ApplyEffect(effect, user, target, skill);
+                // 데미지 효과인 경우 명중 여부 추적
+                if (effect.type == "damage" && target != null)
+                {
+                    bool wasHit = ApplyDamageEffectAndTrackHit(effect, user, target, skill);
+                    if (wasHit && hitStatus.ContainsKey(target))
+                    {
+                        hitStatus[target] = true;
+                    }
+                }
+                else
+                {
+                    ApplyEffect(effect, user, target, skill);
+                }
+            }
+        }
+
+        // on_hit 효과 처리 (명중한 타겟에 대해서만)
+        foreach (SkillEffect effect in skill.effects)
+        {
+            if (effect.type == "on_hit")
+            {
+                foreach(var target in targets)
+                {
+                    if (target != null && hitStatus.ContainsKey(target) && hitStatus[target])
+                    {
+                        ApplyEffect(effect, user, target, skill);
+                    }
+                }
             }
         }
 
@@ -200,6 +231,40 @@ public class SkillManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    // 데미지 효과 적용 및 명중 여부 추적
+    private bool ApplyDamageEffectAndTrackHit(SkillEffect effect, Character user, Character target, Skill skill)
+    {
+        if (target == null) return false;
+
+        PassiveSkillResult result = BattleManager.Instance.passiveSkillResult;
+        
+        // hitCount가 있으면 해당 횟수만큼 데미지를 입힌다
+        int hitCount = effect.hitCount > 0 ? effect.hitCount : 1;
+        bool anyHit = false;
+        
+        for (int i = 0; i < hitCount; i++)
+        {
+            bool isCritical;
+            bool isMiss;
+            float damage = CalculateDamage(effect.value, user, target, effect.damageType, result, effect, out isCritical, out isMiss);
+            target.TakeDamage(damage, isCritical, isMiss);
+            
+            // 명중했는지 확인 (회피하지 않았으면 명중)
+            if (!isMiss)
+            {
+                anyHit = true;
+            }
+        }
+        
+        // 전투 로그에 다단히트 정보 기록
+        if (BattleLogManager.Instance != null && hitCount > 1)
+        {
+            BattleLogManager.Instance.AddLog($" <color=#FFD700>[{hitCount}히트 공격!]</color>");
+        }
+        
+        return anyHit;
     }
 
     // 개별 효과 적용
@@ -353,6 +418,23 @@ public class SkillManager : MonoBehaviour
                         BattleLogManager.Instance.AddLog($" {user.characterName} → <color=#00FF00>[PP +{effect.value} 회복!]</color>");
                     }
                 }
+                else if (effect.stat == "heal")
+                {
+                    // target이 "self"인 경우 user에게 회복 적용
+                    Character healTarget = effect.target == "self" ? user : target;
+                    if (healTarget != null)
+                    {
+                        // value는 퍼센트로 해석 (예: 25 = HP의 25%)
+                        float healAmount = healTarget.maxHp * (effect.value / 100f);
+                        healTarget.Heal(healAmount);
+                        
+                        if (BattleLogManager.Instance != null)
+                        {
+                            BattleLogManager.Instance.LogHeal(healTarget.characterName, healAmount);
+                            BattleLogManager.Instance.AddLog($" <color=#00FF00>[명중 시 회복!]</color> {healTarget.characterName}의 HP {effect.value}% 회복");
+                        }
+                    }
+                }
                 break;
 
             case "on_kill":
@@ -362,6 +444,35 @@ public class SkillManager : MonoBehaviour
                     if (BattleLogManager.Instance != null)
                     {
                         BattleLogManager.Instance.AddLog($" {user.characterName} → <color=#00FF00>[AP +{effect.value} 회복!]</color> (대상을 쓰러뜨림)");
+                    }
+                }
+                break;
+
+            case "on_hp_below_50":
+                // target이 "self"인 경우 user를 체크
+                Character hpCheckTarget = effect.target == "self" ? user : target;
+                if (hpCheckTarget != null)
+                {
+                    // HP가 50% 이하인지 확인
+                    float hpPercentage = (hpCheckTarget.hp / hpCheckTarget.maxHp) * 100f;
+                    if (hpPercentage <= 50f)
+                    {
+                        if (effect.stat == "get_pp")
+                        {
+                            hpCheckTarget.RestorePP((int)effect.value);
+                            if (BattleLogManager.Instance != null)
+                            {
+                                BattleLogManager.Instance.AddLog($" {hpCheckTarget.characterName} → <color=#00FF00>[HP 50% 이하! PP +{effect.value} 회복!]</color>");
+                            }
+                        }
+                        else if (effect.stat == "get_ap")
+                        {
+                            hpCheckTarget.RestoreAP((int)effect.value);
+                            if (BattleLogManager.Instance != null)
+                            {
+                                BattleLogManager.Instance.AddLog($" {hpCheckTarget.characterName} → <color=#00FF00>[HP 50% 이하! AP +{effect.value} 회복!]</color>");
+                            }
+                        }
                     }
                 }
                 break;
@@ -653,6 +764,18 @@ public class SkillManager : MonoBehaviour
                             if (effect.type == "damage")
                             {
                                 bCheckPassiveSkill = PassiveGuard(actionCharacter, targets[0],skill, myPassiveSkill, effect, mySkillEffect, result);
+                                
+                                // 가드 성공 후, 패시브 스킬의 다른 효과들 처리 (예: on_hp_below_50)
+                                if (bCheckPassiveSkill)
+                                {
+                                    foreach (SkillEffect additionalEffect in myPassiveSkill.effects)
+                                    {
+                                        if (additionalEffect.type == "on_hp_below_50")
+                                        {
+                                            ApplyEffect(additionalEffect, actionCharacter, actionCharacter, skill);
+                                        }
+                                    }
+                                }
                             }
                         }                        
                     }
@@ -744,6 +867,18 @@ public class SkillManager : MonoBehaviour
                             if (effect.type == "damage")
                             {
                                 bCheckPassiveSkill = PassiveGuard(actionCharacter, targets[0],skill, myPassiveSkill, effect, mySkillEffect, result);
+                                
+                                // 가드 성공 후, 패시브 스킬의 다른 효과들 처리 (예: on_hp_below_50)
+                                if (bCheckPassiveSkill)
+                                {
+                                    foreach (SkillEffect additionalEffect in myPassiveSkill.effects)
+                                    {
+                                        if (additionalEffect.type == "on_hp_below_50")
+                                        {
+                                            ApplyEffect(additionalEffect, actionCharacter, actionCharacter, skill);
+                                        }
+                                    }
+                                }
                             }
                         }                        
                     }

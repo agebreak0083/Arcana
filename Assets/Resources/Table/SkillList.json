@@ -3,7 +3,7 @@
     {
       "name": "린 에지",
       "type": "active",
-      "description": "적 하나에게 공격한다.대상에게 명중한경우는,HP를 25%회복한다.적을 쓰러뜨린경우,HP를 25%회복한다",
+      "description": "적 하나에게 공격한다.대상에게 명중한경우는,HP를 25%회복한다.",
       "target": "single_enemy",
       "costAP": 1,
       "costPP": 0,
@@ -14,12 +14,13 @@
           "damageType": "physical"
         },
         {
-          "type": "heal",
+          "type": "on_hit",
+          "stat": "heal",
           "value": 25,
           "target": "self"
-        }
+        }        
       ],
-      "traits": [],
+      "traits": ["melee"],
       "animation": "Skill_1"
     },
     {
@@ -55,6 +56,31 @@
       ],
       "traits": [],
       "animation": "Skill_1"
+    },
+    {
+      "name": "노블 가드",
+      "type": "passive",
+      "description": "자신이 물리 공격을 받기 직전에 발동\n적의 공격을 가드(중)으로 막고, 자신이 HP 50% 이하인 경우 PP + 1",
+      "target": "self",
+      "costAP": 0,
+      "costPP": 1,
+      "checkPhase": "guard",
+      "effects": [
+        {
+          "type": "guard",
+          "damageType": "physical",
+          "target": "self",
+          "guardLevel": "medium"
+        },
+        {
+          "type": "on_hp_below_50",
+          "target": "self",
+          "stat": "get_pp",
+          "value": 1
+        }        
+      ],
+      "traits": [],
+      "animation": "Guard"
     }
   ],
   "파이터 / 뱅가드": [

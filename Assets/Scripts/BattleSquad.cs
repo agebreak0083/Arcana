@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Arcana.Tactics;
 using UnityEngine;
 using UnityEngine.AI;
@@ -6,6 +7,7 @@ using UnityEngine.AI;
 public class BattleSquad : MonoBehaviour
 {
     public bool isPlayerSquad = false;
+    public bool isBossSquad = false;
     private BattleMapManager mapManager;
     private bool isSelected = false;
     
@@ -69,6 +71,14 @@ public class BattleSquad : MonoBehaviour
 
     private void LoadEnemyTactics()
     {
+        // 보스 스쿼드인 경우 tactics_CH.json 파일을 로드
+        if (isBossSquad)
+        {
+            LoadBossTactics();
+            return;
+        }
+
+        // 일반 적 스쿼드는 랜덤 전술 로드
         TacticsDataManager.Instance.GetRandomEnemySquad((loadResult) =>
         {
             if(loadResult != null)
@@ -78,6 +88,89 @@ public class BattleSquad : MonoBehaviour
                 TacticsDataManager.Instance.SaveSquadTactics(gameObject.name, loadResult);
             }
         });
+    }
+
+    private void LoadBossTactics()
+    {
+        // Resources 폴더에서 tactics_CH.json 로드
+        TextAsset tacticsAsset = Resources.Load<TextAsset>("tactics_CH");
+        if (tacticsAsset == null)
+        {
+            Debug.LogError("tactics_CH.json 파일을 찾을 수 없습니다!");
+            return;
+        }
+
+        string json = tacticsAsset.text;
+        
+        // availableCharacters와 _allCharacterDefinitions가 로드될 때까지 대기
+        if (TacticsDataManager.Instance.availableCharacters == null || TacticsDataManager.Instance.availableCharacters.Count == 0)
+        {
+            StartCoroutine(WaitForCharactersAndLoadBossTactics(json));
+            return;
+        }
+
+        // 보스 스쿼드는 모든 캐릭터 정의를 사용 (플레이어가 가지고 있지 않은 캐릭터도 포함)
+        List<Arcana.Tactics.Data.CharacterData> allCharacters = TacticsDataManager.Instance.GetAllCharactersFromDefinitions();
+
+        // FormationManager를 사용하여 JSON에서 포메이션 로드
+        var loadResult = Arcana.Tactics.FormationManager.LoadFormationFromJson(
+            json, 
+            allCharacters, 
+            TacticsDataManager.Instance.CreateDefaultPlan
+        );
+
+        if (loadResult != null)
+        {
+            _loadResult = loadResult;
+            gameObject.name = loadResult.username;
+            TacticsDataManager.Instance.SaveSquadTactics(gameObject.name, loadResult);
+            Debug.Log($"Boss Squad 전술 로드 완료: {loadResult.username}");
+        }
+        else
+        {
+            Debug.LogError("Boss Squad 전술 로드 실패!");
+        }
+    }
+
+    private System.Collections.IEnumerator WaitForCharactersAndLoadBossTactics(string json)
+    {
+        // availableCharacters와 _allCharacterDefinitions가 로드될 때까지 대기 (최대 10초)
+        float waitTime = 0f;
+        const float maxWaitTime = 10f;
+        
+        while ((TacticsDataManager.Instance.availableCharacters == null || TacticsDataManager.Instance.availableCharacters.Count == 0) && waitTime < maxWaitTime)
+        {
+            yield return new WaitForSeconds(0.1f);
+            waitTime += 0.1f;
+        }
+
+        if (TacticsDataManager.Instance.availableCharacters == null || TacticsDataManager.Instance.availableCharacters.Count == 0)
+        {
+            Debug.LogError($"Boss Squad 전술 로드: availableCharacters 로드 타임아웃 ({maxWaitTime}초)");
+            yield break;
+        }
+
+        // 보스 스쿼드는 모든 캐릭터 정의를 사용 (플레이어가 가지고 있지 않은 캐릭터도 포함)
+        List<Arcana.Tactics.Data.CharacterData> allCharacters = TacticsDataManager.Instance.GetAllCharactersFromDefinitions();
+
+        // FormationManager를 사용하여 JSON에서 포메이션 로드
+        var loadResult = Arcana.Tactics.FormationManager.LoadFormationFromJson(
+            json, 
+            allCharacters, 
+            TacticsDataManager.Instance.CreateDefaultPlan
+        );
+
+        if (loadResult != null)
+        {
+            _loadResult = loadResult;
+            gameObject.name = loadResult.username;
+            TacticsDataManager.Instance.SaveSquadTactics(gameObject.name, loadResult);
+            Debug.Log($"Boss Squad 전술 로드 완료: {loadResult.username}");
+        }
+        else
+        {
+            Debug.LogError("Boss Squad 전술 로드 실패!");
+        }
     }
 
     // Update is called once per frame

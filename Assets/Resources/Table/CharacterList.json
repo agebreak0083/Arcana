@@ -142,5 +142,13 @@
         "Class": "위치",
         "Cost": 2,
         "Voice_Skill": "Vivian_BlackSwan_Skill"
+    },
+    {
+        "Name": "Boss_CH",
+        "Portrait": "Boss_CH",
+        "Model": "Boss_CH",
+        "Class": "로드",
+        "Cost": 3,
+        "Voice_Skill": "Vivian_BlackSwan_Skill"
     }
 ]

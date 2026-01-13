@@ -462,7 +462,7 @@ namespace Arcana.Tactics
         /// <summary>
         /// 모든 캐릭터 정의를 CharacterData로 변환 (Enemy Squad용 - 플레이어가 가지고 있지 않은 캐릭터도 포함)
         /// </summary>
-        private List<CharacterData> GetAllCharactersFromDefinitions()
+        public List<CharacterData> GetAllCharactersFromDefinitions()
         {
             List<CharacterData> allCharacters = new List<CharacterData>();
 

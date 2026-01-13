@@ -537,7 +537,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7559211670367175352, guid: 6eb6b45e15f86aa4db1e7ee41ef9b71d, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12165,8 +12165,8 @@ GameObject:
   - component: {fileID: 1543915988}
   - component: {fileID: 1543915987}
   - component: {fileID: 1543915986}
-  - component: {fileID: 1543915990}
   - component: {fileID: 1543915991}
+  - component: {fileID: 1543915990}
   - component: {fileID: 1543915992}
   m_Layer: 0
   m_Name: Tower_Enemy
@@ -12281,6 +12281,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleSquad
   isPlayerSquad: 0
+  isBossSquad: 1
   selectColor: {r: 1, g: 0.04081076, b: 0, a: 1}
 --- !u!54 &1543915991
 Rigidbody:
@@ -13009,7 +13010,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7559211670367175352, guid: 6eb6b45e15f86aa4db1e7ee41ef9b71d, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14289,6 +14290,10 @@ PrefabInstance:
     - target: {fileID: 7559211670367175352, guid: 6eb6b45e15f86aa4db1e7ee41ef9b71d, type: 3}
       propertyPath: m_Name
       value: Squad_Enemy_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7559211670367175352, guid: 6eb6b45e15f86aa4db1e7ee41ef9b71d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -105,6 +105,26 @@
         "actionPoint": 2,
         "passivePoint": 2
       }
+    },
+    {
+      "name": "로드",
+      "description": "왕의 자질을 가진 전사. 공격과 방어가 모두 뛰어난 성능.",
+      "advantage": [        
+      ],
+      "stats": {
+        "hp": "B",
+        "physicalAttack": "C",
+        "physicalDefense": "B",
+        "magicalAttack": "C",
+        "magicalDefense": "B",
+        "accuracy": "B",
+        "evasion": "B",
+        "criticalRate": "C",
+        "guardRate": "A",
+        "actionSpeed": "B",
+        "actionPoint": 2,
+        "passivePoint": 2
+      }
     }
   ]
 }
