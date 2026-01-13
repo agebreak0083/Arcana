@@ -424,6 +424,14 @@ public class BattleMapManager : MonoBehaviour
         }
     }
 
+    public void UpdateSquadInfoUI()
+    {
+        if(selectedSquadObject != null)
+        {
+            ShowSquadInfoUI(selectedSquadObject.GetComponent<BattleSquad>());
+        }
+    }
+
     private bool _isPlayerWin = false;
     public void SetPlayerWinLose(bool isPlayerWin)
     {

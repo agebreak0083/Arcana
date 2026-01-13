@@ -424,6 +424,7 @@ namespace Arcana.Tactics.UI
                 runBattleButton.onClick.AddListener(() => {
                     rootObject.SetActive(false);
                     BattleMapManager.Instance.battleMapRootObject.SetActive(true);
+                    BattleMapManager.Instance.UpdateSquadInfoUI();
                 });            
             }
 
@@ -1021,6 +1022,12 @@ namespace Arcana.Tactics.UI
 
         public void OnSlotDroppedOnPool(int sourceSlotIndex)
         {
+            // characterPoolContainer가 비활성화되어 있으면 드롭 차단
+            if (characterPoolContainer == null || !characterPoolContainer.gameObject.activeSelf)
+            {
+                return;
+            }
+
             if (_unitSlots[sourceSlotIndex] == null) return;
 
             _unitSlots[sourceSlotIndex] = null;
