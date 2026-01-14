@@ -79,14 +79,10 @@ public class HPBar : MonoBehaviour
         
         if (hpSlider != null)
         {
-            float hpPercent = currentHp / maxHp;
-            hpSlider.value = hpPercent;
-            targetValue = hpPercent;
             characterName = name;
-
             GetComponentInChildren<TextMeshProUGUI>().text = characterName + " (" + className + ")";            
 
-            UpdateColor(hpPercent);
+            UpdateHP(currentHp, maxHp);
         }
     }
     

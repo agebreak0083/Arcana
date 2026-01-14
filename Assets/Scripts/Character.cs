@@ -101,8 +101,9 @@ public class Character : MonoBehaviour
         // HP 적용 (등급을 실제 수치로 변환)
         maxHp = stats.GetHPValue();
         hp = maxHp;
+        UpdateHPBar();
 
-        Debug.Log($"{characterName}에게 {className} 직업 스탯 적용 완료 (AP: {stats.actionPoint}, PP: {stats.passivePoint})");
+        Debug.Log($"{characterName}에게 {className} 직업 스탯 적용 완료 (maxHp: {maxHp}, hp: {hp})");
     }
 
     public void SetStrategyName()
