@@ -234,6 +234,10 @@ public class BattleMapManager : MonoBehaviour
                     squad.MoveTo(targetPosition);                        
                     Debug.Log($"Squad 이동 명령: {targetPosition}");
 
+                    // _pauseType을 PLAY로 변경
+                    _pauseType = BattleMapPauseType.PLAY;
+                    UpdatePauseButtonUI();
+
                     // 선택 해제
                     squad.SetSelected(false);
                     selectedSquadObject = null;
