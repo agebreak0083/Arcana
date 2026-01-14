@@ -12,6 +12,7 @@ public class BGMPlayer : MonoBehaviour
 
     private AudioSource audioSource;
     private float originalVolume;
+    private int currentBattleBGMIndex = 0; // 현재 재생 중인 Battle BGM 인덱스 (순서대로 재생)
     public static BGMPlayer Instance;
     void Start()
     {
@@ -57,9 +58,15 @@ public class BGMPlayer : MonoBehaviour
         audioSource.volume = 0f;
         audioSource.Stop();
 
-        // 새로운 Battle BGM 설정 및 재생
-        audioSource.clip = battleBGM[Random.Range(0, battleBGM.Length)];
-        audioSource.Play();
+        // 새로운 Battle BGM 설정 및 재생 (순서대로 재생, 랜덤 제거)
+        if (battleBGM != null && battleBGM.Length > 0)
+        {
+            audioSource.clip = battleBGM[currentBattleBGMIndex];
+            audioSource.Play();
+            
+            // 다음 재생을 위해 인덱스 증가 (순환)
+            currentBattleBGMIndex = (currentBattleBGMIndex + 1) % battleBGM.Length;
+        }
 
         // 새로운 BGM 페이드 인
         elapsedTime = 0f;
