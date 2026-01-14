@@ -380,6 +380,7 @@ public class BattleMapManager : MonoBehaviour
 
         // 시뮬 UI 초기화
         _pauseType = BattleMapPauseType.PAUSE;
+        UpdatePauseButtonUI();
         battleSimulationResultUI.gameObject.SetActive(true);
         battleSimulationResultUI.InitializeUI(playerSquadName, enemySquadName);
 
@@ -392,6 +393,7 @@ public class BattleMapManager : MonoBehaviour
         battleSimulationResultUI.startBattleButton.onClick.AddListener(() => 
         {
             _pauseType = BattleMapPauseType.PLAY;
+            UpdatePauseButtonUI();
             battleSimulationResultUI.gameObject.SetActive(false);
 
             // Player Squad를 Enemy Squad 위치로 이동
@@ -586,16 +588,9 @@ public class BattleMapManager : MonoBehaviour
         pauseButton.onClick.AddListener(TogglePause);
         
         // 버튼의 텍스트 컴포넌트 찾기
-        pauseButtonText = pauseButton.GetComponentInChildren<TextMeshProUGUI>();
-        if (pauseButtonText == null)
-        {
-            // TextMeshProUGUI가 없으면 일반 Text 컴포넌트 찾기
-            Text textComponent = pauseButton.GetComponentInChildren<Text>();
-            if (textComponent != null)
-            {
-                Debug.LogWarning("BattleMapManager: pauseButton에 TextMeshProUGUI가 없고 Text 컴포넌트를 사용합니다. TextMeshProUGUI를 사용하는 것을 권장합니다.");
-            }
-        }
+        pauseButtonText = pauseButton.GetComponentInChildren<TextMeshProUGUI>();        
+
+        UpdatePauseButtonUI();
     }
     
     /// <summary>
@@ -628,17 +623,8 @@ public class BattleMapManager : MonoBehaviour
         if (pauseButtonText != null)
         {
             // PAUSE 상태일 때는 "PLAY" 표시, PLAY 상태일 때는 "PAUSE" 표시
-            pauseButtonText.text = _pauseType == BattleMapPauseType.PAUSE ? "PLAY" : "PAUSE";
-        }
-        else
-        {
-            // TextMeshProUGUI가 없으면 일반 Text 컴포넌트 시도
-            Text textComponent = pauseButton.GetComponentInChildren<Text>();
-            if (textComponent != null)
-            {
-                textComponent.text = _pauseType == BattleMapPauseType.PAUSE ? "PLAY" : "PAUSE";
-            }
-        }
+            pauseButtonText.text = _pauseType == BattleMapPauseType.PAUSE ? "PAUSE" : "PLAY";
+        }       
     }
     
     /// <summary>
