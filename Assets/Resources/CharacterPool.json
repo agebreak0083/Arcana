@@ -256,13 +256,13 @@
                     "characterClass": "나이트",
                     "plan": [
                         {
-                            "skill": "와일드 러시",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                            "condition2": "전후열에 선 [적/아군]"
+                            "skill": "어설트 랜스",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
                         },
                         {
-                            "skill": "어설트 랜스",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "skill": "와일드 러시",
+                            "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
@@ -656,13 +656,13 @@
                     "characterClass": "나이트",
                     "plan": [
                         {
-                            "skill": "와일드 러시",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                            "condition2": "전후열에 선 [적/아군]"
+                            "skill": "어설트 랜스",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
                         },
                         {
-                            "skill": "어설트 랜스",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "skill": "와일드 러시",
+                            "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
@@ -1106,13 +1106,13 @@
                     "characterClass": "헌터",
                     "plan": [
                         {
-                            "skill": "싱글 샷",
-                            "condition1": "조건 없음",
+                            "skill": "더블 샷",
+                            "condition1": "적이 2명 이상▲",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "더블 샷",
-                            "condition1": "조건 없음",
+                            "skill": "싱글 샷",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
@@ -1157,7 +1157,7 @@
                     "plan": [
                         {
                             "skill": "가드 슬래시",
-                            "condition1": "조건 없음",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
@@ -1207,7 +1207,7 @@
                     "plan": [
                         {
                             "skill": "가드 슬래시",
-                            "condition1": "조건 없음",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {

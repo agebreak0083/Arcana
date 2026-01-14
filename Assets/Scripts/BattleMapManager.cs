@@ -539,6 +539,13 @@ public class BattleMapManager : MonoBehaviour
         var loadResult = TacticsDataManager.Instance.LoadSquadTactics(squadName);
         if(loadResult != null && loadResult.unitSlots != null)
         {
+            // 스쿼드의 작전을 CharacterPool에 저장 (패배 복귀 시 작전 유지)
+            if(loadResult.codingData != null && loadResult.codingData.Count > 0)
+            {
+                TacticsDataManager.Instance.SaveTacticsToFile(loadResult.codingData);
+                Debug.Log($"ReturnSquad: '{squadName}'의 작전을 CharacterPool에 저장했습니다.");
+            }
+
             foreach(var unitSlot in loadResult.unitSlots)
             {
                 if(unitSlot != null)

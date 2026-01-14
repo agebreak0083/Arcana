@@ -287,7 +287,45 @@ namespace Arcana.Tactics
         {
             try
             {
-                // Build the save data structure using unified classes
+                // 1. 기존 CharacterPool 로드
+                string poolJson = "";
+                poolJson = PlayerPrefs.GetString("CharacterPool", "");
+                if (string.IsNullOrEmpty(poolJson))
+                {
+#if UNITY_EDITOR
+                    TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
+                    if (poolAsset != null)
+                    {
+                        poolJson = poolAsset.text;
+                    }
+#endif
+                }
+
+                // 2. 기존 CharacterPool 데이터를 Dictionary로 변환 (캐릭터 이름을 키로 사용)
+                Dictionary<string, CharacterPoolData> existingPoolDict = new Dictionary<string, CharacterPoolData>();
+                if (!string.IsNullOrWhiteSpace(poolJson) && poolJson.Trim() != "")
+                {
+                    try
+                    {
+                        CharacterPoolData[] existingPoolData = JsonHelper.FromJson<CharacterPoolData>(poolJson);
+                        if (existingPoolData != null)
+                        {
+                            foreach (var poolItem in existingPoolData)
+                            {
+                                if (!string.IsNullOrEmpty(poolItem.Name))
+                                {
+                                    existingPoolDict[poolItem.Name] = poolItem;
+                                }
+                            }
+                        }
+                    }
+                    catch (System.Exception parseEx)
+                    {
+                        Debug.LogWarning($"기존 CharacterPool JSON 파싱 실패: {parseEx.Message}. 새로 시작합니다.");
+                    }
+                }
+
+                // 3. Build the save data structure using unified classes
                 var poolData = new List<CharacterPoolData>();
 
                 foreach (var character in availableCharacters)
@@ -297,7 +335,7 @@ namespace Arcana.Tactics
                         Name = character.characterName
                     };
 
-                    // If this character has tactics data, save it
+                    // If this character has tactics data in codingData, save it (현재 편성의 작전)
                     if (codingData.TryGetValue(character.characterName, out var plan))
                     {
                         var tacticRowsList = new List<TacticRowData>();
@@ -319,6 +357,11 @@ namespace Arcana.Tactics
                                 plan = tacticRowsList.ToArray()
                             }
                         };
+                    }
+                    // 편성에 없는 캐릭터는 기존 CharacterPool의 작전 데이터 유지
+                    else if (existingPoolDict.TryGetValue(character.characterName, out var existingData))
+                    {
+                        saveData.tactics = existingData.tactics;
                     }
 
                     poolData.Add(saveData);
