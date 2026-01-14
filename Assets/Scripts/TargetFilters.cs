@@ -58,8 +58,9 @@ public class SelectorHelper
 
     public static List<Character> GetColumnTargets(List<Character> candidates, Character target)
     {
-        // 우서 조건에 맞는 첫번째 타겟을 찾고, 그 다음에 그 타겟의 열 전체를 타겟팅한다. 
-        // 타겟이 1~3 사이면 1,2,3 위치를 타겟팅한다. 4~6이면 4,5,6 위치를 타겟팅한다. 
+        // 우선 조건에 맞는 첫번째 타겟을 찾고, 그 다음에 그 타겟의 대열(Column) 전체를 타겟팅한다. 
+        // Column은 전열(1,2,3) 또는 후열(4,5,6)을 의미함
+        // 타겟이 1~3 사이면 전열(1,2,3) 전체를 타겟팅한다. 4~6이면 후열(4,5,6) 전체를 타겟팅한다.
         if (target == null)
         {
             Debug.LogError("GetColumnTargets: Target is null");
@@ -69,10 +70,12 @@ public class SelectorHelper
         List<Character> targets = new List<Character>();
         if(target.position <= 3)
         {
+            // 전열 (1, 2, 3) 전체 타겟팅
             targets.AddRange(candidates.Where(c => c.position <= 3).ToList());
         }
         else
         {
+            // 후열 (4, 5, 6) 전체 타겟팅
             targets.AddRange(candidates.Where(c => c.position > 3).ToList());
         }
         return targets;
@@ -225,6 +228,89 @@ public class PositionBasedSelector : ITargetSelector
 
         List<Character> selected = new List<Character>();
 
+        // Column 타입 처리
+        if (selectType == SelectType.Column)
+        {
+            // 1. 우선 전열(1,2,3)에서 자신의 앞의 적을 찾고
+            int targetPosition = ((self.position - 1) % 3) + 1;
+            var target = candidates.Find(c => c.position == targetPosition);
+
+            // 2. 없으면 전열의 다른 적
+            if (target == null)
+            {
+                target = candidates.Find(c => c.position <= 3);
+            }
+
+            // 3. 없으면 후열의 자신의 앞의 적
+            if (target == null)
+            {
+                int backTargetPosition = targetPosition + 3;
+                target = candidates.Find(c => c.position == backTargetPosition);
+            }
+
+            // 4. 없으면 후열의 아무나
+            if (target == null)
+            {
+                target = candidates.Find(c => c.position > 3);
+            }
+
+            // 5. 그래도 없으면 첫 번째
+            if (target == null && candidates.Count > 0)
+            {
+                target = candidates[0];
+            }
+
+            // 선택된 타겟의 열 전체를 타겟팅
+            if (target != null)
+            {
+                selected.AddRange(SelectorHelper.GetColumnTargets(candidates, target));
+            }
+            
+            return selected;
+        }
+
+        // Row 타입 처리
+        if (selectType == SelectType.Row)
+        {
+            // 1. 우선 전열(1,2,3)에서 자신의 앞의 적을 찾고
+            int targetPosition = ((self.position - 1) % 3) + 1;
+            var target = candidates.Find(c => c.position == targetPosition);
+
+            // 2. 없으면 전열의 다른 적
+            if (target == null)
+            {
+                target = candidates.Find(c => c.position <= 3);
+            }
+
+            // 3. 없으면 후열의 자신의 앞의 적
+            if (target == null)
+            {
+                int backTargetPosition = targetPosition + 3;
+                target = candidates.Find(c => c.position == backTargetPosition);
+            }
+
+            // 4. 없으면 후열의 아무나
+            if (target == null)
+            {
+                target = candidates.Find(c => c.position > 3);
+            }
+
+            // 5. 그래도 없으면 첫 번째
+            if (target == null && candidates.Count > 0)
+            {
+                target = candidates[0];
+            }
+
+            // 선택된 타겟의 행 전체를 타겟팅
+            if (target != null)
+            {
+                selected.AddRange(SelectorHelper.GetRowTargets(candidates, target));
+            }
+            
+            return selected;
+        }
+
+        // Single, Multiple 타입 처리
         for(int i = 0; i < selectCount; i++)        
         {
             // 1. 우선 전열(1,2,3)에서 자신의 앞의 적을 찾고

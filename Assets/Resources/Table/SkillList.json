@@ -673,7 +673,7 @@
       "costPP": 0,
       "effects": [
         {
-          "type": "damage",
+          "type": "damage",          
           "value": 100,
           "damageType": "physical"
         }

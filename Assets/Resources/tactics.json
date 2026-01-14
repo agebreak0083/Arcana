@@ -1,6 +1,6 @@
 {
-    "key": "agebreak_2601141648",
-    "username": "agebreak_2601141648",
+    "key": "agebreak_2601141835",
+    "username": "agebreak_2601141835",
     "score": 0,
     "winCount": 0,
     "loseCount": 0,
@@ -63,84 +63,38 @@
         },
         {
             "position": "3",
-            "name": "이드하리",
-            "tactics": [
-                {
-                    "characterClass": "나이트",
-                    "plan": [
-                        {
-                            "skill": "와일드 러시",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                            "condition2": "전후열에 선 [적/아군]"
-                        },
-                        {
-                            "skill": "어설트 랜스",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "파일 스러스트",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "퀵 가드",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "캐벌리 엘",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "---",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        }
-                    ]
-                }
-            ]
+            "name": "",
+            "tactics": []
         },
         {
             "position": "4",
-            "name": "비비안",
+            "name": "산화",
             "tactics": [
                 {
-                    "characterClass": "위치",
+                    "characterClass": "헌터",
                     "plan": [
                         {
-                            "skill": "매직 미사일",
-                            "condition1": "적이 2명 이상▲",
+                            "skill": "라인 샷",
+                            "condition1": "인원수가 가장 많은 열의 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "아이스 샷",
+                            "skill": "싱글 샷",
                             "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "아이스 코핀",
+                            "skill": "라인 샷",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "매직 세이버",
+                            "skill": "이글 아이",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "---",
+                            "skill": "체이스",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
@@ -165,33 +119,33 @@
         },
         {
             "position": "5",
-            "name": "키레네",
+            "name": "치사",
             "tactics": [
                 {
-                    "characterClass": "그리폰나이트",
+                    "characterClass": "헌터",
                     "plan": [
                         {
-                            "skill": "페이탈 폴",
-                            "condition1": "기마 계열 [적/아군] 우선",
-                            "condition2": "전후열에 선 [적/아군]"
-                        },
-                        {
-                            "skill": "하이 스윙",
-                            "condition1": "기마 계열 [적/아군] 우선",
+                            "skill": "라인 샷",
+                            "condition1": "인원수가 가장 많은 열의 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "페더링",
+                            "skill": "싱글 샷",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "라인 샷",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "---",
+                            "skill": "이글 아이",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "---",
+                            "skill": "체이스",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
@@ -222,8 +176,8 @@
                     "characterClass": "헌터",
                     "plan": [
                         {
-                            "skill": "더블 샷",
-                            "condition1": "적이 2명 이상▲",
+                            "skill": "라인 샷",
+                            "condition1": "인원수가 가장 많은 열의 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {

@@ -106,8 +106,8 @@
                     "characterClass": "헌터",
                     "plan": [
                         {
-                            "skill": "더블 샷",
-                            "condition1": "적이 2명 이상▲",
+                            "skill": "라인 샷",
+                            "condition1": "인원수가 가장 많은 열의 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
@@ -306,8 +306,8 @@
                     "characterClass": "헌터",
                     "plan": [
                         {
-                            "skill": "더블 샷",
-                            "condition1": "적이 2명 이상▲",
+                            "skill": "라인 샷",
+                            "condition1": "인원수가 가장 많은 열의 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
@@ -506,8 +506,8 @@
                     "characterClass": "헌터",
                     "plan": [
                         {
-                            "skill": "더블 샷",
-                            "condition1": "적이 2명 이상▲",
+                            "skill": "라인 샷",
+                            "condition1": "인원수가 가장 많은 열의 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
@@ -706,8 +706,8 @@
                     "characterClass": "헌터",
                     "plan": [
                         {
-                            "skill": "더블 샷",
-                            "condition1": "적이 2명 이상▲",
+                            "skill": "라인 샷",
+                            "condition1": "인원수가 가장 많은 열의 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
@@ -1106,8 +1106,8 @@
                     "characterClass": "헌터",
                     "plan": [
                         {
-                            "skill": "더블 샷",
-                            "condition1": "적이 2명 이상▲",
+                            "skill": "라인 샷",
+                            "condition1": "인원수가 가장 많은 열의 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
