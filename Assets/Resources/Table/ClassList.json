@@ -113,9 +113,9 @@
       "advantage": [        
       ],
       "stats": {
-        "hp": "B",
+        "hp": "C",
         "physicalAttack": "C",
-        "physicalDefense": "B",
+        "physicalDefense": "C",
         "magicalAttack": "C",
         "magicalDefense": "B",
         "accuracy": "B",
