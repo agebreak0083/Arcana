@@ -787,6 +787,9 @@ public class BattleManager : MonoBehaviour
 
     public void OnAfterSkillUseSync(Character user, List<Character> targets, Skill skill)
     {
+        // 체이스 스킬 플래그 초기화 (새로운 스킬 사용마다 리셋)
+        passiveSkillResult.chaseSkillUsed = false;
+        
         // 모든 캐릭터에게 스킬 사용 후 이벤트를 호출한다 (동기 버전)
         foreach (var character in charactersTurnList)
         {
@@ -830,6 +833,9 @@ public class BattleManager : MonoBehaviour
             OnAfterSkillUseSync(user, targets, skill);
             yield break;
         }
+
+        // 체이스 스킬 플래그 초기화 (새로운 스킬 사용마다 리셋)
+        passiveSkillResult.chaseSkillUsed = false;
 
         // 패시브 스킬을 사용할 캐릭터들을 먼저 찾아서 불투명하게 유지
         List<Character> passiveSkillUsers = new List<Character>();
@@ -912,6 +918,7 @@ public class PassiveSkillResult
     public bool isSureHit = false;
     public Character passiveCharacter = null;
     public List<SkillEffect> enchantEffects = new List<SkillEffect>();
+    public bool chaseSkillUsed = false; // 체이스 스킬이 이미 발동했는지 추적
 
     public void Initialize()
     {
@@ -920,6 +927,7 @@ public class PassiveSkillResult
         isSureHit = false;
         passiveCharacter = null;
         enchantEffects.Clear();
+        chaseSkillUsed = false; // 체이스 스킬 플래그 초기화
     }
 
     public float GetEnchantMagicalAttackValue()

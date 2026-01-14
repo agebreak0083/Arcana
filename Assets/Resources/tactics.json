@@ -1,6 +1,6 @@
 {
-    "key": "agebreak_2601141835",
-    "username": "agebreak_2601141835",
+    "key": "agebreak_2601141848",
+    "username": "agebreak_2601141848",
     "score": 0,
     "winCount": 0,
     "loseCount": 0,
@@ -119,7 +119,7 @@
         },
         {
             "position": "5",
-            "name": "치사",
+            "name": "다이아린",
             "tactics": [
                 {
                     "characterClass": "헌터",
@@ -170,7 +170,7 @@
         },
         {
             "position": "6",
-            "name": "다이아린",
+            "name": "치사",
             "tactics": [
                 {
                     "characterClass": "헌터",

@@ -673,3 +673,144 @@ public class CavalryClassSelector : ITargetSelector
         return baseSelector.Select(candidates, self, selectType, selectCount);
     }
 }
+
+/// <summary>
+/// 인원수가 가장 많은 열(대열)의 [적/아군] 우선 선택기
+/// Column은 전열(1,2,3) 또는 후열(4,5,6)을 의미함
+/// 전열과 후열의 인원수를 비교하여 더 많은 인원이 있는 대열의 캐릭터를 선택
+/// </summary>
+public class MostPopulatedColumnSelector : ITargetSelector
+{
+    private bool isEnemy; // true: 적, false: 아군
+
+    public MostPopulatedColumnSelector(bool isEnemy)
+    {
+        this.isEnemy = isEnemy;
+    }
+
+    public List<Character> Select(List<Character> candidates, Character self, SelectType selectType = SelectType.Single, int selectCount = 1)
+    {
+        if (candidates.Count == 0) return null;
+
+        // 타겟 그룹 가져오기 (적 또는 아군)
+        List<Character> targetGroup = isEnemy 
+            ? BattleManager.Instance.GetEnemyTargets(self).Where(c => c != null && c.hp > 0).ToList()
+            : (self.isPlayer ? BattleManager.Instance.playerCharacters : BattleManager.Instance.enemyCharacters)
+                .Where(c => c != null && c.hp > 0).ToList();
+
+        if (targetGroup.Count == 0) return null;
+
+        // 전열(1,2,3)과 후열(4,5,6)의 인원수 계산
+        List<Character> frontRowChars = targetGroup.Where(c => c.position <= 3).ToList();
+        List<Character> backRowChars = targetGroup.Where(c => c.position > 3).ToList();
+
+        int frontRowCount = frontRowChars.Count;
+        int backRowCount = backRowChars.Count;
+
+        // 더 많은 인원이 있는 대열 선택
+        List<Character> selectedCandidates;
+        if (frontRowCount > backRowCount)
+        {
+            // 전열이 더 많음
+            selectedCandidates = frontRowChars;
+        }
+        else if (backRowCount > frontRowCount)
+        {
+            // 후열이 더 많음
+            selectedCandidates = backRowChars;
+        }
+        else
+        {
+            // 동일한 경우 전열 우선
+            selectedCandidates = frontRowChars.Count > 0 ? frontRowChars : backRowChars;
+        }
+
+        // candidates와 교집합하여 실제 타겟팅 가능한 캐릭터만 필터링
+        List<Character> validTargets = selectedCandidates.Where(c => candidates.Contains(c)).ToList();
+
+        if (validTargets.Count == 0)
+        {
+            return null;
+        }
+
+        // 기본 선택기로 최종 타겟 선택
+        ITargetSelector baseSelector = new PositionBasedSelector();
+        return baseSelector.Select(validTargets, self, selectType, selectCount);
+    }
+}
+
+/// <summary>
+/// 인원수가 가장 적은 열(대열)의 [적/아군] 우선 선택기
+/// Column은 전열(1,2,3) 또는 후열(4,5,6)을 의미함
+/// </summary>
+public class LeastPopulatedColumnSelector : ITargetSelector
+{
+    private bool isEnemy; // true: 적, false: 아군
+
+    public LeastPopulatedColumnSelector(bool isEnemy)
+    {
+        this.isEnemy = isEnemy;
+    }
+
+    public List<Character> Select(List<Character> candidates, Character self, SelectType selectType = SelectType.Single, int selectCount = 1)
+    {
+        if (candidates.Count == 0) return null;
+
+        // 타겟 그룹 가져오기 (적 또는 아군)
+        List<Character> targetGroup = isEnemy 
+            ? BattleManager.Instance.GetEnemyTargets(self).Where(c => c != null && c.hp > 0).ToList()
+            : (self.isPlayer ? BattleManager.Instance.playerCharacters : BattleManager.Instance.enemyCharacters)
+                .Where(c => c != null && c.hp > 0).ToList();
+
+        if (targetGroup.Count == 0) return null;
+
+        // 전열(1,2,3)과 후열(4,5,6)의 인원수 계산
+        List<Character> frontRowChars = targetGroup.Where(c => c.position <= 3).ToList();
+        List<Character> backRowChars = targetGroup.Where(c => c.position > 3).ToList();
+
+        int frontRowCount = frontRowChars.Count;
+        int backRowCount = backRowChars.Count;
+
+        // 더 적은 인원이 있는 대열 선택 (0명 제외)
+        List<Character> selectedCandidates;
+        if (frontRowCount == 0 && backRowCount == 0)
+        {
+            return null;
+        }
+        else if (frontRowCount == 0)
+        {
+            selectedCandidates = backRowChars;
+        }
+        else if (backRowCount == 0)
+        {
+            selectedCandidates = frontRowChars;
+        }
+        else if (frontRowCount < backRowCount)
+        {
+            // 전열이 더 적음
+            selectedCandidates = frontRowChars;
+        }
+        else if (backRowCount < frontRowCount)
+        {
+            // 후열이 더 적음
+            selectedCandidates = backRowChars;
+        }
+        else
+        {
+            // 동일한 경우 전열 우선
+            selectedCandidates = frontRowChars;
+        }
+
+        // candidates와 교집합하여 실제 타겟팅 가능한 캐릭터만 필터링
+        List<Character> validTargets = selectedCandidates.Where(c => candidates.Contains(c)).ToList();
+
+        if (validTargets.Count == 0)
+        {
+            return null;
+        }
+
+        // 기본 선택기로 최종 타겟 선택
+        ITargetSelector baseSelector = new PositionBasedSelector();
+        return baseSelector.Select(validTargets, self, selectType, selectCount);
+    }
+}

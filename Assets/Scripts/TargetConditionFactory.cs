@@ -199,6 +199,20 @@ public static class TargetConditionFactory
             return new CavalryClassSelector();
         }
 
+        // 인원수가 가장 많은 열의 [적/아군] 우선
+        if (condition.Contains("인원수가 가장 많은 열") || condition.Contains("인원이 가장 많은 열"))
+        {
+            bool isEnemy = condition.Contains("적");
+            return new MostPopulatedColumnSelector(isEnemy);
+        }
+
+        // 인원수가 가장 적은 열의 [적/아군] 우선
+        if (condition.Contains("인원수가 가장 적은 열") || condition.Contains("인원이 가장 적은 열"))
+        {
+            bool isEnemy = condition.Contains("적");
+            return new LeastPopulatedColumnSelector(isEnemy);
+        }
+
         // TODO: 병종, 대열 등 추가 선택기 구현
 
         Debug.LogWarning($"[TargetConditionFactory] 미구현 Condition1: {condition}");

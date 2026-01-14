@@ -1033,8 +1033,15 @@ public class SkillManager : MonoBehaviour
                 }
 
                 if(myPassiveSkill.target == "chase" && targets.Count > 0 && targets[0].hp > 0 && targets[0].isPlayer != actionCharacter.isPlayer)
-                {                    
+                {
+                    // 체이스 스킬이 이미 발동했으면 건너뛰기 (한 명만 사용)
+                    if (result.chaseSkillUsed)
+                    {
+                        return;
+                    }
+                    
                     bCheckPassiveSkill = true;
+                    result.chaseSkillUsed = true; // 체이스 스킬 발동 플래그 설정
                 }                
             }            
 
@@ -1080,8 +1087,15 @@ public class SkillManager : MonoBehaviour
                 }
 
                 if(myPassiveSkill.target == "chase" && targets.Count > 0 && targets[0].hp > 0 && targets[0].isPlayer != actionCharacter.isPlayer)
-                {                    
+                {
+                    // 체이스 스킬이 이미 발동했으면 건너뛰기 (한 명만 사용)
+                    if (result.chaseSkillUsed)
+                    {
+                        yield break;
+                    }
+                    
                     bCheckPassiveSkill = true;
+                    result.chaseSkillUsed = true; // 체이스 스킬 발동 플래그 설정
                 }                
             }
 
