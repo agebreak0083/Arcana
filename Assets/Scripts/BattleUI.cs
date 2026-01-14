@@ -10,6 +10,7 @@ public class BattleUI : MonoBehaviour
     public TextMeshProUGUI skillNameText;   // 하단 스킬 이름 텍스트
     public GameObject highSpeedBtn; // 2배속 버튼 
     public Button cameraModeButton; // 카메라 모드 버튼
+    public Button skipButton; // 스킵 버튼
 
     public GameObject victoryPanelPrefab;
     public GameObject defeatPanelPrefab;
@@ -61,6 +62,9 @@ public class BattleUI : MonoBehaviour
 
         // 카메라 모드 버튼 초기화
         InitializeCameraModeButton();
+
+        // 스킵 버튼 초기화
+        InitializeSkipButton();
 
         UpdateRoundTurnText(1, 1);        
     }
@@ -223,6 +227,42 @@ public class BattleUI : MonoBehaviour
         {
             cameraModeButtonText.text = (currentCameraMode == CameraMode.Shoulder) ? "CAM 1" : "CAM 2";
         }
+    }
+
+    /// <summary>
+    /// 스킵 버튼 초기화
+    /// </summary>
+    private void InitializeSkipButton()
+    {
+        if (skipButton == null)
+        {
+            Debug.LogWarning("BattleUI: skipButton is not assigned!");
+            return;
+        }
+
+        // 버튼 클릭 이벤트 등록
+        skipButton.onClick.RemoveAllListeners();
+        skipButton.onClick.AddListener(OnSkipButtonClicked);
+
+        Debug.Log("BattleUI: Skip button initialized.");
+    }
+
+    /// <summary>
+    /// 스킵 버튼 클릭 처리
+    /// </summary>
+    private void OnSkipButtonClicked()
+    {
+        if (BattleManager.Instance == null)
+        {
+            Debug.LogWarning("BattleUI: BattleManager.Instance is null!");
+            return;
+        }
+
+        // battleSimulationResult.isPlayerWin을 참고하여 전투 결과 처리
+        bool isPlayerWin = BattleManager.battleSimulationResult.isPlayerWin;
+        BattleManager.Instance.SetPlayerWinLose(isPlayerWin);
+
+        Debug.Log($"BattleUI: Skip button clicked. Battle result: {(isPlayerWin ? "Victory" : "Defeat")}");
     }
 
     /// <summary>

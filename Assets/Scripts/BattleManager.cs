@@ -654,7 +654,7 @@ public class BattleManager : MonoBehaviour
         return false;
     }
 
-    void SetPlayerWinLose(bool isPlayerWin)
+    public void SetPlayerWinLose(bool isPlayerWin)
     {
         if(isSimulationMode)
         {
@@ -693,7 +693,10 @@ public class BattleManager : MonoBehaviour
                 }
 
                 // 아리엘 메세지 출력 
-                IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.BATTLE_RESULT_DEFEAT);
+                if(IRISUIManager.Instance != null)
+                {
+                    IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.BATTLE_RESULT_DEFEAT);
+                }
             }
 
             // 서버 스코어 업데이트 (player, enemy 모두)
