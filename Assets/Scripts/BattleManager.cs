@@ -117,6 +117,9 @@ public class BattleManager : MonoBehaviour
 
         BattleSetting.PrintAllSettings(BattleUI.Instance.debugText);
 
+        // 랜덤 시드를 먼저 설정 (시뮬레이션과 동일한 순서로)
+        BattleSimulationResult.SetRandomSeed();
+
         // 플레이어 캐릭터 생성
         playerCharacters = CreateCharacters(true);
         // 적 캐릭터 생성
@@ -127,9 +130,8 @@ public class BattleManager : MonoBehaviour
 
         // 1초 후 전투 시작
         yield return new WaitForSeconds(1f);      
-        BattleSimulationResult.SetRandomSeed();
 
-        // BGM 재생 
+        // BGM 재생 (랜덤 시드 설정 후에 호출)
         BGMPlayer.Instance.PlayBattleBGM();
 
         StartCoroutine(BattleRoutine());
