@@ -1,6 +1,6 @@
 {
-    "key": "agebreak_2601181737",
-    "username": "agebreak_2601181737",
+    "key": "agebreak_2601181841",
+    "username": "agebreak_2601181841",
     "score": 0,
     "winCount": 0,
     "loseCount": 0,
@@ -12,33 +12,33 @@
         },
         {
             "position": "2",
-            "name": "비비안",
+            "name": "달리아",
             "tactics": [
                 {
-                    "characterClass": "위치",
+                    "characterClass": "나이트",
                     "plan": [
                         {
-                            "skill": "매직 미사일",
-                            "condition1": "적이 2명 이상▲",
-                            "condition2": "조건 없음"
+                            "skill": "와일드 러시",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "전후열에 선 [적/아군]"
                         },
                         {
-                            "skill": "아이스 샷",
+                            "skill": "어설트 랜스",
                             "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "아이스 코핀",
+                            "skill": "파일 스러스트",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "매직 세이버",
+                            "skill": "퀵 가드",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "---",
+                            "skill": "캐벌리 엘",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
@@ -68,38 +68,33 @@
         },
         {
             "position": "4",
-            "name": "",
-            "tactics": []
-        },
-        {
-            "position": "5",
-            "name": "도기",
+            "name": "히실렌스",
             "tactics": [
                 {
-                    "characterClass": "파이터",
+                    "characterClass": "그리폰나이트",
                     "plan": [
                         {
-                            "skill": "가드 슬래시",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "skill": "페이탈 폴",
+                            "condition1": "기마 계열 [적/아군] 우선",
+                            "condition2": "전후열에 선 [적/아군]"
+                        },
+                        {
+                            "skill": "하이 스윙",
+                            "condition1": "기마 계열 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "실드 배시",
+                            "skill": "페더링",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "디펜더",
+                            "skill": "---",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "애로우 커버",
-                            "condition1": "조건 없음",
-                            "condition2": "조건 없음"
-                        },
-                        {
-                            "skill": "퀵 가드",
+                            "skill": "---",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
@@ -123,9 +118,60 @@
             ]
         },
         {
-            "position": "6",
+            "position": "5",
             "name": "",
             "tactics": []
+        },
+        {
+            "position": "6",
+            "name": "엽빛나",
+            "tactics": [
+                {
+                    "characterClass": "그리폰나이트",
+                    "plan": [
+                        {
+                            "skill": "페이탈 폴",
+                            "condition1": "기마 계열 [적/아군] 우선",
+                            "condition2": "전후열에 선 [적/아군]"
+                        },
+                        {
+                            "skill": "하이 스윙",
+                            "condition1": "기마 계열 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "페더링",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

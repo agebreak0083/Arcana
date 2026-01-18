@@ -450,6 +450,12 @@ public class BattleMapManager : MonoBehaviour
 
         if(currentPhase == BattleMapPhase.BATTLE_PHASE)
         {
+            // 충돌한 스쿼드로 Tactics 설정 (BattleManager.BattleModeStart가 이 값을 사용)
+            if (!string.IsNullOrEmpty(squadName))
+                TacticsDataManager.Instance.SetPlayerTactics(squadName);
+            if (!string.IsNullOrEmpty(enemyName))
+                TacticsDataManager.Instance.SetEnemyTactics(enemyName);
+
             // Tactics Scene을 로드하지 않고, 바로 BattleScene을 로드한다.
             SceneManager.LoadSceneAsync("BattleScene", LoadSceneMode.Additive).completed += (operation) => {
                 Scene battleScene = SceneManager.GetSceneByName("BattleScene");

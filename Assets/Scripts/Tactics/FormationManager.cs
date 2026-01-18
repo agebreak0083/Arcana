@@ -290,7 +290,7 @@ namespace Arcana.Tactics
                 // 1. 기존 CharacterPool 로드
                 string poolJson = "";
                 poolJson = PlayerPrefs.GetString("CharacterPool", "");
-                if (string.IsNullOrEmpty(poolJson))
+                if (string.IsNullOrEmpty(poolJson)) 
                 {
 #if UNITY_EDITOR
                     TextAsset poolAsset = Resources.Load<TextAsset>("CharacterPool");
@@ -325,46 +325,65 @@ namespace Arcana.Tactics
                     }
                 }
 
-                // 3. Build the save data structure using unified classes
+                // 3. 기존 CharacterPool을 기준으로, 패배 스쿼드(codingData)만 덮어쓰고 나머지 캐릭터 Tactics는 그대로 유지
                 var poolData = new List<CharacterPoolData>();
-
-                foreach (var character in availableCharacters)
+                var availableMap = new Dictionary<string, CharacterData>();
+                if (availableCharacters != null)
                 {
-                    var saveData = new CharacterPoolData
+                    foreach (var c in availableCharacters)
                     {
-                        Name = character.characterName
-                    };
+                        if (!string.IsNullOrEmpty(c.characterName))
+                            availableMap[c.characterName] = c;
+                    }
+                }
 
-                    // If this character has tactics data in codingData, save it (현재 편성의 작전)
-                    if (codingData.TryGetValue(character.characterName, out var plan))
+                // 3a. 기존 CharacterPool 항목: codingData에 있으면 스쿼드 작전으로 갱신, 없으면 기존 tactics 유지
+                foreach (var kv in existingPoolDict)
+                {
+                    var name = kv.Key;
+                    var existingData = kv.Value;
+                    CharacterPoolData saveData;
+
+                    if (codingData != null && codingData.TryGetValue(name, out var plan) && availableMap.TryGetValue(name, out var character))
                     {
                         var tacticRowsList = new List<TacticRowData>();
                         foreach (var row in plan.rows)
                         {
-                            tacticRowsList.Add(new TacticRowData
-                            {
-                                skill = row.skillName,
-                                condition1 = row.condition1,
-                                condition2 = row.condition2
-                            });
+                            tacticRowsList.Add(new TacticRowData { skill = row.skillName, condition1 = row.condition1, condition2 = row.condition2 });
                         }
-
-                        saveData.tactics = new TacticsData[]
+                        saveData = new CharacterPoolData
                         {
-                            new TacticsData
-                            {
-                                characterClass = character.characterClass,
-                                plan = tacticRowsList.ToArray()
-                            }
+                            Name = name,
+                            tactics = new TacticsData[] { new TacticsData { characterClass = character.characterClass, plan = tacticRowsList.ToArray() } }
                         };
                     }
-                    // 편성에 없는 캐릭터는 기존 CharacterPool의 작전 데이터 유지
-                    else if (existingPoolDict.TryGetValue(character.characterName, out var existingData))
+                    else
                     {
-                        saveData.tactics = existingData.tactics;
+                        saveData = existingData; // 기존 Tactics 유지 (다른 캐릭터 Tactics 삭제 방지)
                     }
-
                     poolData.Add(saveData);
+                }
+
+                // 3b. 패배 스쿼드에만 있고 기존 Pool에 없는 캐릭터 추가
+                if (codingData != null)
+                {
+                    foreach (var name in codingData.Keys)
+                    {
+                        if (string.IsNullOrEmpty(name) || existingPoolDict.ContainsKey(name)) continue;
+                        if (!availableMap.TryGetValue(name, out var character)) continue;
+                        if (!codingData.TryGetValue(name, out var plan)) continue;
+
+                        var tacticRowsList = new List<TacticRowData>();
+                        foreach (var row in plan.rows)
+                        {
+                            tacticRowsList.Add(new TacticRowData { skill = row.skillName, condition1 = row.condition1, condition2 = row.condition2 });
+                        }
+                        poolData.Add(new CharacterPoolData
+                        {
+                            Name = name,
+                            tactics = new TacticsData[] { new TacticsData { characterClass = character.characterClass, plan = tacticRowsList.ToArray() } }
+                        });
+                    }
                 }
 
                 // Serialize to JSON using JsonUtility

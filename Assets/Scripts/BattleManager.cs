@@ -181,7 +181,8 @@ public class BattleManager : MonoBehaviour
         {
             if(string.IsNullOrEmpty(squadName))
             {
-                playerFormationLoadResult = TacticsDataManager.Instance.LoadFormationFromTacticsFile(true);
+                // BattleMap 충돌 시 SetPlayerTactics로 설정된 값 사용 (LoadFormationFromTacticsFile은 _playerFormationLoadResult를 덮어써서 충돌 스쿼드가 사라지는 버그 방지)
+                playerFormationLoadResult = TacticsDataManager.Instance.GetPlayerFormationLoadResult();
             }
             else
             {

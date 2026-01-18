@@ -970,8 +970,6 @@ namespace Arcana.Tactics
                 System.IO.File.WriteAllText(resourcesPath, json);
                 Debug.Log($"Formation saved to {resourcesPath} (Editor only)");
 #endif
-
-                // Note: Firebase 저장은 BattleScene으로 이동할 때만 수행됨 (OnRunBattleClicked에서)
             }
             catch (System.Exception e)
             {
@@ -1059,6 +1057,9 @@ namespace Arcana.Tactics
         public void SaveTacticsToFile(Dictionary<string, TacticsPlan> codingData)
         {
             FormationManager.SaveTacticsToFile(availableCharacters, codingData);
+            
+            // 저장 후 메모리 상의 codingData도 갱신 (파일과 메모리 동기화)
+            LoadTacticsFromCharacterPool();
         }
 
         /// <summary>
