@@ -673,10 +673,11 @@ public class BattleManager : MonoBehaviour
                     BattleUI.Instance.ShowVictoryPanel();                    
                 }            
 
-                // 아리엘 메세지 출력 
+                // 아리엘 메세지 출력 (실제 전투 결과 - 승리)
                 if(IRISUIManager.Instance != null)
                 {
-                    IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.BATTLE_RESULT_VICTORY);
+                    IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.BATTLE_RESULT_VICTORY, 
+                        new BattleResultGameStatusData(true, 0, 0));
                 }
 
                 // 이겼을때만, 서버에 택틱스 저장 
@@ -694,10 +695,11 @@ public class BattleManager : MonoBehaviour
                     BattleUI.Instance.ShowDefeatPanel();
                 }
 
-                // 아리엘 메세지 출력 
+                // 아리엘 메세지 출력 (실제 전투 결과 - 패배)
                 if(IRISUIManager.Instance != null)
                 {
-                    IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.BATTLE_RESULT_DEFEAT);
+                    IRISUIManager.Instance.ShowIrisUI(MessageToIRIS.BATTLE_RESULT_DEFEAT, 
+                        new BattleResultGameStatusData(false, 0, 0));
                 }
             }
 

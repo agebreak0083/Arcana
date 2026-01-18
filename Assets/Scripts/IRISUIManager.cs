@@ -17,6 +17,8 @@ public class MessageToIRIS
 public enum GameStatusDataType
 {
     BATTLE_SIMULATION,
+    BATTLE_RESULT_VICTORY,
+    BATTLE_RESULT_DEFEAT,
     WELCOME_MESSAGE,
     TACTICS_MESSAGE,
 }
@@ -48,6 +50,21 @@ public class TacticsGameStatusData : GameStatusData
     public TacticsGameStatusData()
     {
         dataType = GameStatusDataType.TACTICS_MESSAGE;
+    }
+}
+
+public class BattleResultGameStatusData : GameStatusData
+{
+    public bool isPlayerWin;
+    public int playerHP_Max;
+    public int playerHP_Remaining;
+
+    public BattleResultGameStatusData(bool isPlayerWin, int playerHP_Max, int playerHP_Remaining)
+    {
+        dataType = isPlayerWin ? GameStatusDataType.BATTLE_RESULT_VICTORY : GameStatusDataType.BATTLE_RESULT_DEFEAT;
+        this.isPlayerWin = isPlayerWin;
+        this.playerHP_Max = playerHP_Max;
+        this.playerHP_Remaining = playerHP_Remaining;
     }
 }
 

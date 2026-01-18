@@ -9,59 +9,68 @@ public class AIAdvisorIRIS : MonoBehaviour
 {
     private const int MaxResponseLength = 60; // 한글 기준 60자
     
-    // 사전 정의된 아리엘 메시지 (조건별) - 한글 기준 50자 내외
+    // 사전 정의된 아리엘 메시지 (조건별) - 차분하고 친절한 부관 참모 톤
     private readonly string[] victoryHighHPMessages = new string[]
     {
-        "흥! 장군님, 이 정도는 당연한 결과야. HP도 여유롭고 전투력도 충분해.",
-        "딱히... 잘했어. 승률 80% 정도는 예상했지만, 이 정도면 괜찮아.",
-        "별로... 놀랄 건 없지만, 그래도 잘했어. 다음 전투도 기대할게.",
-        "흠... 승리했지만, 다음엔 더 조심해야 해. 방심은 금물이야.",
-        "뭐, 장군님이 꼭 하겠다면... 이 정도는 해야지. 당연한 결과야."
-    };
-    
-    private readonly string[] victoryLowHPMessages = new string[]
-    {
-        "승리했지만 HP가 거의 없어. 다음 전투는 위험할 거야. 회복이 필요해.",
-        "흥! 이긴 건 좋은데, HP 관리 좀 해야 할 것 같은데? 좀 아껴야 해.",
-        "딱히... 승리했지만, HP가 30%밖에 안 남았어. 다음엔 조심해야 해.",
-        "걱정... 아니야! 하지만 HP가 부족해 보여. 회복 아이템을 챙겨야 할 것 같아.",
-        "승리했지만, HP가 적어서 다음 전투가 걱정이야. 좀 더 신중하게 전략을 세워야 해."
-    };
+        "사령관님, 훌륭한 승리였어요. 전투력도 여유롭고 결과도 만족스러워요.",
+        "잘하셨어요, 사령관님. 예상했던 대로 승리하셨네요. 정말 대단해요.",
+        "승리 축하드려요. 다음 전투도 이렇게 잘하실 수 있을 거예요.",
+        "사령관님의 전략이 완벽했어요. 이 정도면 충분히 만족스러운 결과예요.",
+        "정말 잘하셨어요. 사령관님의 실력이 빛을 발했네요. 자랑스러워요."
+    };    
     
     private readonly string[] defeatMessages = new string[]
     {
-        "흥! 패배했네. 다음엔 더 신중하게 전략을 세워야 해. 작전을 다시 생각해봐.",
-        "딱히... 이번엔 운이 없었어. 다음엔 이길 거야. 장군님 실력이니까.",
-        "별로... 패배했지만, 다음 전투에서는 승리할 거야. 포기하지 마.",
-        "흠... 패배했네. 전략을 다시 생각해봐야 할 것 같아. 작전을 바꿔봐.",
-        "뭐, 장군님이 꼭 하겠다면... 다음엔 더 잘할 거야. 이번엔 실수였을 뿐이야."
+        "아쉽게 패배하셨네요. 걱정하지 마세요. 다음에는 더 나은 전략으로 승리하실 수 있을 거예요.",
+        "이번엔 운이 좋지 않았나 봐요. 사령관님의 실력이니 다음엔 분명 이기실 거예요.",
+        "패배했지만 포기하지 마세요. 작전을 다시 세워보시면 다음 전투에서 승리하실 수 있어요.",
+        "아쉬운 결과네요. 전략을 조금 수정해보시면 더 좋은 결과가 나올 거예요.",
+        "걱정하지 마세요. 이번엔 실수였을 뿐이에요. 다음엔 더 잘하실 수 있을 거예요."
     };
     
     private readonly string[] generalMessages = new string[]
     {
-        "흥! 장군님, 뭘 도와드릴까? 전투나 작전에 대해 물어보면 답해줄게.",
-        "딱히... 별로 도울 건 없지만, 물어보면 답해줄게. 장군님이 꼭 필요하다면...",
-        "별로... 하지만 장군님이 꼭 물어본다면... 뭐든 물어봐도 돼. 답해줄게.",
-        "흠... 뭐가 궁금한 거야? 전투나 작전에 대해 물어보면 도와줄 수 있어.",
-        "뭐, 장군님이 꼭 하겠다면... 도와줄게. 뭔가 필요한 게 있으면 말해봐."
+        "사령관님, 무엇을 도와드릴까요? 전투나 작전에 대해 궁금한 점이 있으시면 언제든 물어보세요.",
+        "안녕하세요, 사령관님. 제가 도와드릴 수 있는 것이 있으면 말씀해 주세요.",
+        "사령관님, 전투나 작전에 대해 궁금한 것이 있으시면 편하게 물어보세요. 제가 도와드릴게요.",
+        "무엇이든 물어보세요. 사령관님을 위해 최선을 다해 도와드리겠어요.",
+        "사령관님, 필요한 것이 있으시면 언제든 말씀해 주세요. 제가 곁에서 도와드릴게요."
     };
     
     private readonly string[] welcomeMessages = new string[]
     {
-        "흥! 장군님, 나는 아리엘이야. 전투 참모를 맡고 있어. 앞으로 잘 부탁해.",
-        "딱히... 별로 도울 건 없지만, 장군님을 도와주려고 왔어. 잘 부탁해.",
-        "별로... 하지만 장군님이 꼭 필요하다면... 도와줄게. 나는 아리엘이야.",
-        "흠... 나는 아리엘. 전투에서 승리하도록 도와줄게. 앞으로 함께 해보자.",
-        "뭐, 장군님이 꼭 하겠다면... 나는 아리엘이야. 전투 참모로서 잘 부탁해."
+        "안녕하세요, 사령관님. 저는 아리엘이에요. 전투 참모로서 사령관님을 도와드리겠어요.",
+        "처음 뵙겠어요, 사령관님. 아리엘이라고 해요. 앞으로 함께 전투를 준비해 나가요.",
+        "사령관님, 안녕하세요. 저는 아리엘이에요. 전투에서 승리할 수 있도록 도와드리겠어요.",
+        "반갑습니다, 사령관님. 아리엘이에요. 전투 참모로서 최선을 다해 도와드릴게요.",
+        "사령관님, 만나서 기뻐요. 저는 아리엘이고, 앞으로 함께 전투를 준비해 나가요."
     };
     
     private readonly string[] tacticsMessages = new string[]
     {
-        "흥! 각 캐릭터별 작전을 잘 세팅하면 승리할 수 있어. 신중하게 설정해봐.",
-        "딱히... 작전 코드를 제대로 설정하면 승률이 올라가. 캐릭터 특성에 맞춰서.",
-        "별로... 하지만 작전을 잘 짜면 전투에서 이길 수 있어. 각 캐릭터의 역할을 고려해봐.",
-        "흠... 캐릭터마다 적절한 작전을 설정하는 게 중요해. 이것이 승리의 열쇠야.",
-        "뭐, 장군님이 꼭 하겠다면... 작전 세팅이 승리의 열쇠야. 각 캐릭터의 특성을 살려봐."
+        "각 캐릭터별로 작전을 잘 설정하시면 승리 확률이 높아져요. 신중하게 설정해 보세요.",
+        "작전 코드를 제대로 설정하시면 전투에서 유리해져요. 캐릭터 특성에 맞춰서 설정하시는 게 좋아요.",
+        "작전을 잘 짜시면 전투에서 승리할 수 있어요. 각 캐릭터의 역할을 고려해서 설정해 보세요.",
+        "캐릭터마다 적절한 작전을 설정하는 것이 중요해요. 이것이 승리의 열쇠예요.",
+        "작전 세팅이 승리의 핵심이에요. 각 캐릭터의 특성을 살려서 설정하시면 좋을 것 같아요."
+    };
+    
+    private readonly string[] simulationVictoryMessages = new string[]
+    {
+        "시뮬레이션 결과 승리예요. 이대로 가시면 실제 전투에서도 승리하실 가능성이 높아요.",
+        "시뮬레이션에서 승리하셨네요. 실제 전투도 이 정도면 좋은 결과가 나올 거예요.",
+        "시뮬레이션 결과가 좋아요. 실제 전투에서도 승리하실 수 있을 것 같아요.",
+        "시뮬레이션 승리 축하드려요. 실제 전투에서도 좋은 결과가 나올 거예요.",
+        "시뮬레이션 결과 승리예요. 실제 전투도 기대해 볼 만해요."
+    };
+    
+    private readonly string[] simulationDefeatMessages = new string[]
+    {
+        "시뮬레이션 결과가 아쉽네요. 작전을 다시 검토해 보시는 게 좋을 것 같아요.",
+        "시뮬레이션에서 패배하셨네요. 실제 전투 전에 작전을 수정해 보시는 것을 권장드려요.",
+        "시뮬레이션 결과가 좋지 않아요. 작전을 다시 세워 보시면 더 나은 결과가 나올 거예요.",
+        "시뮬레이션 패배가 나왔네요. 실제 전투 전에 편성이나 작전을 조정해 보시는 게 어떨까요?",
+        "시뮬레이션 결과가 아쉽네요. 작전을 다시 생각해 보시면 더 좋은 결과가 나올 거예요."
     };
     
 
@@ -100,31 +109,30 @@ public class AIAdvisorIRIS : MonoBehaviour
                     {
                         var result = battleData.battleSimulationResult;
                         
+                        // 시뮬레이션 전용 메시지 사용
                         if (result.isPlayerWin)
                         {
-                            // HP 비율 계산
-                            float hpRatio = result.playerHP_Max > 0 
-                                ? (float)result.playerHP_Remaining / result.playerHP_Max 
-                                : 0f;
-                            
-                            if (hpRatio >= 0.7f)
-                            {
-                                // 승리 + HP 많이 남음 (70% 이상)
-                                return victoryHighHPMessages[UnityEngine.Random.Range(0, victoryHighHPMessages.Length)];
-                            }
-                            else
-                            {
-                                // 승리 + HP 적게 남음 (70% 미만)
-                                return victoryLowHPMessages[UnityEngine.Random.Range(0, victoryLowHPMessages.Length)];
-                            }
+                            // 시뮬레이션 승리 메시지
+                            return simulationVictoryMessages[UnityEngine.Random.Range(0, simulationVictoryMessages.Length)];
                         }
                         else
                         {
-                            // 패배
-                            return defeatMessages[UnityEngine.Random.Range(0, defeatMessages.Length)];
+                            // 시뮬레이션 패배 메시지
+                            return simulationDefeatMessages[UnityEngine.Random.Range(0, simulationDefeatMessages.Length)];
                         }
                     }
                     break;
+                }
+            case GameStatusDataType.BATTLE_RESULT_VICTORY:
+                {
+                    // 실제 전투 결과 - 승리
+                    // HP 비율과 관계없이 승리 메시지만 표시 (victoryHighHPMessages 사용)
+                    return victoryHighHPMessages[UnityEngine.Random.Range(0, victoryHighHPMessages.Length)];
+                }
+            case GameStatusDataType.BATTLE_RESULT_DEFEAT:
+                {
+                    // 실제 전투 결과 - 패배
+                    return defeatMessages[UnityEngine.Random.Range(0, defeatMessages.Length)];
                 }
             case GameStatusDataType.WELCOME_MESSAGE:
                 {

@@ -516,8 +516,8 @@ public class JSONBinManager : MonoBehaviour
     private IEnumerator SaveAllTactics(TacticsDatabase database, Action<bool> onComplete)
     {
         Debug.Log($"JsonBinManager: [SaveAllTactics] 시작 - {database?.tactics?.Count ?? 0}개 데이터");
-        // 최신 100개만 유지 (timestamp 기준)
-        if (database.tactics != null && database.tactics.Count > 100)
+        // 최신 50개만 유지 (timestamp 기준, HTTP 413 방지)
+        if (database.tactics != null && database.tactics.Count > 50)
         {
             // timestamp를 기준으로 정렬 (최신순)
             var tacticsWithTimestamp = new List<(TacticsData tactic, DateTime timestamp)>();
@@ -559,14 +559,14 @@ public class JSONBinManager : MonoBehaviour
             // Timestamp 최신순으로 정렬 (내림차순)
             tacticsWithTimestamp.Sort((a, b) => b.timestamp.CompareTo(a.timestamp));
             
-            // 최신 100개만 유지
-            database.tactics = tacticsWithTimestamp.Take(100).Select(x => x.tactic).ToList();
+            // 최신 50개만 유지
+            database.tactics = tacticsWithTimestamp.Take(50).Select(x => x.tactic).ToList();
             
-            Debug.Log($"JsonBinManager: [SaveAllTactics] 최신 100개만 유지: {tacticsWithTimestamp.Count}개 -> {database.tactics.Count}개");
+            Debug.Log($"JsonBinManager: [SaveAllTactics] 최신 50개만 유지: {tacticsWithTimestamp.Count}개 -> {database.tactics.Count}개");
         }       
 
         // 커스텀 서버에도 저장 
-        yield return StartCoroutine(SaveToCustomServer(database, onComplete));                       
+        yield return StartCoroutine(SaveToCustomServer(database, onComplete));                          
     }
 
     /// <summary>
@@ -587,8 +587,20 @@ public class JSONBinManager : MonoBehaviour
         
         string requestJson = JsonUtility.ToJson(requestBody);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(requestJson);
-        
-        Debug.Log($"JsonBinManager: [SaveToCustomServer] 커스텀 서버 저장 시작 - URL: {customServerUrl}");
+
+        // 페이로드 크기 진단 (HTTP 413 원인 확인: 개수는 100개여도 tacticsJson이 커서 총 크기 초과)
+        int totalTacticsJsonChars = 0;
+        int maxTacticsJsonLen = 0;
+        if (database.tactics != null)
+        {
+            foreach (var t in database.tactics)
+            {
+                int len = t.tacticsJson?.Length ?? 0;
+                totalTacticsJsonChars += len;
+                if (len > maxTacticsJsonLen) maxTacticsJsonLen = len;
+            }
+        }
+        Debug.Log($"JsonBinManager: [SaveToCustomServer] 페이로드 {bodyRaw.Length}바이트 ({bodyRaw.Length / 1024f:F1}KB), tactics {database.tactics?.Count ?? 0}개, tacticsJson 합계 {totalTacticsJsonChars}자 (건당 최대 {maxTacticsJsonLen}자) - URL: {customServerUrl}");
         
         int maxRetries = 2;
         int retryCount = 0;
@@ -648,7 +660,12 @@ public class JSONBinManager : MonoBehaviour
                             Debug.LogError($"JsonBinManager: [SaveToCustomServer] 서버 URL 또는 메서드를 확인하세요. URL: {customServerUrl}, 서버 응답: {responseText}");
                             break; // 재시도하지 않음
                         }
-                        
+                        else if (request.responseCode == 413)
+                        {
+                            Debug.LogWarning($"JsonBinManager: [SaveToCustomServer] HTTP 413 Payload Too Large. 전송 페이로드: {bodyRaw.Length}바이트 ({bodyRaw.Length / 1024f:F1}KB), tactics {database.tactics?.Count ?? 0}개. 서버의 요청 body 크기 제한을 초과했습니다. 최대 tactics 개수 축소 또는 서버 client_max_body_size(또는 equivalent) 상향 검토.");
+                            break; // 재시도해도 동일
+                        }
+
                         bool isRetryableError = request.result == UnityWebRequest.Result.ConnectionError ||
                                                request.result == UnityWebRequest.Result.ProtocolError ||
                                                (!string.IsNullOrEmpty(errorMessage) && (

@@ -90,4 +90,18 @@ public class BGMPlayer : MonoBehaviour
     {
         audioSource.Stop();
     }
+
+    /// <summary> BGM 일시정지 (영상 재생 등으로 인한 음소거 시 사용) </summary>
+    public void PauseBGM()
+    {
+        if (audioSource != null)
+            audioSource.Pause();
+    }
+
+    /// <summary> 일시정지된 BGM 재개 </summary>
+    public void ResumeBGM()
+    {
+        if (audioSource != null)
+            audioSource.UnPause();
+    }
 }
