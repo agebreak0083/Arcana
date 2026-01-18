@@ -200,9 +200,10 @@ MonoBehaviour:
   spawnDistance: 2
   squadPrefab: {fileID: 6355057319193033282, guid: be79fbbde8d0c0642bd35c14f0bcdaa9, type: 3}
   squadTextures:
-  - {fileID: 2800000, guid: 7d6f65ed67f0d3e4896f24463a20face, type: 3}
-  - {fileID: 2800000, guid: a13bb25ab8836ab4184efe612ff33e82, type: 3}
-  - {fileID: 2800000, guid: e91fe92338b178c43b438d43eb7173e2, type: 3}
+  - {fileID: 2800000, guid: a0b10740a468c2a45b0a043a59558ac1, type: 3}
+  - {fileID: 2800000, guid: 4f5fa7e68244c1c43bd022a4731dd2fe, type: 3}
+  - {fileID: 2800000, guid: 3f6a0f62523b3054195af8abd931654a, type: 3}
+  - {fileID: 2800000, guid: 6ebb4b81e59712a4ea1e895f991eb93b, type: 3}
 --- !u!1 &134895119
 GameObject:
   m_ObjectHideFlags: 0
