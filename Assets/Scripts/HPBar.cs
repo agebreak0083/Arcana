@@ -25,6 +25,8 @@ public class HPBar : MonoBehaviour
     private Transform targetCharacter;
     private Camera mainCamera;
     private float targetValue;
+    private float targetCurrentHp = 100f;
+    private float targetMaxHp = 100f;
     private string characterName;
 
     void Start()
@@ -68,7 +70,18 @@ public class HPBar : MonoBehaviour
         // 부드러운 전환
         if (smoothTransition && hpSlider != null)
         {
-            hpSlider.value = Mathf.Lerp(hpSlider.value, targetValue, Time.deltaTime * smoothSpeed);
+            float currentValue = hpSlider.value;
+            hpSlider.value = Mathf.Lerp(currentValue, targetValue, Time.deltaTime * smoothSpeed);
+            
+            // 현재 슬라이더 값에 비례하여 표시할 HP 계산
+            float displayHp = targetMaxHp * hpSlider.value;
+            
+            // HP 텍스트와 색상을 부드럽게 업데이트
+            if (textHP != null)
+            {
+                textHP.text = $"{(int)displayHp} / {(int)targetMaxHp}";
+            }
+            UpdateColor(hpSlider.value);
         }
     }
     
@@ -93,17 +106,25 @@ public class HPBar : MonoBehaviour
         
         float hpPercent = Mathf.Clamp01(currentHp / maxHp);
         
+        // 목표 값 설정
+        targetCurrentHp = currentHp;
+        targetMaxHp = maxHp;
+        targetValue = hpPercent;
+        
         if (smoothTransition)
         {
-            targetValue = hpPercent;
+            // 부드러운 전환을 위해 targetValue만 설정 (실제 업데이트는 LateUpdate에서)
         }
         else
         {
+            // 즉시 업데이트
             hpSlider.value = hpPercent;
+            if (textHP != null)
+            {
+                textHP.text = $"{(int)currentHp} / {(int)maxHp}";
+            }
+            UpdateColor(hpPercent);
         }
-        
-        UpdateColor(hpPercent);
-        textHP.text = $"{currentHp} / {maxHp}";
 
         // HP가 0이되면 HP바 숨김 
         if (currentHp <= 0)

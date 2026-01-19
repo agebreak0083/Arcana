@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using System.Collections.Generic;
 
 public class BattleUI : MonoBehaviour
 {
@@ -19,6 +20,52 @@ public class BattleUI : MonoBehaviour
     public TextMeshProUGUI enemyNameText;
     public TextMeshProUGUI debugText;
     public LeaderBoardUI leaderBoardUI;
+
+    [Header("Squad Character Info UI")]
+    public BattleCharacterInfoUI[] playerCharacterInfoUI;
+    public BattleCharacterInfoUI[] enemyCharacterInfoUI;
+
+    /// <summary>
+    /// 캐릭터 UI 세팅 및 업데이트
+    /// </summary>
+    public void SetupCharacterInfoUI()
+    {
+        if (BattleManager.Instance == null) return;
+
+        // 플레이어 캐릭터 UI 설정
+        SetupCharacterInfoUIArray(playerCharacterInfoUI, BattleManager.Instance.playerCharacters);
+
+        // 적 캐릭터 UI 설정
+        SetupCharacterInfoUIArray(enemyCharacterInfoUI, BattleManager.Instance.enemyCharacters);
+    }
+
+    /// <summary>
+    /// 캐릭터 정보 UI 배열 설정
+    /// </summary>
+    private void SetupCharacterInfoUIArray(BattleCharacterInfoUI[] infoUIArray, List<Character> characters)
+    {
+        if (infoUIArray == null) return;
+
+        int characterCount = characters != null ? characters.Count : 0;
+
+        for (int i = 0; i < infoUIArray.Length; i++)
+        {
+            if (infoUIArray[i] == null) continue;
+
+            if (i < characterCount && characters[i] != null)
+            {
+                // 캐릭터가 있으면 UI 설정
+                infoUIArray[i].SetCharacter(characters[i]);
+                infoUIArray[i].gameObject.SetActive(true);
+            }
+            else
+            {
+                // 5명 미만이면 _character = null 세팅하고 SetActive(false)
+                infoUIArray[i].SetCharacter(null);
+                infoUIArray[i].gameObject.SetActive(false);
+            }
+        }
+    }
 
     [Header("Animation Settings")]
     public float skillNameDisplayTime = 2f; // 스킬 이름 표시 시간

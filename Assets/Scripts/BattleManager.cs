@@ -125,6 +125,12 @@ public class BattleManager : MonoBehaviour
         // 적 캐릭터 생성
         enemyCharacters = CreateCharacters(false);
 
+        // 캐릭터 UI 설정
+        if (BattleUI.Instance != null)
+        {
+            BattleUI.Instance.SetupCharacterInfoUI();
+        }
+
         // 턴 리스트 초기화
         InitializeCharactersTurnList();
 
