@@ -80,8 +80,8 @@ public class BattleCharacterInfoUI : MonoBehaviour
             return;
         }
         
-        // CharacterData에서 portrait를 가져온다
-        CharacterData characterData = TacticsDataManager.Instance.availableCharacters?.Find(c => c.characterName == character.characterName);
+        // 전체 CharacterList에서 portrait를 가져온다 (보유 여부와 관계없이)
+        CharacterData characterData = TacticsDataManager.Instance.GetCharacterDataByName(character.characterName);
         
         if (characterData != null && characterData.portrait != null)
         {

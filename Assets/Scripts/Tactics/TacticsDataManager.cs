@@ -245,6 +245,37 @@ namespace Arcana.Tactics
         }
 
         /// <summary>
+        /// 캐릭터 이름으로 CharacterData를 가져옵니다. 보유 여부와 관계없이 전체 CharacterList(정의)에서 조회합니다.
+        /// (Enemy 등 미보유 캐릭터의 초상화 등 정보 표시용)
+        /// </summary>
+        public CharacterData GetCharacterDataByName(string characterName)
+        {
+            if (string.IsNullOrEmpty(characterName)) return null;
+
+            // 1) 전체 캐릭터 정의에서 검색
+            CharacterDefinition def = GetCharacterDefinitionByName(characterName);
+            if (def != null)
+            {
+                CharacterData data = ScriptableObject.CreateInstance<CharacterData>();
+                data.characterName = def.Name;
+                data.characterClass = def.Class;
+                data.cost = def.Cost;
+                data.portrait = null;
+                if (!string.IsNullOrEmpty(def.Portrait))
+                {
+                    string spriteName = System.IO.Path.GetFileNameWithoutExtension(def.Portrait);
+                    data.portrait = Resources.Load<Sprite>($"Portraits/{spriteName}");
+                    if (data.portrait == null)
+                        data.portrait = Resources.Load<Sprite>(spriteName);
+                }
+                return data;
+            }
+
+            // 2) 정의가 없을 때만 (로딩 전 등) availableCharacters에서 폴백
+            return availableCharacters?.Find(c => c.characterName == characterName);
+        }
+
+        /// <summary>
         /// JSON 파일에서 캐릭터 데이터 로드
         /// </summary>
         private const string CharacterListUrl = "";// "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeCHZPMcs6QJuZeS7k2MosrZrhChNL5FrRH3ePRd5fQx-O-nSUmR4VwZI6VGhHg65tFcWMmIr2tBha/pub?gid=0&single=true&output=csv";

@@ -1,34 +1,34 @@
 {
-    "key": "agebreak_2601181841",
-    "username": "agebreak_2601181841",
+    "key": "agebreak_2601231419",
+    "username": "agebreak_2601231419",
     "score": 0,
     "winCount": 0,
     "loseCount": 0,
     "positions": [
         {
             "position": "1",
-            "name": "",
-            "tactics": []
-        },
-        {
-            "position": "2",
-            "name": "달리아",
+            "name": "단근",
             "tactics": [
                 {
-                    "characterClass": "나이트",
+                    "characterClass": "파이터",
                     "plan": [
                         {
-                            "skill": "와일드 러시",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
-                            "condition2": "전후열에 선 [적/아군]"
-                        },
-                        {
-                            "skill": "어설트 랜스",
-                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "skill": "가드 슬래시",
+                            "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "파일 스러스트",
+                            "skill": "실드 배시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "디펜더",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "애로우 커버",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
@@ -38,7 +38,53 @@
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "캐벌리 엘",
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "position": "2",
+            "name": "양양",
+            "tactics": [
+                {
+                    "characterClass": "파이터",
+                    "plan": [
+                        {
+                            "skill": "가드 슬래시",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "실드 배시",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "디펜더",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "애로우 커버",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "퀵 가드",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
@@ -68,19 +114,19 @@
         },
         {
             "position": "4",
-            "name": "히실렌스",
+            "name": "키레네",
             "tactics": [
                 {
                     "characterClass": "그리폰나이트",
                     "plan": [
                         {
                             "skill": "페이탈 폴",
-                            "condition1": "기마 계열 [적/아군] 우선",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "전후열에 선 [적/아군]"
                         },
                         {
                             "skill": "하이 스윙",
-                            "condition1": "기마 계열 [적/아군] 우선",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
                             "condition2": "조건 없음"
                         },
                         {
@@ -119,38 +165,84 @@
         },
         {
             "position": "5",
-            "name": "",
-            "tactics": []
+            "name": "이드하리",
+            "tactics": [
+                {
+                    "characterClass": "나이트",
+                    "plan": [
+                        {
+                            "skill": "어설트 랜스",
+                            "condition1": "HP 25% 이하▼인 [적/아군]",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "와일드 러시",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "파일 스러스트",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "퀵 가드",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "캐벌리 엘",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "---",
+                            "condition1": "조건 없음",
+                            "condition2": "조건 없음"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "position": "6",
-            "name": "엽빛나",
+            "name": "산화",
             "tactics": [
                 {
-                    "characterClass": "그리폰나이트",
+                    "characterClass": "헌터",
                     "plan": [
                         {
-                            "skill": "페이탈 폴",
-                            "condition1": "기마 계열 [적/아군] 우선",
-                            "condition2": "전후열에 선 [적/아군]"
-                        },
-                        {
-                            "skill": "하이 스윙",
-                            "condition1": "기마 계열 [적/아군] 우선",
+                            "skill": "더블 샷",
+                            "condition1": "적이 2명 이상▲",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "페더링",
+                            "skill": "싱글 샷",
+                            "condition1": "HP가 가장 낮은 [적/아군] 우선",
+                            "condition2": "조건 없음"
+                        },
+                        {
+                            "skill": "라인 샷",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "---",
+                            "skill": "이글 아이",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },
                         {
-                            "skill": "---",
+                            "skill": "체이스",
                             "condition1": "조건 없음",
                             "condition2": "조건 없음"
                         },

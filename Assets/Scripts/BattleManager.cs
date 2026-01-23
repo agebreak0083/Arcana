@@ -375,6 +375,10 @@ public class BattleManager : MonoBehaviour
     // 메인 전투 루틴
     private IEnumerator BattleRoutine()
     {
+        // 전투 시작 직전에 랜덤 시드를 다시 설정하여 SimulationMode와 BattleMode의 랜덤 시퀀스를 동기화
+        // (BattleModeStart에서 WaitForSeconds, BGM 재생 등으로 인해 랜덤이 소비될 수 있으므로)
+        BattleSimulationResult.SetRandomSeed();
+        
         Debug.Log("=== 전투 시작 ===");
         currentRound = 0; // 라운드 초기화
         isBattleOver = false;

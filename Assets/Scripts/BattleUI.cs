@@ -25,47 +25,6 @@ public class BattleUI : MonoBehaviour
     public BattleCharacterInfoUI[] playerCharacterInfoUI;
     public BattleCharacterInfoUI[] enemyCharacterInfoUI;
 
-    /// <summary>
-    /// 캐릭터 UI 세팅 및 업데이트
-    /// </summary>
-    public void SetupCharacterInfoUI()
-    {
-        if (BattleManager.Instance == null) return;
-
-        // 플레이어 캐릭터 UI 설정
-        SetupCharacterInfoUIArray(playerCharacterInfoUI, BattleManager.Instance.playerCharacters);
-
-        // 적 캐릭터 UI 설정
-        SetupCharacterInfoUIArray(enemyCharacterInfoUI, BattleManager.Instance.enemyCharacters);
-    }
-
-    /// <summary>
-    /// 캐릭터 정보 UI 배열 설정
-    /// </summary>
-    private void SetupCharacterInfoUIArray(BattleCharacterInfoUI[] infoUIArray, List<Character> characters)
-    {
-        if (infoUIArray == null) return;
-
-        int characterCount = characters != null ? characters.Count : 0;
-
-        for (int i = 0; i < infoUIArray.Length; i++)
-        {
-            if (infoUIArray[i] == null) continue;
-
-            if (i < characterCount && characters[i] != null)
-            {
-                // 캐릭터가 있으면 UI 설정
-                infoUIArray[i].SetCharacter(characters[i]);
-                infoUIArray[i].gameObject.SetActive(true);
-            }
-            else
-            {
-                // 5명 미만이면 _character = null 세팅하고 SetActive(false)
-                infoUIArray[i].SetCharacter(null);
-                infoUIArray[i].gameObject.SetActive(false);
-            }
-        }
-    }
 
     [Header("Animation Settings")]
     public float skillNameDisplayTime = 2f; // 스킬 이름 표시 시간
@@ -112,6 +71,16 @@ public class BattleUI : MonoBehaviour
 
         // 스킵 버튼 초기화
         InitializeSkipButton();
+
+        // 캐릭터 정보 UI 초기화 
+        foreach(var playerCharacterInfoUI in playerCharacterInfoUI)
+        {
+            playerCharacterInfoUI.gameObject.SetActive(false);
+        }
+        foreach(var enemyCharacterInfoUI in enemyCharacterInfoUI)
+        {
+            enemyCharacterInfoUI.gameObject.SetActive(false);
+        }
 
         UpdateRoundTurnText(1, 1);        
     }
@@ -445,6 +414,49 @@ public class BattleUI : MonoBehaviour
         if (damageText != null)
         {
             damageText.Setup(damage, isCritical, isMiss);
+        }
+    }
+
+    
+    /// <summary>
+    /// 캐릭터 UI 세팅 및 업데이트
+    /// </summary>
+    public void SetupCharacterInfoUI()
+    {
+        if (BattleManager.Instance == null) return;
+
+        // 플레이어 캐릭터 UI 설정
+        SetupCharacterInfoUIArray(playerCharacterInfoUI, BattleManager.Instance.playerCharacters);
+
+        // 적 캐릭터 UI 설정
+        SetupCharacterInfoUIArray(enemyCharacterInfoUI, BattleManager.Instance.enemyCharacters);
+    }
+
+    /// <summary>
+    /// 캐릭터 정보 UI 배열 설정
+    /// </summary>
+    private void SetupCharacterInfoUIArray(BattleCharacterInfoUI[] infoUIArray, List<Character> characters)
+    {
+        if (infoUIArray == null) return;
+
+        int characterCount = characters != null ? characters.Count : 0;
+
+        for (int i = 0; i < infoUIArray.Length; i++)
+        {
+            if (infoUIArray[i] == null) continue;
+
+            if (i < characterCount && characters[i] != null)
+            {
+                // 캐릭터가 있으면 UI 설정
+                infoUIArray[i].SetCharacter(characters[i]);
+                infoUIArray[i].gameObject.SetActive(true);
+            }
+            else
+            {
+                // 5명 미만이면 _character = null 세팅하고 SetActive(false)
+                infoUIArray[i].SetCharacter(null);
+                infoUIArray[i].gameObject.SetActive(false);
+            }
         }
     }
 }
