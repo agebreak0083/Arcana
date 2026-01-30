@@ -106,10 +106,14 @@ public class BattleUI : MonoBehaviour
             if (playerNameText != null && playerResult != null)
             {
                 playerNameText.text = playerResult.username;
+                // "_"를 "\n"로 변경
+                playerNameText.text = playerNameText.text.Replace("_", "\n");
             }
             if (enemyNameText != null && enemyResult != null)
             {
                 enemyNameText.text = enemyResult.username;
+                // "_"를 "\n"로 변경
+                enemyNameText.text = enemyNameText.text.Replace("_", "\n");
             }
         }
     }
